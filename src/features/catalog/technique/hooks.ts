@@ -12,6 +12,13 @@ export function useTechniques(params?: { page?: number; size?: number }) {
   })
 }
 
+export function useTechnique(id: number) {
+  return useQuery({
+    queryKey: [...TECHNIQUES_KEY, id],
+    queryFn: () => techniqueApi.get(id),
+  })
+}
+
 export function useCreateTechnique() {
   const qc = useQueryClient()
   return useMutation({
