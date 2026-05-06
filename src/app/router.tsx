@@ -8,6 +8,7 @@ import { TechniquesPage } from '@/features/catalog/technique/pages/TechniquesPag
 import { NotesPage } from '@/features/journal/note/pages/NotesPage'
 import { TrainingSessionsPage } from '@/features/journal/trainingsession/pages/TrainingSessionsPage'
 import { StudyPlansPage } from '@/features/planning/studyplan/pages/StudyPlansPage'
+import { StudyPlanDetailPage } from '@/features/planning/studyplan/pages/StudyPlanDetailPage'
 import { ProfilePage } from '@/features/identity/profile/pages/ProfilePage'
 
 export const router = createBrowserRouter([
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
       { path: 'journal/notes', element: <NotesPage /> },
       { path: 'journal/training-sessions', element: <TrainingSessionsPage /> },
       { path: 'planning/study-plans', element: <StudyPlansPage /> },
+      { path: 'planning/study-plans/:id', element: <StudyPlanDetailPage /> },
       { path: 'profile', element: <ProfilePage /> },
     ],
   },
