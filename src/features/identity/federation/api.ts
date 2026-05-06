@@ -4,12 +4,12 @@ import type { Federation, ProfileFederation, FederationAssignment } from './type
 type PageResponse<T> = { content: T[]; totalElements: number; totalPages: number }
 
 export async function getFederations(): Promise<Federation[]> {
-  const res = await apiClient.get('federations').json<PageResponse<Federation>>()
+  const res = await apiClient.get('catalog/federations').json<PageResponse<Federation>>()
   return res.content
 }
 
 export async function getProfileFederations(profileId: number): Promise<ProfileFederation[]> {
-  return apiClient.get(`profile/${profileId}/federations`).json<ProfileFederation[]>()
+  return apiClient.get(`identity/profile/${profileId}/federations`).json<ProfileFederation[]>()
 }
 
 export async function updateProfileFederations(
@@ -17,6 +17,6 @@ export async function updateProfileFederations(
   federations: FederationAssignment[],
 ): Promise<ProfileFederation[]> {
   return apiClient
-    .put(`profile/${profileId}/federations`, { json: { federations } })
+    .put(`identity/profile/${profileId}/federations`, { json: { federations } })
     .json<ProfileFederation[]>()
 }
