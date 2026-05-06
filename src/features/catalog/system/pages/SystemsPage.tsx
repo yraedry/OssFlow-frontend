@@ -50,16 +50,6 @@ export function SystemsPage() {
     if (!o) setEditing(null)
   }
 
-  if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>
-  if (error)
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>Error al cargar los sistemas</AlertDescription>
-      </Alert>
-    )
-
-  const systems = data?.content ?? []
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -87,14 +77,20 @@ export function SystemsPage() {
         </Dialog>
       </div>
 
-      {systems.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-12"><Spinner /></div>
+      ) : error ? (
+        <Alert variant="destructive">
+          <AlertDescription>Error al cargar los sistemas</AlertDescription>
+        </Alert>
+      ) : (data?.content ?? []).length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <p>No hay sistemas todavía.</p>
           <p className="text-sm">Crea tu primer sistema con el botón de arriba.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {systems.map((s) => (
+          {(data?.content ?? []).map((s) => (
             <SystemCard key={s.id} system={s} onEdit={handleEdit} onDelete={handleDelete} />
           ))}
         </div>

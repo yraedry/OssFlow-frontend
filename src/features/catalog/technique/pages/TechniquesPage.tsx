@@ -45,11 +45,6 @@ export function TechniquesPage() {
     if (!o) setEditing(null)
   }
 
-  if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>
-  if (error) return <Alert variant="destructive"><AlertDescription>Error al cargar técnicas</AlertDescription></Alert>
-
-  const techniques = data?.content ?? []
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -77,13 +72,17 @@ export function TechniquesPage() {
         </Dialog>
       </div>
 
-      {techniques.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-12"><Spinner /></div>
+      ) : error ? (
+        <Alert variant="destructive"><AlertDescription>Error al cargar técnicas</AlertDescription></Alert>
+      ) : (data?.content ?? []).length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <p>No hay técnicas todavía.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {techniques.map((t) => (
+          {(data?.content ?? []).map((t) => (
             <TechniqueCard
               key={t.id}
               technique={t}

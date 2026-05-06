@@ -33,16 +33,6 @@ export function CompetitionLogsPage() {
     navigate(`/competition/logs/${log.id}`)
   }
 
-  if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>
-  if (error)
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>Error al cargar las competencias</AlertDescription>
-      </Alert>
-    )
-
-  const logs = data?.content ?? []
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -66,14 +56,20 @@ export function CompetitionLogsPage() {
         </Dialog>
       </div>
 
-      {logs.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-12"><Spinner /></div>
+      ) : error ? (
+        <Alert variant="destructive">
+          <AlertDescription>Error al cargar las competencias</AlertDescription>
+        </Alert>
+      ) : (data?.content ?? []).length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <p>No hay competencias todavía.</p>
           <p className="text-sm">Registra tu primera competencia con el botón de arriba.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {logs.map((log) => (
+          {(data?.content ?? []).map((log) => (
             <CompetitionLogCard key={log.id} log={log} onClick={handleClick} onDelete={handleDelete} />
           ))}
         </div>

@@ -50,16 +50,6 @@ export function RulesetsPage() {
     if (!o) setEditing(null)
   }
 
-  if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>
-  if (error)
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>Error al cargar los reglamentos</AlertDescription>
-      </Alert>
-    )
-
-  const rulesets = data?.content ?? []
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -89,14 +79,20 @@ export function RulesetsPage() {
         </Dialog>
       </div>
 
-      {rulesets.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-12"><Spinner /></div>
+      ) : error ? (
+        <Alert variant="destructive">
+          <AlertDescription>Error al cargar los reglamentos</AlertDescription>
+        </Alert>
+      ) : (data?.content ?? []).length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <p>No hay reglamentos todavía.</p>
           <p className="text-sm">Crea tu primer reglamento con el botón de arriba.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {rulesets.map((r) => (
+          {(data?.content ?? []).map((r) => (
             <RulesetCard key={r.id} ruleset={r} onEdit={handleEdit} onDelete={handleDelete} />
           ))}
         </div>
