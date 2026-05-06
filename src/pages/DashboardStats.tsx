@@ -57,7 +57,7 @@ export function DashboardStats() {
         label="Planes de estudio"
         to="/planning/study-plans"
         queryKey={['dashboard-stat-studyplans']}
-        fetcher={fetchPageMeta('study-plans')}
+        fetcher={fetchPageMeta('planning/study-plans')}
       />
       <StatCard
         label="Sesiones"
