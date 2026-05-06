@@ -110,12 +110,12 @@ export function TrainingSessionsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(data?.content ?? []).map((s) => (
+          {(data?.content ?? []).filter(Boolean).map((s) => (
             <Card key={s.id}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-base">
-                    {format(new Date(s.sessionDate), "d MMM yyyy", { locale: es })}
+                    {s.sessionDate ? format(new Date(s.sessionDate), "d MMM yyyy", { locale: es }) : 'Sin fecha'}
                   </CardTitle>
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"
                     onClick={() => { if (confirm('¿Eliminar sesión?')) deleteMutation.mutate(s.id) }}>

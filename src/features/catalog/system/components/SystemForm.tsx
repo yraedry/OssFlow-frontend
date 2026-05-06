@@ -31,6 +31,7 @@ export function SystemForm({ defaultValues, onSubmit, isPending }: SystemFormPro
     defaultValues: {
       name: defaultValues?.name ?? '',
       description: defaultValues?.description ?? '',
+      flowDefinition: defaultValues?.flowDefinition ?? '{"nodes":[],"edges":[]}',
       visibility: defaultValues?.visibility ?? 'PRIVATE',
     },
   })
@@ -53,6 +54,19 @@ export function SystemForm({ defaultValues, onSubmit, isPending }: SystemFormPro
         />
         {errors.description && (
           <p className="text-sm text-destructive">{errors.description.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="flowDefinition">Definición de flujo (JSON)</Label>
+        <Textarea
+          id="flowDefinition"
+          {...register('flowDefinition')}
+          placeholder='{"nodes":[],"edges":[]}'
+          rows={3}
+        />
+        {errors.flowDefinition && (
+          <p className="text-sm text-destructive">{errors.flowDefinition.message}</p>
         )}
       </div>
 

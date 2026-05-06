@@ -17,6 +17,10 @@ interface TechniqueFormProps {
 
 const BELT_LABELS = { WHITE: 'Blanco', BLUE: 'Azul', PURPLE: 'Morado', BROWN: 'Marrón', BLACK: 'Negro' }
 const MODALITY_LABELS = { GI: 'Gi', NOGI: 'No-Gi', BOTH: 'Ambas' }
+const CATEGORY_LABELS = {
+  SUBMISSION: 'Sumisión', SWEEP: 'Barrido', PASS: 'Pasada de guardia',
+  TAKEDOWN: 'Derribo', ESCAPE: 'Escape', TRANSITION: 'Transición',
+}
 
 export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueFormProps) {
   const { data: positionsData } = usePositions({ size: 200 })
@@ -26,9 +30,10 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
     resolver: zodResolver(createTechniqueSchema),
     defaultValues: {
       name: defaultValues?.name ?? '',
+      category: defaultValues?.category ?? 'SUBMISSION',
       startPositionId: defaultValues?.startPositionId,
       endPositionId: defaultValues?.endPositionId,
-      belt: defaultValues?.belt ?? 'WHITE',
+      minimumBelt: defaultValues?.minimumBelt ?? 'WHITE',
       modality: defaultValues?.modality ?? 'GI',
       visibility: defaultValues?.visibility ?? 'PRIVATE',
       description: defaultValues?.description ?? '',
@@ -42,6 +47,23 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
         <Label htmlFor="name">Nombre</Label>
         <Input id="name" {...register('name')} placeholder="Armbar desde guardia" />
         {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label>Categoría *</Label>
+        <Controller
+          control={control}
+          name="category"
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger><SelectValue placeholder="Seleccionar categoría" /></SelectTrigger>
+              <SelectContent>
+                {Object.entries(CATEGORY_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          )}
+        />
+        {errors.category && <p className="text-sm text-destructive">{errors.category.message}</p>}
       </div>
 
       <div className="space-y-2">
@@ -68,10 +90,10 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label>Cinturón</Label>
+          <Label>Cinturón mínimo</Label>
           <Controller
             control={control}
-            name="belt"
+            name="minimumBelt"
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>

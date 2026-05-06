@@ -10,12 +10,21 @@ type RulesetCardProps = {
   onDelete: (id: number) => void
 }
 
+const BELT_LABELS: Record<Ruleset['belt'], string> = {
+  WHITE: 'Blanco', BLUE: 'Azul', PURPLE: 'Morado', BROWN: 'Marrón', BLACK: 'Negro',
+}
+const MODALITY_LABELS: Record<Ruleset['modality'], string> = {
+  GI: 'Gi', NOGI: 'No-Gi', BOTH: 'Ambas',
+}
+
 export function RulesetCard({ ruleset, onEdit, onDelete }: RulesetCardProps) {
   return (
     <Card>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
-          <CardTitle className="text-base">{ruleset.name}</CardTitle>
+          <CardTitle className="text-base">
+            {ruleset.federationName ?? `Federación #${ruleset.federationId}`}
+          </CardTitle>
           <div className="flex gap-1">
             <Button
               variant="ghost"
@@ -39,14 +48,25 @@ export function RulesetCard({ ruleset, onEdit, onDelete }: RulesetCardProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
-        {ruleset.version && <Badge variant="outline">v{ruleset.version}</Badge>}
-        {ruleset.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">{ruleset.description}</p>
-        )}
-        {ruleset.effectiveDate && (
+        <div className="flex gap-2 flex-wrap">
+          <Badge variant="secondary">{BELT_LABELS[ruleset.belt]}</Badge>
+          <Badge variant="outline">{MODALITY_LABELS[ruleset.modality]}</Badge>
+        </div>
+        {ruleset.effectiveFrom && (
           <p className="text-xs text-muted-foreground">
-            Vigente desde: {new Date(ruleset.effectiveDate).toLocaleDateString()}
+            Vigente desde: {new Date(ruleset.effectiveFrom).toLocaleDateString()}
+            {ruleset.effectiveTo && ` hasta ${new Date(ruleset.effectiveTo).toLocaleDateString()}`}
           </p>
+        )}
+        {ruleset.sourceUrl && (
+          <a
+            href={ruleset.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-primary hover:underline"
+          >
+            Ver reglamento oficial
+          </a>
         )}
       </CardContent>
     </Card>

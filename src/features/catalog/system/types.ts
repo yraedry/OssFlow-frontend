@@ -12,6 +12,7 @@ export type System = {
 export type CreateSystemRequest = {
   name: string
   description?: string
+  flowDefinition: string
   visibility: 'PUBLIC' | 'PRIVATE'
 }
 

@@ -1,34 +1,30 @@
 import { describe, it, expect } from 'vitest'
 import { updateProfileSchema } from './schemas'
 
+const validProfile = {
+  displayName: 'Adrian',
+  currentBelt: 'BLUE',
+  preferredModality: 'GI',
+}
+
 describe('Profile schemas', () => {
   it('validates a valid profile update', () => {
-    const result = updateProfileSchema.safeParse({
-      displayName: 'Adrian',
-    })
-    expect(result.success).toBe(true)
+    expect(updateProfileSchema.safeParse(validProfile).success).toBe(true)
   })
 
   it('rejects empty displayName', () => {
-    const result = updateProfileSchema.safeParse({
-      displayName: '',
-    })
-    expect(result.success).toBe(false)
+    expect(updateProfileSchema.safeParse({ ...validProfile, displayName: '' }).success).toBe(false)
   })
 
-  it('rejects invalid avatarUrl', () => {
-    const result = updateProfileSchema.safeParse({
-      displayName: 'Adrian',
-      avatarUrl: 'not-a-url',
-    })
-    expect(result.success).toBe(false)
+  it('rejects empty currentBelt', () => {
+    expect(updateProfileSchema.safeParse({ ...validProfile, currentBelt: '' }).success).toBe(false)
   })
 
-  it('accepts empty avatarUrl', () => {
-    const result = updateProfileSchema.safeParse({
-      displayName: 'Adrian',
-      avatarUrl: '',
-    })
-    expect(result.success).toBe(true)
+  it('rejects empty preferredModality', () => {
+    expect(updateProfileSchema.safeParse({ ...validProfile, preferredModality: '' }).success).toBe(false)
+  })
+
+  it('accepts optional academy', () => {
+    expect(updateProfileSchema.safeParse({ ...validProfile, academy: 'Team Atos' }).success).toBe(true)
   })
 })

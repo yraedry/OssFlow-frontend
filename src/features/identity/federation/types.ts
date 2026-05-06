@@ -1,8 +1,10 @@
 export type Federation = {
   id: number
+  code: string
   name: string
-  acronym: string
-  country: string
+  officialUrl?: string
+  createdAt: string
+  updatedAt: string
 }
 
 export type ProfileFederation = {

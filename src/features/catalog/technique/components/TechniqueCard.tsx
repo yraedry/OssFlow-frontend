@@ -5,7 +5,7 @@ import { Badge } from '@/shared/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import type { Technique } from '../types'
 
-const BELT_COLORS: Record<Technique['belt'], string> = {
+const BELT_COLORS: Record<Technique['minimumBelt'], string> = {
   WHITE: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
   BLUE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
   PURPLE: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
@@ -13,7 +13,7 @@ const BELT_COLORS: Record<Technique['belt'], string> = {
   BLACK: 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900',
 }
 
-const BELT_LABELS: Record<Technique['belt'], string> = {
+const BELT_LABELS: Record<Technique['minimumBelt'], string> = {
   WHITE: 'Blanco',
   BLUE: 'Azul',
   PURPLE: 'Morado',
@@ -77,9 +77,9 @@ export function TechniqueCard({ technique: t, onEdit, onDelete }: TechniqueCardP
       <CardContent>
         <div className="flex gap-2 flex-wrap">
           <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${BELT_COLORS[t.belt]}`}
+            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${BELT_COLORS[t.minimumBelt]}`}
           >
-            {BELT_LABELS[t.belt]}
+            {BELT_LABELS[t.minimumBelt]}
           </span>
           <Badge variant="secondary">{t.modality}</Badge>
           <Badge variant={t.visibility === 'PUBLIC' ? 'default' : 'outline'}>
