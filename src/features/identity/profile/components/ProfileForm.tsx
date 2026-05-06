@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { updateProfileSchema, type UpdateProfileForm } from '../schemas'
 import type { UserProfile } from '../types'
@@ -28,8 +28,7 @@ export function ProfileForm({ profile, onSubmit, isPending }: Props) {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<UpdateProfileForm>({
     resolver: zodResolver(updateProfileSchema),
@@ -40,9 +39,6 @@ export function ProfileForm({ profile, onSubmit, isPending }: Props) {
       academy: profile?.academy ?? '',
     },
   })
-
-  const beltValue = watch('currentBelt')
-  const modalityValue = watch('preferredModality')
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -63,21 +59,22 @@ export function ProfileForm({ profile, onSubmit, isPending }: Props) {
 
       <div className="space-y-1">
         <label className="text-sm font-medium">Cinturón actual</label>
-        <Select
-          value={beltValue}
-          onValueChange={(v) => setValue('currentBelt', v, { shouldValidate: true })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Selecciona tu cinturón" />
-          </SelectTrigger>
-          <SelectContent>
-            {BELTS.map((b) => (
-              <SelectItem key={b.value} value={b.value}>
-                {b.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Controller
+          control={control}
+          name="currentBelt"
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Selecciona tu cinturón" />
+              </SelectTrigger>
+              <SelectContent>
+                {BELTS.map((b) => (
+                  <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.currentBelt && (
           <p className="text-xs text-destructive">{errors.currentBelt.message}</p>
         )}
@@ -85,21 +82,22 @@ export function ProfileForm({ profile, onSubmit, isPending }: Props) {
 
       <div className="space-y-1">
         <label className="text-sm font-medium">Modalidad preferida</label>
-        <Select
-          value={modalityValue}
-          onValueChange={(v) => setValue('preferredModality', v, { shouldValidate: true })}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Gi, No-Gi o ambas" />
-          </SelectTrigger>
-          <SelectContent>
-            {MODALITIES.map((m) => (
-              <SelectItem key={m.value} value={m.value}>
-                {m.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Controller
+          control={control}
+          name="preferredModality"
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger>
+                <SelectValue placeholder="Gi, No-Gi o ambas" />
+              </SelectTrigger>
+              <SelectContent>
+                {MODALITIES.map((m) => (
+                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.preferredModality && (
           <p className="text-xs text-destructive">{errors.preferredModality.message}</p>
         )}

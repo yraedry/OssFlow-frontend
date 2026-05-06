@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { RulesetCard } from '../components/RulesetCard'
 import { RulesetForm } from '../components/RulesetForm'
 import { useRulesets, useCreateRuleset, useUpdateRuleset, useDeleteRuleset } from '../hooks'
+import { useFederations } from '@/features/identity/federation/hooks'
 import type { Ruleset } from '../types'
 import type { CreateRulesetForm } from '../schemas'
 
@@ -21,6 +22,7 @@ export function RulesetsPage() {
   const [editing, setEditing] = useState<Ruleset | null>(null)
 
   const { data, isLoading, error } = useRulesets()
+  useFederations()
   const createMutation = useCreateRuleset()
   const updateMutation = useUpdateRuleset()
   const deleteMutation = useDeleteRuleset()

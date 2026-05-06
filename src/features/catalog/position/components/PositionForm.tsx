@@ -19,7 +19,7 @@ export function PositionForm({ defaultValues, onSubmit, isPending }: PositionFor
     resolver: zodResolver(createPositionSchema),
     defaultValues: {
       name: defaultValues?.name ?? '',
-      type: defaultValues?.type ?? 'NEUTRAL',
+      type: defaultValues?.type ?? 'TOP',
       visibility: defaultValues?.visibility ?? 'PRIVATE',
       description: defaultValues?.description ?? '',
     },
@@ -42,9 +42,11 @@ export function PositionForm({ defaultValues, onSubmit, isPending }: PositionFor
             <Select value={field.value} onValueChange={field.onChange}>
               <SelectTrigger><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="TOP">Top</SelectItem>
-                <SelectItem value="BOTTOM">Bottom</SelectItem>
-                <SelectItem value="NEUTRAL">Neutral</SelectItem>
+                <SelectItem value="TOP">Top (encima)</SelectItem>
+                <SelectItem value="BOTTOM">Bottom (abajo)</SelectItem>
+                <SelectItem value="STANDING">De pie</SelectItem>
+                <SelectItem value="GROUND_NEUTRAL">Neutral en suelo</SelectItem>
+                <SelectItem value="SUBMITTED">Sometido</SelectItem>
               </SelectContent>
             </Select>
           )}

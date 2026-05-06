@@ -44,7 +44,7 @@ export function FederationSelector({ federations, selected, onChange }: Props) {
           <label htmlFor={`fed-${fed.id}`} className="flex-1 cursor-pointer">
             <span className="font-medium">{fed.name}</span>
             <span className="ml-2 text-xs text-muted-foreground">
-              {fed.acronym} · {fed.country}
+              {fed.code}
             </span>
           </label>
           {isChecked(fed.id) && (

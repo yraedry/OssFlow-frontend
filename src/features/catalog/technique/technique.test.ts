@@ -1,73 +1,52 @@
 import { describe, it, expect } from 'vitest'
 import { createTechniqueSchema } from './schemas'
 
+const validTechnique = {
+  name: 'Armbar',
+  category: 'SUBMISSION' as const,
+  startPositionId: 1,
+  minimumBelt: 'WHITE' as const,
+  modality: 'GI' as const,
+  visibility: 'PRIVATE' as const,
+}
+
 describe('Technique schemas', () => {
   it('validates a valid technique', () => {
-    const result = createTechniqueSchema.safeParse({
-      name: 'Armbar',
-      startPositionId: 1,
-      belt: 'WHITE',
-      modality: 'GI',
-      visibility: 'PRIVATE',
-    })
-    expect(result.success).toBe(true)
+    expect(createTechniqueSchema.safeParse(validTechnique).success).toBe(true)
   })
 
   it('rejects empty name', () => {
-    const result = createTechniqueSchema.safeParse({
-      name: '',
-      startPositionId: 1,
-      belt: 'BLUE',
-      modality: 'NOGI',
-      visibility: 'PUBLIC',
-    })
-    expect(result.success).toBe(false)
+    expect(createTechniqueSchema.safeParse({ ...validTechnique, name: '' }).success).toBe(false)
   })
 
-  it('rejects invalid belt value', () => {
-    const result = createTechniqueSchema.safeParse({
-      name: 'Kimura',
-      startPositionId: 1,
-      belt: 'RED',
-      modality: 'GI',
-      visibility: 'PRIVATE',
-    })
-    expect(result.success).toBe(false)
+  it('rejects missing category', () => {
+    expect(createTechniqueSchema.safeParse({
+      name: 'Armbar', startPositionId: 1, minimumBelt: 'WHITE', modality: 'GI', visibility: 'PRIVATE',
+    }).success).toBe(false)
+  })
+
+  it('rejects invalid minimumBelt value', () => {
+    expect(createTechniqueSchema.safeParse({ ...validTechnique, minimumBelt: 'RED' }).success).toBe(false)
   })
 
   it('accepts optional youtube url', () => {
-    const result = createTechniqueSchema.safeParse({
-      name: 'Triangle',
-      startPositionId: 2,
-      belt: 'PURPLE',
-      modality: 'BOTH',
-      visibility: 'PUBLIC',
+    expect(createTechniqueSchema.safeParse({
+      ...validTechnique,
       youtubeUrl: 'https://youtube.com/watch?v=abc123',
-    })
-    expect(result.success).toBe(true)
+    }).success).toBe(true)
   })
 
   it('rejects invalid youtube url', () => {
-    const result = createTechniqueSchema.safeParse({
-      name: 'Triangle',
-      startPositionId: 2,
-      belt: 'PURPLE',
-      modality: 'BOTH',
-      visibility: 'PUBLIC',
+    expect(createTechniqueSchema.safeParse({
+      ...validTechnique,
       youtubeUrl: 'not-a-url',
-    })
-    expect(result.success).toBe(false)
+    }).success).toBe(false)
   })
 
   it('accepts empty string youtube url', () => {
-    const result = createTechniqueSchema.safeParse({
-      name: 'Triangle',
-      startPositionId: 2,
-      belt: 'BLUE',
-      modality: 'GI',
-      visibility: 'PRIVATE',
+    expect(createTechniqueSchema.safeParse({
+      ...validTechnique,
       youtubeUrl: '',
-    })
-    expect(result.success).toBe(true)
+    }).success).toBe(true)
   })
 })

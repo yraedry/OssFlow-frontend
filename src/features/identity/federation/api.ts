@@ -1,11 +1,8 @@
 import { apiClient } from '@/shared/api/client'
 import type { Federation, ProfileFederation, FederationAssignment } from './types'
 
-type PageResponse<T> = { content: T[]; totalElements: number; totalPages: number }
-
 export async function getFederations(): Promise<Federation[]> {
-  const res = await apiClient.get('catalog/federations').json<PageResponse<Federation>>()
-  return res.content
+  return apiClient.get('catalog/federations').json<Federation[]>()
 }
 
 export async function getProfileFederations(profileId: number): Promise<ProfileFederation[]> {

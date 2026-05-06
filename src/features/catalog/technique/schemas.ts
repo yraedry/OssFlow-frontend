@@ -2,9 +2,10 @@ import { z } from 'zod'
 
 export const createTechniqueSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido').max(120),
+  category: z.enum(['SUBMISSION', 'SWEEP', 'PASS', 'TAKEDOWN', 'ESCAPE', 'TRANSITION']),
   startPositionId: z.number({ error: 'La posición de inicio es requerida' }).positive(),
   endPositionId: z.number().positive().optional(),
-  belt: z.enum(['WHITE', 'BLUE', 'PURPLE', 'BROWN', 'BLACK']),
+  minimumBelt: z.enum(['WHITE', 'BLUE', 'PURPLE', 'BROWN', 'BLACK']),
   modality: z.enum(['GI', 'NOGI', 'BOTH']),
   visibility: z.enum(['PUBLIC', 'PRIVATE']),
   description: z.string().max(10000).optional(),

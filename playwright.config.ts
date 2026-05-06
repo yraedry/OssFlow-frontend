@@ -13,8 +13,12 @@ export default defineConfig({
   },
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: 'brave',
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: undefined,
+        executablePath: '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
+      },
     },
   ],
 })

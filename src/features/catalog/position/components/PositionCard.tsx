@@ -5,7 +5,7 @@ import { Pencil, Trash2 } from 'lucide-react'
 import type { Position } from '../types'
 
 const TYPE_LABELS: Record<Position['type'], string> = {
-  TOP: 'Top', BOTTOM: 'Bottom', NEUTRAL: 'Neutral',
+  TOP: 'Top', BOTTOM: 'Bottom', STANDING: 'De pie', GROUND_NEUTRAL: 'Neutral suelo', SUBMITTED: 'Sometido',
 }
 
 interface PositionCardProps {

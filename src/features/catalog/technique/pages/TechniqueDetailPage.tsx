@@ -85,9 +85,9 @@ export function TechniqueDetailPage() {
           <h1 className="text-2xl font-bold">{technique.name}</h1>
           <div className="flex gap-2 flex-wrap mt-2">
             <span
-              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${BELT_COLORS[technique.belt]}`}
+              className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${BELT_COLORS[technique.minimumBelt]}`}
             >
-              {BELT_LABELS[technique.belt]}
+              {BELT_LABELS[technique.minimumBelt]}
             </span>
             <Badge variant="secondary">{MODALITY_LABELS[technique.modality]}</Badge>
             <Badge variant={technique.visibility === 'PUBLIC' ? 'default' : 'outline'}>

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/shared/components/ui/button'
@@ -61,8 +61,7 @@ export function OnboardingPage() {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
+    control,
     formState: { errors },
   } = useForm<Step1Form>({
     resolver: zodResolver(step1Schema),
@@ -73,9 +72,6 @@ export function OnboardingPage() {
       academy: data.academy,
     },
   })
-
-  const beltValue = watch('currentBelt')
-  const modalityValue = watch('preferredModality')
 
   const handleStep1 = (formData: Step1Form) => {
     setData((prev) => ({ ...prev, ...formData }))
@@ -127,21 +123,22 @@ export function OnboardingPage() {
 
             <div className="space-y-2">
               <Label>Cinturón actual</Label>
-              <Select
-                value={beltValue}
-                onValueChange={(v) => setValue('currentBelt', v, { shouldValidate: true })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona tu cinturón" />
-                </SelectTrigger>
-                <SelectContent>
-                  {BELTS.map((b) => (
-                    <SelectItem key={b.value} value={b.value}>
-                      {b.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                control={control}
+                name="currentBelt"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona tu cinturón" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BELTS.map((b) => (
+                        <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.currentBelt && (
                 <p className="text-sm text-destructive">{errors.currentBelt.message}</p>
               )}
@@ -149,21 +146,22 @@ export function OnboardingPage() {
 
             <div className="space-y-2">
               <Label>Modalidad preferida</Label>
-              <Select
-                value={modalityValue}
-                onValueChange={(v) => setValue('preferredModality', v, { shouldValidate: true })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Gi, No-Gi o ambas" />
-                </SelectTrigger>
-                <SelectContent>
-                  {MODALITIES.map((m) => (
-                    <SelectItem key={m.value} value={m.value}>
-                      {m.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Controller
+                control={control}
+                name="preferredModality"
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Gi, No-Gi o ambas" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {MODALITIES.map((m) => (
+                        <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.preferredModality && (
                 <p className="text-sm text-destructive">{errors.preferredModality.message}</p>
               )}
