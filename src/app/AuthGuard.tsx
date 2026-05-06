@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { Spinner } from '@/shared/components/ui/spinner'
 
 export function AuthGuard() {
-  const { data: profile, isLoading } = useProfile()
+  const { data: profile, isLoading, isError } = useProfile()
 
   if (isLoading) {
     return (
@@ -13,7 +13,12 @@ export function AuthGuard() {
     )
   }
 
-  // null significa 404 — no tiene perfil
+  // Error de red (backend caído) → dejamos pasar a la app
+  if (isError) {
+    return <Outlet />
+  }
+
+  // null significa 404 — no tiene perfil todavía
   if (profile === null) {
     return <Navigate to="/onboarding" replace />
   }
