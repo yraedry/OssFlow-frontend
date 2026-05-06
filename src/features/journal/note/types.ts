@@ -1,14 +1,24 @@
+export interface Tag {
+  id: number
+  name: string
+}
+
 export interface Note {
   id: number
   title: string
-  content: string
-  visibility: 'PUBLIC' | 'PRIVATE'
+  bodyMarkdown: string
+  tags: string[]
+  targetType?: string
+  targetId?: number
   createdAt: string
   updatedAt: string
+  deletedAt?: string
 }
 
 export interface CreateNoteRequest {
   title: string
-  content: string
-  visibility: Note['visibility']
+  bodyMarkdown: string
+  tags: string[]
+  targetType?: string
+  targetId?: number
 }
