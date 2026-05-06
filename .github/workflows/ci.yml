@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Type check
+        run: npm run type-check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test:ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Top-10 archivos más grandes
+        run: |
+          echo "## Top 10 archivos más grandes" >> $GITHUB_STEP_SUMMARY
+          find src -name '*.tsx' -o -name '*.ts' | xargs wc -l 2>/dev/null | sort -rn | head -10 >> $GITHUB_STEP_SUMMARY
