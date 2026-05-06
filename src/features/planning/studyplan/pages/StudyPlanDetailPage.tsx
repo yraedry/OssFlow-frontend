@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus } from 'lucide-react'
+import { ArrowLeft, Plus, BarChart2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
@@ -54,6 +54,10 @@ export function StudyPlanDetailPage() {
             <p className="text-muted-foreground text-sm">{plan.description}</p>
           )}
         </div>
+        <Button variant="outline" onClick={() => navigate(`/planning/study-plans/${planId}/timeline`)}>
+          <BarChart2 className="h-4 w-4 mr-2" />
+          Ver Timeline
+        </Button>
         <Dialog open={blockDialogOpen} onOpenChange={setBlockDialogOpen}>
           <DialogTrigger asChild>
             <Button>
