@@ -15,6 +15,9 @@ import {
   Network,
   Search,
   GitGraph,
+  ScrollText,
+  Download,
+  Trash2,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { CommandPalette } from '@/shared/components/CommandPalette'
@@ -25,12 +28,15 @@ const navItems = [
   { to: '/catalog/positions', label: 'Posiciones', icon: Layers },
   { to: '/catalog/techniques', label: 'Técnicas', icon: BookOpen },
   { to: '/catalog/systems', label: 'Sistemas', icon: Network },
+  { to: '/catalog/rulesets', label: 'Reglamentos', icon: ScrollText },
   { to: '/journal/notes', label: 'Notas', icon: FileText },
   { to: '/journal/graph', label: 'Grafo de notas', icon: GitGraph },
   { to: '/journal/training-sessions', label: 'Sesiones', icon: Dumbbell },
   { to: '/planning/study-plans', label: 'Planes', icon: BookOpen },
   { to: '/competition/logs', label: 'Competencias', icon: Trophy },
   { to: '/profile', label: 'Perfil', icon: User },
+  { to: '/export', label: 'Exportar', icon: Download },
+  { to: '/trash', label: 'Papelera', icon: Trash2 },
 ]
 
 export function AppLayout() {
