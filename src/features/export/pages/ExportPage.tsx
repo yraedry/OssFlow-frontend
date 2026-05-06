@@ -9,7 +9,7 @@ export function ExportPage() {
   const handleExport = async () => {
     setIsExporting(true)
     try {
-      const data = await apiClient.get('api/v1/export/full').json()
+      const data = await apiClient.get('export/full').json()
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
