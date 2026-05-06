@@ -1,14 +1,21 @@
-export interface Profile {
+export type UserProfile = {
   id: number
-  username: string
-  belt: 'WHITE' | 'BLUE' | 'PURPLE' | 'BROWN' | 'BLACK'
-  stripes: number
+  ownerId: string
+  displayName: string
+  avatarUrl?: string
+  bio?: string
   createdAt: string
   updatedAt: string
 }
 
-export interface CreateProfileRequest {
-  username: string
-  belt: Profile['belt']
-  stripes: number
+export type UpdateProfileRequest = {
+  displayName: string
+  avatarUrl?: string
+  bio?: string
+}
+
+export type CreateProfileRequest = {
+  displayName: string
+  avatarUrl?: string
+  bio?: string
 }
