@@ -17,5 +17,5 @@ export type CreateCompetitionMatchRequest = {
   technique?: string
   notes?: string
   duration?: number
-  orderIndex: number
+  orderIndex?: number
 }
