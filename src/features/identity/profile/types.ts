@@ -1,21 +1,29 @@
 export type UserProfile = {
   id: number
-  ownerId: string
+  ownerId: number
   displayName: string
-  avatarUrl?: string
-  bio?: string
+  currentBelt: string
+  beltSince?: string
+  academy?: string
+  preferredModality: string
+  onboardingCompleted: boolean
   createdAt: string
   updatedAt: string
-}
-
-export type UpdateProfileRequest = {
-  displayName: string
-  avatarUrl?: string
-  bio?: string
+  version: number
 }
 
 export type CreateProfileRequest = {
   displayName: string
-  avatarUrl?: string
-  bio?: string
+  currentBelt: string
+  beltSince?: string
+  academy?: string
+  preferredModality: string
+}
+
+export type UpdateProfileRequest = {
+  displayName: string
+  currentBelt: string
+  beltSince?: string
+  academy?: string
+  preferredModality: string
 }

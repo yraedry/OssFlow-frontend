@@ -2,6 +2,21 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { updateProfileSchema, type UpdateProfileForm } from '../schemas'
 import type { UserProfile } from '../types'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
+
+const BELTS = [
+  { value: 'WHITE', label: 'Blanco' },
+  { value: 'BLUE', label: 'Azul' },
+  { value: 'PURPLE', label: 'Morado' },
+  { value: 'BROWN', label: 'Marrón' },
+  { value: 'BLACK', label: 'Negro' },
+]
+
+const MODALITIES = [
+  { value: 'GI', label: 'Gi (con kimono)' },
+  { value: 'NOGI', label: 'No-Gi (sin kimono)' },
+  { value: 'BOTH', label: 'Ambas' },
+]
 
 type Props = {
   profile?: UserProfile | null
@@ -13,15 +28,21 @@ export function ProfileForm({ profile, onSubmit, isPending }: Props) {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<UpdateProfileForm>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
       displayName: profile?.displayName ?? '',
-      avatarUrl: profile?.avatarUrl ?? '',
-      bio: profile?.bio ?? '',
+      currentBelt: profile?.currentBelt ?? '',
+      preferredModality: profile?.preferredModality ?? '',
+      academy: profile?.academy ?? '',
     },
   })
+
+  const beltValue = watch('currentBelt')
+  const modalityValue = watch('preferredModality')
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -41,32 +62,59 @@ export function ProfileForm({ profile, onSubmit, isPending }: Props) {
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="avatarUrl" className="text-sm font-medium">
-          URL de avatar
-        </label>
-        <input
-          id="avatarUrl"
-          {...register('avatarUrl')}
-          placeholder="https://example.com/avatar.png"
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-        />
-        {errors.avatarUrl && (
-          <p className="text-xs text-destructive">{errors.avatarUrl.message}</p>
+        <label className="text-sm font-medium">Cinturón actual</label>
+        <Select
+          value={beltValue}
+          onValueChange={(v) => setValue('currentBelt', v, { shouldValidate: true })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Selecciona tu cinturón" />
+          </SelectTrigger>
+          <SelectContent>
+            {BELTS.map((b) => (
+              <SelectItem key={b.value} value={b.value}>
+                {b.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.currentBelt && (
+          <p className="text-xs text-destructive">{errors.currentBelt.message}</p>
         )}
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="bio" className="text-sm font-medium">
-          Biografía
+        <label className="text-sm font-medium">Modalidad preferida</label>
+        <Select
+          value={modalityValue}
+          onValueChange={(v) => setValue('preferredModality', v, { shouldValidate: true })}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Gi, No-Gi o ambas" />
+          </SelectTrigger>
+          <SelectContent>
+            {MODALITIES.map((m) => (
+              <SelectItem key={m.value} value={m.value}>
+                {m.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.preferredModality && (
+          <p className="text-xs text-destructive">{errors.preferredModality.message}</p>
+        )}
+      </div>
+
+      <div className="space-y-1">
+        <label htmlFor="academy" className="text-sm font-medium">
+          Academia (opcional)
         </label>
-        <textarea
-          id="bio"
-          {...register('bio')}
-          rows={3}
-          placeholder="Cuéntanos algo sobre ti..."
+        <input
+          id="academy"
+          {...register('academy')}
+          placeholder="Nombre de tu academia"
           className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
-        {errors.bio && <p className="text-xs text-destructive">{errors.bio.message}</p>}
       </div>
 
       <button

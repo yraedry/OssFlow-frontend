@@ -33,8 +33,9 @@ export function ProfilePage() {
   function handleProfileSubmit(data: UpdateProfileForm) {
     const payload = {
       displayName: data.displayName,
-      avatarUrl: data.avatarUrl || undefined,
-      bio: data.bio || undefined,
+      currentBelt: data.currentBelt,
+      preferredModality: data.preferredModality,
+      academy: data.academy || undefined,
     }
     if (profile) {
       updateProfile.mutate(payload)
