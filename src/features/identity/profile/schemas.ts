@@ -1,9 +1,9 @@
 import { z } from 'zod'
 
-export const createProfileSchema = z.object({
-  username: z.string().min(1, 'El nombre de usuario es requerido').max(50),
-  belt: z.enum(['WHITE', 'BLUE', 'PURPLE', 'BROWN', 'BLACK']),
-  stripes: z.number().int().min(0).max(4),
+export const updateProfileSchema = z.object({
+  displayName: z.string().min(1, 'Nombre requerido').max(100),
+  avatarUrl: z.string().url('URL inválida').optional().or(z.literal('')),
+  bio: z.string().max(500).optional(),
 })
 
-export type CreateProfileForm = z.infer<typeof createProfileSchema>
+export type UpdateProfileForm = z.infer<typeof updateProfileSchema>
