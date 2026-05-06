@@ -5,23 +5,23 @@ import type { Page } from '@/shared/types/pagination'
 export const studyItemApi = {
   list: (planId: number, blockId: number) =>
     apiClient
-      .get(`api/v1/study-plans/${planId}/blocks/${blockId}/items`, {
+      .get(`study-plans/${planId}/blocks/${blockId}/items`, {
         searchParams: { page: 0, size: 100 },
       })
       .json<Page<StudyItem>>(),
 
   create: (planId: number, blockId: number, data: CreateStudyItemRequest) =>
     apiClient
-      .post(`api/v1/study-plans/${planId}/blocks/${blockId}/items`, { json: data })
+      .post(`study-plans/${planId}/blocks/${blockId}/items`, { json: data })
       .json<StudyItem>(),
 
   transition: (planId: number, blockId: number, itemId: number, data: TransitionRequest) =>
     apiClient
-      .post(`api/v1/study-plans/${planId}/blocks/${blockId}/items/${itemId}/transition`, {
+      .post(`study-plans/${planId}/blocks/${blockId}/items/${itemId}/transition`, {
         json: data,
       })
       .json<StudyItem>(),
 
   delete: (planId: number, blockId: number, itemId: number) =>
-    apiClient.delete(`api/v1/study-plans/${planId}/blocks/${blockId}/items/${itemId}`),
+    apiClient.delete(`study-plans/${planId}/blocks/${blockId}/items/${itemId}`),
 }

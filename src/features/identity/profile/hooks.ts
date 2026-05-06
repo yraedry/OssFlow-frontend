@@ -9,6 +9,11 @@ export function useProfile() {
   return useQuery({
     queryKey: PROFILE_KEY,
     queryFn: getProfile,
+    retry: false,
+    staleTime: 60_000,
+    networkMode: 'always',
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   })
 }
 

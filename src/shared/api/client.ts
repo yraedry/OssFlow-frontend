@@ -9,6 +9,7 @@ function generateTraceId(): string {
 
 export const apiClient = ky.create({
   prefix: BASE_URL,
+  timeout: 3000,
   headers: {
     'Content-Type': 'application/json',
   },
