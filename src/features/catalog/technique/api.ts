@@ -1,10 +1,18 @@
 import { apiClient } from '@/shared/api/client'
 import type { Technique, CreateTechniqueRequest } from './types'
 
+interface PageResponse<T> {
+  content: T[]
+  totalElements: number
+  totalPages: number
+}
+
 export const techniqueApi = {
-  list: () => apiClient.get('catalog/techniques').json<{ content: Technique[]; totalElements: number }>(),
+  list: (params?: { page?: number; size?: number }) =>
+    apiClient.get('catalog/techniques', { searchParams: params as Record<string, string | number> }).json<PageResponse<Technique>>(),
   get: (id: number) => apiClient.get(`catalog/techniques/${id}`).json<Technique>(),
-  create: (data: CreateTechniqueRequest) => apiClient.post('catalog/techniques', { json: data }).json<Technique>(),
+  create: (data: CreateTechniqueRequest) =>
+    apiClient.post('catalog/techniques', { json: data }).json<Technique>(),
   update: (id: number, data: Partial<CreateTechniqueRequest>) =>
     apiClient.patch(`catalog/techniques/${id}`, { json: data }).json<Technique>(),
   delete: (id: number) => apiClient.delete(`catalog/techniques/${id}`),
