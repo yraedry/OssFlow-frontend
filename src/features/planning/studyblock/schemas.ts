@@ -7,4 +7,4 @@ export const createStudyBlockSchema = z.object({
   orderIndex: z.number().int().min(0).default(0),
 })
 
-export type CreateStudyBlockForm = z.infer<typeof createStudyBlockSchema>
+export type CreateStudyBlockForm = z.input<typeof createStudyBlockSchema>

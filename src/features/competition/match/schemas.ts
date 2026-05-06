@@ -10,4 +10,4 @@ export const createMatchSchema = z.object({
   orderIndex: z.number().int().min(0).default(0),
 })
 
-export type CreateMatchForm = z.infer<typeof createMatchSchema>
+export type CreateMatchForm = z.input<typeof createMatchSchema>

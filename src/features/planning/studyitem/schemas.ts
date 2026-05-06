@@ -6,4 +6,4 @@ export const createStudyItemSchema = z.object({
   orderIndex: z.number().int().min(0).default(0),
 })
 
-export type CreateStudyItemForm = z.infer<typeof createStudyItemSchema>
+export type CreateStudyItemForm = z.input<typeof createStudyItemSchema>
