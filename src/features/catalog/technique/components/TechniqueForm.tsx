@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
@@ -22,7 +22,7 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
   const { data: positionsData } = usePositions({ size: 200 })
   const positions = positionsData?.content ?? []
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CreateTechniqueForm>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<CreateTechniqueForm>({
     resolver: zodResolver(createTechniqueSchema),
     defaultValues: {
       name: defaultValues?.name ?? '',
@@ -46,50 +46,74 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
 
       <div className="space-y-2">
         <Label>Posición de inicio *</Label>
-        <Select
-          value={watch('startPositionId')?.toString()}
-          onValueChange={(v) => setValue('startPositionId', parseInt(v))}
-        >
-          <SelectTrigger><SelectValue placeholder="Seleccionar posición" /></SelectTrigger>
-          <SelectContent>
-            {positions.map((p) => (
-              <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Controller
+          control={control}
+          name="startPositionId"
+          render={({ field }) => (
+            <Select
+              value={field.value?.toString()}
+              onValueChange={(v) => field.onChange(parseInt(v))}
+            >
+              <SelectTrigger><SelectValue placeholder="Seleccionar posición" /></SelectTrigger>
+              <SelectContent>
+                {positions.map((p) => (
+                  <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.startPositionId && <p className="text-sm text-destructive">{errors.startPositionId.message}</p>}
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Cinturón</Label>
-          <Select value={watch('belt')} onValueChange={(v) => setValue('belt', v as CreateTechniqueForm['belt'])}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {Object.entries(BELT_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Controller
+            control={control}
+            name="belt"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(BELT_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
         <div className="space-y-2">
           <Label>Modalidad</Label>
-          <Select value={watch('modality')} onValueChange={(v) => setValue('modality', v as CreateTechniqueForm['modality'])}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {Object.entries(MODALITY_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <Controller
+            control={control}
+            name="modality"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(MODALITY_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            )}
+          />
         </div>
       </div>
 
       <div className="space-y-2">
         <Label>Visibilidad</Label>
-        <Select value={watch('visibility')} onValueChange={(v) => setValue('visibility', v as CreateTechniqueForm['visibility'])}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="PUBLIC">Pública</SelectItem>
-            <SelectItem value="PRIVATE">Privada</SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          control={control}
+          name="visibility"
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="PUBLIC">Pública</SelectItem>
+                <SelectItem value="PRIVATE">Privada</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
       </div>
 
       <div className="space-y-2">

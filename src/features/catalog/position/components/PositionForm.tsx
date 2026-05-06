@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
@@ -15,7 +15,7 @@ interface PositionFormProps {
 }
 
 export function PositionForm({ defaultValues, onSubmit, isPending }: PositionFormProps) {
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CreatePositionForm>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<CreatePositionForm>({
     resolver: zodResolver(createPositionSchema),
     defaultValues: {
       name: defaultValues?.name ?? '',
@@ -35,26 +35,38 @@ export function PositionForm({ defaultValues, onSubmit, isPending }: PositionFor
 
       <div className="space-y-2">
         <Label>Tipo</Label>
-        <Select value={watch('type')} onValueChange={(v) => setValue('type', v as CreatePositionForm['type'])}>
-          <SelectTrigger><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="TOP">Top</SelectItem>
-            <SelectItem value="BOTTOM">Bottom</SelectItem>
-            <SelectItem value="NEUTRAL">Neutral</SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          control={control}
+          name="type"
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger><SelectValue placeholder="Seleccionar tipo" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="TOP">Top</SelectItem>
+                <SelectItem value="BOTTOM">Bottom</SelectItem>
+                <SelectItem value="NEUTRAL">Neutral</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
         {errors.type && <p className="text-sm text-destructive">{errors.type.message}</p>}
       </div>
 
       <div className="space-y-2">
         <Label>Visibilidad</Label>
-        <Select value={watch('visibility')} onValueChange={(v) => setValue('visibility', v as CreatePositionForm['visibility'])}>
-          <SelectTrigger><SelectValue placeholder="Seleccionar visibilidad" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="PUBLIC">Pública</SelectItem>
-            <SelectItem value="PRIVATE">Privada</SelectItem>
-          </SelectContent>
-        </Select>
+        <Controller
+          control={control}
+          name="visibility"
+          render={({ field }) => (
+            <Select value={field.value} onValueChange={field.onChange}>
+              <SelectTrigger><SelectValue placeholder="Seleccionar visibilidad" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="PUBLIC">Pública</SelectItem>
+                <SelectItem value="PRIVATE">Privada</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
       </div>
 
       <div className="space-y-2">
