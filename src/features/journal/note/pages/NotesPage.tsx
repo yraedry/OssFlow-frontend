@@ -35,11 +35,6 @@ export function NotesPage() {
 
   const handleOpenChange = (o: boolean) => { setOpen(o); if (!o) setEditing(null) }
 
-  if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>
-  if (error) return <Alert variant="destructive"><AlertDescription>Error al cargar notas</AlertDescription></Alert>
-
-  const notes = data?.content ?? []
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -64,14 +59,18 @@ export function NotesPage() {
         </Dialog>
       </div>
 
-      {notes.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-12"><Spinner /></div>
+      ) : error ? (
+        <Alert variant="destructive"><AlertDescription>Error al cargar notas</AlertDescription></Alert>
+      ) : (data?.content ?? []).length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <FileText className="h-12 w-12 mx-auto mb-4 opacity-30" />
           <p>No hay notas todavía.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {notes.map((note) => (
+          {(data?.content ?? []).map((note) => (
             <Card key={note.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">

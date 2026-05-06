@@ -33,16 +33,6 @@ export function StudyPlansPage() {
     navigate(`/planning/study-plans/${plan.id}`)
   }
 
-  if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>
-  if (error)
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>Error al cargar los planes</AlertDescription>
-      </Alert>
-    )
-
-  const plans = data?.content ?? []
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -66,14 +56,20 @@ export function StudyPlansPage() {
         </Dialog>
       </div>
 
-      {plans.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-12"><Spinner /></div>
+      ) : error ? (
+        <Alert variant="destructive">
+          <AlertDescription>Error al cargar los planes</AlertDescription>
+        </Alert>
+      ) : (data?.content ?? []).length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <p>No hay planes todavía.</p>
           <p className="text-sm">Crea tu primer plan con el botón de arriba.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {plans.map((plan) => (
+          {(data?.content ?? []).map((plan) => (
             <StudyPlanCard key={plan.id} plan={plan} onClick={handleClick} onDelete={handleDelete} />
           ))}
         </div>

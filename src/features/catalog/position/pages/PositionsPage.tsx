@@ -44,11 +44,6 @@ export function PositionsPage() {
     if (!o) setEditing(null)
   }
 
-  if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>
-  if (error) return <Alert variant="destructive"><AlertDescription>Error al cargar las posiciones</AlertDescription></Alert>
-
-  const positions = data?.content ?? []
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -73,14 +68,18 @@ export function PositionsPage() {
         </Dialog>
       </div>
 
-      {positions.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-12"><Spinner /></div>
+      ) : error ? (
+        <Alert variant="destructive"><AlertDescription>Error al cargar las posiciones</AlertDescription></Alert>
+      ) : (data?.content ?? []).length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <p>No hay posiciones todavía.</p>
           <p className="text-sm">Crea tu primera posición con el botón de arriba.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {positions.map((p) => (
+          {(data?.content ?? []).map((p) => (
             <PositionCard key={p.id} position={p} onEdit={handleEdit} onDelete={handleDelete} />
           ))}
         </div>

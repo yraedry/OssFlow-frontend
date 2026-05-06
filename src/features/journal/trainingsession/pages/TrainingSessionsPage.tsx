@@ -46,11 +46,6 @@ export function TrainingSessionsPage() {
     reset()
   }
 
-  if (isLoading) return <div className="flex justify-center p-8"><Spinner /></div>
-  if (error) return <Alert variant="destructive"><AlertDescription>Error al cargar sesiones</AlertDescription></Alert>
-
-  const sessions = data?.content ?? []
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -104,14 +99,18 @@ export function TrainingSessionsPage() {
         </Dialog>
       </div>
 
-      {sessions.length === 0 ? (
+      {isLoading ? (
+        <div className="flex justify-center py-12"><Spinner /></div>
+      ) : error ? (
+        <Alert variant="destructive"><AlertDescription>Error al cargar sesiones</AlertDescription></Alert>
+      ) : (data?.content ?? []).length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <Dumbbell className="h-12 w-12 mx-auto mb-4 opacity-30" />
           <p>No hay sesiones registradas.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sessions.map((s) => (
+          {(data?.content ?? []).map((s) => (
             <Card key={s.id}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
