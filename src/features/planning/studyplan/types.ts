@@ -1,14 +1,16 @@
-export interface StudyPlan {
+export type StudyPlan = {
   id: number
   title: string
   description?: string
-  visibility: 'PUBLIC' | 'PRIVATE'
+  startDate: string
+  endDate?: string
   createdAt: string
   updatedAt: string
 }
 
-export interface CreateStudyPlanRequest {
+export type CreateStudyPlanRequest = {
   title: string
   description?: string
-  visibility: StudyPlan['visibility']
+  startDate: string
+  endDate?: string
 }
