@@ -1,7 +1,7 @@
 import { Outlet, NavLink } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { useTheme } from '@/shared/hooks/useTheme'
-import { Moon, Sun, BookOpen, Layers, Dumbbell, Target, User, FileText } from 'lucide-react'
+import { Moon, Sun, BookOpen, Layers, Dumbbell, Target, User, FileText, Trophy } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 
 const navItems = [
@@ -11,6 +11,7 @@ const navItems = [
   { to: '/journal/notes', label: 'Notas', icon: FileText },
   { to: '/journal/training-sessions', label: 'Sesiones', icon: Dumbbell },
   { to: '/planning/study-plans', label: 'Planes', icon: BookOpen },
+  { to: '/competition/logs', label: 'Competencias', icon: Trophy },
   { to: '/profile', label: 'Perfil', icon: User },
 ]
 
