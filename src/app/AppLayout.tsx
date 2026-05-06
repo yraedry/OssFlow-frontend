@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Outlet, NavLink } from 'react-router-dom'
+import { Outlet, NavLink, Link } from 'react-router-dom'
 import { cn } from '@/shared/lib/utils'
 import { useTheme } from '@/shared/hooks/useTheme'
 import {
@@ -18,6 +18,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { CommandPalette } from '@/shared/components/CommandPalette'
+import { useProfile } from '@/features/identity/profile/hooks'
 
 const navItems = [
   { to: '/', label: 'Inicio', icon: Target, end: true },
@@ -35,6 +36,7 @@ const navItems = [
 export function AppLayout() {
   const { theme, toggleTheme } = useTheme()
   const [cmdOpen, setCmdOpen] = useState(false)
+  const { data: profile } = useProfile()
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -52,8 +54,24 @@ export function AppLayout() {
       {/* Sidebar */}
       <aside className="w-64 border-r bg-card flex flex-col">
         <div className="p-4 border-b">
-          <h1 className="text-xl font-bold text-primary">OssFlow</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-bold text-primary">OssFlow</h1>
+            {profile && (
+              <Link
+                to="/profile"
+                className="flex items-center gap-2 text-sm hover:text-primary"
+                aria-label="Ver perfil"
+              >
+                <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold">
+                  {profile.displayName?.[0]?.toUpperCase() ?? '?'}
+                </div>
+              </Link>
+            )}
+          </div>
           <p className="text-xs text-muted-foreground">BJJ Knowledge System</p>
+          {profile && (
+            <p className="text-xs text-muted-foreground mt-0.5 truncate">{profile.displayName}</p>
+          )}
         </div>
         <nav className="flex-1 p-3 space-y-1">
           {navItems.map(({ to, label, icon: Icon, end }) => (
