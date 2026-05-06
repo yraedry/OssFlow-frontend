@@ -6,23 +6,41 @@ import { z } from 'zod'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
-import { Textarea } from '@/shared/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { FederationSelector } from '@/features/identity/federation/components/FederationSelector'
 import { useFederations } from '@/features/identity/federation/hooks'
 import { useCreateProfile } from '@/features/identity/profile/hooks'
 import type { FederationAssignment } from '@/features/identity/federation/types'
 
+const BELTS = [
+  { value: 'WHITE', label: 'Blanco' },
+  { value: 'BLUE', label: 'Azul' },
+  { value: 'PURPLE', label: 'Morado' },
+  { value: 'BROWN', label: 'Marrón' },
+  { value: 'BLACK', label: 'Negro' },
+]
+
+const MODALITIES = [
+  { value: 'GI', label: 'Gi (con kimono)' },
+  { value: 'NOGI', label: 'No-Gi (sin kimono)' },
+  { value: 'BOTH', label: 'Ambas' },
+]
+
 const step1Schema = z.object({
-  displayName: z.string().min(1, 'El nombre es requerido').max(100),
-  bio: z.string().max(500).optional(),
+  displayName: z.string().min(1, 'El nombre es requerido').max(120),
+  currentBelt: z.string().min(1, 'El cinturón es requerido'),
+  preferredModality: z.string().min(1, 'La modalidad es requerida'),
+  academy: z.string().max(200).optional(),
 })
 
 type Step1Form = z.infer<typeof step1Schema>
 
 type OnboardingData = {
   displayName: string
-  bio?: string
+  currentBelt: string
+  preferredModality: string
+  academy?: string
   federations: FederationAssignment[]
 }
 
@@ -31,7 +49,9 @@ export function OnboardingPage() {
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [data, setData] = useState<OnboardingData>({
     displayName: '',
-    bio: undefined,
+    currentBelt: '',
+    preferredModality: '',
+    academy: undefined,
     federations: [],
   })
 
@@ -41,23 +61,34 @@ export function OnboardingPage() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<Step1Form>({
     resolver: zodResolver(step1Schema),
-    defaultValues: { displayName: data.displayName, bio: data.bio },
+    defaultValues: {
+      displayName: data.displayName,
+      currentBelt: data.currentBelt,
+      preferredModality: data.preferredModality,
+      academy: data.academy,
+    },
   })
+
+  const beltValue = watch('currentBelt')
+  const modalityValue = watch('preferredModality')
 
   const handleStep1 = (formData: Step1Form) => {
     setData((prev) => ({ ...prev, ...formData }))
     setStep(2)
   }
 
-  const handleStep2 = () => {
-    setStep(3)
-  }
-
   const handleFinish = async () => {
-    await createProfile.mutateAsync({ displayName: data.displayName, bio: data.bio })
+    await createProfile.mutateAsync({
+      displayName: data.displayName,
+      currentBelt: data.currentBelt,
+      preferredModality: data.preferredModality,
+      academy: data.academy || undefined,
+    })
     navigate('/', { replace: true })
   }
 
@@ -93,16 +124,60 @@ export function OnboardingPage() {
                 <p className="text-sm text-destructive">{errors.displayName.message}</p>
               )}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="bio">Bio (opcional)</Label>
-              <Textarea
-                id="bio"
-                {...register('bio')}
-                placeholder="Cuéntanos un poco sobre ti y tu práctica de BJJ..."
-                rows={3}
-              />
-              {errors.bio && <p className="text-sm text-destructive">{errors.bio.message}</p>}
+              <Label>Cinturón actual</Label>
+              <Select
+                value={beltValue}
+                onValueChange={(v) => setValue('currentBelt', v, { shouldValidate: true })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona tu cinturón" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BELTS.map((b) => (
+                    <SelectItem key={b.value} value={b.value}>
+                      {b.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.currentBelt && (
+                <p className="text-sm text-destructive">{errors.currentBelt.message}</p>
+              )}
             </div>
+
+            <div className="space-y-2">
+              <Label>Modalidad preferida</Label>
+              <Select
+                value={modalityValue}
+                onValueChange={(v) => setValue('preferredModality', v, { shouldValidate: true })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Gi, No-Gi o ambas" />
+                </SelectTrigger>
+                <SelectContent>
+                  {MODALITIES.map((m) => (
+                    <SelectItem key={m.value} value={m.value}>
+                      {m.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.preferredModality && (
+                <p className="text-sm text-destructive">{errors.preferredModality.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="academy">Academia (opcional)</Label>
+              <Input
+                id="academy"
+                {...register('academy')}
+                placeholder="Nombre de tu academia"
+              />
+            </div>
+
             <Button type="submit" className="w-full">
               Siguiente
             </Button>
@@ -132,7 +207,7 @@ export function OnboardingPage() {
               <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>
                 Atrás
               </Button>
-              <Button className="flex-1" onClick={handleStep2}>
+              <Button className="flex-1" onClick={() => setStep(3)}>
                 Siguiente
               </Button>
             </div>
@@ -143,16 +218,30 @@ export function OnboardingPage() {
           <div className="space-y-4">
             <div className="rounded-lg border p-4 space-y-3">
               <h2 className="font-semibold">Resumen</h2>
-              <div>
-                <p className="text-sm text-muted-foreground">Nombre</p>
-                <p className="font-medium">{data.displayName}</p>
-              </div>
-              {data.bio && (
+              <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <p className="text-sm text-muted-foreground">Bio</p>
-                  <p className="text-sm">{data.bio}</p>
+                  <p className="text-muted-foreground">Nombre</p>
+                  <p className="font-medium">{data.displayName}</p>
                 </div>
-              )}
+                <div>
+                  <p className="text-muted-foreground">Cinturón</p>
+                  <p className="font-medium">
+                    {BELTS.find((b) => b.value === data.currentBelt)?.label ?? data.currentBelt}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">Modalidad</p>
+                  <p className="font-medium">
+                    {MODALITIES.find((m) => m.value === data.preferredModality)?.label ?? data.preferredModality}
+                  </p>
+                </div>
+                {data.academy && (
+                  <div>
+                    <p className="text-muted-foreground">Academia</p>
+                    <p className="font-medium">{data.academy}</p>
+                  </div>
+                )}
+              </div>
               <div>
                 <p className="text-sm text-muted-foreground">Federaciones</p>
                 <p className="text-sm">
