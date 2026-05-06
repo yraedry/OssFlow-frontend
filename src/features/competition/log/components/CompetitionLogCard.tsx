@@ -12,7 +12,6 @@ type CompetitionLogCardProps = {
   onDelete: (id: number) => void
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 function formatDate(dateStr: string) {
   return format(new Date(dateStr), 'd MMM yyyy', { locale: es })
 }
