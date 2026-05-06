@@ -7,12 +7,16 @@ import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { Textarea } from '@/shared/components/ui/textarea'
 import { Badge } from '@/shared/components/ui/badge'
-import { createNoteSchema, type CreateNoteForm } from '../schemas'
+import { z } from 'zod'
+import { createNoteSchema } from '../schemas'
 import type { Note } from '../types'
 
-interface NoteFormProps {
+const noteFormSchema = createNoteSchema.omit({ tags: true })
+type NoteFormValues = z.infer<typeof noteFormSchema>
+
+type NoteFormProps = {
   defaultValues?: Partial<Note>
-  onSubmit: (data: CreateNoteForm & { tags: string[] }) => void
+  onSubmit: (data: NoteFormValues & { tags: string[] }) => void
   isPending?: boolean
 }
 
@@ -20,13 +24,11 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
   const [tags, setTags] = useState<string[]>(defaultValues?.tags ?? [])
   const [tagInput, setTagInput] = useState('')
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { register, handleSubmit, formState: { errors } } = useForm<CreateNoteForm>({
-    resolver: zodResolver(createNoteSchema) as any,
+  const { register, handleSubmit, formState: { errors } } = useForm<NoteFormValues>({
+    resolver: zodResolver(noteFormSchema),
     defaultValues: {
       title: defaultValues?.title ?? '',
       bodyMarkdown: defaultValues?.bodyMarkdown ?? '',
-      tags: [] as string[],
     },
   })
 
