@@ -1,231 +1,217 @@
 import { useQuery } from '@tanstack/react-query'
-import { Link } from 'react-router-dom'
-import { format, startOfWeek, addDays, isSameDay } from 'date-fns'
+import { Link, useNavigate } from 'react-router-dom'
+import { format, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { Plus } from 'lucide-react'
 import { fetchWeeklyStats } from '@/shared/api/dashboard'
 import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
+import { useWeeklyTemplate } from '@/features/planning/weeklytemplate/hooks'
 import { cn } from '@/shared/lib/utils'
 
+const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
+const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
+const LABEL: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '9px', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }
+
+function javaDayOfWeek(date: Date): string {
+  return ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][date.getDay()]
+}
+
 export function HomePage() {
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['weekly-stats'],
-    queryFn: fetchWeeklyStats,
-  })
-
-  const { data: bjjData } = useTrainingSessions()
-  const { data: physData } = usePhysicalSessions({ page: 0, size: 5 })
-
+  const navigate = useNavigate()
   const today = new Date()
-  const weekStart = startOfWeek(today, { weekStartsOn: 1 })
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
+
+  const { data: stats } = useQuery({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
+  const { data: bjjData } = useTrainingSessions()
+  const { data: physData } = usePhysicalSessions({ page: 0, size: 10 })
+  const { data: template } = useWeeklyTemplate()
 
   const bjjSessions = bjjData?.content?.filter(Boolean) ?? []
   const physSessions = physData?.content?.filter(Boolean) ?? []
 
-  const hasBjjOnDay = (day: Date) =>
-    bjjSessions.some((s) => isSameDay(new Date(s.sessionDate), day))
-  const hasPhysOnDay = (day: Date) =>
-    physSessions.some((s) => isSameDay(new Date(s.sessionDate), day))
+  const todayKey = javaDayOfWeek(today)
+  const todayEntry = template?.days?.find((d) => d.dayOfWeek === todayKey)
+
+  const hasBjjToday = bjjSessions.some((s) => isSameDay(new Date(s.sessionDate), today))
+  const hasStrengthToday = physSessions.some(
+    (s) => isSameDay(new Date(s.sessionDate), today) && s.sessionType === 'STRENGTH',
+  )
+  const hasCardioToday = physSessions.some(
+    (s) => isSameDay(new Date(s.sessionDate), today) && s.sessionType === 'CARDIO',
+  )
+
+  type TodayItem = { type: string; label: string; done: boolean; color: string }
+  const todayItems: TodayItem[] = []
+  if (todayEntry?.cardio) todayItems.push({ type: 'Cardio', label: '1h zona 2', done: hasCardioToday, color: '#10b981' })
+  if (todayEntry?.strength) todayItems.push({ type: 'Fuerza', label: 'Sesión de fuerza', done: hasStrengthToday, color: '#f59e0b' })
+  if (todayEntry?.bjj) todayItems.push({ type: 'BJJ', label: 'Sesión grappling', done: hasBjjToday, color: '#4a7cff' })
+
+  const recentSessions = [
+    ...bjjSessions.slice(0, 3).map((s) => ({
+      type: 'BJJ',
+      date: s.sessionDate,
+      name: s.location ? `BJJ — ${s.location}` : 'Sesión BJJ',
+      to: '/journal/training-sessions',
+      id: `bjj-${s.id}`,
+    })),
+    ...physSessions.slice(0, 3).map((s) => ({
+      type: s.sessionType === 'STRENGTH' ? 'Fuerza' : s.sessionType === 'CARDIO' ? 'Cardio' : s.sessionType,
+      date: s.sessionDate,
+      name: s.title,
+      to: '/journal/physical-sessions',
+      id: `phys-${s.id}`,
+    })),
+  ]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 4)
 
   const bjjPct = stats ? Math.min((stats.bjjSessions / stats.bjjGoal) * 100, 100) : 0
   const physPct = stats ? Math.min((stats.physicalSessions / stats.physicalGoal) * 100, 100) : 0
 
-  const BJJ_R = 34
-  const GYM_R = 23
-  const circumference = (r: number) => 2 * Math.PI * r
-  const dashArray = (pct: number, r: number) => {
-    const c = circumference(r)
-    return `${(pct / 100) * c} ${c - (pct / 100) * c}`
-  }
-  const dashOffset = (r: number) => circumference(r) * 0.25
-
   return (
-    <div className="space-y-0 max-w-2xl md:max-w-4xl mx-auto">
-      {/* Greeting */}
-      <div className="pb-4 border-b border-border mb-4">
-        <h1 className="text-3xl md:text-5xl font-bold leading-tight" style={{ fontFamily: 'var(--font-serif)' }}>
-          Buenas.
-        </h1>
-        <p className="text-xs md:text-sm text-muted-foreground mt-1" style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          {format(today, "EEEE d 'de' MMMM", { locale: es })} · Semana {stats?.weekNumber ?? '—'}
-        </p>
+    <div className="w-full space-y-2">
+
+      {/* Saludo */}
+      <div className="border border-border bg-card px-5 py-4">
+        <div className="flex items-baseline justify-between">
+          <h1 className="leading-none" style={{ ...SERIF, fontSize: 'clamp(28px, 3vw, 42px)', fontWeight: 900, letterSpacing: '-0.03em' }}>
+            Buenas, Adrián.
+          </h1>
+          <span style={{ ...MONO, fontSize: '12px', color: 'var(--color-muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            {format(today, "EEEE, d 'de' MMMM", { locale: es })}
+          </span>
+        </div>
       </div>
 
-      {/* Week strip */}
-      <div className="grid grid-cols-7 gap-1 md:gap-3 mb-1 md:mb-2">
-        {weekDays.map((day) => {
-          const isToday = isSameDay(day, today)
-          const bjj = hasBjjOnDay(day)
-          const phys = hasPhysOnDay(day)
-          return (
-            <div
-              key={day.toISOString()}
-              className={cn(
-                'border flex flex-col items-center py-1.5 md:py-3 px-0',
-                isToday ? 'border-foreground bg-foreground' : 'border-border bg-card',
-              )}
-            >
-              <span
-                className={cn('uppercase', isToday ? 'text-background' : 'text-muted-foreground')}
-                style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(7px, 0.6vw, 11px)', letterSpacing: '0.06em' }}
-              >
-                {format(day, 'EEE', { locale: es }).slice(0, 2)}
-              </span>
-              <span
-                className={cn('font-bold leading-tight', isToday ? 'text-background' : 'text-foreground')}
-                style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(13px, 1.2vw, 18px)' }}
-              >
-                {format(day, 'd')}
-              </span>
-              <div className="flex gap-0.5 mt-1 min-h-[5px]">
-                {bjj && <div className={cn('w-1 h-1 rounded-full', isToday ? 'bg-background' : 'bg-foreground')} />}
-                {phys && <div className={cn('w-1 h-1 rounded-full', isToday ? 'bg-background/60' : 'bg-muted-foreground')} />}
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      {/* Grid principal */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
 
-      {/* Legend */}
-      <div className="flex gap-4 mb-4 pt-1">
-        {[
-          { dot: 'bg-foreground', label: 'BJJ' },
-          { dot: 'bg-muted-foreground', label: 'Físico' },
-        ].map(({ dot, label }) => (
-          <div key={label} className="flex items-center gap-1.5">
-            <div className={cn('w-1.5 h-1.5 rounded-full', dot)} />
-            <span className="text-muted-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(7px, 0.6vw, 11px)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</span>
+        {/* HOY TOCA */}
+        <div className="md:col-span-7 border border-foreground bg-card p-5">
+          <div className="flex items-center gap-2 mb-4" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>
+            <span style={{ color: 'var(--color-foreground)' }}>▶</span>
+            Hoy toca
           </div>
-        ))}
-      </div>
 
-      {/* Stats band + rings */}
-      {statsLoading ? (
-        <div className="py-4 text-center text-muted-foreground text-sm">Cargando estadísticas...</div>
-      ) : (
-        <>
-          <div className="grid grid-cols-3 border border-border mb-4">
+          {todayItems.length === 0 ? (
+            <div className="py-6 text-center" style={{ ...MONO, fontSize: '11px', color: 'var(--color-muted-foreground)' }}>
+              {template ? (
+                'Hoy es día de descanso.'
+              ) : (
+                <span>
+                  Sin plantilla configurada.{' '}
+                  <Link to="/planning/weekly-template" className="underline hover:text-foreground transition-colors">
+                    Configúrala aquí →
+                  </Link>
+                </span>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-0">
+              {todayItems.map((item) => (
+                <div key={item.type} className="flex items-center gap-3 py-3 border-b border-border last:border-b-0">
+                  <div className={cn(
+                    'w-4 h-4 shrink-0 border flex items-center justify-center',
+                    item.done ? 'bg-foreground border-foreground' : 'border-border',
+                  )}>
+                    {item.done && <span style={{ fontSize: '10px', color: 'var(--color-background)', fontWeight: 700 }}>✓</span>}
+                  </div>
+                  <div className="flex-1">
+                    <div style={{ ...LABEL, color: item.color, marginBottom: '2px' }}>{item.type}</div>
+                    <div className={cn('font-semibold', item.done && 'line-through text-muted-foreground')} style={{ ...SERIF, fontSize: '15px' }}>
+                      {item.label}
+                    </div>
+                  </div>
+                  {item.done && (
+                    <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>Registrado</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* RACHA + STATS + BOTÓN */}
+        <div className="md:col-span-5 border border-border bg-card p-5 flex flex-col gap-4">
+
+          {/* Racha */}
+          <div>
+            <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '6px' }}>Racha activa</div>
+            <div className="flex items-baseline gap-2">
+              <span style={{ ...SERIF, fontSize: 'clamp(40px, 4vw, 56px)', fontWeight: 900, lineHeight: 1, letterSpacing: '-0.03em' }}>
+                {stats?.streakDays ?? 0}
+              </span>
+              <span style={{ ...MONO, fontSize: '13px', color: 'var(--color-muted-foreground)' }}>días</span>
+            </div>
+            <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', opacity: 0.6 }}>
+              consecutivos entrenando
+            </div>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-3">
             {[
-              { val: stats?.bjjSessions ?? 0, label: 'BJJ', sub: 'esta semana' },
-              { val: stats?.physicalSessions ?? 0, label: 'Físico', sub: 'esta semana' },
-              { val: stats?.streakDays ?? 0, label: 'Racha', sub: 'días' },
-            ].map(({ val, label, sub }, i) => (
-              <div key={label} className={cn('py-3 md:py-5 text-center', i < 2 && 'border-r border-border')}>
-                <div className="leading-none" style={{ fontFamily: 'var(--font-serif)', fontSize: 'clamp(24px, 3vw, 48px)', fontWeight: 900 }}>
+              { label: 'BJJ semana', val: stats?.bjjSessions ?? 0, goal: stats?.bjjGoal ?? 5, pct: bjjPct },
+              { label: 'Físico semana', val: stats?.physicalSessions ?? 0, goal: stats?.physicalGoal ?? 3, pct: physPct },
+            ].map(({ label, val, goal, pct }) => (
+              <div key={label}>
+                <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '4px' }}>{label}</div>
+                <div style={{ ...SERIF, fontSize: '24px', fontWeight: 900, lineHeight: 1 }}>
                   {val}
+                  <span style={{ ...MONO, fontSize: '13px', fontWeight: 400, color: 'var(--color-muted-foreground)' }}> / {goal}</span>
                 </div>
-                <div className="mt-1 uppercase" style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(7px, 0.6vw, 11px)', letterSpacing: '0.08em', color: 'var(--color-muted-foreground)' }}>
-                  {label}
-                </div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(7px, 0.6vw, 11px)', color: 'var(--color-muted-foreground)', opacity: 0.5 }}>
-                  {sub}
+                <div className="mt-1.5 h-px bg-border">
+                  <div className="h-px bg-foreground transition-all" style={{ width: `${pct}%` }} />
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="flex items-center gap-4 md:gap-6 p-3 md:p-5 border border-border mb-4">
-            <svg width="80" height="80" viewBox="0 0 80 80" className="shrink-0 md:w-24 md:h-24">
-              <circle cx="40" cy="40" r={BJJ_R} fill="none" stroke="var(--color-border)" strokeWidth="7" />
-              <circle
-                cx="40" cy="40" r={BJJ_R} fill="none"
-                stroke="var(--color-foreground)" strokeWidth="7"
-                strokeDasharray={dashArray(bjjPct, BJJ_R)}
-                strokeDashoffset={dashOffset(BJJ_R)}
-                strokeLinecap="butt"
-              />
-              <circle cx="40" cy="40" r={GYM_R} fill="none" stroke="var(--color-border)" strokeWidth="7" />
-              <circle
-                cx="40" cy="40" r={GYM_R} fill="none"
-                stroke="var(--color-muted-foreground)" strokeWidth="7"
-                strokeDasharray={dashArray(physPct, GYM_R)}
-                strokeDashoffset={dashOffset(GYM_R)}
-                strokeLinecap="butt"
-              />
-              <text x="40" y="37" textAnchor="middle" style={{ fontFamily: 'var(--font-mono)', fontSize: '7px', fill: 'var(--color-muted-foreground)', fontWeight: 700 }}>METAS</text>
-              <text x="40" y="47" textAnchor="middle" style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', fill: 'var(--color-foreground)', fontWeight: 700 }}>
-                {(stats?.bjjSessions ?? 0) + (stats?.physicalSessions ?? 0)}/{(stats?.bjjGoal ?? 4) + (stats?.physicalGoal ?? 3)}
-              </text>
-            </svg>
-            <div className="flex-1 space-y-2 md:space-y-3">
-              {[
-                { dot: 'bg-foreground', label: 'BJJ semanal', val: `${stats?.bjjSessions ?? 0}`, sub: `/ ${stats?.bjjGoal ?? 4}` },
-                { dot: 'bg-muted-foreground', label: 'Físico semanal', val: `${stats?.physicalSessions ?? 0}`, sub: `/ ${stats?.physicalGoal ?? 3}` },
-                { dot: 'bg-border border border-muted-foreground', label: 'Racha activa', val: `${stats?.streakDays ?? 0}d`, sub: '' },
-              ].map(({ dot, label, val, sub }) => (
-                <div key={label} className="flex items-center gap-2">
-                  <div className={cn('w-2 h-2 rounded-full shrink-0', dot)} />
-                  <span className="flex-1 text-muted-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(7px, 0.6vw, 11px)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    {label}
-                  </span>
-                  <span className="font-bold text-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(9px, 0.8vw, 13px)' }}>{val}</span>
-                  {sub && <span className="text-muted-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(7px, 0.6vw, 11px)' }}>{sub}</span>}
-                </div>
-              ))}
+          {/* Botón registrar */}
+          <button
+            onClick={() => navigate('/journal/training-sessions?new=bjj')}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-foreground text-background hover:opacity-85 transition-opacity mt-auto"
+            style={{ ...MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}
+          >
+            <Plus className="h-4 w-4" strokeWidth={2.5} />
+            Registrar sesión
+          </button>
+
+          <Link
+            to="/journal/training-sessions"
+            className="text-center text-muted-foreground hover:text-foreground transition-colors"
+            style={{ ...MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}
+          >
+            Ver todas las sesiones →
+          </Link>
+        </div>
+      </div>
+
+      {/* Sesiones recientes */}
+      {recentSessions.length > 0 && (
+        <div className="border border-border bg-card">
+          <div className="px-5 py-3 border-b border-border flex items-center justify-between">
+            <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>Últimas sesiones</span>
+            <div className="flex gap-4">
+              <Link to="/journal/training-sessions" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }} className="hover:text-foreground transition-colors">BJJ →</Link>
+              <Link to="/journal/physical-sessions" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }} className="hover:text-foreground transition-colors">Físico →</Link>
             </div>
           </div>
-        </>
-      )}
-
-      {/* Últimas sesiones */}
-      <div className="space-y-1">
-        <div className="flex items-baseline justify-between mb-2">
-          <h2 className="text-sm md:text-base font-semibold" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}>
-            Últimas sesiones
-          </h2>
-          <div className="flex gap-3">
-            <Link to="/journal/training-sessions" className="text-muted-foreground hover:text-foreground transition-colors" style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(7px, 0.6vw, 11px)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              BJJ →
-            </Link>
-            <Link to="/journal/physical-sessions" className="text-muted-foreground hover:text-foreground transition-colors" style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(7px, 0.6vw, 11px)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Físico →
-            </Link>
-          </div>
-        </div>
-
-        {[
-          ...bjjSessions.slice(0, 3).map((s) => ({
-            type: 'BJJ' as const,
-            date: s.sessionDate,
-            name: s.location ? `BJJ — ${s.location}` : 'Sesión BJJ',
-            id: s.id,
-            to: '/journal/training-sessions',
-          })),
-          ...physSessions.slice(0, 2).map((s) => ({
-            type: 'GYM' as const,
-            date: s.sessionDate,
-            name: s.title,
-            id: s.id,
-            to: '/journal/physical-sessions',
-          })),
-        ]
-          .sort((a, b) => b.date.localeCompare(a.date))
-          .slice(0, 5)
-          .map((item) => (
+          {recentSessions.map((item) => (
             <Link
-              key={`${item.type}-${item.id}`}
+              key={item.id}
               to={item.to}
-              className="flex items-center gap-2 py-2 md:py-3 border-b border-border hover:bg-accent transition-colors px-1"
+              className="flex items-center gap-3 px-5 py-3 border-b border-border last:border-b-0 hover:bg-accent transition-colors"
             >
-              <span
-                className={cn(
-                  'border px-1.5 py-0.5 shrink-0',
-                  item.type === 'BJJ' ? 'border-foreground text-foreground' : 'border-muted-foreground text-muted-foreground',
-                )}
-                style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(7px, 0.6vw, 11px)', textTransform: 'uppercase', letterSpacing: '0.04em' }}
-              >
+              <span className="border px-1.5 py-0.5 shrink-0" style={{ ...MONO, fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.06em', borderColor: 'var(--color-border)', color: 'var(--color-muted-foreground)' }}>
                 {item.type}
               </span>
-              <span className="flex-1 text-sm md:text-base text-foreground truncate" style={{ fontFamily: 'var(--font-serif)' }}>
-                {item.name}
-              </span>
-              <span className="text-muted-foreground shrink-0" style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(8px, 0.7vw, 12px)' }}>
-                {item.date}
-              </span>
+              <span className="flex-1 truncate text-foreground" style={{ ...SERIF, fontSize: '14px' }}>{item.name}</span>
+              <span style={{ ...MONO, fontSize: '10px', color: 'var(--color-muted-foreground)' }}>{item.date}</span>
             </Link>
           ))}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
