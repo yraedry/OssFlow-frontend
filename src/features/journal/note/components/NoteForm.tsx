@@ -59,7 +59,7 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
       </div>
 
       <div className="space-y-2">
-        <Label>Tags</Label>
+        <Label>Etiquetas</Label>
         <div className="flex gap-2">
           <Input
             value={tagInput}
