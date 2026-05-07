@@ -40,7 +40,7 @@ export function StudyPlanCard({ plan, onClick, onDelete }: StudyPlanCardProps) {
       <CardContent className="space-y-2">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
           <Calendar className="h-3.5 w-3.5" />
-          <span>{formatDate(plan.startDate)}</span>
+          {plan.startDate && <span>{formatDate(plan.startDate)}</span>}
           {plan.endDate && <span>→ {formatDate(plan.endDate)}</span>}
         </div>
         {plan.goalMarkdown && (
