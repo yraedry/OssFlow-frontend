@@ -9,7 +9,7 @@ import { StudyPlanCard } from '../components/StudyPlanCard'
 import { StudyPlanForm } from '../components/StudyPlanForm'
 import { useStudyPlans, useCreateStudyPlan, useDeleteStudyPlan } from '../hooks'
 import type { StudyPlan } from '../types'
-import type { CreateStudyPlanForm } from '../schemas'
+import type { CreateStudyPlanForm, CreateStudyPlanFormOutput } from '../schemas'
 
 export function StudyPlansPage() {
   const navigate = useNavigate()
@@ -19,7 +19,7 @@ export function StudyPlansPage() {
   const createMutation = useCreateStudyPlan()
   const deleteMutation = useDeleteStudyPlan()
 
-  const handleSubmit = async (formData: CreateStudyPlanForm) => {
+  const handleSubmit = async (formData: CreateStudyPlanFormOutput) => {
     await createMutation.mutateAsync(formData)
     setOpen(false)
   }

@@ -5,12 +5,12 @@ import { Label } from '@/shared/components/ui/label'
 import { Textarea } from '@/shared/components/ui/textarea'
 import { Input } from '@/shared/components/ui/input'
 import { DatePicker } from '@/shared/components/ui/date-picker'
-import { createStudyPlanSchema, type CreateStudyPlanForm } from '../schemas'
+import { createStudyPlanSchema, type CreateStudyPlanForm, type CreateStudyPlanFormOutput } from '../schemas'
 import type { StudyPlan } from '../types'
 
 type StudyPlanFormProps = {
   defaultValues?: Partial<StudyPlan>
-  onSubmit: (data: CreateStudyPlanForm) => void
+  onSubmit: (data: CreateStudyPlanFormOutput) => void
   isPending?: boolean
 }
 
@@ -20,7 +20,7 @@ export function StudyPlanForm({ defaultValues, onSubmit, isPending }: StudyPlanF
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<CreateStudyPlanForm>({
+  } = useForm<CreateStudyPlanForm, unknown, CreateStudyPlanFormOutput>({
     resolver: zodResolver(createStudyPlanSchema),
     defaultValues: {
       title: defaultValues?.title ?? '',
