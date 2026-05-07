@@ -10,6 +10,19 @@ import { TechniqueForm } from '../components/TechniqueForm'
 import { useTechnique, useUpdateTechnique } from '../hooks'
 import type { CreateTechniqueForm } from '../schemas'
 
+function getYouTubeEmbedId(url: string): string | null {
+  const patterns = [
+    /[?&]v=([^&#]+)/,
+    /youtu\.be\/([^?&#]+)/,
+    /youtube\.com\/embed\/([^?&#]+)/,
+  ]
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match) return match[1]
+  }
+  return null
+}
+
 const BELT_COLORS: Record<string, string> = {
   WHITE: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
   BLUE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
@@ -117,20 +130,46 @@ export function TechniqueDetailPage() {
           </div>
         )}
 
-        {technique.youtubeUrl && (
-          <div>
-            <p className="text-sm font-medium text-muted-foreground">Video</p>
-            <a
-              href={technique.youtubeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm text-primary hover:underline mt-1"
-            >
-              Ver en YouTube
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </div>
-        )}
+        {technique.youtubeUrl && (() => {
+          const embedId = getYouTubeEmbedId(technique.youtubeUrl)
+          return (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>Video</p>
+                <a
+                  href={technique.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  YouTube
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+              {embedId ? (
+                <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                  <iframe
+                    className="absolute inset-0 w-full h-full border border-border"
+                    src={`https://www.youtube.com/embed/${embedId}`}
+                    title={technique.name}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              ) : (
+                <a
+                  href={technique.youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-sm hover:underline"
+                >
+                  Ver video
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              )}
+            </div>
+          )
+        })()}
 
         <div className="text-xs text-muted-foreground pt-2 border-t space-y-1">
           <p>Creada: {new Date(technique.createdAt).toLocaleDateString('es-ES')}</p>
