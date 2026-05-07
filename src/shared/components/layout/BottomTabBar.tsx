@@ -16,8 +16,8 @@ export function BottomTabBar() {
       className="fixed bottom-0 left-0 right-0 z-40 flex items-end bg-background border-t border-border"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
-      {tabs.slice(0, 2).map(({ to, label, icon: Icon, end }) => (
-        <TabItem key={to} to={to} label={label} icon={Icon} end={end} />
+      {tabs.slice(0, 2).map((tab) => (
+        <TabItem key={tab.to} to={tab.to} label={tab.label} icon={tab.icon} end={'end' in tab ? tab.end : undefined} />
       ))}
 
       {/* FAB placeholder slot — filled by AppLayout */}
