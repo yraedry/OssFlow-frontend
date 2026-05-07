@@ -1,13 +1,12 @@
 import { z } from 'zod'
 
 export const createCompetitionLogSchema = z.object({
-  eventName: z.string().min(1).max(200),
+  eventName: z.string().min(1, 'El nombre del evento es requerido').max(255),
   eventDate: z.string().min(1, 'Fecha requerida'),
-  location: z.string().max(200).optional(),
-  weightClass: z.string().max(50).optional(),
-  modality: z.enum(['GI', 'NOGI', 'BOTH']),
-  result: z.string().max(200).optional(),
-  notes: z.string().max(2000).optional(),
+  weightCategory: z.string().max(50).optional(),
+  totalMatches: z.number().int().min(0).optional(),
+  result: z.string().max(50).optional(),
+  analysisMarkdown: z.string().max(50000).optional(),
 })
 
 export type CreateCompetitionLogForm = z.infer<typeof createCompetitionLogSchema>

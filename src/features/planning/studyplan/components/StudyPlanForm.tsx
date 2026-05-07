@@ -1,9 +1,10 @@
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/shared/components/ui/button'
-import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { Textarea } from '@/shared/components/ui/textarea'
+import { Input } from '@/shared/components/ui/input'
+import { DatePicker } from '@/shared/components/ui/date-picker'
 import { createStudyPlanSchema, type CreateStudyPlanForm } from '../schemas'
 import type { StudyPlan } from '../types'
 
@@ -17,6 +18,7 @@ export function StudyPlanForm({ defaultValues, onSubmit, isPending }: StudyPlanF
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm<CreateStudyPlanForm>({
     resolver: zodResolver(createStudyPlanSchema),
@@ -48,15 +50,19 @@ export function StudyPlanForm({ defaultValues, onSubmit, isPending }: StudyPlanF
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="startDate">Fecha inicio</Label>
-          <Input id="startDate" type="date" {...register('startDate')} />
+          <Label>Fecha inicio</Label>
+          <Controller control={control} name="startDate" render={({ field }) => (
+            <DatePicker value={field.value ?? ''} onChange={field.onChange} placeholder="Seleccionar fecha" />
+          )} />
           {errors.startDate && (
             <p className="text-sm text-destructive">{errors.startDate.message}</p>
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="endDate">Fecha fin (opcional)</Label>
-          <Input id="endDate" type="date" {...register('endDate')} />
+          <Label>Fecha fin (opcional)</Label>
+          <Controller control={control} name="endDate" render={({ field }) => (
+            <DatePicker value={field.value ?? ''} onChange={field.onChange} placeholder="Sin fecha de fin" />
+          )} />
         </div>
       </div>
 

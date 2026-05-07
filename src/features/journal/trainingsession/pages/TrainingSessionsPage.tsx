@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { Badge } from '@/shared/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Trash2 } from 'lucide-react'
+import { DatePicker } from '@/shared/components/ui/date-picker'
 import { useTrainingSessions, useCreateTrainingSession, useDeleteTrainingSession } from '../hooks'
 import { createTrainingSessionSchema, type CreateTrainingSessionForm } from '../schemas'
 import { format } from 'date-fns'
@@ -62,8 +63,10 @@ export function TrainingSessionsPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="sessionDate">Fecha</Label>
-                  <Input id="sessionDate" type="date" {...register('sessionDate')} />
+                  <Label>Fecha</Label>
+                  <Controller control={control} name="sessionDate" render={({ field }) => (
+                    <DatePicker value={field.value ?? ''} onChange={field.onChange} placeholder="Seleccionar fecha" />
+                  )} />
                   {errors.sessionDate && <p className="text-sm text-destructive">{errors.sessionDate.message}</p>}
                 </div>
                 <div className="space-y-2">
