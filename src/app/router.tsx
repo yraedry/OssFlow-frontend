@@ -11,6 +11,7 @@ import { TechniquesPage } from '@/features/catalog/technique/pages/TechniquesPag
 import { TechniqueDetailPage } from '@/features/catalog/technique/pages/TechniqueDetailPage'
 import { NotesPage } from '@/features/journal/note/pages/NotesPage'
 import { TrainingSessionsPage } from '@/features/journal/trainingsession/pages/TrainingSessionsPage'
+import { PhysicalSessionsPage } from '@/features/journal/physicalsession/pages/PhysicalSessionsPage'
 import { StudyPlansPage } from '@/features/planning/studyplan/pages/StudyPlansPage'
 import { StudyPlanDetailPage } from '@/features/planning/studyplan/pages/StudyPlanDetailPage'
 import { StudyPlanTimelinePage } from '@/features/planning/studyplan/pages/StudyPlanTimelinePage'
@@ -50,7 +51,7 @@ export const router = createBrowserRouter([
           { path: 'journal/notes', element: <NotesPage /> },
           { path: 'journal/graph', element: lazySuspense(<NoteGraphPage />) },
           { path: 'journal/training-sessions', element: <TrainingSessionsPage /> },
-          { path: 'journal/physical-sessions', element: <TrainingSessionsPage /> },
+          { path: 'journal/physical-sessions', element: <PhysicalSessionsPage /> },
           { path: 'planning/study-plans', element: <StudyPlansPage /> },
           { path: 'planning/study-plans/:id', element: <StudyPlanDetailPage /> },
           { path: 'planning/study-plans/:id/timeline', element: <StudyPlanTimelinePage /> },
