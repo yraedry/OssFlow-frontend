@@ -50,6 +50,7 @@ export const router = createBrowserRouter([
           { path: 'journal/notes', element: <NotesPage /> },
           { path: 'journal/graph', element: lazySuspense(<NoteGraphPage />) },
           { path: 'journal/training-sessions', element: <TrainingSessionsPage /> },
+          { path: 'journal/physical-sessions', element: <TrainingSessionsPage /> },
           { path: 'planning/study-plans', element: <StudyPlansPage /> },
           { path: 'planning/study-plans/:id', element: <StudyPlanDetailPage /> },
           { path: 'planning/study-plans/:id/timeline', element: <StudyPlanTimelinePage /> },
