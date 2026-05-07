@@ -1,3 +1,8 @@
+export type ProfileFederationEntry = {
+  federationId: number
+  isPrimary: boolean
+}
+
 export type UserProfile = {
   id: number
   ownerId: number
@@ -7,6 +12,7 @@ export type UserProfile = {
   academy?: string
   preferredModality: string
   onboardingCompleted: boolean
+  federations: ProfileFederationEntry[]
   createdAt: string
   updatedAt: string
   version: number

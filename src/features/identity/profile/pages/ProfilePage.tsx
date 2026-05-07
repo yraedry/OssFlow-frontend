@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useProfile, useCreateProfile, useUpdateProfile } from '../hooks'
-import { useProfileFederations, useFederations, useUpdateProfileFederations } from '@/features/identity/federation/hooks'
+import { useFederations, useUpdateProfileFederations } from '@/features/identity/federation/hooks'
 import { ProfileForm } from '../components/ProfileForm'
 import { FederationSelector } from '@/features/identity/federation/components/FederationSelector'
 import type { UpdateProfileForm } from '../schemas'
@@ -11,18 +11,15 @@ export function ProfilePage() {
   const createProfile = useCreateProfile()
   const updateProfile = useUpdateProfile()
 
-  const profileId = profile?.id ?? 0
   const { data: allFederations = [] } = useFederations()
-  const { data: profileFederations = [] } = useProfileFederations(profileId)
-  const updateFederations = useUpdateProfileFederations(profileId)
+  const updateFederations = useUpdateProfileFederations()
 
   const [selectedFederations, setSelectedFederations] = useState<FederationAssignment[]>([])
   const [federationsInitialized, setFederationsInitialized] = useState(false)
 
-  // Initialize selected federations from profile data once loaded
-  if (profileFederations.length > 0 && !federationsInitialized) {
+  if (profile?.federations && profile.federations.length > 0 && !federationsInitialized) {
     setSelectedFederations(
-      profileFederations.map((pf) => ({
+      profile.federations.map((pf) => ({
         federationId: pf.federationId,
         isPrimary: pf.isPrimary,
       })),
