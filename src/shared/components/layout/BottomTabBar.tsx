@@ -54,7 +54,7 @@ function TabItem({
     >
       <Icon className="h-5 w-5" strokeWidth={1.5} />
       <span
-        style={{ fontFamily: 'var(--font-mono)', fontSize: '6px', letterSpacing: '0.06em' }}
+        style={{ fontFamily: 'var(--font-mono)', fontSize: '10px', letterSpacing: '0.06em' }}
         className="uppercase"
       >
         {label}

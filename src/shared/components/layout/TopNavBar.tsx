@@ -67,7 +67,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
                 isActive ? 'border-foreground text-foreground' : 'border-transparent',
               )
             }
-            style={{ fontFamily: 'var(--font-mono)', fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
+            style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
           >
             {label}
           </NavLink>
@@ -80,7 +80,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               'flex items-center gap-1 px-3 h-full border-b-2 border-transparent text-muted-foreground hover:text-foreground transition-colors',
               moreOpen && 'text-foreground',
             )}
-            style={{ fontFamily: 'var(--font-mono)', fontSize: '8px' }}
+            style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}
           >
             <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
           </button>
@@ -99,7 +99,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
                         isActive && 'text-foreground bg-accent',
                       )
                     }
-                    style={{ fontFamily: 'var(--font-mono)', fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
+                    style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
                   >
                     {label}
                   </NavLink>
@@ -128,7 +128,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
         <button
           onClick={() => navigate('/journal/training-sessions?new=bjj')}
           className="flex items-center gap-1.5 px-3 h-8 border border-foreground bg-foreground text-background hover:opacity-85 transition-opacity ml-1"
-          style={{ fontFamily: 'var(--font-mono)', fontSize: '7px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
+          style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
         >
           <Plus className="h-3 w-3" strokeWidth={2.5} />
           Registrar
