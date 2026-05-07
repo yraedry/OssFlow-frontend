@@ -20,7 +20,7 @@ const COLORS = [
 ]
 
 export function buildGanttRows(plan: StudyPlan, blocks: StudyBlock[]): GanttRow[] {
-  const planStart = new Date(plan.startDate).getTime()
+  const planStart = plan.startDate ? new Date(plan.startDate).getTime() : Date.now()
   const planEnd = plan.endDate
     ? new Date(plan.endDate).getTime()
     : planStart + 12 * 7 * 24 * 60 * 60 * 1000
