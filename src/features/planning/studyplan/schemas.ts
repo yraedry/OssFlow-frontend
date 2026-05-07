@@ -8,4 +8,4 @@ export const createStudyPlanSchema = z.object({
   status: z.enum(['DRAFT', 'ACTIVE', 'COMPLETED', 'ARCHIVED']).default('DRAFT'),
 })
 
-export type CreateStudyPlanForm = z.input<typeof createStudyPlanSchema>
+export type CreateStudyPlanForm = z.output<typeof createStudyPlanSchema>
