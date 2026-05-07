@@ -9,7 +9,7 @@ import { StudyPlanCard } from '../components/StudyPlanCard'
 import { StudyPlanForm } from '../components/StudyPlanForm'
 import { useStudyPlans, useCreateStudyPlan, useDeleteStudyPlan } from '../hooks'
 import type { StudyPlan } from '../types'
-import type { CreateStudyPlanForm, CreateStudyPlanFormOutput } from '../schemas'
+import type { CreateStudyPlanFormOutput } from '../schemas'
 
 export function StudyPlansPage() {
   const navigate = useNavigate()
