@@ -4,7 +4,10 @@ import type { BeforeRequestState, AfterResponseState } from 'ky'
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1'
 
 function generateTraceId(): string {
-  return crypto.randomUUID()
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID()
+  }
+  return Math.random().toString(36).slice(2) + Date.now().toString(36)
 }
 
 export const apiClient = ky.create({
