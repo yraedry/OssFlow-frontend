@@ -1,7 +1,7 @@
 // src/shared/components/layout/TopNavBar.tsx
 import { useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Search, Sun, Moon, MoreHorizontal, Plus } from 'lucide-react'
+import { Search, Sun, Moon, ChevronDown, Plus } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTheme } from '@/shared/hooks/useTheme'
 import { useProfile } from '@/features/identity/profile/hooks'
@@ -20,10 +20,16 @@ const SECONDARY_NAV = [
   { to: '/competition/logs', label: 'Competencias' },
   { to: '/journal/notes', label: 'Notas' },
   { to: '/journal/physical-sessions', label: 'Físico' },
-  { to: '/planning/weekly-template', label: 'Plantilla semanal' },
+  { to: '/planning/weekly-template', label: 'Plantilla' },
   { to: '/export', label: 'Exportar' },
-  { to: '/trash', label: 'Papelera' },
 ]
+
+const NAV_STYLE = {
+  fontFamily: 'var(--font-mono)',
+  fontSize: '12px',
+  textTransform: 'uppercase' as const,
+  letterSpacing: '0.04em',
+}
 
 type TopNavBarProps = {
   onSearchOpen: () => void
@@ -45,16 +51,16 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
     : '?'
 
   return (
-    <header className="sticky top-0 z-30 flex h-12 items-stretch border-b border-border bg-background">
+    <header className="sticky top-0 z-30 flex h-11 items-stretch border-b border-border bg-background">
       <NavLink
         to="/"
-        className="flex items-center px-5 border-r border-border"
-        style={{ fontFamily: 'var(--font-serif)', fontSize: '15px', fontWeight: 900, letterSpacing: '-0.03em' }}
+        className="flex items-center px-4 border-r border-border shrink-0"
+        style={{ fontFamily: 'var(--font-serif)', fontSize: '14px', fontWeight: 900, letterSpacing: '-0.02em' }}
       >
         OSSFLOW
       </NavLink>
 
-      <nav className="flex items-stretch flex-1">
+      <nav className="flex items-stretch flex-1 min-w-0">
         {PRIMARY_NAV.map(({ to, label, end }) => (
           <NavLink
             key={to}
@@ -62,12 +68,12 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
             end={end}
             className={({ isActive }) =>
               cn(
-                'flex items-center px-4 border-b-2 transition-colors h-full',
+                'flex items-center px-4 border-b-2 transition-colors h-full shrink-0',
                 'text-muted-foreground hover:text-foreground',
                 isActive ? 'border-foreground text-foreground' : 'border-transparent',
               )
             }
-            style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
+            style={NAV_STYLE}
           >
             {label}
           </NavLink>
@@ -78,16 +84,17 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
             onClick={() => setMoreOpen((v) => !v)}
             className={cn(
               'flex items-center gap-1 px-3 h-full border-b-2 border-transparent text-muted-foreground hover:text-foreground transition-colors',
-              moreOpen && 'text-foreground',
+              moreOpen && 'text-foreground border-foreground',
             )}
-            style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}
+            style={NAV_STYLE}
           >
-            <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
+            Más
+            <ChevronDown className={cn('h-3 w-3 transition-transform', moreOpen && 'rotate-180')} strokeWidth={2} />
           </button>
           {moreOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
-              <div className="absolute top-full left-0 z-20 w-48 border border-border bg-popover shadow-md py-1">
+              <div className="absolute top-full left-0 z-20 w-44 border border-border bg-popover shadow-lg py-1">
                 {SECONDARY_NAV.map(({ to, label }) => (
                   <NavLink
                     key={to}
@@ -95,11 +102,11 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
                     onClick={() => setMoreOpen(false)}
                     className={({ isActive }) =>
                       cn(
-                        'block px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors',
-                        isActive && 'text-foreground',
+                        'block px-3 py-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors',
+                        isActive && 'text-foreground bg-accent',
                       )
                     }
-                    style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
+                    style={NAV_STYLE}
                   >
                     {label}
                   </NavLink>
@@ -110,25 +117,25 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
         </div>
       </nav>
 
-      <div className="flex items-center gap-1 px-3 border-l border-border">
+      <div className="flex items-center gap-0.5 px-2 border-l border-border shrink-0">
         <button
           onClick={onSearchOpen}
           className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Buscar"
         >
-          <Search className="h-4 w-4" strokeWidth={1.5} />
+          <Search className="h-3.5 w-3.5" strokeWidth={1.5} />
         </button>
         <button
           onClick={toggleTheme}
           className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Cambiar tema"
         >
-          {theme === 'dark' ? <Sun className="h-4 w-4" strokeWidth={1.5} /> : <Moon className="h-4 w-4" strokeWidth={1.5} />}
+          {theme === 'dark' ? <Sun className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Moon className="h-3.5 w-3.5" strokeWidth={1.5} />}
         </button>
         <button
           onClick={() => navigate('/journal/training-sessions?new=bjj')}
-          className="flex items-center gap-1.5 px-3 h-8 border border-foreground bg-foreground text-background hover:opacity-85 transition-opacity ml-1"
-          style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
+          className="flex items-center gap-1 px-2.5 h-7 border border-foreground bg-foreground text-background hover:opacity-85 transition-opacity ml-1"
+          style={NAV_STYLE}
         >
           <Plus className="h-3 w-3" strokeWidth={2.5} />
           Registrar
@@ -136,7 +143,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
         <NavLink
           to="/profile"
           className="flex h-7 w-7 items-center justify-center border border-border bg-card text-muted-foreground hover:text-foreground transition-colors ml-1"
-          style={{ fontFamily: 'var(--font-mono)', fontSize: '9px' }}
+          style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.02em' }}
           aria-label="Perfil"
         >
           {initials}
