@@ -15,6 +15,7 @@ import { PhysicalSessionsPage } from '@/features/journal/physicalsession/pages/P
 import { StudyPlansPage } from '@/features/planning/studyplan/pages/StudyPlansPage'
 import { StudyPlanDetailPage } from '@/features/planning/studyplan/pages/StudyPlanDetailPage'
 import { StudyPlanTimelinePage } from '@/features/planning/studyplan/pages/StudyPlanTimelinePage'
+import { WeeklyTemplatePage } from '@/features/planning/weeklytemplate/pages/WeeklyTemplatePage'
 import { ProfilePage } from '@/features/identity/profile/pages/ProfilePage'
 import { CompetitionLogsPage } from '@/features/competition/log/pages/CompetitionLogsPage'
 import { CompetitionLogDetailPage } from '@/features/competition/log/pages/CompetitionLogDetailPage'
@@ -55,6 +56,7 @@ export const router = createBrowserRouter([
           { path: 'planning/study-plans', element: <StudyPlansPage /> },
           { path: 'planning/study-plans/:id', element: <StudyPlanDetailPage /> },
           { path: 'planning/study-plans/:id/timeline', element: <StudyPlanTimelinePage /> },
+          { path: 'planning/weekly-template', element: <WeeklyTemplatePage /> },
           { path: 'profile', element: <ProfilePage /> },
           { path: 'competition/logs', element: <CompetitionLogsPage /> },
           { path: 'competition/logs/:id', element: <CompetitionLogDetailPage /> },

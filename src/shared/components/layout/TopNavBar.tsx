@@ -20,6 +20,7 @@ const SECONDARY_NAV = [
   { to: '/competition/logs', label: 'Competencias' },
   { to: '/journal/notes', label: 'Notas' },
   { to: '/journal/physical-sessions', label: 'Físico' },
+  { to: '/planning/weekly-template', label: 'Plantilla semanal' },
   { to: '/export', label: 'Exportar' },
   { to: '/trash', label: 'Papelera' },
 ]
