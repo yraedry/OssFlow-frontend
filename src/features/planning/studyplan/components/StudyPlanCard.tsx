@@ -43,8 +43,8 @@ export function StudyPlanCard({ plan, onClick, onDelete }: StudyPlanCardProps) {
           <span>{formatDate(plan.startDate)}</span>
           {plan.endDate && <span>→ {formatDate(plan.endDate)}</span>}
         </div>
-        {plan.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">{plan.description}</p>
+        {plan.goalMarkdown && (
+          <p className="text-sm text-muted-foreground line-clamp-2">{plan.goalMarkdown}</p>
         )}
       </CardContent>
     </Card>

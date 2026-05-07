@@ -35,9 +35,9 @@ export function DatePicker({ value, onChange, placeholder = 'Seleccionar fecha',
         <Button
           variant="outline"
           disabled={disabled}
-          className={cn('w-full justify-start text-left font-normal', !validSelected && 'text-muted-foreground', className)}
+          className={cn('w-full justify-start text-left normal-case tracking-normal text-sm font-normal', !validSelected && 'text-muted-foreground', className)}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
+          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
           {validSelected ? format(validSelected, 'dd/MM/yyyy') : placeholder}
         </Button>
       </PopoverTrigger>

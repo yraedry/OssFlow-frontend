@@ -9,8 +9,8 @@ export function HomePage() {
   const { data: plansData, isLoading: plansLoading } = useStudyPlans({ page: 0, size: 5 })
   const { data: competitionData, isLoading: compLoading } = useCompetitionLogs({ page: 0, size: 3 })
 
-  const recentPlans = plansData?.content ?? []
-  const recentCompetitions = competitionData?.content ?? []
+  const recentPlans = (plansData?.content ?? []).filter(Boolean)
+  const recentCompetitions = (competitionData?.content ?? []).filter(Boolean)
 
   return (
     <div className="space-y-6">
