@@ -15,12 +15,7 @@ type CompetitionLogFormProps = {
 }
 
 export function CompetitionLogForm({ defaultValues, onSubmit, isPending }: CompetitionLogFormProps) {
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-  } = useForm<CreateCompetitionLogForm>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<CreateCompetitionLogForm>({
     resolver: zodResolver(createCompetitionLogSchema),
     defaultValues: {
       eventName: defaultValues?.eventName ?? '',
@@ -33,18 +28,25 @@ export function CompetitionLogForm({ defaultValues, onSubmit, isPending }: Compe
   })
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="eventName">Nombre del evento *</Label>
-        <Input id="eventName" {...register('eventName')} placeholder="Copa BJJ Madrid 2026" />
-        {errors.eventName && (
-          <p className="text-sm text-destructive">{errors.eventName.message}</p>
-        )}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+      {/* Nombre del evento */}
+      <div className="space-y-1.5">
+        <Label htmlFor="eventName">
+          Nombre del evento <span className="text-destructive">*</span>
+        </Label>
+        <Input
+          id="eventName"
+          {...register('eventName')}
+          placeholder="Copa BJJ Madrid 2026"
+          autoFocus
+        />
+        {errors.eventName && <p className="text-xs text-destructive">{errors.eventName.message}</p>}
       </div>
 
+      {/* Fecha y categoría en la misma fila */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Fecha *</Label>
+        <div className="space-y-1.5">
+          <Label>Fecha <span className="text-destructive">*</span></Label>
           <Controller
             name="eventDate"
             control={control}
@@ -52,34 +54,35 @@ export function CompetitionLogForm({ defaultValues, onSubmit, isPending }: Compe
               <DatePicker value={field.value} onChange={field.onChange} placeholder="Seleccionar fecha" />
             )}
           />
-          {errors.eventDate && (
-            <p className="text-sm text-destructive">{errors.eventDate.message}</p>
-          )}
+          {errors.eventDate && <p className="text-xs text-destructive">{errors.eventDate.message}</p>}
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Label htmlFor="weightCategory">Categoría de peso</Label>
           <Input id="weightCategory" {...register('weightCategory')} placeholder="-76 kg" />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="totalMatches">Total de combates</Label>
-        <Input
-          id="totalMatches"
-          type="number"
-          min={0}
-          {...register('totalMatches', { valueAsNumber: true })}
-          placeholder="5"
-        />
+      {/* Resultado y combates */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="result">Resultado</Label>
+          <Input id="result" {...register('result')} placeholder="1er puesto" />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="totalMatches">Combates totales</Label>
+          <Input
+            id="totalMatches"
+            type="number"
+            min={0}
+            {...register('totalMatches', { valueAsNumber: true })}
+            placeholder="5"
+          />
+        </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="result">Resultado general</Label>
-        <Input id="result" {...register('result')} placeholder="1er puesto, Campeón..." />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="analysisMarkdown">Análisis (Markdown)</Label>
+      {/* Análisis */}
+      <div className="space-y-1.5">
+        <Label htmlFor="analysisMarkdown">Análisis</Label>
         <Textarea
           id="analysisMarkdown"
           {...register('analysisMarkdown')}
@@ -89,7 +92,7 @@ export function CompetitionLogForm({ defaultValues, onSubmit, isPending }: Compe
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? 'Guardando...' : defaultValues?.id ? 'Actualizar' : 'Crear competencia'}
+        {isPending ? 'Guardando...' : defaultValues?.id ? 'Actualizar' : 'Registrar competencia'}
       </Button>
     </form>
   )

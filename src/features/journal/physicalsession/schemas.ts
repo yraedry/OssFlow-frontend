@@ -6,6 +6,7 @@ export const createPhysicalSessionSchema = z.object({
   title: z.string().min(1, 'Título requerido').max(200),
   durationMinutes: z.number().int().positive().optional(),
   notes: z.string().max(5000).optional(),
+  youtubeUrl: z.string().url('URL inválida').optional().or(z.literal('')),
 })
 
 export type CreatePhysicalSessionForm = z.infer<typeof createPhysicalSessionSchema>

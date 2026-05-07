@@ -15,6 +15,7 @@ export interface PhysicalSession {
   title: string
   durationMinutes?: number
   notes?: string
+  youtubeUrl?: string
   createdAt: string
   updatedAt: string
 }
@@ -25,4 +26,5 @@ export interface CreatePhysicalSessionRequest {
   title: string
   durationMinutes?: number
   notes?: string
+  youtubeUrl?: string
 }

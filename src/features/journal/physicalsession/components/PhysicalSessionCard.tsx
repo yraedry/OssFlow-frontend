@@ -40,6 +40,17 @@ export function PhysicalSessionCard({ session, onDelete }: Props) {
         <span>{session.sessionDate}</span>
         {session.durationMinutes && <span>{session.durationMinutes} min</span>}
       </div>
+      {session.youtubeUrl && (
+        <a
+          href={session.youtubeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors underline"
+          style={{ fontFamily: 'var(--font-mono)' }}
+        >
+          Ver en YouTube →
+        </a>
+      )}
       {session.notes && (
         <p className="text-xs text-muted-foreground line-clamp-2">{session.notes}</p>
       )}
