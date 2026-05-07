@@ -86,7 +86,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
           {moreOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
-              <div className="absolute top-full left-0 z-20 w-44 border border-border bg-background shadow-lg">
+              <div className="absolute top-full left-0 z-20 w-44 border border-border bg-background shadow-lg max-h-80 overflow-y-auto">
                 {SECONDARY_NAV.map(({ to, label }) => (
                   <NavLink
                     key={to}

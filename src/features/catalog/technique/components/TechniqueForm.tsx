@@ -57,7 +57,7 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
           render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
               <SelectTrigger><SelectValue placeholder="Seleccionar categoría" /></SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper">
                 {Object.entries(CATEGORY_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
               </SelectContent>
             </Select>
@@ -77,7 +77,7 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
               onValueChange={(v) => field.onChange(parseInt(v))}
             >
               <SelectTrigger><SelectValue placeholder="Seleccionar posición" /></SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper">
                 {positions.map((p) => (
                   <SelectItem key={p.id} value={p.id.toString()}>{p.name}</SelectItem>
                 ))}
@@ -97,7 +97,7 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                   {Object.entries(BELT_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -112,7 +112,7 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
             render={({ field }) => (
               <Select value={field.value} onValueChange={field.onChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent position="popper">
                   {Object.entries(MODALITY_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -129,7 +129,7 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
           render={({ field }) => (
             <Select value={field.value} onValueChange={field.onChange}>
               <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
+              <SelectContent position="popper">
                 <SelectItem value="PUBLIC">Pública</SelectItem>
                 <SelectItem value="PRIVATE">Privada</SelectItem>
               </SelectContent>
