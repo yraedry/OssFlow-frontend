@@ -10,7 +10,7 @@ describe('Badge', () => {
 
   it('applies secondary variant class', () => {
     render(<Badge variant="secondary">Gi</Badge>)
-    expect(screen.getByText('Gi')).toHaveClass('bg-secondary')
+    expect(screen.getByText('Gi')).toHaveClass('border-border')
   })
 
   it('applies destructive variant class', () => {

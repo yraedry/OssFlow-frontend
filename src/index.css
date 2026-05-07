@@ -1,57 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(222.2 84% 4.9%);
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(222.2 84% 4.9%);
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(222.2 84% 4.9%);
-  --color-primary: hsl(221.2 83.2% 53.3%);
-  --color-primary-foreground: hsl(210 40% 98%);
-  --color-secondary: hsl(210 40% 96%);
-  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
-  --color-muted: hsl(210 40% 96%);
-  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
-  --color-accent: hsl(210 40% 96%);
-  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
-  --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(214.3 31.8% 91.4%);
-  --color-input: hsl(214.3 31.8% 91.4%);
-  --color-ring: hsl(221.2 83.2% 53.3%);
-  --radius: 0.5rem;
+  /* Claro: crema editorial */
+  --color-background: #fafaf8;
+  --color-foreground: #1a1a1a;
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1a1a;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1a1a1a;
+  --color-primary: #1a1a1a;
+  --color-primary-foreground: #fafaf8;
+  --color-secondary: #f0ede8;
+  --color-secondary-foreground: #1a1a1a;
+  --color-muted: #f0ede8;
+  --color-muted-foreground: #78716c;
+  --color-accent: #f0ede8;
+  --color-accent-foreground: #1a1a1a;
+  --color-destructive: #b91c1c;
+  --color-destructive-foreground: #fafaf8;
+  --color-border: #d0ccc6;
+  --color-input: #e8e5e0;
+  --color-ring: #1a1a1a;
+  --radius: 0rem;
+
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
 }
 
 .dark {
-  --color-background: hsl(222.2 84% 4.9%);
-  --color-foreground: hsl(210 40% 98%);
-  --color-card: hsl(222.2 84% 4.9%);
-  --color-card-foreground: hsl(210 40% 98%);
-  --color-popover: hsl(222.2 84% 4.9%);
-  --color-popover-foreground: hsl(210 40% 98%);
-  --color-primary: hsl(217.2 91.2% 59.8%);
-  --color-primary-foreground: hsl(222.2 47.4% 11.2%);
-  --color-secondary: hsl(217.2 32.6% 17.5%);
-  --color-secondary-foreground: hsl(210 40% 98%);
-  --color-muted: hsl(217.2 32.6% 17.5%);
-  --color-muted-foreground: hsl(215 20.2% 65.1%);
-  --color-accent: hsl(217.2 32.6% 17.5%);
-  --color-accent-foreground: hsl(210 40% 98%);
-  --color-destructive: hsl(0 62.8% 30.6%);
-  --color-destructive-foreground: hsl(210 40% 98%);
-  --color-border: hsl(217.2 32.6% 17.5%);
-  --color-input: hsl(217.2 32.6% 17.5%);
-  --color-ring: hsl(224.3 76.3% 48%);
+  --color-background: #0f0f0f;
+  --color-foreground: #f0ebe3;
+  --color-card: #1a1a1a;
+  --color-card-foreground: #f0ebe3;
+  --color-popover: #1a1a1a;
+  --color-popover-foreground: #f0ebe3;
+  --color-primary: #f0ebe3;
+  --color-primary-foreground: #0f0f0f;
+  --color-secondary: #2a2a2a;
+  --color-secondary-foreground: #f0ebe3;
+  --color-muted: #2a2a2a;
+  --color-muted-foreground: #888888;
+  --color-accent: #2a2a2a;
+  --color-accent-foreground: #f0ebe3;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #0f0f0f;
+  --color-border: #3a3a3a;
+  --color-input: #2a2a2a;
+  --color-ring: #f0ebe3;
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
+    box-sizing: border-box;
   }
+
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: Inter, system-ui, sans-serif;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
+
+  h1, h2 {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  h3, h4, h5, h6 {
+    font-family: var(--font-sans);
+    font-weight: 600;
+  }
+}
+
+/* react-day-picker customization */
+.rdp {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.rdp-day_selected {
+  background: var(--color-foreground) !important;
+  color: var(--color-background) !important;
 }

@@ -14,9 +14,11 @@ export function HomePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Bienvenido a OssFlow</h1>
-        <p className="text-muted-foreground">Tu sistema de conocimiento BJJ</p>
+      <div className="border-b border-border pb-6">
+        <h1 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-serif)' }}>OssFlow</h1>
+        <p className="text-sm text-muted-foreground mt-1" style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>
+          Sistema de conocimiento BJJ
+        </p>
       </div>
 
       <DashboardStats />
