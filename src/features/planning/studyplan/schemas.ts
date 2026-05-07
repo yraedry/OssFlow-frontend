@@ -5,7 +5,7 @@ export const createStudyPlanSchema = z.object({
   goalMarkdown: z.string().max(10000).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  status: z.enum(['DRAFT', 'ACTIVE', 'COMPLETED', 'ARCHIVED']).default('DRAFT'),
+  status: z.enum(['DRAFT', 'ACTIVE', 'COMPLETED', 'ARCHIVED']),
 })
 
 export type CreateStudyPlanForm = z.infer<typeof createStudyPlanSchema>
