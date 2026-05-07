@@ -24,9 +24,10 @@ export function StudyPlanForm({ defaultValues, onSubmit, isPending }: StudyPlanF
     resolver: zodResolver(createStudyPlanSchema),
     defaultValues: {
       title: defaultValues?.title ?? '',
-      description: defaultValues?.description ?? '',
+      goalMarkdown: defaultValues?.goalMarkdown ?? '',
       startDate: defaultValues?.startDate ?? '',
       endDate: defaultValues?.endDate ?? '',
+      status: defaultValues?.status ?? 'DRAFT',
     },
   })
 
@@ -39,11 +40,11 @@ export function StudyPlanForm({ defaultValues, onSubmit, isPending }: StudyPlanF
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Descripción</Label>
+        <Label htmlFor="goalMarkdown">Descripción / Objetivo</Label>
         <Textarea
-          id="description"
-          {...register('description')}
-          placeholder="Descripción del plan..."
+          id="goalMarkdown"
+          {...register('goalMarkdown')}
+          placeholder="Objetivos del plan..."
           rows={3}
         />
       </div>

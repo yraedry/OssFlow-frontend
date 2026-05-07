@@ -2,9 +2,10 @@ import { z } from 'zod'
 
 export const createStudyPlanSchema = z.object({
   title: z.string().min(1, 'El título es requerido').max(200),
-  description: z.string().max(2000).optional(),
-  startDate: z.string().min(1, 'Fecha requerida'),
+  goalMarkdown: z.string().max(10000).optional(),
+  startDate: z.string().optional(),
   endDate: z.string().optional(),
+  status: z.enum(['DRAFT', 'ACTIVE', 'COMPLETED', 'ARCHIVED']).default('DRAFT'),
 })
 
 export type CreateStudyPlanForm = z.infer<typeof createStudyPlanSchema>

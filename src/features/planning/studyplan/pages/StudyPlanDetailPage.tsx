@@ -50,8 +50,8 @@ export function StudyPlanDetailPage() {
         </Button>
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-bold truncate">{plan.title}</h1>
-          {plan.description && (
-            <p className="text-muted-foreground text-sm">{plan.description}</p>
+          {plan.goalMarkdown && (
+            <p className="text-muted-foreground text-sm">{plan.goalMarkdown}</p>
           )}
         </div>
         <Button variant="outline" onClick={() => navigate(`/planning/study-plans/${planId}/timeline`)}>
