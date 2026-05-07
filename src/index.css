@@ -80,12 +80,29 @@
 }
 
 /* react-day-picker customization */
-.rdp {
+.rdp-root {
+  --rdp-accent-color: var(--color-foreground);
+  --rdp-accent-background-color: var(--color-accent);
+  --rdp-day_button-border-radius: 0;
+  --rdp-selected-border: none;
   font-family: var(--font-mono);
   font-size: 12px;
+  background: var(--color-popover);
+  color: var(--color-popover-foreground);
 }
 
-.rdp-day_selected {
-  background: var(--color-foreground) !important;
-  color: var(--color-background) !important;
+.rdp-root .rdp-today:not(.rdp-selected) .rdp-day_button {
+  color: var(--color-foreground);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.rdp-root .rdp-selected .rdp-day_button {
+  background: var(--color-foreground);
+  color: var(--color-background);
+}
+
+.rdp-root .rdp-day_button:hover:not([disabled]) {
+  background: var(--color-accent);
+  color: var(--color-accent-foreground);
 }

@@ -87,7 +87,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
           {moreOpen && (
             <>
               <div className="fixed inset-0 z-10" onClick={() => setMoreOpen(false)} />
-              <div className="absolute top-full left-0 z-20 w-44 border border-border bg-background shadow-lg max-h-80 overflow-y-auto">
+              <div className="absolute top-full left-0 z-20 w-48 border border-border bg-popover shadow-md py-1">
                 {SECONDARY_NAV.map(({ to, label }) => (
                   <NavLink
                     key={to}
@@ -95,8 +95,8 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
                     onClick={() => setMoreOpen(false)}
                     className={({ isActive }) =>
                       cn(
-                        'block px-4 py-2.5 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border-b border-border last:border-b-0',
-                        isActive && 'text-foreground bg-accent',
+                        'block px-4 py-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors',
+                        isActive && 'text-foreground',
                       )
                     }
                     style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
