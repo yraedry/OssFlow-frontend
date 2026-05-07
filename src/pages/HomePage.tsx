@@ -1,94 +1,230 @@
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
-import { Spinner } from '@/shared/components/ui/spinner'
-import { DashboardStats } from './DashboardStats'
-import { useStudyPlans } from '@/features/planning/studyplan/hooks'
-import { useCompetitionLogs } from '@/features/competition/log/hooks'
+import { format, startOfWeek, addDays, isSameDay } from 'date-fns'
+import { es } from 'date-fns/locale'
+import { fetchWeeklyStats } from '@/shared/api/dashboard'
+import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
+import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
+import { cn } from '@/shared/lib/utils'
 
 export function HomePage() {
-  const { data: plansData, isLoading: plansLoading } = useStudyPlans({ page: 0, size: 5 })
-  const { data: competitionData, isLoading: compLoading } = useCompetitionLogs({ page: 0, size: 3 })
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ['weekly-stats'],
+    queryFn: fetchWeeklyStats,
+  })
 
-  const recentPlans = (plansData?.content ?? []).filter(Boolean)
-  const recentCompetitions = (competitionData?.content ?? []).filter(Boolean)
+  const { data: bjjData } = useTrainingSessions()
+  const { data: physData } = usePhysicalSessions({ page: 0, size: 5 })
+
+  const today = new Date()
+  const weekStart = startOfWeek(today, { weekStartsOn: 1 })
+  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
+
+  const bjjSessions = bjjData?.content?.filter(Boolean) ?? []
+  const physSessions = physData?.content?.filter(Boolean) ?? []
+
+  const hasBjjOnDay = (day: Date) =>
+    bjjSessions.some((s) => isSameDay(new Date(s.sessionDate), day))
+  const hasPhysOnDay = (day: Date) =>
+    physSessions.some((s) => isSameDay(new Date(s.sessionDate), day))
+
+  const bjjPct = stats ? Math.min((stats.bjjSessions / stats.bjjGoal) * 100, 100) : 0
+  const physPct = stats ? Math.min((stats.physicalSessions / stats.physicalGoal) * 100, 100) : 0
+
+  const BJJ_R = 34
+  const GYM_R = 23
+  const circumference = (r: number) => 2 * Math.PI * r
+  const dashArray = (pct: number, r: number) => {
+    const c = circumference(r)
+    return `${(pct / 100) * c} ${c - (pct / 100) * c}`
+  }
+  const dashOffset = (r: number) => circumference(r) * 0.25
 
   return (
-    <div className="space-y-6">
-      <div className="border-b border-border pb-6">
-        <h1 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-serif)' }}>OssFlow</h1>
-        <p className="text-sm text-muted-foreground mt-1" style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}>
-          Sistema de conocimiento BJJ
+    <div className="space-y-0 max-w-2xl mx-auto">
+      {/* Greeting */}
+      <div className="pb-4 border-b border-border mb-4">
+        <h1 className="text-3xl font-bold leading-tight" style={{ fontFamily: 'var(--font-serif)' }}>
+          Buenas.
+        </h1>
+        <p className="text-xs text-muted-foreground mt-1" style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          {format(today, "EEEE d 'de' MMMM", { locale: es })} · Semana {stats?.weekNumber ?? '—'}
         </p>
       </div>
 
-      <DashboardStats />
+      {/* Week strip */}
+      <div className="grid grid-cols-7 gap-1 mb-1">
+        {weekDays.map((day) => {
+          const isToday = isSameDay(day, today)
+          const bjj = hasBjjOnDay(day)
+          const phys = hasPhysOnDay(day)
+          return (
+            <div
+              key={day.toISOString()}
+              className={cn(
+                'border flex flex-col items-center py-1.5 px-0',
+                isToday ? 'border-foreground bg-foreground' : 'border-border bg-card',
+              )}
+            >
+              <span
+                className={cn('text-[7px] uppercase', isToday ? 'text-background' : 'text-muted-foreground')}
+                style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.06em' }}
+              >
+                {format(day, 'EEE', { locale: es }).slice(0, 2)}
+              </span>
+              <span
+                className={cn('font-bold leading-tight', isToday ? 'text-background' : 'text-foreground')}
+                style={{ fontFamily: 'var(--font-mono)', fontSize: '13px' }}
+              >
+                {format(day, 'd')}
+              </span>
+              <div className="flex gap-0.5 mt-1 min-h-[5px]">
+                {bjj && <div className={cn('w-1 h-1 rounded-full', isToday ? 'bg-background' : 'bg-foreground')} />}
+                {phys && <div className={cn('w-1 h-1 rounded-full', isToday ? 'bg-background/60' : 'bg-muted-foreground')} />}
+              </div>
+            </div>
+          )
+        })}
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Recent plans */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center justify-between">
-              Planes recientes
-              <Link to="/planning/study-plans" className="text-xs text-primary font-normal hover:underline">
-                Ver todos
-              </Link>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {plansLoading ? (
-              <div className="flex justify-center py-4"><Spinner /></div>
-            ) : recentPlans.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No hay planes todavía.</p>
-            ) : (
-              <ul className="space-y-2">
-                {recentPlans.map((plan) => (
-                  <li key={plan.id}>
-                    <Link
-                      to={`/planning/study-plans/${plan.id}`}
-                      className="text-sm hover:underline text-foreground"
-                    >
-                      {plan.title}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">{plan.startDate}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+      {/* Legend */}
+      <div className="flex gap-4 mb-4 pt-1">
+        {[
+          { dot: 'bg-foreground', label: 'BJJ' },
+          { dot: 'bg-muted-foreground', label: 'Físico' },
+        ].map(({ dot, label }) => (
+          <div key={label} className="flex items-center gap-1.5">
+            <div className={cn('w-1.5 h-1.5 rounded-full', dot)} />
+            <span className="text-muted-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: '7px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{label}</span>
+          </div>
+        ))}
+      </div>
 
-        {/* Recent competitions */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center justify-between">
-              Últimas competencias
-              <Link to="/competition/logs" className="text-xs text-primary font-normal hover:underline">
-                Ver todas
-              </Link>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {compLoading ? (
-              <div className="flex justify-center py-4"><Spinner /></div>
-            ) : recentCompetitions.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No hay competencias registradas.</p>
-            ) : (
-              <ul className="space-y-2">
-                {recentCompetitions.map((comp) => (
-                  <li key={comp.id}>
-                    <Link
-                      to={`/competition/logs/${comp.id}`}
-                      className="text-sm hover:underline text-foreground"
-                    >
-                      {comp.eventName}
-                    </Link>
-                    <p className="text-xs text-muted-foreground">{comp.eventDate}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+      {/* Stats band + rings */}
+      {statsLoading ? (
+        <div className="py-4 text-center text-muted-foreground text-sm">Cargando estadísticas...</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-3 border border-border mb-4">
+            {[
+              { val: stats?.bjjSessions ?? 0, label: 'BJJ', sub: 'esta semana' },
+              { val: stats?.physicalSessions ?? 0, label: 'Físico', sub: 'esta semana' },
+              { val: stats?.streakDays ?? 0, label: 'Racha', sub: 'días' },
+            ].map(({ val, label, sub }, i) => (
+              <div key={label} className={cn('py-3 text-center', i < 2 && 'border-r border-border')}>
+                <div className="leading-none" style={{ fontFamily: 'var(--font-serif)', fontSize: '32px', fontWeight: 900 }}>
+                  {val}
+                </div>
+                <div className="mt-1 uppercase" style={{ fontFamily: 'var(--font-mono)', fontSize: '7px', letterSpacing: '0.08em', color: 'var(--color-muted-foreground)' }}>
+                  {label}
+                </div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '7px', color: 'var(--color-muted-foreground)', opacity: 0.5 }}>
+                  {sub}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-4 p-3 border border-border mb-4">
+            <svg width="80" height="80" viewBox="0 0 80 80" className="shrink-0">
+              <circle cx="40" cy="40" r={BJJ_R} fill="none" stroke="var(--color-border)" strokeWidth="7" />
+              <circle
+                cx="40" cy="40" r={BJJ_R} fill="none"
+                stroke="var(--color-foreground)" strokeWidth="7"
+                strokeDasharray={dashArray(bjjPct, BJJ_R)}
+                strokeDashoffset={dashOffset(BJJ_R)}
+                strokeLinecap="butt"
+              />
+              <circle cx="40" cy="40" r={GYM_R} fill="none" stroke="var(--color-border)" strokeWidth="7" />
+              <circle
+                cx="40" cy="40" r={GYM_R} fill="none"
+                stroke="var(--color-muted-foreground)" strokeWidth="7"
+                strokeDasharray={dashArray(physPct, GYM_R)}
+                strokeDashoffset={dashOffset(GYM_R)}
+                strokeLinecap="butt"
+              />
+              <text x="40" y="37" textAnchor="middle" style={{ fontFamily: 'var(--font-mono)', fontSize: '7px', fill: 'var(--color-muted-foreground)', fontWeight: 700 }}>METAS</text>
+              <text x="40" y="47" textAnchor="middle" style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', fill: 'var(--color-foreground)', fontWeight: 700 }}>
+                {(stats?.bjjSessions ?? 0) + (stats?.physicalSessions ?? 0)}/{(stats?.bjjGoal ?? 4) + (stats?.physicalGoal ?? 3)}
+              </text>
+            </svg>
+            <div className="flex-1 space-y-2">
+              {[
+                { dot: 'bg-foreground', label: 'BJJ semanal', val: `${stats?.bjjSessions ?? 0}`, sub: `/ ${stats?.bjjGoal ?? 4}` },
+                { dot: 'bg-muted-foreground', label: 'Físico semanal', val: `${stats?.physicalSessions ?? 0}`, sub: `/ ${stats?.physicalGoal ?? 3}` },
+                { dot: 'bg-border border border-muted-foreground', label: 'Racha activa', val: `${stats?.streakDays ?? 0}d`, sub: '' },
+              ].map(({ dot, label, val, sub }) => (
+                <div key={label} className="flex items-center gap-2">
+                  <div className={cn('w-2 h-2 rounded-full shrink-0', dot)} />
+                  <span className="flex-1 text-muted-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: '7px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    {label}
+                  </span>
+                  <span className="font-bold text-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: '9px' }}>{val}</span>
+                  {sub && <span className="text-muted-foreground" style={{ fontFamily: 'var(--font-mono)', fontSize: '7px' }}>{sub}</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Últimas sesiones */}
+      <div className="space-y-1">
+        <div className="flex items-baseline justify-between mb-2">
+          <h2 className="text-sm font-semibold" style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic' }}>
+            Últimas sesiones
+          </h2>
+          <div className="flex gap-3">
+            <Link to="/journal/training-sessions" className="text-muted-foreground hover:text-foreground transition-colors" style={{ fontFamily: 'var(--font-mono)', fontSize: '7px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              BJJ →
+            </Link>
+            <Link to="/journal/physical-sessions" className="text-muted-foreground hover:text-foreground transition-colors" style={{ fontFamily: 'var(--font-mono)', fontSize: '7px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Físico →
+            </Link>
+          </div>
+        </div>
+
+        {[
+          ...bjjSessions.slice(0, 3).map((s) => ({
+            type: 'BJJ' as const,
+            date: s.sessionDate,
+            name: s.location ? `BJJ — ${s.location}` : 'Sesión BJJ',
+            id: s.id,
+            to: '/journal/training-sessions',
+          })),
+          ...physSessions.slice(0, 2).map((s) => ({
+            type: 'GYM' as const,
+            date: s.sessionDate,
+            name: s.title,
+            id: s.id,
+            to: '/journal/physical-sessions',
+          })),
+        ]
+          .sort((a, b) => b.date.localeCompare(a.date))
+          .slice(0, 5)
+          .map((item) => (
+            <Link
+              key={`${item.type}-${item.id}`}
+              to={item.to}
+              className="flex items-center gap-2 py-2 border-b border-border hover:bg-accent transition-colors px-1"
+            >
+              <span
+                className={cn(
+                  'border px-1.5 py-0.5 shrink-0',
+                  item.type === 'BJJ' ? 'border-foreground text-foreground' : 'border-muted-foreground text-muted-foreground',
+                )}
+                style={{ fontFamily: 'var(--font-mono)', fontSize: '7px', textTransform: 'uppercase', letterSpacing: '0.04em' }}
+              >
+                {item.type}
+              </span>
+              <span className="flex-1 text-sm text-foreground truncate" style={{ fontFamily: 'var(--font-serif)' }}>
+                {item.name}
+              </span>
+              <span className="text-muted-foreground shrink-0" style={{ fontFamily: 'var(--font-mono)', fontSize: '8px' }}>
+                {item.date}
+              </span>
+            </Link>
+          ))}
       </div>
     </div>
   )
