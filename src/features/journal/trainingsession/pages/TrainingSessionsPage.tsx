@@ -21,12 +21,12 @@ import { es } from 'date-fns/locale'
 import type { Intensity } from '../types'
 
 const INTENSITY_LABELS: Record<Intensity, string> = {
-  LOW: 'Baja', MODERATE: 'Moderada', HIGH: 'Alta', COMPETITION: 'Competición',
+  LIGHT: 'Baja', MODERATE: 'Moderada', HARD: 'Alta', COMPETITION: 'Competición',
 }
 const INTENSITY_COLORS: Record<Intensity, string> = {
-  LOW: 'bg-green-100 text-green-800',
+  LIGHT: 'bg-green-100 text-green-800',
   MODERATE: 'bg-yellow-100 text-yellow-800',
-  HIGH: 'bg-orange-100 text-orange-800',
+  HARD: 'bg-orange-100 text-orange-800',
   COMPETITION: 'bg-red-100 text-red-800',
 }
 

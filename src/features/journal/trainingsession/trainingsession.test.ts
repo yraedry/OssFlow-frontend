@@ -9,7 +9,7 @@ describe('TrainingSession schema', () => {
   })
   it('rejects zero duration', () => {
     expect(createTrainingSessionSchema.safeParse({
-      sessionDate: '2026-05-06', durationMinutes: 0, intensity: 'HIGH'
+      sessionDate: '2026-05-06', durationMinutes: 0, intensity: 'HARD'
     }).success).toBe(false)
   })
   it('rejects invalid intensity', () => {

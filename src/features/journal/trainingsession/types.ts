@@ -1,4 +1,4 @@
-export type Intensity = 'LOW' | 'MODERATE' | 'HIGH' | 'COMPETITION'
+export type Intensity = 'LIGHT' | 'MODERATE' | 'HARD' | 'COMPETITION'
 
 export interface TrainingSession {
   id: number
