@@ -19,7 +19,6 @@ import {
   Download,
   Trash2,
 } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
 import { CommandPalette } from '@/shared/components/CommandPalette'
 import { useProfile } from '@/features/identity/profile/hooks'
 
@@ -58,28 +57,29 @@ export function AppLayout() {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 border-r bg-card flex flex-col">
-        <div className="p-4 border-b">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-primary">OssFlow</h1>
-            {profile && (
-              <Link
-                to="/profile"
-                className="flex items-center gap-2 text-sm hover:text-primary"
-                aria-label="Ver perfil"
-              >
-                <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold">
-                  {profile.displayName?.[0]?.toUpperCase() ?? '?'}
-                </div>
-              </Link>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground">BJJ Knowledge System</p>
+      <aside className="w-56 border-r border-border bg-card flex flex-col shrink-0">
+        {/* Logo */}
+        <div className="p-4 border-b border-border">
+          <Link to="/" className="block">
+            <span
+              style={{ fontFamily: 'var(--font-serif)' }}
+              className="text-xl font-bold tracking-tight text-foreground"
+            >
+              OssFlow
+            </span>
+          </Link>
           {profile && (
-            <p className="text-xs text-muted-foreground mt-0.5 truncate">{profile.displayName}</p>
+            <p
+              className="text-xs mt-1 truncate"
+              style={{ fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', color: 'var(--color-muted-foreground)' }}
+            >
+              {profile.displayName}
+            </p>
           )}
         </div>
-        <nav className="flex-1 p-3 space-y-1">
+
+        {/* Navigation */}
+        <nav className="flex-1 py-2 overflow-y-auto">
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -87,40 +87,48 @@ export function AppLayout() {
               end={end}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                  'flex items-center gap-2.5 px-4 py-2 text-sm transition-colors',
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                    ? 'bg-foreground text-background font-semibold'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent',
                 )
               }
             >
-              <Icon className="h-4 w-4" />
-              {label}
+              <Icon className="h-3.5 w-3.5 shrink-0" />
+              <span>{label}</span>
             </NavLink>
           ))}
         </nav>
-        <div className="p-3 border-t space-y-1">
-          <Button
-            variant="ghost"
-            size="sm"
+
+        {/* Footer */}
+        <div className="border-t border-border p-3 space-y-1">
+          <button
             onClick={() => setCmdOpen(true)}
-            className="w-full justify-between gap-2 text-muted-foreground"
+            className="flex w-full items-center justify-between px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             <span className="flex items-center gap-2">
-              <Search className="h-4 w-4" />
+              <Search className="h-3.5 w-3.5" />
               Buscar...
             </span>
-            <kbd className="text-xs bg-muted px-1.5 py-0.5 rounded">⌘K</kbd>
-          </Button>
-          <Button variant="ghost" size="sm" onClick={toggleTheme} className="w-full justify-start gap-2">
-            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            <kbd
+              className="border border-border px-1.5 py-0.5 text-[10px]"
+              style={{ fontFamily: 'var(--font-mono)' }}
+            >
+              ⌘K
+            </kbd>
+          </button>
+          <button
+            onClick={toggleTheme}
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
             {theme === 'dark' ? 'Modo claro' : 'Modo oscuro'}
-          </Button>
+          </button>
         </div>
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto p-6">
+      <main className="flex-1 overflow-auto p-8">
         <Outlet />
       </main>
 
