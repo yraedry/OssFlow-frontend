@@ -7,6 +7,7 @@ describe('buildGanttRows', () => {
   const plan: StudyPlan = {
     id: 1,
     title: 'Plan',
+    status: 'ACTIVE',
     startDate: '2026-06-01',
     endDate: '2026-09-01',
     createdAt: '',
