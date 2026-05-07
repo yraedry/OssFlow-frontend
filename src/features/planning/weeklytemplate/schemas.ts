@@ -12,7 +12,10 @@ export const dayEntrySchema = z.object({
 })
 
 export const saveWeeklyTemplateSchema = z.object({
-  days: z.array(dayEntrySchema).max(7),
+  days: z.array(dayEntrySchema).max(7).refine(
+    (days) => new Set(days.map((d) => d.dayOfWeek)).size === days.length,
+    { message: 'Cada día de la semana solo puede aparecer una vez' },
+  ),
 })
 
 export type SaveWeeklyTemplateForm = z.infer<typeof saveWeeklyTemplateSchema>
