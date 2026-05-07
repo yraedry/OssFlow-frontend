@@ -48,7 +48,10 @@ export function FabMenu() {
         </div>
       )}
 
-      <div className="flex flex-none w-14 flex-col items-center justify-center" style={{ marginTop: '-14px' }}>
+      <div
+        className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center justify-end pb-2"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)' }}
+      >
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? 'Cerrar menú' : 'Añadir'}
@@ -56,7 +59,7 @@ export function FabMenu() {
             'flex h-11 w-11 items-center justify-center border-[3px] border-background rounded-full transition-transform duration-150',
             open ? 'bg-foreground scale-95' : 'bg-foreground scale-100',
           )}
-          style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.5)' }}
+          style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.5)', marginBottom: '2px' }}
         >
           {open ? (
             <X className="h-5 w-5 text-background" strokeWidth={2.5} />
@@ -66,7 +69,7 @@ export function FabMenu() {
         </button>
         <span
           style={{ fontFamily: 'var(--font-mono)', fontSize: '6px', letterSpacing: '0.06em' }}
-          className="uppercase text-muted-foreground mt-0.5"
+          className="uppercase text-muted-foreground"
         >
           Añadir
         </span>
