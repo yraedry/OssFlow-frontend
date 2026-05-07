@@ -1,0 +1,73 @@
+<h2>Tienes dos estilos favoritos. ¿Cómo los mezclas?</h2>
+<p class="subtitle">Selecciona <strong>una</strong> de estas combinaciones — cada una es una mezcla distinta de Minimal Editorial y Neo-Brutal.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="editorial-base" onclick="selectOnly(this)">
+    <div class="card-image" style="background:#fafaf8;padding:20px;font-family:'Georgia',serif;min-height:180px;display:flex;flex-direction:column;gap:12px;border-radius:0;border:1px solid #e0ddd8;">
+      <div style="display:flex;align-items:center;gap:10px;border-bottom:1px solid #1a1a1a;padding-bottom:10px;">
+        <span style="color:#1a1a1a;font-weight:900;font-size:18px;font-family:'Georgia',serif;letter-spacing:-0.02em;">OssFlow</span>
+        <div style="margin-left:auto;background:#1a1a1a;color:#fafaf8;font-size:9px;font-weight:800;font-family:monospace;padding:2px 6px;text-transform:uppercase;letter-spacing:0.1em;">SUMISIÓN</div>
+      </div>
+      <div style="color:#1a1a1a;font-size:22px;font-weight:700;font-family:'Georgia',serif;line-height:1.2;">Armbar desde<br>guardia cerrada</div>
+      <div style="color:#78716c;font-size:11px;font-family:monospace;text-transform:uppercase;letter-spacing:0.08em;">Blanco · Gi · Top</div>
+      <div style="border:2px solid #1a1a1a;padding:6px 10px;display:inline-fit-content;margin-top:auto;">
+        <span style="font-size:10px;font-weight:800;text-transform:uppercase;font-family:monospace;letter-spacing:0.05em;">VER TÉCNICA →</span>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Editorial con bordes</h3>
+      <p>Base crema y tipografía serif como cuaderno premium. Bordes negros gruesos solo en botones y separadores. Suave pero con carácter.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="brutal-base" onclick="selectOnly(this)">
+    <div class="card-image" style="background:#f0ebe3;padding:20px;font-family:'Arial Black','Impact',sans-serif;min-height:180px;display:flex;flex-direction:column;gap:10px;border-radius:0;border:2px solid #1a1a1a;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="background:#1a1a1a;padding:4px 8px;color:#f0ebe3;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.05em;">OSSFLOW</div>
+      </div>
+      <div style="border:2px solid #1a1a1a;padding:10px;background:#fff;">
+        <div style="color:#1a1a1a;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.03em;">ARMBAR DESDE GUARDIA</div>
+        <div style="color:#666;font-size:10px;font-weight:700;text-transform:uppercase;margin-top:4px;font-family:monospace;">SUMISIÓN · BLANCO · GI</div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:auto;">
+        <div style="border:2px solid #1a1a1a;background:#1a1a1a;padding:5px 10px;color:#f0ebe3;font-size:10px;font-weight:900;text-transform:uppercase;">VER →</div>
+        <div style="border:2px solid #1a1a1a;padding:5px 10px;color:#1a1a1a;font-size:10px;font-weight:900;text-transform:uppercase;">EDITAR</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Brutal con legibilidad</h3>
+      <p>Base crema y bordes brutales por defecto. La tipografía es bold/condensada pero legible. Radical visualmente, funcional en uso.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="dark-brutal" onclick="selectOnly(this)">
+    <div class="card-image" style="background:#1a1a1a;padding:20px;font-family:'Arial Black',sans-serif;min-height:180px;display:flex;flex-direction:column;gap:10px;border-radius:0;border:2px solid #f0ebe3;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <div style="border:2px solid #f0ebe3;padding:3px 8px;color:#f0ebe3;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;">OSSFLOW</div>
+      </div>
+      <div style="border:2px solid #f0ebe3;padding:10px;background:#111;">
+        <div style="color:#f0ebe3;font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:0.03em;">ARMBAR DESDE GUARDIA</div>
+        <div style="color:#888;font-size:10px;font-weight:700;text-transform:uppercase;margin-top:4px;font-family:monospace;">SUMISIÓN · BLANCO · GI</div>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:auto;">
+        <div style="border:2px solid #e63946;background:#e63946;padding:5px 10px;color:#fff;font-size:10px;font-weight:900;text-transform:uppercase;">VER →</div>
+        <div style="border:2px solid #f0ebe3;padding:5px 10px;color:#f0ebe3;font-size:10px;font-weight:900;text-transform:uppercase;">EDITAR</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Dark Brutal</h3>
+      <p>Fondo negro, bordes crema gruesos, acento rojo para acciones clave. Neo-brutal pero en dark mode — para quien prefiere pantallas oscuras.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">Haz clic en una tarjeta para seleccionarla. Solo una.</p>
+
+<script>
+function selectOnly(el) {
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>

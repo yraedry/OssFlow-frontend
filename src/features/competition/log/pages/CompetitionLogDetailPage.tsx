@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Plus, Calendar, MapPin, Weight } from 'lucide-react'
+import { ArrowLeft, Plus, Calendar, Weight } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
-import { Badge } from '@/shared/components/ui/badge'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { MatchCard } from '@/features/competition/match/components/MatchCard'
@@ -45,6 +44,14 @@ export function CompetitionLogDetailPage() {
 
   const matchList = matches ?? []
 
+  function formatDate(dateStr: string) {
+    try {
+      return format(new Date(dateStr), 'd MMM yyyy', { locale: es })
+    } catch {
+      return dateStr
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -56,27 +63,20 @@ export function CompetitionLogDetailPage() {
           <div className="flex items-center gap-3 mt-1 flex-wrap">
             <span className="flex items-center gap-1 text-sm text-muted-foreground">
               <Calendar className="h-3.5 w-3.5" />
-              {format(new Date(log.eventDate), 'd MMM yyyy', { locale: es })}
+              {formatDate(log.eventDate)}
             </span>
-            {log.location && (
-              <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5" />
-                {log.location}
-              </span>
-            )}
-            {log.weightClass && (
+            {log.weightCategory && (
               <span className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Weight className="h-3.5 w-3.5" />
-                {log.weightClass}
+                {log.weightCategory}
               </span>
             )}
-            <Badge variant="secondary">{log.modality}</Badge>
+            {log.totalMatches != null && (
+              <span className="text-sm text-muted-foreground">{log.totalMatches} combates</span>
+            )}
           </div>
           {log.result && (
             <p className="text-sm font-medium mt-1">{log.result}</p>
-          )}
-          {log.notes && (
-            <p className="text-sm text-muted-foreground mt-1">{log.notes}</p>
           )}
         </div>
         <Dialog open={matchDialogOpen} onOpenChange={setMatchDialogOpen}>
@@ -94,6 +94,13 @@ export function CompetitionLogDetailPage() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {log.analysisMarkdown && (
+        <div className="prose prose-sm max-w-none">
+          <h2 className="text-lg font-semibold">Análisis</h2>
+          <pre className="whitespace-pre-wrap text-sm text-muted-foreground">{log.analysisMarkdown}</pre>
+        </div>
+      )}
 
       <div>
         <h2 className="text-lg font-semibold mb-3">

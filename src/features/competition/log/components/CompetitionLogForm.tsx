@@ -4,6 +4,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { Textarea } from '@/shared/components/ui/textarea'
+import { DatePicker } from '@/shared/components/ui/date-picker'
 import { createCompetitionLogSchema, type CreateCompetitionLogForm } from '../schemas'
 import type { CompetitionLog } from '../types'
 
@@ -24,18 +25,17 @@ export function CompetitionLogForm({ defaultValues, onSubmit, isPending }: Compe
     defaultValues: {
       eventName: defaultValues?.eventName ?? '',
       eventDate: defaultValues?.eventDate ?? '',
-      location: defaultValues?.location ?? '',
-      weightClass: defaultValues?.weightClass ?? '',
-      modality: defaultValues?.modality ?? 'GI',
+      weightCategory: defaultValues?.weightCategory ?? '',
+      totalMatches: defaultValues?.totalMatches ?? undefined,
       result: defaultValues?.result ?? '',
-      notes: defaultValues?.notes ?? '',
+      analysisMarkdown: defaultValues?.analysisMarkdown ?? '',
     },
   })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="eventName">Nombre del evento</Label>
+        <Label htmlFor="eventName">Nombre del evento *</Label>
         <Input id="eventName" {...register('eventName')} placeholder="Copa BJJ Madrid 2026" />
         {errors.eventName && (
           <p className="text-sm text-destructive">{errors.eventName.message}</p>
@@ -44,42 +44,33 @@ export function CompetitionLogForm({ defaultValues, onSubmit, isPending }: Compe
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="eventDate">Fecha</Label>
-          <Input id="eventDate" type="date" {...register('eventDate')} />
+          <Label>Fecha *</Label>
+          <Controller
+            name="eventDate"
+            control={control}
+            render={({ field }) => (
+              <DatePicker value={field.value} onChange={field.onChange} placeholder="Seleccionar fecha" />
+            )}
+          />
           {errors.eventDate && (
             <p className="text-sm text-destructive">{errors.eventDate.message}</p>
           )}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="modality">Modalidad</Label>
-          <Controller
-            name="modality"
-            control={control}
-            render={({ field }) => (
-              <select
-                id="modality"
-                value={field.value}
-                onChange={field.onChange}
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <option value="GI">GI</option>
-                <option value="NOGI">NOGI</option>
-                <option value="BOTH">BOTH</option>
-              </select>
-            )}
-          />
+          <Label htmlFor="weightCategory">Categoría de peso</Label>
+          <Input id="weightCategory" {...register('weightCategory')} placeholder="-76 kg" />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="location">Ubicación</Label>
-          <Input id="location" {...register('location')} placeholder="Madrid, España" />
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="weightClass">Categoría de peso</Label>
-          <Input id="weightClass" {...register('weightClass')} placeholder="-76 kg" />
-        </div>
+      <div className="space-y-2">
+        <Label htmlFor="totalMatches">Total de combates</Label>
+        <Input
+          id="totalMatches"
+          type="number"
+          min={0}
+          {...register('totalMatches', { valueAsNumber: true })}
+          placeholder="5"
+        />
       </div>
 
       <div className="space-y-2">
@@ -88,12 +79,12 @@ export function CompetitionLogForm({ defaultValues, onSubmit, isPending }: Compe
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">Notas</Label>
+        <Label htmlFor="analysisMarkdown">Análisis (Markdown)</Label>
         <Textarea
-          id="notes"
-          {...register('notes')}
-          placeholder="Observaciones sobre la competencia..."
-          rows={3}
+          id="analysisMarkdown"
+          {...register('analysisMarkdown')}
+          placeholder="Reflexiones sobre la competencia, qué funcionó, qué mejorar..."
+          rows={4}
         />
       </div>
 

@@ -6,7 +6,6 @@ describe('CompetitionLog schemas', () => {
     const result = createCompetitionLogSchema.safeParse({
       eventName: 'Copa BJJ',
       eventDate: '2026-06-15',
-      modality: 'GI',
     })
     expect(result.success).toBe(true)
   })
@@ -15,18 +14,28 @@ describe('CompetitionLog schemas', () => {
     const result = createCompetitionLogSchema.safeParse({
       eventName: '',
       eventDate: '2026-06-15',
-      modality: 'GI',
     })
     expect(result.success).toBe(false)
   })
 
-  it('rejects invalid modality', () => {
+  it('rejects missing eventDate', () => {
     const result = createCompetitionLogSchema.safeParse({
       eventName: 'Copa',
-      eventDate: '2026-06-15',
-      modality: 'WRESTLING',
+      eventDate: '',
     })
     expect(result.success).toBe(false)
+  })
+
+  it('accepts optional fields', () => {
+    const result = createCompetitionLogSchema.safeParse({
+      eventName: 'Copa BJJ',
+      eventDate: '2026-06-15',
+      weightCategory: '-76 kg',
+      totalMatches: 5,
+      result: '1er puesto',
+      analysisMarkdown: '# Análisis\n\nBuen torneo.',
+    })
+    expect(result.success).toBe(true)
   })
 })
 

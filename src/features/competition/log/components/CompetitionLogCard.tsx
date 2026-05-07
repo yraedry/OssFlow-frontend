@@ -1,9 +1,8 @@
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar, MapPin, Trash2 } from 'lucide-react'
+import { Calendar, Trophy, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
-import { Badge } from '@/shared/components/ui/badge'
 import type { CompetitionLog } from '../types'
 
 type CompetitionLogCardProps = {
@@ -13,13 +12,11 @@ type CompetitionLogCardProps = {
 }
 
 function formatDate(dateStr: string) {
-  return format(new Date(dateStr), 'd MMM yyyy', { locale: es })
-}
-
-const modalityVariant: Record<CompetitionLog['modality'], 'default' | 'secondary' | 'outline'> = {
-  GI: 'default',
-  NOGI: 'secondary',
-  BOTH: 'outline',
+  try {
+    return format(new Date(dateStr), 'd MMM yyyy', { locale: es })
+  } catch {
+    return dateStr
+  }
 }
 
 export function CompetitionLogCard({ log, onClick, onDelete }: CompetitionLogCardProps) {
@@ -49,20 +46,17 @@ export function CompetitionLogCard({ log, onClick, onDelete }: CompetitionLogCar
           <Calendar className="h-3.5 w-3.5" />
           <span>{formatDate(log.eventDate)}</span>
         </div>
-        {log.location && (
-          <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5" />
-            <span>{log.location}</span>
-          </div>
+        {log.weightCategory && (
+          <p className="text-sm text-muted-foreground">{log.weightCategory}</p>
         )}
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant={modalityVariant[log.modality]}>{log.modality}</Badge>
-          {log.weightClass && (
-            <span className="text-xs text-muted-foreground">{log.weightClass}</span>
-          )}
-        </div>
+        {log.totalMatches != null && (
+          <p className="text-sm text-muted-foreground">{log.totalMatches} combates</p>
+        )}
         {log.result && (
-          <p className="text-sm font-medium">{log.result}</p>
+          <div className="flex items-center gap-1.5">
+            <Trophy className="h-3.5 w-3.5 text-yellow-500" />
+            <p className="text-sm font-medium">{log.result}</p>
+          </div>
         )}
       </CardContent>
     </Card>

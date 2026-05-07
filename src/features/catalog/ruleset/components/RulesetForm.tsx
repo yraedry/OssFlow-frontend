@@ -4,6 +4,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
+import { DatePicker } from '@/shared/components/ui/date-picker'
 import { createRulesetSchema, type CreateRulesetForm } from '../schemas'
 import type { Ruleset } from '../types'
 import { useFederations } from '@/features/identity/federation/hooks'
@@ -93,13 +94,25 @@ export function RulesetForm({ defaultValues, onSubmit, isPending }: RulesetFormP
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="effectiveFrom">Vigente desde *</Label>
-          <Input id="effectiveFrom" type="date" {...register('effectiveFrom')} />
+          <Label>Vigente desde *</Label>
+          <Controller
+            control={control}
+            name="effectiveFrom"
+            render={({ field }) => (
+              <DatePicker value={field.value} onChange={field.onChange} placeholder="Seleccionar fecha" />
+            )}
+          />
           {errors.effectiveFrom && <p className="text-sm text-destructive">{errors.effectiveFrom.message}</p>}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="effectiveTo">Vigente hasta (opcional)</Label>
-          <Input id="effectiveTo" type="date" {...register('effectiveTo')} />
+          <Label>Vigente hasta (opcional)</Label>
+          <Controller
+            control={control}
+            name="effectiveTo"
+            render={({ field }) => (
+              <DatePicker value={field.value ?? ''} onChange={field.onChange} placeholder="Sin fecha de fin" />
+            )}
+          />
         </div>
       </div>
 
