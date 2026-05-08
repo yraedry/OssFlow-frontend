@@ -18,7 +18,7 @@ import { useTrainingSessions, useCreateTrainingSession, useDeleteTrainingSession
 import { createTrainingSessionSchema, type CreateTrainingSessionForm } from '../schemas'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import type { Intensity } from '../types'
+import type { Intensity, SessionType } from '../types'
 
 const INTENSITY_LABELS: Record<Intensity, string> = {
   LIGHT: 'Baja', MODERATE: 'Moderada', HARD: 'Alta', COMPETITION: 'Competición',
@@ -30,6 +30,18 @@ const INTENSITY_COLORS: Record<Intensity, string> = {
   COMPETITION: 'bg-red-100 text-red-800',
 }
 
+const SESSION_TYPE_LABELS: Record<SessionType, string> = {
+  BJJ: 'BJJ', PHYSICAL: 'Físico', CARDIO: 'Cardio',
+}
+const SESSION_TYPE_ICONS: Record<SessionType, string> = {
+  BJJ: '🥋', PHYSICAL: '💪', CARDIO: '🏃',
+}
+const SESSION_TYPE_BADGE_COLORS: Record<SessionType, string> = {
+  BJJ: 'bg-blue-100 text-blue-800',
+  PHYSICAL: 'bg-green-100 text-green-800',
+  CARDIO: 'bg-orange-100 text-orange-800',
+}
+
 export function TrainingSessionsPage() {
   const [open, setOpen] = useState(false)
   const { data, isLoading, error } = useTrainingSessions()
@@ -38,7 +50,7 @@ export function TrainingSessionsPage() {
 
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<CreateTrainingSessionForm>({
     resolver: zodResolver(createTrainingSessionSchema),
-    defaultValues: { sessionDate: new Date().toISOString().split('T')[0], durationMinutes: 90, intensity: 'MODERATE' },
+    defaultValues: { sessionDate: new Date().toISOString().split('T')[0], durationMinutes: 90, intensity: 'MODERATE', sessionType: 'BJJ' },
   })
 
   const onSubmit = async (data: CreateTrainingSessionForm) => {
@@ -78,6 +90,28 @@ export function TrainingSessionsPage() {
               <div className="space-y-2">
                 <Label htmlFor="location">Gimnasio (opcional)</Label>
                 <Input id="location" {...register('location')} placeholder="Gym Central" />
+              </div>
+              <div className="space-y-2">
+                <Label>Tipo de sesión</Label>
+                <Controller control={control} name="sessionType" render={({ field }) => (
+                  <div className="flex gap-2">
+                    {(Object.keys(SESSION_TYPE_LABELS) as SessionType[]).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => field.onChange(type)}
+                        className={`flex-1 flex flex-col items-center gap-1 rounded-lg border-2 py-2.5 px-2 text-xs font-medium transition-colors
+                          ${field.value === type
+                            ? 'border-primary bg-primary/5 text-primary'
+                            : 'border-border bg-background text-muted-foreground hover:border-muted-foreground'
+                          }`}
+                      >
+                        <span className="text-lg">{SESSION_TYPE_ICONS[type]}</span>
+                        <span>{SESSION_TYPE_LABELS[type]}</span>
+                      </button>
+                    ))}
+                  </div>
+                )} />
               </div>
               <div className="space-y-2">
                 <Label>Intensidad</Label>
@@ -130,6 +164,11 @@ export function TrainingSessionsPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex gap-2 flex-wrap">
+                  {s.sessionType && (
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${SESSION_TYPE_BADGE_COLORS[s.sessionType] ?? 'bg-gray-100 text-gray-800'}`}>
+                      {SESSION_TYPE_ICONS[s.sessionType]} {SESSION_TYPE_LABELS[s.sessionType] ?? s.sessionType}
+                    </span>
+                  )}
                   {s.intensity && (
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${INTENSITY_COLORS[s.intensity] ?? 'bg-gray-100 text-gray-800'}`}>
                       {INTENSITY_LABELS[s.intensity] ?? s.intensity}

@@ -1,4 +1,5 @@
 export type Intensity = 'LIGHT' | 'MODERATE' | 'HARD' | 'COMPETITION'
+export type SessionType = 'BJJ' | 'PHYSICAL' | 'CARDIO'
 
 export interface TrainingSession {
   id: number
@@ -6,6 +7,7 @@ export interface TrainingSession {
   durationMinutes: number
   location?: string
   intensity: Intensity
+  sessionType: SessionType
   notesMarkdown?: string
   createdAt: string
   updatedAt: string
@@ -16,5 +18,6 @@ export interface CreateTrainingSessionRequest {
   durationMinutes: number
   location?: string
   intensity: Intensity
+  sessionType: SessionType
   notesMarkdown?: string
 }
