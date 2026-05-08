@@ -6,13 +6,22 @@ import {
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { useBjjRadar, useFisicoRadar } from '@/features/analisis/radar/hooks'
+import type { RadarDataPoint } from '@/features/analisis/radar/types'
+
+// ─── Familias por sub-radar ───────────────────────────────────────────────────
+
+const GUARDIAS_FAMILIES = ['CLOSED_GUARD', 'HALF_GUARD', 'OPEN_GUARD', 'DLR_GUARD', 'BUTTERFLY_GUARD', 'LEG_ENTANGLEMENT']
+const SUMISIONES_FAMILIES = ['CHOKES', 'GUILLOTINES', 'TRIANGLES', 'ARMBARS', 'SHOULDER_LOCKS', 'LEG_LOCKS']
+const MOVIMIENTO_FAMILIES = ['GUARD_PASSES', 'TAKEDOWNS', 'SWEEPS', 'BACK_TAKES', 'ESCAPES']
+
+// ─── Period selector ──────────────────────────────────────────────────────────
 
 const PERIOD_OPTIONS = [
-  { label: '30 días',  days: 30 },
-  { label: '90 días',  days: 90 },
-  { label: '6 meses',  days: 180 },
-  { label: '1 año',    days: 365 },
-  { label: 'Todo',     days: 3650 },
+  { label: '30 días', days: 30 },
+  { label: '90 días', days: 90 },
+  { label: '6 meses', days: 180 },
+  { label: '1 año',   days: 365 },
+  { label: 'Todo',    days: 3650 },
 ]
 
 function PeriodButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
@@ -30,15 +39,33 @@ function PeriodButton({ active, onClick, children }: { active: boolean; onClick:
   )
 }
 
-const RADAR_CHART_STYLE = {
-  contentStyle: {
-    background: 'hsl(var(--card))',
-    border: '1px solid hsl(var(--border))',
-    borderRadius: '6px',
-    fontSize: '12px',
-    fontFamily: 'var(--font-mono)',
-    color: 'hsl(var(--foreground))',
-  },
+// ─── Tab button ───────────────────────────────────────────────────────────────
+
+function TabButton({ active, color, onClick, children }: { active: boolean; color: string; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${
+        active
+          ? 'text-foreground'
+          : 'text-muted-foreground border-transparent hover:text-foreground'
+      }`}
+      style={active ? { borderBottomColor: color, color } : {}}
+    >
+      {children}
+    </button>
+  )
+}
+
+// ─── Radar card ───────────────────────────────────────────────────────────────
+
+const TOOLTIP_STYLE = {
+  background: 'hsl(var(--card))',
+  border: '1px solid hsl(var(--border))',
+  borderRadius: '6px',
+  fontSize: '12px',
+  fontFamily: 'var(--font-mono)',
+  color: 'hsl(var(--foreground))',
 }
 
 function RadarCard({
@@ -53,7 +80,7 @@ function RadarCard({
   title: string
   subtitle: string
   color: string
-  data: { family: string; label: string; value: number }[] | undefined
+  data: RadarDataPoint[] | undefined
   isLoading: boolean
   error: unknown
   emptyHint: string
@@ -66,33 +93,25 @@ function RadarCard({
       <div>
         <h2 className="text-lg font-semibold">{title}</h2>
         <p className="text-sm text-muted-foreground">
-          {hasData
-            ? `${totalReps} ${subtitle} registradas en el período`
-            : `Sin datos en el período`}
+          {hasData ? `${totalReps} ${subtitle} en el período` : 'Sin datos en el período'}
         </p>
       </div>
 
       {isLoading ? (
         <div className="flex justify-center py-20"><Spinner /></div>
       ) : error ? (
-        <Alert variant="destructive">
-          <AlertDescription>Error al cargar datos del radar</AlertDescription>
-        </Alert>
+        <Alert variant="destructive"><AlertDescription>Error al cargar datos</AlertDescription></Alert>
       ) : !hasData ? (
-        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-2">
-          <p className="text-sm">{emptyHint}</p>
+        <div className="flex justify-center items-center py-20 text-muted-foreground">
+          <p className="text-sm text-center">{emptyHint}</p>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={360}>
-          <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
-            <PolarGrid stroke="rgba(255,255,255,0.15)" />
+        <ResponsiveContainer width="100%" height={320}>
+          <RadarChart data={data} margin={{ top: 10, right: 40, bottom: 10, left: 40 }}>
+            <PolarGrid stroke="rgba(255,255,255,0.12)" />
             <PolarAngleAxis
               dataKey="label"
-              tick={{
-                fill: '#e2e8f0',
-                fontSize: 12,
-                fontFamily: 'var(--font-mono)',
-              }}
+              tick={{ fill: '#e2e8f0', fontSize: 11, fontFamily: 'var(--font-mono)' }}
             />
             <PolarRadiusAxis
               angle={90}
@@ -109,10 +128,7 @@ function RadarCard({
               strokeWidth={3}
               dot={{ r: 5, fill: color, stroke: 'white', strokeWidth: 1.5 }}
             />
-            <Tooltip
-              contentStyle={RADAR_CHART_STYLE.contentStyle}
-              formatter={(value) => [`${value}`, 'Sesiones/Reps']}
-            />
+            <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${v}`, 'reps']} />
           </RadarChart>
         </ResponsiveContainer>
       )}
@@ -137,20 +153,80 @@ function RadarCard({
   )
 }
 
-function BjjRadarCard({ days }: { days: number }) {
-  const { data, isLoading, error } = useBjjRadar(days)
+// ─── BJJ tabs ─────────────────────────────────────────────────────────────────
+
+type BjjTab = 'guardias' | 'sumisiones' | 'movimiento'
+
+const BJJ_TABS: { id: BjjTab; label: string; families: string[]; color: string; title: string; subtitle: string; hint: string }[] = [
+  {
+    id: 'guardias',
+    label: 'Guardias',
+    families: GUARDIAS_FAMILIES,
+    color: '#f97316',
+    title: 'Radar · Guardias',
+    subtitle: 'reps',
+    hint: 'Registra técnicas desde guardia cerrada, media guardia, De La Riva, mariposa o entrelazados',
+  },
+  {
+    id: 'sumisiones',
+    label: 'Sumisiones',
+    families: SUMISIONES_FAMILIES,
+    color: '#e11d48',
+    title: 'Radar · Sumisiones',
+    subtitle: 'reps',
+    hint: 'Registra estrangulaciones, guillotinas, triángulos, armbars, kimuras y leg locks',
+  },
+  {
+    id: 'movimiento',
+    label: 'Movimiento',
+    families: MOVIMIENTO_FAMILIES,
+    color: '#a855f7',
+    title: 'Radar · Movimiento',
+    subtitle: 'reps',
+    hint: 'Registra pasajes, derribos, barridas, tomas de espalda y escapadas',
+  },
+]
+
+function BjjTabs({ days }: { days: number }) {
+  const [activeTab, setActiveTab] = useState<BjjTab>('guardias')
+  const { data: allData, isLoading, error } = useBjjRadar(days)
+
+  const current = BJJ_TABS.find(t => t.id === activeTab)!
+  const filteredData = allData?.filter(d => current.families.includes(d.family))
+
   return (
-    <RadarCard
-      title="Radar BJJ"
-      subtitle="repeticiones"
-      color="#f97316"
-      data={data}
-      isLoading={isLoading}
-      error={error}
-      emptyHint="Registra sesiones BJJ con técnicas trabajadas para ver tu radar de familias aquí"
-    />
+    <div className="rounded-lg border border-border bg-card overflow-hidden" style={{ borderLeft: `4px solid ${current.color}` }}>
+      {/* Tab bar */}
+      <div className="flex border-b border-border px-4 pt-4 gap-1">
+        {BJJ_TABS.map(tab => (
+          <TabButton
+            key={tab.id}
+            active={activeTab === tab.id}
+            color={tab.color}
+            onClick={() => setActiveTab(tab.id)}
+          >
+            {tab.label}
+          </TabButton>
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+        <RadarCard
+          title={current.title}
+          subtitle={current.subtitle}
+          color={current.color}
+          data={filteredData}
+          isLoading={isLoading}
+          error={error}
+          emptyHint={current.hint}
+        />
+      </div>
+    </div>
   )
 }
+
+// ─── Físico card ──────────────────────────────────────────────────────────────
 
 function FisicoRadarCard({ days }: { days: number }) {
   const { data, isLoading, error } = useFisicoRadar(days)
@@ -166,6 +242,8 @@ function FisicoRadarCard({ days }: { days: number }) {
     />
   )
 }
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function AnalisisPage() {
   const [days, setDays] = useState(90)
@@ -187,7 +265,7 @@ export function AnalisisPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BjjRadarCard days={days} />
+        <BjjTabs days={days} />
         <FisicoRadarCard days={days} />
       </div>
     </div>
