@@ -73,7 +73,7 @@ export function TechniqueCard({ technique: t, onEdit, onDelete }: TechniqueCardP
     >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
-          <CardTitle className="text-base">{t.name}</CardTitle>
+          <CardTitle className="text-base font-bold">{t.name}</CardTitle>
           <div className="flex gap-1">
             <Button
               variant="ghost"
@@ -97,39 +97,42 @@ export function TechniqueCard({ technique: t, onEdit, onDelete }: TechniqueCardP
         </div>
       </CardHeader>
       <CardContent>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-1 flex-wrap items-center">
           <span
-            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${BELT_COLORS[t.minimumBelt]}`}
+            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${BELT_COLORS[t.minimumBelt]}`}
           >
             {BELT_LABELS[t.minimumBelt]}
           </span>
-          <Badge variant="secondary">{t.modality}</Badge>
-          <Badge variant={t.visibility === 'PUBLIC' ? 'default' : 'outline'}>
-            {t.visibility === 'PUBLIC' ? 'Pública' : 'Privada'}
-          </Badge>
-          {t.youtubeUrl && embedId && (
-            <button
-              onClick={handleVideoToggle}
-              className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
-            >
-              ▶ Video
-            </button>
-          )}
-          {t.youtubeUrl && !embedId && (
-            <a
-              href={t.youtubeUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-600 font-mono"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Video
-            </a>
+          <Badge variant="secondary" className="text-xs">{t.modality}</Badge>
+          {t.visibility !== 'PUBLIC' && (
+            <Badge variant="outline" className="text-xs">Privada</Badge>
           )}
         </div>
         {t.description && (
           <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{t.description}</p>
+        )}
+        {t.youtubeUrl && (
+          <div className="mt-2 flex">
+            {embedId ? (
+              <button
+                onClick={handleVideoToggle}
+                className="inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 transition-colors ml-auto"
+              >
+                ▶ Video
+              </button>
+            ) : (
+              <a
+                href={t.youtubeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-600 font-mono ml-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Video
+              </a>
+            )}
+          </div>
         )}
         {showVideo && embedId && (
           <div

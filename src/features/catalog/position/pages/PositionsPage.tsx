@@ -4,6 +4,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
+import { PaginationControls } from '@/shared/components/ui/pagination-controls'
 import { PositionCard } from '../components/PositionCard'
 import { PositionForm } from '../components/PositionForm'
 import { usePositions, useCreatePosition, useUpdatePosition, useDeletePosition } from '../hooks'
@@ -13,8 +14,9 @@ import type { CreatePositionForm } from '../schemas'
 export function PositionsPage() {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Position | null>(null)
+  const [currentPage, setCurrentPage] = useState(0)
 
-  const { data, isLoading, error } = usePositions()
+  const { data, isLoading, error } = usePositions({ page: currentPage, size: 20 })
   const createMutation = useCreatePosition()
   const updateMutation = useUpdatePosition()
   const deleteMutation = useDeletePosition()
@@ -78,11 +80,14 @@ export function PositionsPage() {
           <p className="text-sm">Crea tu primera posición con el botón de arriba.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(data?.content ?? []).map((p) => (
-            <PositionCard key={p.id} position={p} onEdit={handleEdit} onDelete={handleDelete} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(data?.content ?? []).map((p) => (
+              <PositionCard key={p.id} position={p} onEdit={handleEdit} onDelete={handleDelete} />
+            ))}
+          </div>
+          <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+        </>
       )}
     </div>
   )
