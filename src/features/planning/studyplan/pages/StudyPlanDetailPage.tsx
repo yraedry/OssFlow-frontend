@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useConfirm } from '@/shared/components/ui/confirm-dialog'
+import { useConfirm } from '@/shared/hooks/useConfirm'
 import { ArrowLeft, Plus, BarChart2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'

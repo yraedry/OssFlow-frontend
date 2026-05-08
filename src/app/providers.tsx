@@ -18,10 +18,11 @@ const queryClient = new QueryClient({
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      <Toaster richColors position="top-right" />
-      <ConfirmDialogProvider />
-      <ReactQueryDevtools initialIsOpen={false} />
+      <ConfirmDialogProvider>
+        {children}
+        <Toaster richColors position="top-right" />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </ConfirmDialogProvider>
     </QueryClientProvider>
   )
 }
