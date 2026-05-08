@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useConfirm } from '@/shared/components/ui/confirm-dialog'
+import { useConfirm } from '@/shared/hooks/useConfirm'
 import { ArrowLeft, Plus, Calendar, Weight } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'

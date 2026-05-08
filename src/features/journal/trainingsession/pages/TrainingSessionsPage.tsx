@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useConfirm } from '@/shared/components/ui/confirm-dialog'
+import { useConfirm } from '@/shared/hooks/useConfirm'
 import { Plus, Dumbbell } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
