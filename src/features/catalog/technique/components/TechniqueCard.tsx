@@ -51,7 +51,7 @@ export function TechniqueCard({ technique: t, onEdit, onDelete }: TechniqueCardP
   return (
     <Card
       className="cursor-pointer hover:shadow-md transition-shadow"
-      onClick={() => navigate(`/catalog/techniques/${t.id}`)}
+      onClick={() => navigate(`/estudio/tecnicas/${t.id}`)}
     >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">

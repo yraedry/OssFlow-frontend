@@ -14,13 +14,13 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { label: 'Inicio', path: '/' },
-  { label: 'Posiciones', path: '/catalog/positions' },
-  { label: 'Técnicas', path: '/catalog/techniques' },
-  { label: 'Sistemas', path: '/catalog/systems' },
-  { label: 'Notas', path: '/journal/notes' },
-  { label: 'Sesiones de entrenamiento', path: '/journal/training-sessions' },
-  { label: 'Competencias', path: '/competition/logs' },
-  { label: 'Planes de estudio', path: '/planning/study-plans' },
+  { label: 'Posiciones', path: '/estudio/posiciones' },
+  { label: 'Técnicas', path: '/estudio/tecnicas' },
+  { label: 'Sistemas', path: '/estudio/sistemas' },
+  { label: 'Notas', path: '/diario/notas' },
+  { label: 'Sesiones de entrenamiento', path: '/diario/sesiones-bjj' },
+  { label: 'Competencias', path: '/diario/competicion' },
+  { label: 'Planes de estudio', path: '/planificacion/planes' },
   { label: 'Perfil', path: '/profile' },
 ]
 

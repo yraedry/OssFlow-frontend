@@ -33,7 +33,7 @@ export function StudyPlansPage() {
   }
 
   const handleClick = (plan: StudyPlan) => {
-    navigate(`/planning/study-plans/${plan.id}`)
+    navigate(`/planificacion/planes/${plan.id}`)
   }
 
   return (

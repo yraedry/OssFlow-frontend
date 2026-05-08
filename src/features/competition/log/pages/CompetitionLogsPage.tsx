@@ -35,7 +35,7 @@ export function CompetitionLogsPage() {
   }
 
   const handleClick = (log: CompetitionLog) => {
-    navigate(`/competition/logs/${log.id}`)
+    navigate(`/diario/competicion/${log.id}`)
   }
 
   return (

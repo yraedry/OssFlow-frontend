@@ -47,7 +47,7 @@ export function SystemCard({ system, onEdit, onDelete }: SystemCardProps) {
           <p className="text-sm text-muted-foreground line-clamp-2">{system.description}</p>
         )}
         <Button variant="outline" size="sm" className="w-full gap-2" asChild>
-          <Link to={`/catalog/systems/${system.id}/edit`}>
+          <Link to={`/estudio/sistemas/${system.id}/edit`}>
             <GitBranch className="h-3.5 w-3.5" />
             Editar Flow
           </Link>

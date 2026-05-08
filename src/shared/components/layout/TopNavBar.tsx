@@ -1,4 +1,3 @@
-// src/shared/components/layout/TopNavBar.tsx
 import { NavLink, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { Search, Sun, Moon } from 'lucide-react'
@@ -8,83 +7,62 @@ import { useProfile } from '@/features/identity/profile/hooks'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
 
 const PRIMARY_NAV = [
-  { to: '/', label: 'Inicio', end: true },
-  { to: '/journal/training-sessions', label: 'BJJ' },
-  { to: '/journal/physical-sessions', label: 'Físico' },
-  { to: '/planning/study-plans', label: 'Planes' },
+  { to: '/',                    label: 'Inicio',        end: true,  section: null },
+  { to: '/diario/sesiones-bjj', label: 'Diario',        end: false, section: 'diario' },
+  { to: '/estudio/tecnicas',    label: 'Estudio',       end: false, section: 'estudio' },
+  { to: '/planificacion/planes',label: 'Planificación', end: false, section: 'planificacion' },
+  { to: '/analisis',            label: 'Análisis',      end: false, section: 'analisis', soon: true },
 ]
 
-const SUB_NAV_BY_SECTION: Record<string, { to: string; label: string }[]> = {
-  bjj: [
-    { to: '/journal/training-sessions', label: 'Sesiones' },
-    { to: '/catalog/techniques', label: 'Técnicas' },
-    { to: '/catalog/positions', label: 'Posiciones' },
-    { to: '/catalog/systems', label: 'Sistemas' },
-    { to: '/catalog/rulesets', label: 'Reglamentos' },
-    { to: '/journal/notes', label: 'Notas' },
-    { to: '/journal/graph', label: 'Grafo' },
-    { to: '/competition/logs', label: 'Competencias' },
+const SUB_NAV: Record<string, { to: string; label: string }[]> = {
+  diario: [
+    { to: '/diario/sesiones-bjj',    label: 'Sesiones BJJ' },
+    { to: '/diario/sesiones-fisicas', label: 'Sesiones físicas' },
+    { to: '/diario/notas',           label: 'Notas' },
+    { to: '/diario/competicion',     label: 'Competición' },
   ],
-  physical: [
-    { to: '/journal/physical-sessions', label: 'Sesiones' },
-    { to: '/physical/exercises', label: 'Ejercicios' },
+  estudio: [
+    { to: '/estudio/tecnicas',    label: 'Técnicas' },
+    { to: '/estudio/posiciones',  label: 'Posiciones' },
+    { to: '/estudio/sistemas',    label: 'Sistemas' },
+    { to: '/estudio/ejercicios',  label: 'Ejercicios' },
+    { to: '/estudio/reglamentos', label: 'Reglamentos' },
   ],
-  planning: [
-    { to: '/planning/study-plans', label: 'Planes' },
-    { to: '/planning/weekly-template', label: 'Plantilla' },
-    { to: '/planning/weekly-schedule', label: 'Calendario' },
+  planificacion: [
+    { to: '/planificacion/planes',    label: 'Planes' },
+    { to: '/planificacion/plantilla', label: 'Plantilla' },
+    { to: '/planificacion/calendario',label: 'Calendario' },
   ],
 }
 
-function useSecondaryNav(pathname: string) {
-  if (pathname === '/') return []
-  // Físico primero (más específico)
-  if (pathname.startsWith('/journal/physical') || pathname.startsWith('/physical'))
-    return SUB_NAV_BY_SECTION.physical
-  // BJJ: journal, catalog, competition
-  if (pathname.startsWith('/journal') || pathname.startsWith('/catalog') || pathname.startsWith('/competition'))
-    return SUB_NAV_BY_SECTION.bjj
-  if (pathname.startsWith('/planning'))
-    return SUB_NAV_BY_SECTION.planning
-  return []
-}
-
-function usePrimaryActive(pathname: string) {
-  if (pathname === '/') return '/'
-  if (pathname.startsWith('/journal/physical') || pathname.startsWith('/physical'))
-    return '/journal/physical-sessions'
-  if (pathname.startsWith('/journal') || pathname.startsWith('/catalog') || pathname.startsWith('/competition'))
-    return '/journal/training-sessions'
-  if (pathname.startsWith('/planning'))
-    return '/planning/study-plans'
+function getSection(pathname: string): string | null {
+  if (pathname === '/') return null
+  if (pathname.startsWith('/diario') || pathname.startsWith('/journal') || pathname.startsWith('/competition'))
+    return 'diario'
+  if (pathname.startsWith('/estudio') || pathname.startsWith('/catalog') || pathname.startsWith('/physical'))
+    return 'estudio'
+  if (pathname.startsWith('/planificacion') || pathname.startsWith('/planning'))
+    return 'planificacion'
+  if (pathname.startsWith('/analisis'))
+    return 'analisis'
   return null
 }
 
-const NAV_STYLE_PRIMARY = {
+const MONO = {
   fontFamily: 'var(--font-mono)',
-  fontSize: '12px',
   textTransform: 'uppercase' as const,
   letterSpacing: '0.04em',
 }
 
-const NAV_STYLE_SECONDARY = {
-  fontFamily: 'var(--font-mono)',
-  fontSize: '11px',
-  textTransform: 'uppercase' as const,
-  letterSpacing: '0.04em',
-}
-
-type TopNavBarProps = {
-  onSearchOpen: () => void
-}
+type TopNavBarProps = { onSearchOpen: () => void }
 
 export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
   const { theme, toggleTheme } = useTheme()
   const { data: profile } = useProfile()
   const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
   const { pathname } = useLocation()
-  const secondaryNav = useSecondaryNav(pathname)
-  const activePrimary = usePrimaryActive(pathname)
+  const activeSection = getSection(pathname)
+  const subNav = activeSection ? (SUB_NAV[activeSection] ?? []) : []
 
   useEffect(() => {
     const handler = () => setAvatar(getAvatarFromStorage())
@@ -93,12 +71,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
   }, [])
 
   const initials = profile?.displayName
-    ? profile.displayName
-        .split(' ')
-        .map((n: string) => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
+    ? profile.displayName.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : '?'
 
   return (
@@ -113,22 +86,28 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
           OSSFLOW
         </NavLink>
 
-        <nav className="flex items-stretch flex-1 min-w-0">
-          {PRIMARY_NAV.map(({ to, label, end }) => {
-            const isForceActive = activePrimary === to
+        <nav className="flex items-stretch flex-1 min-w-0 overflow-x-auto scrollbar-none">
+          {PRIMARY_NAV.map(({ to, label, end, section, soon }) => {
+            const isActive = section ? activeSection === section : pathname === '/'
             return (
               <NavLink
                 key={to}
                 to={to}
                 end={end}
                 className={cn(
-                  'flex items-center px-4 border-b-2 transition-colors h-full shrink-0',
+                  'flex items-center gap-1.5 px-4 border-b-2 transition-colors h-full shrink-0',
                   'text-muted-foreground hover:text-foreground',
-                  isForceActive ? 'border-foreground text-foreground' : 'border-transparent',
+                  isActive ? 'border-foreground text-foreground' : 'border-transparent',
+                  soon && 'opacity-40 pointer-events-none',
                 )}
-                style={NAV_STYLE_PRIMARY}
+                style={{ ...MONO, fontSize: '12px' }}
               >
                 {label}
+                {soon && (
+                  <span className="text-[9px] px-1 py-0.5 rounded bg-muted text-muted-foreground leading-none">
+                    pronto
+                  </span>
+                )}
               </NavLink>
             )
           })}
@@ -147,7 +126,9 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
             className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Cambiar tema"
           >
-            {theme === 'dark' ? <Sun className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Moon className="h-3.5 w-3.5" strokeWidth={1.5} />}
+            {theme === 'dark'
+              ? <Sun className="h-3.5 w-3.5" strokeWidth={1.5} />
+              : <Moon className="h-3.5 w-3.5" strokeWidth={1.5} />}
           </button>
           <NavLink
             to="/profile"
@@ -155,19 +136,17 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
             style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.02em' }}
             aria-label="Perfil"
           >
-            {avatar ? (
-              <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
-            ) : (
-              initials
-            )}
+            {avatar
+              ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+              : initials}
           </NavLink>
         </div>
       </div>
 
-      {/* Fila 2: nav secundaria contextual */}
-      {secondaryNav.length > 0 && (
+      {/* Fila 2: subnav contextual */}
+      {subNav.length > 0 && (
         <div className="flex h-8 items-stretch overflow-x-auto scrollbar-none border-t border-border/50 px-4">
-          {secondaryNav.map(({ to, label }) => (
+          {subNav.map(({ to, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -178,7 +157,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
                   isActive ? 'border-foreground text-foreground' : 'border-transparent',
                 )
               }
-              style={NAV_STYLE_SECONDARY}
+              style={{ ...MONO, fontSize: '11px' }}
             >
               {label}
             </NavLink>

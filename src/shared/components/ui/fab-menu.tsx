@@ -5,11 +5,11 @@ import { Plus, X, Dumbbell, Zap, BookOpen, FileText, CalendarPlus } from 'lucide
 import { cn } from '@/shared/lib/utils'
 
 const ACTIONS = [
-  { label: 'Sesión BJJ', icon: Dumbbell, to: '/journal/training-sessions?new=bjj' },
-  { label: 'Sesión física', icon: Zap, to: '/journal/physical-sessions?new=1' },
-  { label: 'Técnica', icon: BookOpen, to: '/catalog/techniques?new=1' },
-  { label: 'Nota', icon: FileText, to: '/journal/notes?new=1' },
-  { label: 'Programar', icon: CalendarPlus, to: '/planning/study-plans?new=1' },
+  { label: 'Sesión BJJ', icon: Dumbbell, to: '/diario/sesiones-bjj?new=bjj' },
+  { label: 'Sesión física', icon: Zap, to: '/diario/sesiones-fisicas?new=1' },
+  { label: 'Técnica', icon: BookOpen, to: '/estudio/tecnicas?new=1' },
+  { label: 'Nota', icon: FileText, to: '/diario/notas?new=1' },
+  { label: 'Programar', icon: CalendarPlus, to: '/planificacion/planes?new=1' },
 ] as const
 
 export function FabMenu() {

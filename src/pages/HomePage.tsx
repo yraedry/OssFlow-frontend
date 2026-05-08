@@ -102,7 +102,7 @@ export function HomePage() {
               ) : (
                 <span>
                   Sin plantilla configurada.{' '}
-                  <Link to="/planning/weekly-template" className="underline hover:text-foreground transition-colors">
+                  <Link to="/planificacion/plantilla" className="underline hover:text-foreground transition-colors">
                     Configúrala aquí →
                   </Link>
                 </span>
@@ -189,7 +189,7 @@ export function HomePage() {
           </button>
 
           <Link
-            to="/journal/training-sessions"
+            to="/diario/sesiones-bjj"
             className="text-center text-muted-foreground hover:text-foreground transition-colors"
             style={{ ...MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}
           >
@@ -204,8 +204,8 @@ export function HomePage() {
           <div className="px-5 py-3 border-b border-border flex items-center justify-between">
             <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>Últimas sesiones</span>
             <div className="flex gap-4">
-              <Link to="/journal/training-sessions" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }} className="hover:text-foreground transition-colors">BJJ →</Link>
-              <Link to="/journal/physical-sessions" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }} className="hover:text-foreground transition-colors">Físico →</Link>
+              <Link to="/diario/sesiones-bjj" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }} className="hover:text-foreground transition-colors">BJJ →</Link>
+              <Link to="/diario/sesiones-fisicas" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }} className="hover:text-foreground transition-colors">Físico →</Link>
             </div>
           </div>
           {recentSessions.map((item) => (
