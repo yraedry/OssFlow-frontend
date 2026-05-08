@@ -113,12 +113,14 @@ export function TrainingSessionsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(data?.content ?? []).filter(Boolean).map((s) => (
+          {(data?.content ?? []).map((s) => (
             <Card key={s.id}>
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-base">
-                    {s.sessionDate ? format(new Date(s.sessionDate), "d MMM yyyy", { locale: es }) : 'Sin fecha'}
+                    {s.sessionDate
+                      ? (() => { try { return format(new Date(s.sessionDate + 'T00:00:00'), "d MMM yyyy", { locale: es }) } catch { return s.sessionDate } })()
+                      : 'Sin fecha'}
                   </CardTitle>
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"
                     onClick={() => { if (confirm('¿Eliminar sesión?')) deleteMutation.mutate(s.id) }}>
@@ -128,9 +130,11 @@ export function TrainingSessionsPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex gap-2 flex-wrap">
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${INTENSITY_COLORS[s.intensity]}`}>
-                    {INTENSITY_LABELS[s.intensity]}
-                  </span>
+                  {s.intensity && (
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${INTENSITY_COLORS[s.intensity] ?? 'bg-gray-100 text-gray-800'}`}>
+                      {INTENSITY_LABELS[s.intensity] ?? s.intensity}
+                    </span>
+                  )}
                   <Badge variant="outline">{s.durationMinutes} min</Badge>
                   {s.location && <Badge variant="outline">{s.location}</Badge>}
                 </div>
