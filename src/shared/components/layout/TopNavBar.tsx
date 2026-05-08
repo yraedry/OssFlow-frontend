@@ -87,7 +87,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
         </NavLink>
 
         <nav className="flex items-stretch flex-1 min-w-0 overflow-x-auto scrollbar-none">
-          {PRIMARY_NAV.map(({ to, label, end, section, soon }) => {
+          {PRIMARY_NAV.map(({ to, label, end, section }) => {
             const isActive = section ? activeSection === section : pathname === '/'
             return (
               <NavLink
@@ -98,16 +98,10 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
                   'flex items-center gap-1.5 px-4 border-b-2 transition-colors h-full shrink-0',
                   'text-muted-foreground hover:text-foreground',
                   isActive ? 'border-foreground text-foreground' : 'border-transparent',
-                  soon && 'opacity-40 pointer-events-none',
                 )}
                 style={{ ...MONO, fontSize: '12px' }}
               >
                 {label}
-                {soon && (
-                  <span className="text-[9px] px-1 py-0.5 rounded bg-muted text-muted-foreground leading-none">
-                    pronto
-                  </span>
-                )}
               </NavLink>
             )
           })}
