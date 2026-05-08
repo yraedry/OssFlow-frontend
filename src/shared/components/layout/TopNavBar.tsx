@@ -1,9 +1,11 @@
 // src/shared/components/layout/TopNavBar.tsx
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { Search, Sun, Moon, Plus } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTheme } from '@/shared/hooks/useTheme'
 import { useProfile } from '@/features/identity/profile/hooks'
+import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
 
 const PRIMARY_NAV = [
   { to: '/', label: 'Inicio', end: true },
@@ -45,6 +47,13 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
   const { theme, toggleTheme } = useTheme()
   const { data: profile } = useProfile()
   const navigate = useNavigate()
+  const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
+
+  useEffect(() => {
+    const handler = () => setAvatar(getAvatarFromStorage())
+    window.addEventListener('ossflow_avatar_changed', handler)
+    return () => window.removeEventListener('ossflow_avatar_changed', handler)
+  }, [])
 
   const initials = profile?.displayName
     ? profile.displayName
@@ -112,11 +121,15 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
           </button>
           <NavLink
             to="/profile"
-            className="flex h-7 w-7 items-center justify-center border border-border bg-card text-muted-foreground hover:text-foreground transition-colors ml-1"
+            className="flex h-7 w-7 items-center justify-center border border-border bg-card text-muted-foreground hover:text-foreground transition-colors ml-1 overflow-hidden rounded-full"
             style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.02em' }}
             aria-label="Perfil"
           >
-            {initials}
+            {avatar ? (
+              <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
           </NavLink>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useProfile, useCreateProfile, useUpdateProfile } from '../hooks'
 import { useFederations, useUpdateProfileFederations } from '@/features/identity/federation/hooks'
 import { ProfileForm } from '../components/ProfileForm'
+import { AvatarUpload } from '../components/AvatarUpload'
 import { FederationSelector } from '@/features/identity/federation/components/FederationSelector'
 import type { UpdateProfileForm } from '../schemas'
 import type { FederationAssignment } from '@/features/identity/federation/types'
@@ -61,6 +62,11 @@ export function ProfilePage() {
             : 'Completa tu perfil para empezar a usar OssFlow'}
         </p>
       </div>
+
+      <section className="rounded-lg border p-6 space-y-4">
+        <h2 className="text-lg font-semibold">Foto de perfil</h2>
+        <AvatarUpload displayName={profile?.displayName} />
+      </section>
 
       <section className="rounded-lg border p-6 space-y-4">
         <h2 className="text-lg font-semibold">Información personal</h2>
