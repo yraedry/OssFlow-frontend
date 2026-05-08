@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { ArrowLeft, Plus, BarChart2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
@@ -22,6 +23,7 @@ export function StudyPlanDetailPage() {
   const { data: blocksData, isLoading: blocksLoading } = useStudyBlocks(planId)
   const createBlock = useCreateStudyBlock(planId)
   const deleteBlock = useDeleteStudyBlock(planId)
+  const confirm = useConfirm()
 
   const handleAddBlock = async (data: CreateStudyBlockForm) => {
     await createBlock.mutateAsync(data as CreateStudyBlockRequest)
@@ -29,7 +31,8 @@ export function StudyPlanDetailPage() {
   }
 
   const handleDeleteBlock = async (blockId: number) => {
-    if (!confirm('¿Eliminar este bloque?')) return
+    const ok = await confirm({ description: '¿Eliminar este bloque? Esta acción no se puede deshacer.' })
+    if (!ok) return
     await deleteBlock.mutateAsync(blockId)
   }
 

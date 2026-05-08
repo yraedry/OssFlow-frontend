@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { Plus } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
@@ -20,6 +21,7 @@ export function CompetitionLogsPage() {
   const { data, isLoading, error } = useCompetitionLogs({ page: currentPage, size: 20 })
   const createMutation = useCreateCompetitionLog()
   const deleteMutation = useDeleteCompetitionLog()
+  const confirm = useConfirm()
 
   const handleSubmit = async (formData: CreateCompetitionLogForm) => {
     await createMutation.mutateAsync(formData)
@@ -27,7 +29,8 @@ export function CompetitionLogsPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Eliminar esta competencia?')) return
+    const ok = await confirm({ description: '¿Eliminar esta competencia? Esta acción no se puede deshacer.' })
+    if (!ok) return
     await deleteMutation.mutateAsync(id)
   }
 

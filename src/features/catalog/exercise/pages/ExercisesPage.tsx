@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
@@ -131,6 +132,7 @@ export function ExercisesPage() {
   const createMutation = useCreateExercise()
   const updateMutation = useUpdateExercise()
   const deleteMutation = useDeleteExercise()
+  const confirm = useConfirm()
 
   const handleSubmit = async (formData: CreateExerciseForm) => {
     const payload = { ...formData, youtubeUrl: formData.youtubeUrl || undefined }
@@ -144,7 +146,8 @@ export function ExercisesPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Eliminar este ejercicio?')) return
+    const ok = await confirm({ description: '¿Eliminar este ejercicio? Esta acción no se puede deshacer.' })
+    if (!ok) return
     await deleteMutation.mutateAsync(id)
   }
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { Plus, Building2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -41,6 +42,7 @@ export function RulesetsPage() {
   const updateMutation = useUpdateRuleset()
   const deleteMutation = useDeleteRuleset()
   const createFederationMutation = useCreateFederation()
+  const confirm = useConfirm()
 
   const fedForm = useForm<CreateFederationFormData>({
     resolver: zodResolver(createFederationSchema),
@@ -63,7 +65,8 @@ export function RulesetsPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Eliminar este reglamento?')) return
+    const ok = await confirm({ description: '¿Eliminar este reglamento? Esta acción no se puede deshacer.' })
+    if (!ok) return
     await deleteMutation.mutateAsync(id)
   }
 
