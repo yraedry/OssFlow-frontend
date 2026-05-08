@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Dumbbell, PlayCircle, ArrowLeft } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { PaginationControls } from '@/shared/components/ui/pagination-controls'
-import { YouTubeEmbed } from '@/shared/components/ui/youtube-embed'
 import { ExerciseForm } from '../components/ExerciseForm'
 import {
   useExercises,
@@ -21,27 +20,21 @@ import { CATEGORY_LABELS, EQUIPMENT_LABELS } from '../types'
 import type { CreateExerciseForm } from '../schemas'
 
 const CATEGORY_COLORS: Record<ExerciseCategory, string> = {
-  STRENGTH: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  CARDIO: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+  STRENGTH:    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  CARDIO:      'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
   FLEXIBILITY: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  CORE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  MOBILITY: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  OTHER: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+  CORE:        'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+  MOBILITY:    'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+  OTHER:       'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
 }
 
 const EQUIPMENT_COLORS: Record<EquipmentType, string> = {
   NO_EQUIPMENT: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
-  HOME: 'bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200',
-  GYM: 'bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200',
+  HOME:         'bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200',
+  GYM:          'bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200',
 }
 
-type FilterButtonProps = {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}
-
-function FilterButton({ active, onClick, children }: FilterButtonProps) {
+function FilterButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       onClick={onClick}
@@ -56,59 +49,192 @@ function FilterButton({ active, onClick, children }: FilterButtonProps) {
   )
 }
 
+function CategoryBadge({ category }: { category: ExerciseCategory }) {
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${CATEGORY_COLORS[category]}`}>
+      {CATEGORY_LABELS[category]}
+    </span>
+  )
+}
+
+function EquipmentBadge({ equipment }: { equipment: EquipmentType }) {
+  return (
+    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${EQUIPMENT_COLORS[equipment]}`}>
+      {EQUIPMENT_LABELS[equipment]}
+    </span>
+  )
+}
+
+// Vista de detalle completo del ejercicio
+function ExerciseDetailView({
+  exercise: ex,
+  onEdit,
+  onDelete,
+  onBack,
+}: {
+  exercise: Exercise
+  onEdit: (e: Exercise) => void
+  onDelete: (id: number) => void
+  onBack: () => void
+}) {
+  const youtubeId = ex.youtubeUrl
+    ? ex.youtubeUrl.match(/[?&]v=([^&]+)/)?.[1] ?? ex.youtubeUrl.split('/').pop()
+    : null
+  const watchUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : ex.youtubeUrl
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5">
+          <ArrowLeft className="h-4 w-4" />
+          Ejercicios
+        </Button>
+      </div>
+
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="space-y-2">
+          <h1 className="text-2xl font-bold">{ex.name}</h1>
+          <div className="flex flex-wrap gap-2">
+            <CategoryBadge category={ex.category} />
+            <EquipmentBadge equipment={ex.equipment} />
+            {ex.visibility === 'PRIVATE' && (
+              <Badge variant="outline" className="text-xs">Privado</Badge>
+            )}
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => onEdit(ex)} className="gap-1.5">
+            <Pencil className="h-3.5 w-3.5" />
+            Editar
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-destructive hover:text-destructive border-destructive/30 hover:bg-destructive/10"
+            onClick={() => onDelete(ex.id)}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Eliminar
+          </Button>
+        </div>
+      </div>
+
+      {/* Video prominente */}
+      {watchUrl && (
+        <div className="rounded-lg border border-border bg-card p-5 space-y-3">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Video de referencia</h2>
+          <a
+            href={watchUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-4 group"
+          >
+            {youtubeId && (
+              <img
+                src={`https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`}
+                alt={`${ex.name} thumbnail`}
+                className="w-40 h-[90px] object-cover rounded border border-border flex-shrink-0"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+              />
+            )}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 text-sm font-medium group-hover:text-foreground text-muted-foreground transition-colors">
+                <PlayCircle className="h-4 w-4 text-red-500" />
+                Ver en YouTube
+              </div>
+              <p className="text-xs text-muted-foreground">{ex.name} — técnica y forma correcta</p>
+            </div>
+          </a>
+        </div>
+      )}
+
+      {/* Descripción completa */}
+      {ex.description ? (
+        <div className="rounded-lg border border-border bg-card p-5 space-y-2">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Descripción</h2>
+          <p className="text-sm leading-relaxed">{ex.description}</p>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-border border-dashed p-5 text-center text-muted-foreground">
+          <Dumbbell className="h-8 w-8 mx-auto mb-2 opacity-30" />
+          <p className="text-sm">Sin descripción aún</p>
+          <Button variant="ghost" size="sm" className="mt-2" onClick={() => onEdit(ex)}>
+            Añadir descripción
+          </Button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 type ExerciseCardProps = {
   exercise: Exercise
+  onView: (exercise: Exercise) => void
   onEdit: (exercise: Exercise) => void
   onDelete: (id: number) => void
 }
 
-function ExerciseCard({ exercise: ex, onEdit, onDelete }: ExerciseCardProps) {
+function ExerciseCard({ exercise: ex, onView, onEdit, onDelete }: ExerciseCardProps) {
+  const youtubeId = ex.youtubeUrl
+    ? ex.youtubeUrl.match(/[?&]v=([^&]+)/)?.[1] ?? ex.youtubeUrl.split('/').pop()
+    : null
+
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card
+      className="hover:shadow-md transition-shadow cursor-pointer"
+      onClick={() => onView(ex)}
+    >
+      {/* Thumbnail del video si existe */}
+      {youtubeId && (
+        <div className="relative overflow-hidden rounded-t-lg">
+          <img
+            src={`https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`}
+            alt={ex.name}
+            className="w-full h-28 object-cover"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+          <div className="absolute bottom-2 right-2">
+            <span className="inline-flex items-center gap-1 bg-red-600/90 text-white text-xs px-2 py-0.5 rounded font-mono">
+              <PlayCircle className="h-3 w-3" />
+              Video
+            </span>
+          </div>
+        </div>
+      )}
+
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-base leading-tight">{ex.name}</CardTitle>
-          <div className="flex gap-1 shrink-0">
+          <div className="flex gap-1 shrink-0" onClick={e => e.stopPropagation()}>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-7 w-7"
               onClick={() => onEdit(ex)}
-              aria-label="Editar ejercicio"
+              aria-label="Editar"
             >
-              <Pencil className="h-3.5 w-3.5" />
+              <Pencil className="h-3 w-3" />
             </Button>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive"
+              className="h-7 w-7 text-destructive hover:text-destructive"
               onClick={() => onDelete(ex.id)}
-              aria-label="Eliminar ejercicio"
+              aria-label="Eliminar"
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 className="h-3 w-3" />
             </Button>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="flex flex-wrap gap-1.5">
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${CATEGORY_COLORS[ex.category]}`}>
-            {CATEGORY_LABELS[ex.category]}
-          </span>
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${EQUIPMENT_COLORS[ex.equipment]}`}>
-            {EQUIPMENT_LABELS[ex.equipment]}
-          </span>
-          {ex.visibility === 'PRIVATE' && (
-            <Badge variant="outline" className="text-xs">Privado</Badge>
-          )}
+          <CategoryBadge category={ex.category} />
+          <EquipmentBadge equipment={ex.equipment} />
         </div>
         {ex.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">{ex.description}</p>
-        )}
-        {ex.youtubeUrl && (
-          <div className="mt-2 flex justify-end">
-            <YouTubeEmbed url={ex.youtubeUrl} title={ex.name} />
-          </div>
+          <p className="text-xs text-muted-foreground line-clamp-2">{ex.description}</p>
         )}
       </CardContent>
     </Card>
@@ -118,6 +244,7 @@ function ExerciseCard({ exercise: ex, onEdit, onDelete }: ExerciseCardProps) {
 export function ExercisesPage() {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Exercise | null>(null)
+  const [viewing, setViewing] = useState<Exercise | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | undefined>()
   const [equipmentFilter, setEquipmentFilter] = useState<EquipmentType | undefined>()
   const [currentPage, setCurrentPage] = useState(0)
@@ -126,7 +253,7 @@ export function ExercisesPage() {
     category: categoryFilter,
     equipment: equipmentFilter,
     page: currentPage,
-    size: 20,
+    size: 24,
   })
 
   const createMutation = useCreateExercise()
@@ -149,6 +276,7 @@ export function ExercisesPage() {
     const ok = await confirm({ description: '¿Eliminar este ejercicio? Esta acción no se puede deshacer.' })
     if (!ok) return
     await deleteMutation.mutateAsync(id)
+    if (viewing?.id === id) setViewing(null)
   }
 
   const handleEdit = (exercise: Exercise) => {
@@ -173,6 +301,32 @@ export function ExercisesPage() {
 
   const categories = Object.keys(CATEGORY_LABELS) as ExerciseCategory[]
   const equipments = Object.keys(EQUIPMENT_LABELS) as EquipmentType[]
+
+  // Vista de detalle
+  if (viewing) {
+    return (
+      <>
+        <ExerciseDetailView
+          exercise={viewing}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onBack={() => setViewing(null)}
+        />
+        <Dialog open={open} onOpenChange={handleOpenChange}>
+          <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Editar ejercicio</DialogTitle>
+            </DialogHeader>
+            <ExerciseForm
+              defaultValues={editing ?? undefined}
+              onSubmit={handleSubmit}
+              isPending={createMutation.isPending || updateMutation.isPending}
+            />
+          </DialogContent>
+        </Dialog>
+      </>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -212,11 +366,7 @@ export function ExercisesPage() {
             Todos
           </FilterButton>
           {equipments.map((eq) => (
-            <FilterButton
-              key={eq}
-              active={equipmentFilter === eq}
-              onClick={() => toggleEquipment(eq)}
-            >
+            <FilterButton key={eq} active={equipmentFilter === eq} onClick={() => toggleEquipment(eq)}>
               {EQUIPMENT_LABELS[eq]}
             </FilterButton>
           ))}
@@ -227,11 +377,7 @@ export function ExercisesPage() {
             Todos
           </FilterButton>
           {categories.map((cat) => (
-            <FilterButton
-              key={cat}
-              active={categoryFilter === cat}
-              onClick={() => toggleCategory(cat)}
-            >
+            <FilterButton key={cat} active={categoryFilter === cat} onClick={() => toggleCategory(cat)}>
               {CATEGORY_LABELS[cat]}
             </FilterButton>
           ))}
@@ -252,11 +398,12 @@ export function ExercisesPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {(data?.content ?? []).map((ex) => (
               <ExerciseCard
                 key={ex.id}
                 exercise={ex}
+                onView={setViewing}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
               />
