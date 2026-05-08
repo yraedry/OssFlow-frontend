@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui
 import { Trash2 } from 'lucide-react'
 import { DatePicker } from '@/shared/components/ui/date-picker'
 import { useTrainingSessions, useCreateTrainingSession, useDeleteTrainingSession } from '../hooks'
+import { WorkedTechniquePanel } from '../components/WorkedTechniquePanel'
 import { createTrainingSessionSchema, type CreateTrainingSessionForm } from '../schemas'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -178,6 +179,7 @@ export function TrainingSessionsPage() {
                   {s.location && <Badge variant="outline">{s.location}</Badge>}
                 </div>
                 {s.notesMarkdown && <p className="text-sm text-muted-foreground line-clamp-2">{s.notesMarkdown}</p>}
+                {s.sessionType === 'BJJ' && <WorkedTechniquePanel session={s} />}
               </CardContent>
             </Card>
           ))}

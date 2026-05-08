@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/api/client'
-import type { TrainingSession, CreateTrainingSessionRequest } from './types'
+import type { TrainingSession, CreateTrainingSessionRequest, WorkedTechnique } from './types'
 
 interface PageResponse<T> { content: T[]; totalElements: number }
 
@@ -12,4 +12,8 @@ export const trainingSessionApi = {
   update: (id: number, data: Partial<CreateTrainingSessionRequest>) =>
     apiClient.patch(`journal/training-sessions/${id}`, { json: data }).json<TrainingSession>(),
   delete: (id: number) => apiClient.delete(`journal/training-sessions/${id}`),
+  upsertTechnique: (sessionId: number, techniqueId: number, data: { repCount?: number; notesMarkdown?: string }) =>
+    apiClient.put(`journal/training-sessions/${sessionId}/techniques/${techniqueId}`, { json: data }).json<WorkedTechnique>(),
+  removeTechnique: (sessionId: number, techniqueId: number) =>
+    apiClient.delete(`journal/training-sessions/${sessionId}/techniques/${techniqueId}`),
 }
