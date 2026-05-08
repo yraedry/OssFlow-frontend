@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import type { Node, Edge } from '@xyflow/react'
 import { toast } from 'sonner'
@@ -8,6 +9,8 @@ type FlowEditorToolbarProps = {
   isSaving: boolean
   nodes: Node[]
   edges: Edge[]
+  onExport: () => void
+  onImport: (json: string) => void
 }
 
 export function FlowEditorToolbar({
@@ -16,8 +19,11 @@ export function FlowEditorToolbar({
   isSaving,
   nodes,
   edges,
+  onExport,
+  onImport,
 }: FlowEditorToolbarProps) {
   const navigate = useNavigate()
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleValidate = () => {
     const connectedNodeIds = new Set<string>()
@@ -35,6 +41,21 @@ export function FlowEditorToolbar({
     } else {
       toast.success('El grafo es válido. Todos los nodos están conectados.')
     }
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = ev => {
+      const text = ev.target?.result
+      if (typeof text === 'string') {
+        onImport(text)
+      }
+    }
+    reader.readAsText(file)
+    // Reset so the same file can be re-imported
+    e.target.value = ''
   }
 
   return (
@@ -55,6 +76,29 @@ export function FlowEditorToolbar({
         className="rounded-md border border-input px-3 py-1.5 text-sm hover:bg-accent transition-colors"
       >
         Validar
+      </button>
+
+      <button
+        type="button"
+        onClick={() => fileInputRef.current?.click()}
+        className="rounded-md border border-input px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+      >
+        Importar
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
+      <button
+        type="button"
+        onClick={onExport}
+        className="rounded-md border border-input px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+      >
+        Exportar
       </button>
 
       <button
