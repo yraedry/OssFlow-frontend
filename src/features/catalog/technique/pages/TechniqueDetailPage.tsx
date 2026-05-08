@@ -39,10 +39,10 @@ const BELT_LABELS: Record<string, string> = {
   BLACK: 'Negro',
 }
 
-const MODALITY_LABELS: Record<string, string> = {
-  GI: 'Gi',
-  NOGI: 'No-Gi',
-  BOTH: 'Ambas',
+function ModalityBadges({ modality }: { modality: string }) {
+  if (modality === 'BOTH') return <><Badge variant="secondary">Gi</Badge><Badge variant="secondary">No-Gi</Badge></>
+  if (modality === 'GI') return <Badge variant="secondary">Gi</Badge>
+  return <Badge variant="secondary">No-Gi</Badge>
 }
 
 export function TechniqueDetailPage() {
@@ -103,7 +103,7 @@ export function TechniqueDetailPage() {
             >
               {BELT_LABELS[technique.minimumBelt]}
             </span>
-            <Badge variant="secondary">{MODALITY_LABELS[technique.modality]}</Badge>
+            <ModalityBadges modality={technique.modality} />
             <Badge variant={technique.visibility === 'PUBLIC' ? 'default' : 'outline'}>
               {technique.visibility === 'PUBLIC' ? 'Pública' : 'Privada'}
             </Badge>

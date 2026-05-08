@@ -16,7 +16,7 @@ interface TechniqueFormProps {
 }
 
 const BELT_LABELS = { WHITE: 'Blanco', BLUE: 'Azul', PURPLE: 'Morado', BROWN: 'Marrón', BLACK: 'Negro' }
-const MODALITY_LABELS = { GI: 'Gi', NOGI: 'No-Gi', BOTH: 'Ambas' }
+const MODALITY_LABELS = { GI: 'Gi', NOGI: 'No-Gi', BOTH: 'Gi + No-Gi' }
 const CATEGORY_LABELS = {
   SUBMISSION: 'Sumisión', SWEEP: 'Barrido', PASS: 'Pasada de guardia',
   TAKEDOWN: 'Derribo', ESCAPE: 'Escape', TRANSITION: 'Transición',
