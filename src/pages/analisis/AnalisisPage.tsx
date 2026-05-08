@@ -5,7 +5,7 @@ import {
 } from 'recharts'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
-import { useBjjRadar } from '@/features/analisis/radar/hooks'
+import { useBjjRadar, useFisicoRadar } from '@/features/analisis/radar/hooks'
 
 const PERIOD_OPTIONS = [
   { label: '30 días',  days: 30 },
@@ -30,20 +30,45 @@ function PeriodButton({ active, onClick, children }: { active: boolean; onClick:
   )
 }
 
-function BjjRadarCard({ days }: { days: number }) {
-  const { data, isLoading, error } = useBjjRadar(days)
+const RADAR_CHART_STYLE = {
+  contentStyle: {
+    background: 'hsl(var(--card))',
+    border: '1px solid hsl(var(--border))',
+    borderRadius: '6px',
+    fontSize: '12px',
+    fontFamily: 'var(--font-mono)',
+    color: 'hsl(var(--foreground))',
+  },
+}
 
+function RadarCard({
+  title,
+  subtitle,
+  color,
+  data,
+  isLoading,
+  error,
+  emptyHint,
+}: {
+  title: string
+  subtitle: string
+  color: string
+  data: { family: string; label: string; value: number }[] | undefined
+  isLoading: boolean
+  error: unknown
+  emptyHint: string
+}) {
   const totalReps = data?.reduce((s, d) => s + d.value, 0) ?? 0
   const hasData = totalReps > 0
 
   return (
     <div className="rounded-lg border border-border bg-card p-6 space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">Radar BJJ</h2>
+        <h2 className="text-lg font-semibold">{title}</h2>
         <p className="text-sm text-muted-foreground">
           {hasData
-            ? `${totalReps} repeticiones registradas en el período`
-            : 'Sin sesiones registradas en el período'}
+            ? `${totalReps} ${subtitle} registradas en el período`
+            : `Sin datos en el período`}
         </p>
       </div>
 
@@ -55,11 +80,10 @@ function BjjRadarCard({ days }: { days: number }) {
         </Alert>
       ) : !hasData ? (
         <div className="flex flex-col items-center justify-center py-20 text-muted-foreground space-y-2">
-          <p className="text-sm">Registra sesiones BJJ con técnicas trabajadas</p>
-          <p className="text-xs">para ver tu radar de familias aquí</p>
+          <p className="text-sm">{emptyHint}</p>
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={380}>
+        <ResponsiveContainer width="100%" height={360}>
           <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
             <PolarGrid stroke="hsl(var(--border))" />
             <PolarAngleAxis
@@ -77,30 +101,22 @@ function BjjRadarCard({ days }: { days: number }) {
               tickCount={4}
             />
             <Radar
-              name="Repeticiones"
+              name="Total"
               dataKey="value"
-              stroke="hsl(var(--destructive))"
-              fill="hsl(var(--destructive))"
+              stroke={color}
+              fill={color}
               fillOpacity={0.25}
               strokeWidth={2}
-              dot={{ r: 4, fill: 'hsl(var(--destructive))', strokeWidth: 0 }}
+              dot={{ r: 4, fill: color, strokeWidth: 0 }}
             />
             <Tooltip
-              contentStyle={{
-                background: 'hsl(var(--card))',
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontFamily: 'var(--font-mono)',
-                color: 'hsl(var(--foreground))',
-              }}
-              formatter={(value) => [`${value} reps`, 'Entrenadas']}
+              contentStyle={RADAR_CHART_STYLE.contentStyle}
+              formatter={(value) => [`${value}`, 'Sesiones/Reps']}
             />
           </RadarChart>
         </ResponsiveContainer>
       )}
 
-      {/* Tabla de valores */}
       {hasData && data && (
         <div className="grid grid-cols-2 gap-1 pt-2 border-t border-border">
           {data
@@ -115,6 +131,36 @@ function BjjRadarCard({ days }: { days: number }) {
         </div>
       )}
     </div>
+  )
+}
+
+function BjjRadarCard({ days }: { days: number }) {
+  const { data, isLoading, error } = useBjjRadar(days)
+  return (
+    <RadarCard
+      title="Radar BJJ"
+      subtitle="repeticiones"
+      color="hsl(var(--destructive))"
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      emptyHint="Registra sesiones BJJ con técnicas trabajadas para ver tu radar de familias aquí"
+    />
+  )
+}
+
+function FisicoRadarCard({ days }: { days: number }) {
+  const { data, isLoading, error } = useFisicoRadar(days)
+  return (
+    <RadarCard
+      title="Radar Físico"
+      subtitle="sesiones"
+      color="hsl(var(--primary))"
+      data={data}
+      isLoading={isLoading}
+      error={error}
+      emptyHint="Registra sesiones físicas (fuerza, cardio, flexibilidad...) para ver tu radar aquí"
+    />
   )
 }
 
@@ -137,13 +183,9 @@ export function AnalisisPage() {
         </div>
       </div>
 
-      <BjjRadarCard days={days} />
-
-      {/* Radar físico — próximamente */}
-      <div className="rounded-lg border border-border border-dashed p-6 text-center text-muted-foreground space-y-1">
-        <p className="text-sm font-medium">Radar Físico</p>
-        <p className="text-xs">Fuerza · Cardio · Velocidad · Flexibilidad · Explosividad · Movilidad</p>
-        <p className="text-xs opacity-60">Próximamente — se alimentará de tus sesiones físicas</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <BjjRadarCard days={days} />
+        <FisicoRadarCard days={days} />
       </div>
     </div>
   )
