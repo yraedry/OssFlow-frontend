@@ -3,7 +3,7 @@ import { format } from 'date-fns'
 import { useQueryClient } from '@tanstack/react-query'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/components/ui/dialog'
 import { useCreateTrainingSession } from '../hooks'
-import type { Intensity } from '../types'
+import type { Intensity, SessionType } from '../types'
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 const LABEL: React.CSSProperties = {
@@ -38,6 +38,7 @@ export function QuickLogDialog({ open, onOpenChange }: Props) {
   const [sessionDate, setSessionDate] = useState(todayStr)
   const [durationMinutes, setDurationMinutes] = useState(90)
   const [intensity, setIntensity] = useState<Intensity>('MODERATE')
+  const [sessionType] = useState<SessionType>('BJJ')
   const [notes, setNotes] = useState('')
 
   function handleSubmit(e: React.FormEvent) {
@@ -47,6 +48,7 @@ export function QuickLogDialog({ open, onOpenChange }: Props) {
         sessionDate,
         durationMinutes,
         intensity,
+        sessionType,
         notesMarkdown: notes || undefined,
       },
       {

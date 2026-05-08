@@ -5,7 +5,7 @@ export const createTrainingSessionSchema = z.object({
   durationMinutes: z.number().min(1).max(480),
   location: z.string().max(200).optional(),
   intensity: z.enum(['LIGHT', 'MODERATE', 'HARD', 'COMPETITION']),
-  sessionType: z.enum(['BJJ', 'PHYSICAL', 'CARDIO']).default('BJJ'),
+  sessionType: z.enum(['BJJ', 'PHYSICAL', 'CARDIO']),
   notesMarkdown: z.string().optional(),
 })
 
