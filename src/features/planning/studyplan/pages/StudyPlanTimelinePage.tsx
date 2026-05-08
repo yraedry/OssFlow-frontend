@@ -75,9 +75,7 @@ export function StudyPlanTimelinePage() {
                     width: `${Math.max(2, row.widthPercent)}%`,
                   }}
                 >
-                  {row.weekNumber && (
-                    <span className="text-xs text-white font-medium">S{row.weekNumber}</span>
-                  )}
+                  <span className="text-xs text-white font-medium truncate">{row.title}</span>
                 </div>
               </div>
             </div>

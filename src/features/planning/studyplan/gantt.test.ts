@@ -16,21 +16,21 @@ describe('buildGanttRows', () => {
 
   it('returns one row per block', () => {
     const blocks: StudyBlock[] = [
-      { id: 1, planId: 1, title: 'Bloque 1', orderIndex: 0, createdAt: '', updatedAt: '' },
-      { id: 2, planId: 1, title: 'Bloque 2', orderIndex: 1, createdAt: '', updatedAt: '' },
+      { id: 1, studyPlanId: 1, title: 'Bloque 1', blockOrder: 0, createdAt: '', updatedAt: '' },
+      { id: 2, studyPlanId: 1, title: 'Bloque 2', blockOrder: 1, createdAt: '', updatedAt: '' },
     ]
     const rows = buildGanttRows(plan, blocks)
     expect(rows).toHaveLength(2)
   })
 
-  it('rows with weekNumber have non-zero startPercent', () => {
+  it('rows with startDate have non-zero startPercent', () => {
     const blocks: StudyBlock[] = [
       {
         id: 1,
-        planId: 1,
+        studyPlanId: 1,
         title: 'Bloque 2',
-        weekNumber: 2,
-        orderIndex: 0,
+        startDate: '2026-07-01',
+        blockOrder: 0,
         createdAt: '',
         updatedAt: '',
       },

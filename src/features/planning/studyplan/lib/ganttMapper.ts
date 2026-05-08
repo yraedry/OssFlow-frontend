@@ -6,7 +6,6 @@ export type GanttRow = {
   title: string
   startPercent: number
   widthPercent: number
-  weekNumber?: number
   color: string
 }
 
@@ -27,19 +26,20 @@ export function buildGanttRows(plan: StudyPlan, blocks: StudyBlock[]): GanttRow[
   const totalDuration = planEnd - planStart
 
   return blocks
-    .sort((a, b) => a.orderIndex - b.orderIndex)
+    .sort((a, b) => a.blockOrder - b.blockOrder)
     .map((block, index) => {
-      if (block.weekNumber) {
-        const weekMs = 7 * 24 * 60 * 60 * 1000
-        const startMs = (block.weekNumber - 1) * weekMs
-        const startPercent = Math.min(100, (startMs / totalDuration) * 100)
-        const widthPercent = Math.min(100 - startPercent, (weekMs / totalDuration) * 100)
+      if (block.startDate) {
+        const startMs = new Date(block.startDate).getTime() - planStart
+        const endMs = block.endDate
+          ? new Date(block.endDate).getTime() - planStart
+          : startMs + 7 * 24 * 60 * 60 * 1000
+        const startPercent = Math.max(0, Math.min(100, (startMs / totalDuration) * 100))
+        const widthPercent = Math.min(100 - startPercent, ((endMs - startMs) / totalDuration) * 100)
         return {
           id: block.id,
           title: block.title,
           startPercent,
-          widthPercent,
-          weekNumber: block.weekNumber,
+          widthPercent: Math.max(2, widthPercent),
           color: COLORS[index % COLORS.length],
         }
       }

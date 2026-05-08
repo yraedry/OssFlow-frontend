@@ -39,9 +39,9 @@ export function StudyBlockCard({ block, planId, onDelete }: StudyBlockCardProps)
               <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
             )}
             <CardTitle className="text-base truncate">{block.title}</CardTitle>
-            {block.weekNumber && (
+            {block.blockOrder !== undefined && (
               <span className="text-xs text-muted-foreground shrink-0">
-                Semana {block.weekNumber}
+                #{block.blockOrder}
               </span>
             )}
           </button>
@@ -75,8 +75,8 @@ export function StudyBlockCard({ block, planId, onDelete }: StudyBlockCardProps)
 
       {expanded && (
         <CardContent>
-          {block.description && (
-            <p className="text-sm text-muted-foreground mb-3">{block.description}</p>
+          {block.notesMarkdown && (
+            <p className="text-sm text-muted-foreground mb-3">{block.notesMarkdown}</p>
           )}
           <StudyItemKanban planId={planId} blockId={block.id} />
         </CardContent>
