@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { format, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Plus } from 'lucide-react'
@@ -7,6 +8,7 @@ import { fetchWeeklyStats } from '@/shared/api/dashboard'
 import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
 import { useWeeklyTemplate } from '@/features/planning/weeklytemplate/hooks'
+import { QuickLogDialog } from '@/features/journal/trainingsession/components/QuickLogDialog'
 import { cn } from '@/shared/lib/utils'
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
@@ -18,8 +20,8 @@ function javaDayOfWeek(date: Date): string {
 }
 
 export function HomePage() {
-  const navigate = useNavigate()
   const today = new Date()
+  const [quickLogOpen, setQuickLogOpen] = useState(false)
 
   const { data: stats } = useQuery({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
   const { data: bjjData } = useTrainingSessions()
@@ -109,7 +111,14 @@ export function HomePage() {
           ) : (
             <div className="space-y-0">
               {todayItems.map((item) => (
-                <div key={item.type} className="flex items-center gap-3 py-3 border-b border-border last:border-b-0">
+                <div
+                  key={item.type}
+                  className={cn(
+                    'flex items-center gap-3 py-3 border-b border-border last:border-b-0 transition-colors',
+                    !item.done && item.type === 'BJJ' && 'cursor-pointer hover:bg-accent/40',
+                  )}
+                  onClick={!item.done && item.type === 'BJJ' ? () => setQuickLogOpen(true) : undefined}
+                >
                   <div className={cn(
                     'w-4 h-4 shrink-0 border flex items-center justify-center',
                     item.done ? 'bg-foreground border-foreground' : 'border-border',
@@ -122,9 +131,11 @@ export function HomePage() {
                       {item.label}
                     </div>
                   </div>
-                  {item.done && (
+                  {item.done ? (
                     <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>Registrado</span>
-                  )}
+                  ) : item.type === 'BJJ' ? (
+                    <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>+ Añadir →</span>
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -169,7 +180,7 @@ export function HomePage() {
 
           {/* Botón registrar */}
           <button
-            onClick={() => navigate('/journal/training-sessions?new=bjj')}
+            onClick={() => setQuickLogOpen(true)}
             className="w-full flex items-center justify-center gap-2 py-3 bg-foreground text-background hover:opacity-85 transition-opacity mt-auto"
             style={{ ...MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}
           >
@@ -212,6 +223,8 @@ export function HomePage() {
           ))}
         </div>
       )}
+
+      <QuickLogDialog open={quickLogOpen} onOpenChange={setQuickLogOpen} />
     </div>
   )
 }
