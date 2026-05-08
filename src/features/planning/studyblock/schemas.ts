@@ -2,9 +2,11 @@ import { z } from 'zod'
 
 export const createStudyBlockSchema = z.object({
   title: z.string().min(1, 'El título es requerido').max(200),
-  description: z.string().max(2000).optional(),
-  weekNumber: z.number().int().min(1).optional(),
-  orderIndex: z.number().int().min(0).default(0),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  blockOrder: z.number().int().min(0).default(0),
+  notesMarkdown: z.string().max(10000).optional(),
+  focusEntities: z.string().max(2000).optional(),
 })
 
 export type CreateStudyBlockForm = z.input<typeof createStudyBlockSchema>

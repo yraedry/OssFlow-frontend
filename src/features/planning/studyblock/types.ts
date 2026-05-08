@@ -1,17 +1,21 @@
 export type StudyBlock = {
   id: number
-  planId: number
+  studyPlanId: number
   title: string
-  description?: string
-  weekNumber?: number
-  orderIndex: number
+  startDate?: string
+  endDate?: string
+  blockOrder: number
+  notesMarkdown?: string
+  focusEntities?: string
   createdAt: string
   updatedAt: string
 }
 
 export type CreateStudyBlockRequest = {
   title: string
-  description?: string
-  weekNumber?: number
-  orderIndex?: number
+  startDate?: string
+  endDate?: string
+  blockOrder: number
+  notesMarkdown?: string
+  focusEntities?: string
 }
