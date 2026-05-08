@@ -13,7 +13,10 @@ export const techniqueApi = {
   get: (id: number) => apiClient.get(`catalog/techniques/${id}`).json<Technique>(),
   create: (data: CreateTechniqueRequest) =>
     apiClient.post('catalog/techniques', { json: data }).json<Technique>(),
-  update: (id: number, data: Partial<CreateTechniqueRequest>) =>
-    apiClient.patch(`catalog/techniques/${id}`, { json: data }).json<Technique>(),
+  update: (id: number, data: Partial<CreateTechniqueRequest>) => {
+    const body = { ...data }
+    if (!body.youtubeUrl) delete body.youtubeUrl
+    return apiClient.patch(`catalog/techniques/${id}`, { json: body }).json<Technique>()
+  },
   delete: (id: number) => apiClient.delete(`catalog/techniques/${id}`),
 }
