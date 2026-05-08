@@ -4,6 +4,7 @@ import { useFederations, useUpdateProfileFederations } from '@/features/identity
 import { ProfileForm } from '../components/ProfileForm'
 import { AvatarUpload } from '../components/AvatarUpload'
 import { FederationSelector } from '@/features/identity/federation/components/FederationSelector'
+import { InjurySection } from '@/features/identity/injury/InjurySection'
 import type { UpdateProfileForm } from '../schemas'
 import type { FederationAssignment } from '@/features/identity/federation/types'
 
@@ -98,6 +99,8 @@ export function ProfilePage() {
           </button>
         </section>
       )}
+
+      <InjurySection />
     </div>
   )
 }
