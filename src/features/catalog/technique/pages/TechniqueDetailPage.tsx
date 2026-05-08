@@ -55,7 +55,8 @@ export function TechniqueDetailPage() {
 
   const handleSubmit = async (formData: CreateTechniqueForm) => {
     if (!technique) return
-    const payload = { ...formData, youtubeUrl: formData.youtubeUrl || undefined }
+    const payload: Partial<typeof formData> = { ...formData }
+    if (!payload.youtubeUrl) delete payload.youtubeUrl
     await updateMutation.mutateAsync({ id: technique.id, data: payload })
     setEditOpen(false)
   }
