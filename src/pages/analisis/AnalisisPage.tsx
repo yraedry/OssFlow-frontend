@@ -62,7 +62,7 @@ function RadarCard({
   const hasData = totalReps > 0
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6 space-y-4">
+    <div className="rounded-lg border border-border bg-card p-6 space-y-4" style={{ borderLeft: `4px solid ${color}` }}>
       <div>
         <h2 className="text-lg font-semibold">{title}</h2>
         <p className="text-sm text-muted-foreground">
@@ -85,12 +85,12 @@ function RadarCard({
       ) : (
         <ResponsiveContainer width="100%" height={360}>
           <RadarChart data={data} margin={{ top: 10, right: 30, bottom: 10, left: 30 }}>
-            <PolarGrid stroke="hsl(var(--border))" />
+            <PolarGrid stroke="rgba(255,255,255,0.15)" />
             <PolarAngleAxis
               dataKey="label"
               tick={{
-                fill: 'hsl(var(--muted-foreground))',
-                fontSize: 11,
+                fill: 'hsl(var(--foreground))',
+                fontSize: 12,
                 fontFamily: 'var(--font-mono)',
               }}
             />
@@ -105,9 +105,9 @@ function RadarCard({
               dataKey="value"
               stroke={color}
               fill={color}
-              fillOpacity={0.25}
-              strokeWidth={2}
-              dot={{ r: 4, fill: color, strokeWidth: 0 }}
+              fillOpacity={0.45}
+              strokeWidth={3}
+              dot={{ r: 5, fill: color, stroke: 'white', strokeWidth: 1.5 }}
             />
             <Tooltip
               contentStyle={RADAR_CHART_STYLE.contentStyle}
@@ -124,7 +124,10 @@ function RadarCard({
             .sort((a, b) => b.value - a.value)
             .map(d => (
               <div key={d.family} className="flex items-center justify-between px-2 py-1">
-                <span className="text-xs text-muted-foreground font-mono">{d.label}</span>
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
+                  <span className="inline-block h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                  {d.label}
+                </span>
                 <span className="text-xs font-semibold tabular-nums">{d.value}</span>
               </div>
             ))}
@@ -140,7 +143,7 @@ function BjjRadarCard({ days }: { days: number }) {
     <RadarCard
       title="Radar BJJ"
       subtitle="repeticiones"
-      color="hsl(var(--destructive))"
+      color="#f97316"
       data={data}
       isLoading={isLoading}
       error={error}
@@ -155,7 +158,7 @@ function FisicoRadarCard({ days }: { days: number }) {
     <RadarCard
       title="Radar Físico"
       subtitle="sesiones"
-      color="hsl(var(--primary))"
+      color="#06b6d4"
       data={data}
       isLoading={isLoading}
       error={error}

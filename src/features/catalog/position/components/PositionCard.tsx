@@ -3,10 +3,15 @@ import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { YouTubeEmbed } from '@/shared/components/ui/youtube-embed'
 import { Pencil, Trash2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import type { Position } from '../types'
 
 const TYPE_LABELS: Record<Position['type'], string> = {
-  TOP: 'Top', BOTTOM: 'Bottom', STANDING: 'De pie', GROUND_NEUTRAL: 'Neutral suelo', SUBMITTED: 'Sometido',
+  TOP: 'Posición dominante',
+  BOTTOM: 'Posición inferior',
+  STANDING: 'De pie',
+  GROUND_NEUTRAL: 'Suelo neutral',
+  SUBMITTED: 'Sumisión',
 }
 
 interface PositionCardProps {
@@ -16,16 +21,31 @@ interface PositionCardProps {
 }
 
 export function PositionCard({ position, onEdit, onDelete }: PositionCardProps) {
+  const navigate = useNavigate()
+
   return (
-    <Card>
+    <Card
+      className="cursor-pointer hover:border-primary/50 transition-colors"
+      onClick={() => navigate(`/estudio/posiciones/${position.id}`)}
+    >
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between">
           <CardTitle className="text-base">{position.name}</CardTitle>
           <div className="flex gap-1">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(position)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={(e) => { e.stopPropagation(); onEdit(position) }}
+            >
               <Pencil className="h-3.5 w-3.5" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => onDelete(position.id)}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-destructive hover:text-destructive"
+              onClick={(e) => { e.stopPropagation(); onDelete(position.id) }}
+            >
               <Trash2 className="h-3.5 w-3.5" />
             </Button>
           </div>
@@ -34,15 +54,12 @@ export function PositionCard({ position, onEdit, onDelete }: PositionCardProps) 
       <CardContent>
         <div className="flex gap-2 flex-wrap">
           <Badge variant="secondary">{TYPE_LABELS[position.type]}</Badge>
-          <Badge variant={position.visibility === 'PUBLIC' ? 'default' : 'outline'}>
-            {position.visibility === 'PUBLIC' ? 'Pública' : 'Privada'}
-          </Badge>
         </div>
         {position.description && (
           <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{position.description}</p>
         )}
         {position.youtubeUrl && (
-          <div className="mt-2 flex justify-end">
+          <div className="mt-2 flex justify-end" onClick={(e) => e.stopPropagation()}>
             <YouTubeEmbed url={position.youtubeUrl} title={position.name} />
           </div>
         )}
