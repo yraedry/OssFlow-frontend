@@ -1,5 +1,5 @@
 // src/shared/components/layout/TopNavBar.tsx
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { Search, Sun, Moon } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
@@ -14,16 +14,34 @@ const PRIMARY_NAV = [
   { to: '/planning/study-plans', label: 'Planes' },
 ]
 
-const SECONDARY_NAV = [
-  { to: '/catalog/positions', label: 'Posiciones' },
-  { to: '/catalog/rulesets', label: 'Reglamentos' },
-  { to: '/catalog/systems', label: 'Sistemas' },
-  { to: '/competition/logs', label: 'Competencias' },
-  { to: '/journal/notes', label: 'Notas' },
-  { to: '/journal/physical-sessions', label: 'Físico' },
-  { to: '/planning/weekly-template', label: 'Plantilla' },
-  { to: '/export', label: 'Exportar' },
-]
+const SUB_NAV_BY_SECTION: Record<string, { to: string; label: string }[]> = {
+  catalog: [
+    { to: '/catalog/techniques', label: 'Técnicas' },
+    { to: '/catalog/positions', label: 'Posiciones' },
+    { to: '/catalog/systems', label: 'Sistemas' },
+    { to: '/catalog/rulesets', label: 'Reglamentos' },
+  ],
+  journal: [
+    { to: '/journal/training-sessions', label: 'BJJ' },
+    { to: '/journal/physical-sessions', label: 'Físico' },
+    { to: '/journal/notes', label: 'Notas' },
+    { to: '/journal/graph', label: 'Grafo' },
+    { to: '/competition/logs', label: 'Competencias' },
+  ],
+  planning: [
+    { to: '/planning/study-plans', label: 'Planes' },
+    { to: '/planning/weekly-template', label: 'Plantilla' },
+    { to: '/planning/weekly-schedule', label: 'Calendario' },
+  ],
+}
+
+function useSecondaryNav(pathname: string) {
+  if (pathname === '/') return []
+  if (pathname.startsWith('/catalog')) return SUB_NAV_BY_SECTION.catalog
+  if (pathname.startsWith('/journal')) return SUB_NAV_BY_SECTION.journal
+  if (pathname.startsWith('/planning')) return SUB_NAV_BY_SECTION.planning
+  return []
+}
 
 const NAV_STYLE_PRIMARY = {
   fontFamily: 'var(--font-mono)',
@@ -47,6 +65,8 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
   const { theme, toggleTheme } = useTheme()
   const { data: profile } = useProfile()
   const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
+  const { pathname } = useLocation()
+  const secondaryNav = useSecondaryNav(pathname)
 
   useEffect(() => {
     const handler = () => setAvatar(getAvatarFromStorage())
@@ -125,25 +145,27 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
         </div>
       </div>
 
-      {/* Fila 2: nav secundaria */}
-      <div className="flex h-8 items-stretch overflow-x-auto scrollbar-none border-t border-border/50 px-4">
-        {SECONDARY_NAV.map(({ to, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center px-3 border-b-2 transition-colors h-full shrink-0 whitespace-nowrap',
-                'text-muted-foreground hover:text-foreground',
-                isActive ? 'border-foreground text-foreground' : 'border-transparent',
-              )
-            }
-            style={NAV_STYLE_SECONDARY}
-          >
-            {label}
-          </NavLink>
-        ))}
-      </div>
+      {/* Fila 2: nav secundaria contextual */}
+      {secondaryNav.length > 0 && (
+        <div className="flex h-8 items-stretch overflow-x-auto scrollbar-none border-t border-border/50 px-4">
+          {secondaryNav.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center px-3 border-b-2 transition-colors h-full shrink-0 whitespace-nowrap',
+                  'text-muted-foreground hover:text-foreground',
+                  isActive ? 'border-foreground text-foreground' : 'border-transparent',
+                )
+              }
+              style={NAV_STYLE_SECONDARY}
+            >
+              {label}
+            </NavLink>
+          ))}
+        </div>
+      )}
     </header>
   )
 }
