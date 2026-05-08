@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Dialog,
   DialogContent,
@@ -21,6 +21,11 @@ export function EdgeConditionDialog({
   onClose,
 }: EdgeConditionDialogProps) {
   const [condition, setCondition] = useState(initialCondition)
+
+  // Sync condition text whenever a new edge is selected
+  useEffect(() => {
+    setCondition(initialCondition)
+  }, [edgeId, initialCondition])
 
   const handleSave = () => {
     if (edgeId) {
