@@ -94,7 +94,7 @@ function BjjRadarCard({ days }: { days: number }) {
                 fontFamily: 'var(--font-mono)',
                 color: 'hsl(var(--foreground))',
               }}
-              formatter={(value: number) => [`${value} reps`, 'Entrenadas']}
+              formatter={(value) => [`${value} reps`, 'Entrenadas']}
             />
           </RadarChart>
         </ResponsiveContainer>
