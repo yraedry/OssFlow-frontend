@@ -35,7 +35,7 @@ export function BottomTabBar() {
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div className="flex items-end justify-around">
-        {TABS.map(({ to, label, icon: Icon, end, soon }) => {
+        {TABS.map(({ to, label, icon: Icon, end }) => {
           const isActive = end ? pathname === '/' : activeTab === to
           return (
             <NavLink
@@ -45,7 +45,6 @@ export function BottomTabBar() {
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-h-[44px] flex-1 transition-colors',
                 isActive ? 'text-foreground' : 'text-muted-foreground',
-                soon && 'opacity-40 pointer-events-none',
               )}
             >
               <Icon className="h-4 w-4" strokeWidth={1.5} />
