@@ -7,6 +7,7 @@ import { HomePage } from '@/pages/HomePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
 import { OnboardingPage } from '@/pages/OnboardingPage'
 import { PositionsPage } from '@/features/catalog/position/pages/PositionsPage'
+import { PositionDetailPage } from '@/features/catalog/position/pages/PositionDetailPage'
 import { TechniquesPage } from '@/features/catalog/technique/pages/TechniquesPage'
 import { TechniqueDetailPage } from '@/features/catalog/technique/pages/TechniqueDetailPage'
 import { NotesPage } from '@/features/journal/note/pages/NotesPage'
@@ -59,6 +60,7 @@ export const router = createBrowserRouter([
           { path: 'estudio/tecnicas', element: <TechniquesPage /> },
           { path: 'estudio/tecnicas/:id', element: <TechniqueDetailPage /> },
           { path: 'estudio/posiciones', element: <PositionsPage /> },
+          { path: 'estudio/posiciones/:id', element: <PositionDetailPage /> },
           { path: 'estudio/sistemas', element: <SystemsPage /> },
           { path: 'estudio/sistemas/:id/edit', element: lazySuspense(<SystemEditorPage />) },
           { path: 'estudio/ejercicios', element: <ExercisesPage /> },
@@ -81,6 +83,7 @@ export const router = createBrowserRouter([
 
           // Redirecciones de rutas antiguas (compatibilidad)
           { path: 'catalog/positions', element: <PositionsPage /> },
+          { path: 'catalog/positions/:id', element: <PositionDetailPage /> },
           { path: 'catalog/techniques', element: <TechniquesPage /> },
           { path: 'catalog/techniques/:id', element: <TechniqueDetailPage /> },
           { path: 'catalog/systems', element: <SystemsPage /> },
