@@ -89,7 +89,7 @@ function RadarCard({
             <PolarAngleAxis
               dataKey="label"
               tick={{
-                fill: 'hsl(var(--foreground))',
+                fill: '#e2e8f0',
                 fontSize: 12,
                 fontFamily: 'var(--font-mono)',
               }}
@@ -97,7 +97,7 @@ function RadarCard({
             <PolarRadiusAxis
               angle={90}
               domain={[0, 'auto']}
-              tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 9 }}
+              tick={{ fill: '#94a3b8', fontSize: 9 }}
               tickCount={4}
             />
             <Radar
