@@ -25,7 +25,9 @@ import { NodePalette } from './NodePalette'
 import { FlowEditorToolbar } from './FlowEditorToolbar'
 import { EdgeConditionDialog } from './EdgeConditionDialog'
 import { Spinner } from '@/shared/components/ui/spinner'
+import { toast } from 'sonner'
 
+// nodeTypes must be defined outside the component to avoid re-render issues
 const nodeTypes: NodeTypes = {
   positionNode: PositionNode,
   techniqueNode: TechniqueNode,
@@ -46,6 +48,30 @@ function FlowCanvas({ systemId }: { systemId: number }) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialFlow.edges)
   const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null)
 
+  // ------------------------------------------------------------------
+  // Callbacks passed into node data
+  // ------------------------------------------------------------------
+  const handleDeleteNode = useCallback(
+    (id: string) => {
+      setNodes(nds => nds.filter(n => n.id !== id))
+      // Also remove edges connected to this node
+      setEdges(eds => eds.filter(e => e.source !== id && e.target !== id))
+    },
+    [setNodes, setEdges],
+  )
+
+  const handleLabelChange = useCallback(
+    (id: string, label: string) => {
+      setNodes(nds =>
+        nds.map(n =>
+          n.id === id ? { ...n, data: { ...n.data, label } } : n,
+        ),
+      )
+    },
+    [setNodes],
+  )
+
+  // edgeTypes defined with useMemo but the callback references are stable
   const edgeTypes: EdgeTypes = useMemo(
     () => ({
       triggerEdge: (props) => (
@@ -87,11 +113,16 @@ function FlowCanvas({ systemId }: { systemId: number }) {
           id: `${type}-${entityId}-${Date.now()}`,
           type: type === 'position' ? 'positionNode' : 'techniqueNode',
           position,
-          data: { entityId, label },
+          data: {
+            entityId,
+            label,
+            onDelete: handleDeleteNode,
+            onLabelChange: handleLabelChange,
+          },
         },
       ])
     },
-    [reactFlowInstance, setNodes],
+    [reactFlowInstance, setNodes, handleDeleteNode, handleLabelChange],
   )
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -99,6 +130,9 @@ function FlowCanvas({ systemId }: { systemId: number }) {
     event.dataTransfer.dropEffect = 'move'
   }, [])
 
+  // ------------------------------------------------------------------
+  // Save
+  // ------------------------------------------------------------------
   const handleSave = useCallback(() => {
     updateSystem({
       id: systemId,
@@ -106,6 +140,47 @@ function FlowCanvas({ systemId }: { systemId: number }) {
     })
   }, [systemId, nodes, edges, updateSystem])
 
+  // ------------------------------------------------------------------
+  // Export / Import
+  // ------------------------------------------------------------------
+  const handleExport = useCallback(() => {
+    const json = serializeFlowDefinition(nodes, edges)
+    const blob = new Blob([json], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `sistema-${system?.name ?? systemId}.json`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success('Workflow exportado correctamente.')
+  }, [nodes, edges, system?.name, systemId])
+
+  const handleImport = useCallback(
+    (jsonString: string) => {
+      try {
+        const { nodes: importedNodes, edges: importedEdges } = parseFlowDefinition(jsonString)
+        // Inject callbacks into imported nodes
+        const nodesWithCallbacks = importedNodes.map(n => ({
+          ...n,
+          data: {
+            ...n.data,
+            onDelete: handleDeleteNode,
+            onLabelChange: handleLabelChange,
+          },
+        }))
+        setNodes(nodesWithCallbacks)
+        setEdges(importedEdges)
+        toast.success('Workflow importado correctamente.')
+      } catch {
+        toast.error('Error al importar: el archivo no es válido.')
+      }
+    },
+    [setNodes, setEdges, handleDeleteNode, handleLabelChange],
+  )
+
+  // ------------------------------------------------------------------
+  // Edge condition
+  // ------------------------------------------------------------------
   const selectedEdge = edges.find(e => e.id === selectedEdgeId)
   const initialCondition = (selectedEdge?.data as { condition?: string } | undefined)?.condition ?? ''
 
@@ -120,6 +195,9 @@ function FlowCanvas({ systemId }: { systemId: number }) {
     [setEdges],
   )
 
+  // ------------------------------------------------------------------
+  // Render
+  // ------------------------------------------------------------------
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -127,6 +205,17 @@ function FlowCanvas({ systemId }: { systemId: number }) {
       </div>
     )
   }
+
+  // Inject callbacks into nodes for render (already present on freshly-dropped
+  // nodes; this covers nodes loaded from persisted flowDefinition)
+  const nodesWithCallbacks = nodes.map(n => ({
+    ...n,
+    data: {
+      ...n.data,
+      onDelete: handleDeleteNode,
+      onLabelChange: handleLabelChange,
+    },
+  }))
 
   return (
     <div className="flex flex-col h-full">
@@ -136,6 +225,8 @@ function FlowCanvas({ systemId }: { systemId: number }) {
         isSaving={isSaving}
         nodes={nodes}
         edges={edges}
+        onExport={handleExport}
+        onImport={handleImport}
       />
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-52 shrink-0 border-r bg-background overflow-y-auto">
@@ -143,13 +234,14 @@ function FlowCanvas({ systemId }: { systemId: number }) {
         </aside>
         <div className="flex-1" onDrop={onDrop} onDragOver={onDragOver}>
           <ReactFlow
-            nodes={nodes}
+            nodes={nodesWithCallbacks}
             edges={edges}
             nodeTypes={nodeTypes}
             edgeTypes={edgeTypes}
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            deleteKeyCode="Delete"
             fitView
           >
             <Background />
