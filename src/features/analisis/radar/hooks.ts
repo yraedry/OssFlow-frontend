@@ -8,3 +8,11 @@ export function useBjjRadar(days = 90) {
     staleTime: 5 * 60 * 1000,
   })
 }
+
+export function useFisicoRadar(days = 90) {
+  return useQuery({
+    queryKey: ['radar', 'fisico', days],
+    queryFn: () => radarApi.fisico(days),
+    staleTime: 5 * 60 * 1000,
+  })
+}
