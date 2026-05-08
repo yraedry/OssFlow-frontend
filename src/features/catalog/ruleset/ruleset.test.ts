@@ -3,25 +3,22 @@ import { createRulesetSchema } from './schemas'
 
 const validRuleset = {
   federationId: 1,
-  belt: 'WHITE' as const,
-  modality: 'GI' as const,
-  effectiveFrom: '2024-01-01',
 }
 
 describe('Ruleset schemas', () => {
-  it('validates valid ruleset', () => {
+  it('validates valid ruleset with just federationId', () => {
     expect(createRulesetSchema.safeParse(validRuleset).success).toBe(true)
   })
+  it('validates ruleset with sourceUrl', () => {
+    expect(createRulesetSchema.safeParse({ federationId: 1, sourceUrl: 'https://ibjjf.com' }).success).toBe(true)
+  })
   it('rejects missing federationId', () => {
-    expect(createRulesetSchema.safeParse({ belt: 'WHITE', modality: 'GI', effectiveFrom: '2024-01-01' }).success).toBe(false)
+    expect(createRulesetSchema.safeParse({}).success).toBe(false)
   })
-  it('rejects missing effectiveFrom', () => {
-    expect(createRulesetSchema.safeParse({ federationId: 1, belt: 'WHITE', modality: 'GI' }).success).toBe(false)
+  it('rejects invalid URL in sourceUrl', () => {
+    expect(createRulesetSchema.safeParse({ federationId: 1, sourceUrl: 'not-a-url' }).success).toBe(false)
   })
-  it('rejects invalid belt', () => {
-    expect(createRulesetSchema.safeParse({ ...validRuleset, belt: 'RED' }).success).toBe(false)
-  })
-  it('rejects invalid modality', () => {
-    expect(createRulesetSchema.safeParse({ ...validRuleset, modality: 'BOTH_NOGI' }).success).toBe(false)
+  it('accepts empty string as sourceUrl', () => {
+    expect(createRulesetSchema.safeParse({ federationId: 1, sourceUrl: '' }).success).toBe(true)
   })
 })

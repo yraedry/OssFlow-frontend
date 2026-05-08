@@ -4,7 +4,6 @@ import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
-import { DatePicker } from '@/shared/components/ui/date-picker'
 import { createRulesetSchema, type CreateRulesetForm } from '../schemas'
 import type { Ruleset } from '../types'
 import { useFederations } from '@/features/identity/federation/hooks'
@@ -15,9 +14,6 @@ type RulesetFormProps = {
   isPending?: boolean
 }
 
-const BELT_LABELS = { WHITE: 'Blanco', BLUE: 'Azul', PURPLE: 'Morado', BROWN: 'Marrón', BLACK: 'Negro' }
-const MODALITY_LABELS = { GI: 'Gi', NOGI: 'No-Gi', BOTH: 'Ambas' }
-
 export function RulesetForm({ defaultValues, onSubmit, isPending }: RulesetFormProps) {
   const { data: federations = [] } = useFederations()
 
@@ -25,10 +21,6 @@ export function RulesetForm({ defaultValues, onSubmit, isPending }: RulesetFormP
     resolver: zodResolver(createRulesetSchema),
     defaultValues: {
       federationId: defaultValues?.federationId ?? undefined,
-      belt: defaultValues?.belt ?? 'WHITE',
-      modality: defaultValues?.modality ?? 'GI',
-      effectiveFrom: defaultValues?.effectiveFrom ?? '',
-      effectiveTo: defaultValues?.effectiveTo ?? '',
       sourceUrl: defaultValues?.sourceUrl ?? '',
     },
   })
@@ -55,65 +47,6 @@ export function RulesetForm({ defaultValues, onSubmit, isPending }: RulesetFormP
           )}
         />
         {errors.federationId && <p className="text-sm text-destructive">{errors.federationId.message}</p>}
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Cinturón *</Label>
-          <Controller
-            control={control}
-            name="belt"
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {Object.entries(BELT_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.belt && <p className="text-sm text-destructive">{errors.belt.message}</p>}
-        </div>
-        <div className="space-y-2">
-          <Label>Modalidad *</Label>
-          <Controller
-            control={control}
-            name="modality"
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {Object.entries(MODALITY_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.modality && <p className="text-sm text-destructive">{errors.modality.message}</p>}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Vigente desde *</Label>
-          <Controller
-            control={control}
-            name="effectiveFrom"
-            render={({ field }) => (
-              <DatePicker value={field.value} onChange={field.onChange} placeholder="Seleccionar fecha" />
-            )}
-          />
-          {errors.effectiveFrom && <p className="text-sm text-destructive">{errors.effectiveFrom.message}</p>}
-        </div>
-        <div className="space-y-2">
-          <Label>Vigente hasta (opcional)</Label>
-          <Controller
-            control={control}
-            name="effectiveTo"
-            render={({ field }) => (
-              <DatePicker value={field.value ?? ''} onChange={field.onChange} placeholder="Sin fecha de fin" />
-            )}
-          />
-        </div>
       </div>
 
       <div className="space-y-2">
