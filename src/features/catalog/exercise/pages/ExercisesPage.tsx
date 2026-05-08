@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus, Youtube, Pencil, Trash2 } from 'lucide-react'
+import { Plus, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
@@ -110,7 +110,7 @@ function ExerciseCard({ exercise: ex, onEdit, onDelete }: ExerciseCardProps) {
             className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-600 font-mono"
             onClick={(e) => e.stopPropagation()}
           >
-            <Youtube className="h-3.5 w-3.5" />
+            <ExternalLink className="h-3.5 w-3.5" />
             Ver video
           </a>
         )}
