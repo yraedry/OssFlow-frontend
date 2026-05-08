@@ -33,6 +33,7 @@ import { TrashPage } from '@/features/trash/pages/TrashPage'
 import { RulesetsPage } from '@/features/catalog/ruleset/pages/RulesetsPage'
 import { ExercisesPage } from '@/features/catalog/exercise/pages/ExercisesPage'
 import { AnalisisPage } from '@/pages/analisis/AnalisisPage'
+import { ConfiguracionPage } from '@/pages/configuracion/ConfiguracionPage'
 import { Spinner } from '@/shared/components/ui/spinner'
 
 const lazySuspense = (element: React.ReactNode) => (
@@ -86,6 +87,7 @@ export const router = createBrowserRouter([
 
           // Perfil y utilidades
           { path: 'profile', element: <ProfilePage /> },
+          { path: 'configuracion', element: <ConfiguracionPage /> },
           { path: 'export', element: <ExportPage /> },
           { path: 'trash', element: <TrashPage /> },
 

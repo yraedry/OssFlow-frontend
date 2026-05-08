@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { Search, Sun, Moon } from 'lucide-react'
+import { Search, Sun, Moon, Settings } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTheme } from '@/shared/hooks/useTheme'
 import { useProfile } from '@/features/identity/profile/hooks'
@@ -128,6 +128,13 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               ? <Sun className="h-3.5 w-3.5" strokeWidth={1.5} />
               : <Moon className="h-3.5 w-3.5" strokeWidth={1.5} />}
           </button>
+          <NavLink
+            to="/configuracion"
+            className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Configuración"
+          >
+            <Settings className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </NavLink>
           <NavLink
             to="/profile"
             className="flex h-7 w-7 items-center justify-center border border-border bg-card text-muted-foreground hover:text-foreground transition-colors ml-1 overflow-hidden rounded-full"
