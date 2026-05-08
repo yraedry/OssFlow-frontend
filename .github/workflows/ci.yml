@@ -51,19 +51,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Deploy to VPS
-        if: github.ref == 'refs/heads/main'
-        uses: appleboy/ssh-action@v1
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          password: ${{ secrets.VPS_PASSWORD }}
-          script: |
-            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            docker pull ghcr.io/${{ github.repository_owner }}/ossflow-frontend:main
-            cd /home/ossflow/ossflow-deploy
-            docker compose up -d frontend
-
       - name: Top-10 archivos más grandes
         run: |
           echo "## Top 10 archivos más grandes" >> $GITHUB_STEP_SUMMARY
