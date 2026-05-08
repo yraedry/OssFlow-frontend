@@ -26,6 +26,7 @@ import { SystemEditorPage } from '@/features/catalog/system/components/editor/Sy
 import { ExportPage } from '@/features/export/pages/ExportPage'
 import { TrashPage } from '@/features/trash/pages/TrashPage'
 import { RulesetsPage } from '@/features/catalog/ruleset/pages/RulesetsPage'
+import { ExercisesPage } from '@/features/catalog/exercise/pages/ExercisesPage'
 import { Spinner } from '@/shared/components/ui/spinner'
 
 const lazySuspense = (element: React.ReactNode) => (
@@ -64,6 +65,7 @@ export const router = createBrowserRouter([
           { path: 'competition/logs/:id', element: <CompetitionLogDetailPage /> },
           { path: 'export', element: <ExportPage /> },
           { path: 'trash', element: <TrashPage /> },
+          { path: 'physical/exercises', element: <ExercisesPage /> },
         ],
       },
     ],
