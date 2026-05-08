@@ -4,6 +4,7 @@ export interface Position {
   type: 'TOP' | 'BOTTOM' | 'STANDING' | 'GROUND_NEUTRAL' | 'SUBMITTED'
   visibility: 'PUBLIC' | 'PRIVATE'
   description?: string
+  youtubeUrl?: string
   createdAt: string
   updatedAt: string
 }
@@ -13,4 +14,5 @@ export interface CreatePositionRequest {
   type: Position['type']
   visibility: Position['visibility']
   description?: string
+  youtubeUrl?: string
 }

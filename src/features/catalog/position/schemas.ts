@@ -5,6 +5,7 @@ export const createPositionSchema = z.object({
   type: z.enum(['TOP', 'BOTTOM', 'STANDING', 'GROUND_NEUTRAL', 'SUBMITTED']),
   visibility: z.enum(['PUBLIC', 'PRIVATE']),
   description: z.string().max(10000).optional(),
+  youtubeUrl: z.string().url('URL de YouTube no válida').optional().or(z.literal('')),
 })
 
 export type CreatePositionForm = z.infer<typeof createPositionSchema>
