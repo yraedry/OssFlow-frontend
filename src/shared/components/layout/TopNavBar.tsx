@@ -11,7 +11,7 @@ const PRIMARY_NAV = [
   { to: '/diario/sesiones-bjj', label: 'Diario',        end: false, section: 'diario' },
   { to: '/estudio/tecnicas',    label: 'Estudio',       end: false, section: 'estudio' },
   { to: '/planificacion/planes',label: 'Planificación', end: false, section: 'planificacion' },
-  { to: '/analisis',            label: 'Análisis',      end: false, section: 'analisis', soon: true },
+  { to: '/analisis',            label: 'Análisis',      end: false, section: 'analisis' },
 ]
 
 const SUB_NAV: Record<string, { to: string; label: string }[]> = {

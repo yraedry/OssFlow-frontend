@@ -27,6 +27,7 @@ import { ExportPage } from '@/features/export/pages/ExportPage'
 import { TrashPage } from '@/features/trash/pages/TrashPage'
 import { RulesetsPage } from '@/features/catalog/ruleset/pages/RulesetsPage'
 import { ExercisesPage } from '@/features/catalog/exercise/pages/ExercisesPage'
+import { AnalisisPage } from '@/pages/analisis/AnalisisPage'
 import { Spinner } from '@/shared/components/ui/spinner'
 
 const lazySuspense = (element: React.ReactNode) => (
@@ -70,8 +71,8 @@ export const router = createBrowserRouter([
           { path: 'planificacion/plantilla', element: <WeeklyTemplatePage /> },
           { path: 'planificacion/calendario', element: <WeeklySchedulePage /> },
 
-          // Análisis (próximamente radares)
-          // { path: 'analisis', element: <AnalisisPage /> },
+          // Análisis
+          { path: 'analisis', element: <AnalisisPage /> },
 
           // Perfil y utilidades
           { path: 'profile', element: <ProfilePage /> },

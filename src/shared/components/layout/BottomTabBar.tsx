@@ -7,7 +7,7 @@ const TABS = [
   { to: '/diario/sesiones-bjj',  label: 'Diario',        icon: BookOpen,     end: false },
   { to: '/estudio/tecnicas',     label: 'Estudio',       icon: Dumbbell,     end: false },
   { to: '/planificacion/planes', label: 'Planificación', icon: CalendarDays, end: false },
-  { to: '/analisis',             label: 'Análisis',      icon: BarChart2,    end: false, soon: true },
+  { to: '/analisis',             label: 'Análisis',      icon: BarChart2,    end: false },
 ]
 
 function getActiveTab(pathname: string): string {
