@@ -1,9 +1,10 @@
-export type PhysicalSessionType = 'STRENGTH' | 'CARDIO' | 'FLEXIBILITY' | 'HIIT' | 'OTHER'
+export type PhysicalSessionType = 'STRENGTH' | 'CARDIO' | 'FLEXIBILITY' | 'MOBILITY' | 'HIIT' | 'OTHER'
 
 export const PHYSICAL_SESSION_TYPE_LABELS: Record<PhysicalSessionType, string> = {
   STRENGTH: 'Fuerza',
   CARDIO: 'Cardio',
   FLEXIBILITY: 'Flexibilidad',
+  MOBILITY: 'Movilidad',
   HIIT: 'HIIT',
   OTHER: 'Otro',
 }

@@ -13,6 +13,10 @@ import { TechniqueDetailPage } from '@/features/catalog/technique/pages/Techniqu
 import { NotesPage } from '@/features/journal/note/pages/NotesPage'
 import { TrainingSessionsPage } from '@/features/journal/trainingsession/pages/TrainingSessionsPage'
 import { PhysicalSessionsPage } from '@/features/journal/physicalsession/pages/PhysicalSessionsPage'
+import { MobilidadPage } from '@/features/journal/physicalsession/pages/MobilidadPage'
+import { FlexibilidadPage } from '@/features/journal/physicalsession/pages/FlexibilidadPage'
+import { MobilidadEjerciciosPage } from '@/features/catalog/exercise/pages/MobilidadEjerciciosPage'
+import { FlexibilidadEjerciciosPage } from '@/features/catalog/exercise/pages/FlexibilidadEjerciciosPage'
 import { StudyPlansPage } from '@/features/planning/studyplan/pages/StudyPlansPage'
 import { StudyPlanDetailPage } from '@/features/planning/studyplan/pages/StudyPlanDetailPage'
 import { StudyPlanTimelinePage } from '@/features/planning/studyplan/pages/StudyPlanTimelinePage'
@@ -51,6 +55,8 @@ export const router = createBrowserRouter([
           // Diario
           { path: 'diario/sesiones-bjj', element: <TrainingSessionsPage /> },
           { path: 'diario/sesiones-fisicas', element: <PhysicalSessionsPage /> },
+          { path: 'diario/movilidad', element: <MobilidadPage /> },
+          { path: 'diario/flexibilidad', element: <FlexibilidadPage /> },
           { path: 'diario/notas', element: <NotesPage /> },
           { path: 'diario/grafo', element: lazySuspense(<NoteGraphPage />) },
           { path: 'diario/competicion', element: <CompetitionLogsPage /> },
@@ -64,6 +70,8 @@ export const router = createBrowserRouter([
           { path: 'estudio/sistemas', element: <SystemsPage /> },
           { path: 'estudio/sistemas/:id/edit', element: lazySuspense(<SystemEditorPage />) },
           { path: 'estudio/ejercicios', element: <ExercisesPage /> },
+          { path: 'estudio/movilidad', element: <MobilidadEjerciciosPage /> },
+          { path: 'estudio/flexibilidad', element: <FlexibilidadEjerciciosPage /> },
           { path: 'estudio/reglamentos', element: <RulesetsPage /> },
 
           // Planificación
