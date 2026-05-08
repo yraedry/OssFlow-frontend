@@ -30,7 +30,6 @@ const DAYS: { key: string; label: string }[] = [
 
 const HOURS: number[] = Array.from({ length: 17 }, (_, i) => i + 6) // 6..22
 
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 const LABEL: React.CSSProperties = {
   fontFamily: 'var(--font-mono)',
   fontSize: '9px',

@@ -10,6 +10,7 @@ import { StudyBlockForm } from '@/features/planning/studyblock/components/StudyB
 import { useStudyBlocks, useCreateStudyBlock, useDeleteStudyBlock } from '@/features/planning/studyblock/hooks'
 import { useStudyPlan } from '../hooks'
 import type { CreateStudyBlockForm } from '@/features/planning/studyblock/schemas'
+import type { CreateStudyBlockRequest } from '@/features/planning/studyblock/types'
 
 export function StudyPlanDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -23,7 +24,7 @@ export function StudyPlanDetailPage() {
   const deleteBlock = useDeleteStudyBlock(planId)
 
   const handleAddBlock = async (data: CreateStudyBlockForm) => {
-    await createBlock.mutateAsync(data)
+    await createBlock.mutateAsync(data as CreateStudyBlockRequest)
     setBlockDialogOpen(false)
   }
 
