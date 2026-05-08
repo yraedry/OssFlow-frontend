@@ -4,7 +4,7 @@ import { createTrainingSessionSchema } from './schemas'
 describe('TrainingSession schema', () => {
   it('validates valid session', () => {
     expect(createTrainingSessionSchema.safeParse({
-      sessionDate: '2026-05-06', durationMinutes: 90, intensity: 'MODERATE'
+      sessionDate: '2026-05-06', durationMinutes: 90, intensity: 'MODERATE', sessionType: 'BJJ'
     }).success).toBe(true)
   })
   it('rejects zero duration', () => {
