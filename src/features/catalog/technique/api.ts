@@ -8,7 +8,7 @@ interface PageResponse<T> {
 }
 
 export const techniqueApi = {
-  list: (params?: { page?: number; size?: number }) =>
+  list: (params?: { page?: number; size?: number; category?: string }) =>
     apiClient.get('catalog/techniques', { searchParams: params as Record<string, string | number> }).json<PageResponse<Technique>>(),
   get: (id: number) => apiClient.get(`catalog/techniques/${id}`).json<Technique>(),
   create: (data: CreateTechniqueRequest) =>

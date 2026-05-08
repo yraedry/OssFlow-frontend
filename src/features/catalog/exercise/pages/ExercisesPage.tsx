@@ -1,5 +1,18 @@
 import { useState } from 'react'
 import { Plus, ExternalLink, Pencil, Trash2 } from 'lucide-react'
+
+function getYouTubeEmbedId(url: string): string | null {
+  const patterns = [
+    /youtube\.com\/watch\?v=([^?&#]+)/,
+    /youtu\.be\/([^?&#]+)/,
+    /youtube\.com\/embed\/([^?&#]+)/,
+  ]
+  for (const p of patterns) {
+    const m = url.match(p)
+    if (m) return m[1]
+  }
+  return null
+}
 import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
@@ -60,6 +73,9 @@ type ExerciseCardProps = {
 }
 
 function ExerciseCard({ exercise: ex, onEdit, onDelete }: ExerciseCardProps) {
+  const [showVideo, setShowVideo] = useState(false)
+  const embedId = ex.youtubeUrl ? getYouTubeEmbedId(ex.youtubeUrl) : null
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-2">
@@ -98,21 +114,39 @@ function ExerciseCard({ exercise: ex, onEdit, onDelete }: ExerciseCardProps) {
           {ex.visibility === 'PRIVATE' && (
             <Badge variant="outline" className="text-xs">Privado</Badge>
           )}
+          {ex.youtubeUrl && embedId && (
+            <button
+              onClick={() => setShowVideo(prev => !prev)}
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 transition-colors"
+            >
+              ▶ Video
+            </button>
+          )}
+          {ex.youtubeUrl && !embedId && (
+            <a
+              href={ex.youtubeUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-600 font-mono"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Ver video
+            </a>
+          )}
         </div>
         {ex.description && (
           <p className="text-sm text-muted-foreground line-clamp-2">{ex.description}</p>
         )}
-        {ex.youtubeUrl && (
-          <a
-            href={ex.youtubeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-600 font-mono"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            Ver video
-          </a>
+        {showVideo && embedId && (
+          <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+            <iframe
+              className="absolute inset-0 w-full h-full rounded"
+              src={`https://www.youtube.com/embed/${embedId}`}
+              title={`Video: ${ex.name}`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
         )}
       </CardContent>
     </Card>
