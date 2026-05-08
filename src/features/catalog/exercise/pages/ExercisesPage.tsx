@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
+import { PaginationControls } from '@/shared/components/ui/pagination-controls'
 import { ExerciseForm } from '../components/ExerciseForm'
 import {
   useExercises,
@@ -158,10 +159,13 @@ export function ExercisesPage() {
   const [editing, setEditing] = useState<Exercise | null>(null)
   const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | undefined>()
   const [equipmentFilter, setEquipmentFilter] = useState<EquipmentType | undefined>()
+  const [currentPage, setCurrentPage] = useState(0)
 
   const { data, isLoading, error } = useExercises({
     category: categoryFilter,
     equipment: equipmentFilter,
+    page: currentPage,
+    size: 20,
   })
 
   const createMutation = useCreateExercise()
@@ -196,10 +200,12 @@ export function ExercisesPage() {
 
   const toggleCategory = (cat: ExerciseCategory) => {
     setCategoryFilter(prev => (prev === cat ? undefined : cat))
+    setCurrentPage(0)
   }
 
   const toggleEquipment = (eq: EquipmentType) => {
     setEquipmentFilter(prev => (prev === eq ? undefined : eq))
+    setCurrentPage(0)
   }
 
   const categories = Object.keys(CATEGORY_LABELS) as ExerciseCategory[]
@@ -239,7 +245,7 @@ export function ExercisesPage() {
       <div className="space-y-3">
         <div className="flex flex-wrap gap-2 items-center">
           <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider w-20">Equip.</span>
-          <FilterButton active={equipmentFilter === undefined} onClick={() => setEquipmentFilter(undefined)}>
+          <FilterButton active={equipmentFilter === undefined} onClick={() => { setEquipmentFilter(undefined); setCurrentPage(0) }}>
             Todos
           </FilterButton>
           {equipments.map((eq) => (
@@ -254,7 +260,7 @@ export function ExercisesPage() {
         </div>
         <div className="flex flex-wrap gap-2 items-center">
           <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider w-20">Cat.</span>
-          <FilterButton active={categoryFilter === undefined} onClick={() => setCategoryFilter(undefined)}>
+          <FilterButton active={categoryFilter === undefined} onClick={() => { setCategoryFilter(undefined); setCurrentPage(0) }}>
             Todos
           </FilterButton>
           {categories.map((cat) => (
@@ -282,16 +288,19 @@ export function ExercisesPage() {
           <p className="text-sm mt-1">Crea tu primer ejercicio con el botón de arriba.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(data?.content ?? []).map((ex) => (
-            <ExerciseCard
-              key={ex.id}
-              exercise={ex}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(data?.content ?? []).map((ex) => (
+              <ExerciseCard
+                key={ex.id}
+                exercise={ex}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+          <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+        </>
       )}
     </div>
   )

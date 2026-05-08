@@ -5,6 +5,7 @@ import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
+import { PaginationControls } from '@/shared/components/ui/pagination-controls'
 import { CompetitionLogCard } from '../components/CompetitionLogCard'
 import { CompetitionLogForm } from '../components/CompetitionLogForm'
 import { useCompetitionLogs, useCreateCompetitionLog, useDeleteCompetitionLog } from '../hooks'
@@ -14,8 +15,9 @@ import type { CreateCompetitionLogForm } from '../schemas'
 export function CompetitionLogsPage() {
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(0)
 
-  const { data, isLoading, error } = useCompetitionLogs()
+  const { data, isLoading, error } = useCompetitionLogs({ page: currentPage, size: 20 })
   const createMutation = useCreateCompetitionLog()
   const deleteMutation = useDeleteCompetitionLog()
 
@@ -68,11 +70,14 @@ export function CompetitionLogsPage() {
           <p className="text-sm">Registra tu primera competencia con el botón de arriba.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(data?.content ?? []).filter(Boolean).map((log) => (
-            <CompetitionLogCard key={log.id} log={log} onClick={handleClick} onDelete={handleDelete} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(data?.content ?? []).filter(Boolean).map((log) => (
+              <CompetitionLogCard key={log.id} log={log} onClick={handleClick} onDelete={handleDelete} />
+            ))}
+          </div>
+          <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+        </>
       )}
     </div>
   )

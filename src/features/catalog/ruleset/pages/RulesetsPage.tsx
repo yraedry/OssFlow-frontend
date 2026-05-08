@@ -15,6 +15,7 @@ import {
 } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
+import { PaginationControls } from '@/shared/components/ui/pagination-controls'
 import { RulesetCard } from '../components/RulesetCard'
 import { RulesetForm } from '../components/RulesetForm'
 import { useRulesets, useCreateRuleset, useUpdateRuleset, useDeleteRuleset } from '../hooks'
@@ -33,8 +34,9 @@ export function RulesetsPage() {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Ruleset | null>(null)
   const [fedOpen, setFedOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(0)
 
-  const { data, isLoading, error } = useRulesets()
+  const { data, isLoading, error } = useRulesets({ page: currentPage, size: 20 })
   const createMutation = useCreateRuleset()
   const updateMutation = useUpdateRuleset()
   const deleteMutation = useDeleteRuleset()
@@ -169,11 +171,14 @@ export function RulesetsPage() {
           <p className="text-sm">Crea tu primer reglamento con el botón de arriba.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(data?.content ?? []).map((r) => (
-            <RulesetCard key={r.id} ruleset={r} onEdit={handleEdit} onDelete={handleDelete} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(data?.content ?? []).map((r) => (
+              <RulesetCard key={r.id} ruleset={r} onEdit={handleEdit} onDelete={handleDelete} />
+            ))}
+          </div>
+          <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+        </>
       )}
     </div>
   )

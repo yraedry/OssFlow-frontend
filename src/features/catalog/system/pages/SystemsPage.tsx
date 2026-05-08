@@ -10,6 +10,7 @@ import {
 } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
+import { PaginationControls } from '@/shared/components/ui/pagination-controls'
 import { SystemCard } from '../components/SystemCard'
 import { SystemForm } from '../components/SystemForm'
 import { useSystems, useCreateSystem, useUpdateSystem, useDeleteSystem } from '../hooks'
@@ -19,8 +20,9 @@ import type { CreateSystemForm } from '../schemas'
 export function SystemsPage() {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<System | null>(null)
+  const [currentPage, setCurrentPage] = useState(0)
 
-  const { data, isLoading, error } = useSystems()
+  const { data, isLoading, error } = useSystems({ page: currentPage, size: 20 })
   const createMutation = useCreateSystem()
   const updateMutation = useUpdateSystem()
   const deleteMutation = useDeleteSystem()
@@ -89,11 +91,14 @@ export function SystemsPage() {
           <p className="text-sm">Crea tu primer sistema con el botón de arriba.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(data?.content ?? []).map((s) => (
-            <SystemCard key={s.id} system={s} onEdit={handleEdit} onDelete={handleDelete} />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(data?.content ?? []).map((s) => (
+              <SystemCard key={s.id} system={s} onEdit={handleEdit} onDelete={handleDelete} />
+            ))}
+          </div>
+          <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+        </>
       )}
     </div>
   )

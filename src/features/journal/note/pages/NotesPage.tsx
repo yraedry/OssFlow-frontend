@@ -5,6 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { Badge } from '@/shared/components/ui/badge'
+import { PaginationControls } from '@/shared/components/ui/pagination-controls'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Pencil, Trash2 } from 'lucide-react'
 import { NoteForm } from '../components/NoteForm'
@@ -17,8 +18,9 @@ import { es } from 'date-fns/locale'
 export function NotesPage() {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Note | null>(null)
+  const [currentPage, setCurrentPage] = useState(0)
 
-  const { data, isLoading, error } = useNotes()
+  const { data, isLoading, error } = useNotes({ page: currentPage, size: 20 })
   const createMutation = useCreateNote()
   const updateMutation = useUpdateNote()
   const deleteMutation = useDeleteNote()
@@ -69,6 +71,7 @@ export function NotesPage() {
           <p>No hay notas todavía.</p>
         </div>
       ) : (
+        <>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {(data?.content ?? []).map((note) => (
             <Card key={note.id} className="hover:shadow-md transition-shadow">
@@ -104,6 +107,8 @@ export function NotesPage() {
             </Card>
           ))}
         </div>
+        <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+        </>
       )}
     </div>
   )
