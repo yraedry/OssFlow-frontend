@@ -9,24 +9,25 @@ import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
 
 const PRIMARY_NAV = [
   { to: '/', label: 'Inicio', end: true },
-  { to: '/catalog/techniques', label: 'Técnicas' },
-  { to: '/journal/training-sessions', label: 'Sesiones' },
+  { to: '/journal/training-sessions', label: 'BJJ' },
+  { to: '/journal/physical-sessions', label: 'Físico' },
   { to: '/planning/study-plans', label: 'Planes' },
 ]
 
 const SUB_NAV_BY_SECTION: Record<string, { to: string; label: string }[]> = {
-  catalog: [
+  bjj: [
+    { to: '/journal/training-sessions', label: 'Sesiones' },
     { to: '/catalog/techniques', label: 'Técnicas' },
     { to: '/catalog/positions', label: 'Posiciones' },
     { to: '/catalog/systems', label: 'Sistemas' },
     { to: '/catalog/rulesets', label: 'Reglamentos' },
-  ],
-  journal: [
-    { to: '/journal/training-sessions', label: 'BJJ' },
-    { to: '/journal/physical-sessions', label: 'Físico' },
     { to: '/journal/notes', label: 'Notas' },
     { to: '/journal/graph', label: 'Grafo' },
     { to: '/competition/logs', label: 'Competencias' },
+  ],
+  physical: [
+    { to: '/journal/physical-sessions', label: 'Sesiones' },
+    { to: '/physical/exercises', label: 'Ejercicios' },
   ],
   planning: [
     { to: '/planning/study-plans', label: 'Planes' },
@@ -37,10 +38,26 @@ const SUB_NAV_BY_SECTION: Record<string, { to: string; label: string }[]> = {
 
 function useSecondaryNav(pathname: string) {
   if (pathname === '/') return []
-  if (pathname.startsWith('/catalog')) return SUB_NAV_BY_SECTION.catalog
-  if (pathname.startsWith('/journal')) return SUB_NAV_BY_SECTION.journal
-  if (pathname.startsWith('/planning')) return SUB_NAV_BY_SECTION.planning
+  // Físico primero (más específico)
+  if (pathname.startsWith('/journal/physical') || pathname.startsWith('/physical'))
+    return SUB_NAV_BY_SECTION.physical
+  // BJJ: journal, catalog, competition
+  if (pathname.startsWith('/journal') || pathname.startsWith('/catalog') || pathname.startsWith('/competition'))
+    return SUB_NAV_BY_SECTION.bjj
+  if (pathname.startsWith('/planning'))
+    return SUB_NAV_BY_SECTION.planning
   return []
+}
+
+function usePrimaryActive(pathname: string) {
+  if (pathname === '/') return '/'
+  if (pathname.startsWith('/journal/physical') || pathname.startsWith('/physical'))
+    return '/journal/physical-sessions'
+  if (pathname.startsWith('/journal') || pathname.startsWith('/catalog') || pathname.startsWith('/competition'))
+    return '/journal/training-sessions'
+  if (pathname.startsWith('/planning'))
+    return '/planning/study-plans'
+  return null
 }
 
 const NAV_STYLE_PRIMARY = {
@@ -67,6 +84,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
   const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
   const { pathname } = useLocation()
   const secondaryNav = useSecondaryNav(pathname)
+  const activePrimary = usePrimaryActive(pathname)
 
   useEffect(() => {
     const handler = () => setAvatar(getAvatarFromStorage())
@@ -96,23 +114,24 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
         </NavLink>
 
         <nav className="flex items-stretch flex-1 min-w-0">
-          {PRIMARY_NAV.map(({ to, label, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                cn(
+          {PRIMARY_NAV.map(({ to, label, end }) => {
+            const isForceActive = activePrimary === to
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={cn(
                   'flex items-center px-4 border-b-2 transition-colors h-full shrink-0',
                   'text-muted-foreground hover:text-foreground',
-                  isActive ? 'border-foreground text-foreground' : 'border-transparent',
-                )
-              }
-              style={NAV_STYLE_PRIMARY}
-            >
-              {label}
-            </NavLink>
-          ))}
+                  isForceActive ? 'border-foreground text-foreground' : 'border-transparent',
+                )}
+                style={NAV_STYLE_PRIMARY}
+              >
+                {label}
+              </NavLink>
+            )
+          })}
         </nav>
 
         <div className="flex items-center gap-0.5 px-2 border-l border-border shrink-0">
