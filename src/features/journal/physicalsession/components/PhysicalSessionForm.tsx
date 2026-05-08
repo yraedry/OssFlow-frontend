@@ -12,16 +12,17 @@ import { PHYSICAL_SESSION_TYPE_LABELS } from '../types'
 type Props = {
   onSubmit: (data: CreatePhysicalSessionForm) => Promise<void>
   isPending: boolean
+  defaultSessionType?: CreatePhysicalSessionForm['sessionType']
 }
 
-const SESSION_TYPES = ['STRENGTH', 'CARDIO', 'FLEXIBILITY', 'HIIT', 'OTHER'] as const
+const SESSION_TYPES = ['STRENGTH', 'CARDIO', 'FLEXIBILITY', 'MOBILITY', 'HIIT', 'OTHER'] as const
 
-export function PhysicalSessionForm({ onSubmit, isPending }: Props) {
+export function PhysicalSessionForm({ onSubmit, isPending, defaultSessionType }: Props) {
   const { register, handleSubmit, control, formState: { errors } } = useForm<CreatePhysicalSessionForm>({
     resolver: zodResolver(createPhysicalSessionSchema),
     defaultValues: {
       sessionDate: new Date().toISOString().split('T')[0],
-      sessionType: 'STRENGTH',
+      sessionType: defaultSessionType ?? 'STRENGTH',
     },
   })
 

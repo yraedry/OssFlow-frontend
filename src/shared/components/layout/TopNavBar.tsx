@@ -18,6 +18,8 @@ const SUB_NAV: Record<string, { to: string; label: string }[]> = {
   diario: [
     { to: '/diario/sesiones-bjj',    label: 'Sesiones BJJ' },
     { to: '/diario/sesiones-fisicas', label: 'Sesiones físicas' },
+    { to: '/diario/movilidad',       label: 'Movilidad' },
+    { to: '/diario/flexibilidad',    label: 'Flexibilidad' },
     { to: '/diario/notas',           label: 'Notas' },
     { to: '/diario/competicion',     label: 'Competición' },
   ],
@@ -26,6 +28,8 @@ const SUB_NAV: Record<string, { to: string; label: string }[]> = {
     { to: '/estudio/posiciones',  label: 'Posiciones' },
     { to: '/estudio/sistemas',    label: 'Sistemas' },
     { to: '/estudio/ejercicios',  label: 'Ejercicios' },
+    { to: '/estudio/movilidad',   label: 'Movilidad' },
+    { to: '/estudio/flexibilidad',label: 'Flexibilidad' },
     { to: '/estudio/reglamentos', label: 'Reglamentos' },
   ],
   planificacion: [
