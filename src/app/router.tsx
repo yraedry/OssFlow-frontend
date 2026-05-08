@@ -45,6 +45,40 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { index: true, element: <HomePage /> },
+
+          // Diario
+          { path: 'diario/sesiones-bjj', element: <TrainingSessionsPage /> },
+          { path: 'diario/sesiones-fisicas', element: <PhysicalSessionsPage /> },
+          { path: 'diario/notas', element: <NotesPage /> },
+          { path: 'diario/grafo', element: lazySuspense(<NoteGraphPage />) },
+          { path: 'diario/competicion', element: <CompetitionLogsPage /> },
+          { path: 'diario/competicion/:id', element: <CompetitionLogDetailPage /> },
+
+          // Estudio
+          { path: 'estudio/tecnicas', element: <TechniquesPage /> },
+          { path: 'estudio/tecnicas/:id', element: <TechniqueDetailPage /> },
+          { path: 'estudio/posiciones', element: <PositionsPage /> },
+          { path: 'estudio/sistemas', element: <SystemsPage /> },
+          { path: 'estudio/sistemas/:id/edit', element: lazySuspense(<SystemEditorPage />) },
+          { path: 'estudio/ejercicios', element: <ExercisesPage /> },
+          { path: 'estudio/reglamentos', element: <RulesetsPage /> },
+
+          // Planificación
+          { path: 'planificacion/planes', element: <StudyPlansPage /> },
+          { path: 'planificacion/planes/:id', element: <StudyPlanDetailPage /> },
+          { path: 'planificacion/planes/:id/timeline', element: <StudyPlanTimelinePage /> },
+          { path: 'planificacion/plantilla', element: <WeeklyTemplatePage /> },
+          { path: 'planificacion/calendario', element: <WeeklySchedulePage /> },
+
+          // Análisis (próximamente radares)
+          // { path: 'analisis', element: <AnalisisPage /> },
+
+          // Perfil y utilidades
+          { path: 'profile', element: <ProfilePage /> },
+          { path: 'export', element: <ExportPage /> },
+          { path: 'trash', element: <TrashPage /> },
+
+          // Redirecciones de rutas antiguas (compatibilidad)
           { path: 'catalog/positions', element: <PositionsPage /> },
           { path: 'catalog/techniques', element: <TechniquesPage /> },
           { path: 'catalog/techniques/:id', element: <TechniqueDetailPage /> },
@@ -60,11 +94,8 @@ export const router = createBrowserRouter([
           { path: 'planning/study-plans/:id/timeline', element: <StudyPlanTimelinePage /> },
           { path: 'planning/weekly-template', element: <WeeklyTemplatePage /> },
           { path: 'planning/weekly-schedule', element: <WeeklySchedulePage /> },
-          { path: 'profile', element: <ProfilePage /> },
           { path: 'competition/logs', element: <CompetitionLogsPage /> },
           { path: 'competition/logs/:id', element: <CompetitionLogDetailPage /> },
-          { path: 'export', element: <ExportPage /> },
-          { path: 'trash', element: <TrashPage /> },
           { path: 'physical/exercises', element: <ExercisesPage /> },
         ],
       },

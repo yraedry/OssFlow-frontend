@@ -49,7 +49,7 @@ export function StudyPlanDetailPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/planning/study-plans')}>
+        <Button variant="ghost" size="icon" onClick={() => navigate('/planificacion/planes')}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1 min-w-0">
@@ -58,7 +58,7 @@ export function StudyPlanDetailPage() {
             <p className="text-muted-foreground text-sm">{plan.goalMarkdown}</p>
           )}
         </div>
-        <Button variant="outline" onClick={() => navigate(`/planning/study-plans/${planId}/timeline`)}>
+        <Button variant="outline" onClick={() => navigate(`/planificacion/planes/${planId}/timeline`)}>
           <BarChart2 className="h-4 w-4 mr-2" />
           Ver Timeline
         </Button>

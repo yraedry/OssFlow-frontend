@@ -43,25 +43,25 @@ export function DashboardStats() {
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
         label="Posiciones"
-        to="/catalog/positions"
+        to="/estudio/posiciones"
         queryKey={['dashboard-stat-positions']}
         fetcher={fetchPageMeta('catalog/positions')}
       />
       <StatCard
         label="Técnicas"
-        to="/catalog/techniques"
+        to="/estudio/tecnicas"
         queryKey={['dashboard-stat-techniques']}
         fetcher={fetchPageMeta('catalog/techniques')}
       />
       <StatCard
         label="Planes de estudio"
-        to="/planning/study-plans"
+        to="/planificacion/planes"
         queryKey={['dashboard-stat-studyplans']}
         fetcher={fetchPageMeta('planning/study-plans')}
       />
       <StatCard
         label="Sesiones"
-        to="/journal/training-sessions"
+        to="/diario/sesiones-bjj"
         queryKey={['dashboard-stat-sessions']}
         fetcher={fetchPageMeta('journal/training-sessions')}
       />

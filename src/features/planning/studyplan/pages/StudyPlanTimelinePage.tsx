@@ -40,7 +40,7 @@ export function StudyPlanTimelinePage() {
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => navigate(`/planning/study-plans/${planId}`)}
+          onClick={() => navigate(`/planificacion/planes/${planId}`)}
         >
           <ArrowLeft className="h-4 w-4" />
         </Button>
