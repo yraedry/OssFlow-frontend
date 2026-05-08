@@ -1,6 +1,7 @@
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { YouTubeEmbed } from '@/shared/components/ui/youtube-embed'
 import { Pencil, Trash2 } from 'lucide-react'
 import type { Position } from '../types'
 
@@ -39,6 +40,11 @@ export function PositionCard({ position, onEdit, onDelete }: PositionCardProps) 
         </div>
         {position.description && (
           <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{position.description}</p>
+        )}
+        {position.youtubeUrl && (
+          <div className="mt-2 flex justify-end">
+            <YouTubeEmbed url={position.youtubeUrl} title={position.name} />
+          </div>
         )}
       </CardContent>
     </Card>

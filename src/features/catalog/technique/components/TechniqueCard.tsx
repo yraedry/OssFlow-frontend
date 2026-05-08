@@ -1,9 +1,9 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Trash2, ExternalLink } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { YouTubeEmbed } from '@/shared/components/ui/youtube-embed'
 import type { Technique } from '../types'
 
 const BELT_COLORS: Record<Technique['minimumBelt'], string> = {
@@ -22,19 +22,6 @@ const BELT_LABELS: Record<Technique['minimumBelt'], string> = {
   BLACK: 'Negro',
 }
 
-function getYouTubeEmbedId(url: string): string | null {
-  const patterns = [
-    /youtube\.com\/watch\?v=([^?&#]+)/,
-    /youtu\.be\/([^?&#]+)/,
-    /youtube\.com\/embed\/([^?&#]+)/,
-  ]
-  for (const p of patterns) {
-    const m = url.match(p)
-    if (m) return m[1]
-  }
-  return null
-}
-
 type TechniqueCardProps = {
   technique: Technique
   onEdit: (technique: Technique) => void
@@ -43,9 +30,6 @@ type TechniqueCardProps = {
 
 export function TechniqueCard({ technique: t, onEdit, onDelete }: TechniqueCardProps) {
   const navigate = useNavigate()
-  const [showVideo, setShowVideo] = useState(false)
-
-  const embedId = t.youtubeUrl ? getYouTubeEmbedId(t.youtubeUrl) : null
 
   const handleCardClick = () => {
     navigate(`/catalog/techniques/${t.id}`)
@@ -59,11 +43,6 @@ export function TechniqueCard({ technique: t, onEdit, onDelete }: TechniqueCardP
   const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation()
     onDelete(t.id)
-  }
-
-  const handleVideoToggle = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setShowVideo(prev => !prev)
   }
 
   return (
@@ -112,42 +91,8 @@ export function TechniqueCard({ technique: t, onEdit, onDelete }: TechniqueCardP
           <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{t.description}</p>
         )}
         {t.youtubeUrl && (
-          <div className="mt-2 flex">
-            {embedId ? (
-              <button
-                onClick={handleVideoToggle}
-                className="inline-flex items-center gap-1 rounded px-2.5 py-1 text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-800 transition-colors ml-auto"
-              >
-                ▶ Video
-              </button>
-            ) : (
-              <a
-                href={t.youtubeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs text-red-500 hover:text-red-600 font-mono ml-auto"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                Video
-              </a>
-            )}
-          </div>
-        )}
-        {showVideo && embedId && (
-          <div
-            className="mt-3"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-              <iframe
-                className="absolute inset-0 w-full h-full rounded"
-                src={`https://www.youtube.com/embed/${embedId}`}
-                title={`Video: ${t.name}`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
+          <div className="mt-2 flex justify-end">
+            <YouTubeEmbed url={t.youtubeUrl} title={t.name} />
           </div>
         )}
       </CardContent>

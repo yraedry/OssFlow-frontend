@@ -22,6 +22,7 @@ export function PositionForm({ defaultValues, onSubmit, isPending }: PositionFor
       type: defaultValues?.type ?? 'TOP',
       visibility: defaultValues?.visibility ?? 'PRIVATE',
       description: defaultValues?.description ?? '',
+      youtubeUrl: defaultValues?.youtubeUrl ?? '',
     },
   })
 
@@ -69,6 +70,16 @@ export function PositionForm({ defaultValues, onSubmit, isPending }: PositionFor
             </Select>
           )}
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="youtubeUrl">URL YouTube (opcional)</Label>
+        <Input
+          id="youtubeUrl"
+          {...register('youtubeUrl')}
+          placeholder="https://youtube.com/watch?v=..."
+        />
+        {errors.youtubeUrl && <p className="text-sm text-destructive">{errors.youtubeUrl.message}</p>}
       </div>
 
       <div className="space-y-2">
