@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { Plus } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
@@ -18,6 +19,7 @@ export function StudyPlansPage() {
   const { data, isLoading, error } = useStudyPlans()
   const createMutation = useCreateStudyPlan()
   const deleteMutation = useDeleteStudyPlan()
+  const confirm = useConfirm()
 
   const handleSubmit = async (formData: CreateStudyPlanFormOutput) => {
     await createMutation.mutateAsync(formData)
@@ -25,7 +27,8 @@ export function StudyPlansPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Eliminar este plan?')) return
+    const ok = await confirm({ description: '¿Eliminar este plan? Esta acción no se puede deshacer.' })
+    if (!ok) return
     await deleteMutation.mutateAsync(id)
   }
 

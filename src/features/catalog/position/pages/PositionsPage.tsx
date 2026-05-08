@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { Plus } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
@@ -20,6 +21,7 @@ export function PositionsPage() {
   const createMutation = useCreatePosition()
   const updateMutation = useUpdatePosition()
   const deleteMutation = useDeletePosition()
+  const confirm = useConfirm()
 
   const handleSubmit = async (formData: CreatePositionForm) => {
     if (editing) {
@@ -37,7 +39,8 @@ export function PositionsPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Eliminar esta posición?')) return
+    const ok = await confirm({ description: '¿Eliminar esta posición? Esta acción no se puede deshacer.' })
+    if (!ok) return
     await deleteMutation.mutateAsync(id)
   }
 

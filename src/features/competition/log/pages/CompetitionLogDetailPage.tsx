@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { ArrowLeft, Plus, Calendar, Weight } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -23,6 +24,7 @@ export function CompetitionLogDetailPage() {
   const { data: matches, isLoading: matchesLoading } = useCompetitionMatches(logId)
   const createMatch = useCreateCompetitionMatch(logId)
   const deleteMatch = useDeleteCompetitionMatch(logId)
+  const confirm = useConfirm()
 
   const handleAddMatch = async (data: CreateMatchForm) => {
     await createMatch.mutateAsync(data)
@@ -30,7 +32,8 @@ export function CompetitionLogDetailPage() {
   }
 
   const handleDeleteMatch = async (matchId: number) => {
-    if (!confirm('¿Eliminar este match?')) return
+    const ok = await confirm({ description: '¿Eliminar este match? Esta acción no se puede deshacer.' })
+    if (!ok) return
     await deleteMatch.mutateAsync(matchId)
   }
 

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { Plus, Dumbbell } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -48,6 +49,7 @@ export function TrainingSessionsPage() {
   const { data, isLoading, error } = useTrainingSessions()
   const createMutation = useCreateTrainingSession()
   const deleteMutation = useDeleteTrainingSession()
+  const confirm = useConfirm()
 
   const { register, handleSubmit, control, reset, formState: { errors } } = useForm<CreateTrainingSessionForm>({
     resolver: zodResolver(createTrainingSessionSchema),
@@ -58,6 +60,11 @@ export function TrainingSessionsPage() {
     await createMutation.mutateAsync({ ...data, durationMinutes: Number(data.durationMinutes) })
     setOpen(false)
     reset()
+  }
+
+  const handleDeleteSession = async (id: number) => {
+    const ok = await confirm({ description: '¿Eliminar esta sesión? Esta acción no se puede deshacer.' })
+    if (ok) deleteMutation.mutate(id)
   }
 
   return (
@@ -158,7 +165,7 @@ export function TrainingSessionsPage() {
                       : 'Sin fecha'}
                   </CardTitle>
                   <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"
-                    onClick={() => { if (confirm('¿Eliminar sesión?')) deleteMutation.mutate(s.id) }}>
+                    onClick={() => handleDeleteSession(s.id)}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>

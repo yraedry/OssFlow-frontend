@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
@@ -57,6 +58,7 @@ export function TechniquesPage() {
   const createMutation = useCreateTechnique()
   const updateMutation = useUpdateTechnique()
   const deleteMutation = useDeleteTechnique()
+  const confirm = useConfirm()
 
   const handleSubmit = async (formData: CreateTechniqueForm) => {
     const payload = { ...formData, youtubeUrl: formData.youtubeUrl || undefined }
@@ -70,7 +72,8 @@ export function TechniquesPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Eliminar esta técnica?')) return
+    const ok = await confirm({ description: '¿Eliminar esta técnica? Esta acción no se puede deshacer.' })
+    if (!ok) return
     await deleteMutation.mutateAsync(id)
   }
 

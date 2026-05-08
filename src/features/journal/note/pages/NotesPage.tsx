@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { Plus, FileText, Tag } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
@@ -35,7 +36,12 @@ export function NotesPage() {
     setEditing(null)
   }
 
+  const confirm = useConfirm()
   const handleOpenChange = (o: boolean) => { setOpen(o); if (!o) setEditing(null) }
+  const handleDeleteNote = async (id: number) => {
+    const ok = await confirm({ description: '¿Eliminar esta nota? Esta acción no se puede deshacer.' })
+    if (ok) deleteMutation.mutate(id)
+  }
 
   return (
     <div className="space-y-6">
@@ -83,7 +89,7 @@ export function NotesPage() {
                       <Pencil className="h-3.5 w-3.5" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => { if (confirm('¿Eliminar esta nota?')) deleteMutation.mutate(note.id) }}>
+                      onClick={() => handleDeleteNote(note.id)}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>

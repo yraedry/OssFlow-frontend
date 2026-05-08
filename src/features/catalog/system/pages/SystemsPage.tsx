@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useConfirm } from '@/shared/components/ui/confirm-dialog'
 import { Plus } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import {
@@ -26,6 +27,7 @@ export function SystemsPage() {
   const createMutation = useCreateSystem()
   const updateMutation = useUpdateSystem()
   const deleteMutation = useDeleteSystem()
+  const confirm = useConfirm()
 
   const handleSubmit = async (formData: CreateSystemForm) => {
     if (editing) {
@@ -43,7 +45,8 @@ export function SystemsPage() {
   }
 
   const handleDelete = async (id: number) => {
-    if (!confirm('¿Eliminar este sistema?')) return
+    const ok = await confirm({ description: '¿Eliminar este sistema? Esta acción no se puede deshacer.' })
+    if (!ok) return
     await deleteMutation.mutateAsync(id)
   }
 
