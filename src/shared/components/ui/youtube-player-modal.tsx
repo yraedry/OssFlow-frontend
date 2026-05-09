@@ -6,9 +6,10 @@ import { getYouTubeEmbedId, getYouTubeThumbnail } from '@/shared/utils/youtube'
 interface YouTubePlayerModalProps {
   url: string
   title?: string
+  compact?: boolean
 }
 
-export function YouTubePlayerModal({ url, title = 'Vídeo' }: YouTubePlayerModalProps) {
+export function YouTubePlayerModal({ url, title = 'Vídeo', compact = false }: YouTubePlayerModalProps) {
   const [open, setOpen] = useState(false)
   const embedId = getYouTubeEmbedId(url)
 
@@ -21,7 +22,11 @@ export function YouTubePlayerModal({ url, title = 'Vídeo' }: YouTubePlayerModal
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="relative w-full aspect-video cursor-pointer overflow-hidden border border-border group"
+        className={`relative cursor-pointer overflow-hidden border border-border group ${
+          compact
+            ? 'w-full max-w-xs aspect-video'
+            : 'w-full aspect-video'
+        }`}
         aria-label={`Reproducir vídeo: ${title}`}
       >
         {thumbnail ? (

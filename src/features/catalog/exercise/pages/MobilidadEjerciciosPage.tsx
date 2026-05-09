@@ -94,7 +94,7 @@ function ExerciseDetailView({
       {ex.youtubeUrl && (
         <div className="rounded-lg border border-border bg-card p-5 space-y-3">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Video de referencia</h2>
-          <YouTubePlayerModal url={ex.youtubeUrl} title={ex.name} />
+          <YouTubePlayerModal url={ex.youtubeUrl} title={ex.name} compact />
         </div>
       )}
 

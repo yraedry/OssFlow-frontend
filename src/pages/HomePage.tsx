@@ -3,12 +3,13 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { format, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Plus } from 'lucide-react'
+import { Plus, ArrowRight, Dumbbell, BookOpen, LayoutGrid } from 'lucide-react'
 import { fetchWeeklyStats } from '@/shared/api/dashboard'
 import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
 import { useWeeklyTemplate } from '@/features/planning/weeklytemplate/hooks'
 import { QuickLogDialog } from '@/features/journal/trainingsession/components/QuickLogDialog'
+import { DashboardStats } from './DashboardStats'
 import { cn } from '@/shared/lib/utils'
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
@@ -17,6 +18,12 @@ const LABEL: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '
 
 function javaDayOfWeek(date: Date): string {
   return ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][date.getDay()]
+}
+
+function getGreeting(hour: number): string {
+  if (hour < 12) return 'Buenos días'
+  if (hour < 20) return 'Buenas tardes'
+  return 'Buenas noches'
 }
 
 export function HomePage() {
@@ -53,40 +60,52 @@ export function HomePage() {
       type: 'BJJ',
       date: s.sessionDate,
       name: s.location ? `BJJ — ${s.location}` : 'Sesión BJJ',
-      to: '/journal/training-sessions',
+      to: '/diario/sesiones-bjj',
       id: `bjj-${s.id}`,
+      color: '#4a7cff',
     })),
     ...physSessions.slice(0, 3).map((s) => ({
       type: s.sessionType === 'STRENGTH' ? 'Fuerza' : s.sessionType === 'CARDIO' ? 'Cardio' : s.sessionType,
       date: s.sessionDate,
       name: s.title,
-      to: '/journal/physical-sessions',
+      to: '/diario/sesiones-fisicas',
       id: `phys-${s.id}`,
+      color: s.sessionType === 'STRENGTH' ? '#f59e0b' : '#10b981',
     })),
   ]
     .sort((a, b) => b.date.localeCompare(a.date))
-    .slice(0, 4)
+    .slice(0, 5)
 
   const bjjPct = stats ? Math.min((stats.bjjSessions / stats.bjjGoal) * 100, 100) : 0
   const physPct = stats ? Math.min((stats.physicalSessions / stats.physicalGoal) * 100, 100) : 0
 
   return (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-3">
 
-      {/* Saludo */}
-      <div className="border border-border bg-card px-5 py-4">
-        <div className="flex items-baseline justify-between">
-          <h1 className="leading-none" style={{ ...SERIF, fontSize: 'clamp(28px, 3vw, 42px)', fontWeight: 900, letterSpacing: '-0.03em' }}>
-            Buenas, Adrián.
-          </h1>
-          <span style={{ ...MONO, fontSize: '12px', color: 'var(--color-muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-            {format(today, "EEEE, d 'de' MMMM", { locale: es })}
-          </span>
+      {/* Saludo principal */}
+      <div className="border border-border bg-card px-5 py-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <p style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '4px' }}>
+              {format(today, "EEEE, d 'de' MMMM", { locale: es })}
+            </p>
+            <h1 className="leading-none" style={{ ...SERIF, fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.03em' }}>
+              {getGreeting(today.getHours())}, Adrián.
+            </h1>
+          </div>
+          <button
+            onClick={() => setQuickLogOpen(true)}
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-foreground text-background hover:opacity-85 transition-opacity shrink-0 self-start sm:self-center"
+            style={{ ...MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}
+          >
+            <Plus className="h-4 w-4" strokeWidth={2.5} />
+            Registrar sesión
+          </button>
         </div>
       </div>
 
       {/* Grid principal */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
 
         {/* HOY TOCA */}
         <div className="md:col-span-7 border border-foreground bg-card p-5">
@@ -96,17 +115,17 @@ export function HomePage() {
           </div>
 
           {todayItems.length === 0 ? (
-            <div className="py-6 text-center" style={{ ...MONO, fontSize: '11px', color: 'var(--color-muted-foreground)' }}>
-              {template ? (
-                'Hoy es día de descanso.'
-              ) : (
-                <span>
-                  Sin plantilla configurada.{' '}
-                  <Link to="/planificacion/plantilla" className="underline hover:text-foreground transition-colors">
-                    Configúrala aquí →
-                  </Link>
-                </span>
-              )}
+            <div className="py-6 text-center space-y-3">
+              <p style={{ ...MONO, fontSize: '11px', color: 'var(--color-muted-foreground)' }}>
+                {template ? 'Hoy es día de descanso. Recupérate bien.' : (
+                  <span>
+                    Sin plantilla configurada.{' '}
+                    <Link to="/planificacion/plantilla" className="underline hover:text-foreground transition-colors">
+                      Configúrala aquí →
+                    </Link>
+                  </span>
+                )}
+              </p>
             </div>
           ) : (
             <div className="space-y-0">
@@ -114,27 +133,30 @@ export function HomePage() {
                 <div
                   key={item.type}
                   className={cn(
-                    'flex items-center gap-3 py-3 border-b border-border last:border-b-0 transition-colors',
+                    'flex items-center gap-3 py-3.5 border-b border-border last:border-b-0 transition-colors',
                     !item.done && item.type === 'BJJ' && 'cursor-pointer hover:bg-accent/40',
                   )}
                   onClick={!item.done && item.type === 'BJJ' ? () => setQuickLogOpen(true) : undefined}
                 >
-                  <div className={cn(
-                    'w-4 h-4 shrink-0 border flex items-center justify-center',
-                    item.done ? 'bg-foreground border-foreground' : 'border-border',
-                  )}>
-                    {item.done && <span style={{ fontSize: '10px', color: 'var(--color-background)', fontWeight: 700 }}>✓</span>}
+                  <div
+                    className={cn(
+                      'w-5 h-5 shrink-0 border-2 flex items-center justify-center rounded-sm',
+                      item.done ? 'border-transparent' : 'border-border',
+                    )}
+                    style={item.done ? { backgroundColor: item.color } : {}}
+                  >
+                    {item.done && <span style={{ fontSize: '10px', color: '#fff', fontWeight: 900 }}>✓</span>}
                   </div>
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div style={{ ...LABEL, color: item.color, marginBottom: '2px' }}>{item.type}</div>
-                    <div className={cn('font-semibold', item.done && 'line-through text-muted-foreground')} style={{ ...SERIF, fontSize: '15px' }}>
+                    <div className={cn('font-semibold truncate', item.done && 'line-through text-muted-foreground')} style={{ ...SERIF, fontSize: '15px' }}>
                       {item.label}
                     </div>
                   </div>
                   {item.done ? (
-                    <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>Registrado</span>
+                    <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>✓ Hecho</span>
                   ) : item.type === 'BJJ' ? (
-                    <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>+ Añadir →</span>
+                    <ArrowRight className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
                   ) : null}
                 </div>
               ))}
@@ -142,61 +164,61 @@ export function HomePage() {
           )}
         </div>
 
-        {/* RACHA + STATS + BOTÓN */}
+        {/* RACHA + STATS */}
         <div className="md:col-span-5 border border-border bg-card p-5 flex flex-col gap-4">
 
           {/* Racha */}
-          <div>
+          <div className="pb-4 border-b border-border">
             <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '6px' }}>Racha activa</div>
             <div className="flex items-baseline gap-2">
-              <span style={{ ...SERIF, fontSize: 'clamp(40px, 4vw, 56px)', fontWeight: 900, lineHeight: 1, letterSpacing: '-0.03em' }}>
+              <span style={{ ...SERIF, fontSize: 'clamp(40px, 4vw, 56px)', fontWeight: 900, lineHeight: 1, letterSpacing: '-0.03em', color: stats && stats.streakDays > 0 ? '#f97316' : 'var(--color-foreground)' }}>
                 {stats?.streakDays ?? 0}
               </span>
               <span style={{ ...MONO, fontSize: '13px', color: 'var(--color-muted-foreground)' }}>días</span>
             </div>
-            <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', opacity: 0.6 }}>
-              consecutivos entrenando
-            </div>
           </div>
 
-          {/* Stats */}
+          {/* Stats semana */}
           <div className="grid grid-cols-2 gap-3">
             {[
-              { label: 'BJJ semana', val: stats?.bjjSessions ?? 0, goal: stats?.bjjGoal ?? 5, pct: bjjPct },
-              { label: 'Físico semana', val: stats?.physicalSessions ?? 0, goal: stats?.physicalGoal ?? 3, pct: physPct },
-            ].map(({ label, val, goal, pct }) => (
-              <div key={label}>
-                <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '4px' }}>{label}</div>
-                <div style={{ ...SERIF, fontSize: '24px', fontWeight: 900, lineHeight: 1 }}>
+              { label: 'BJJ semana', val: stats?.bjjSessions ?? 0, goal: stats?.bjjGoal ?? 5, pct: bjjPct, color: '#4a7cff' },
+              { label: 'Físico semana', val: stats?.physicalSessions ?? 0, goal: stats?.physicalGoal ?? 3, pct: physPct, color: '#10b981' },
+            ].map(({ label, val, goal, pct, color }) => (
+              <div key={label} className="space-y-1">
+                <div style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>{label}</div>
+                <div style={{ ...SERIF, fontSize: '22px', fontWeight: 900, lineHeight: 1 }}>
                   {val}
-                  <span style={{ ...MONO, fontSize: '13px', fontWeight: 400, color: 'var(--color-muted-foreground)' }}> / {goal}</span>
+                  <span style={{ ...MONO, fontSize: '12px', fontWeight: 400, color: 'var(--color-muted-foreground)' }}> / {goal}</span>
                 </div>
-                <div className="mt-1.5 h-px bg-border">
-                  <div className="h-px bg-foreground transition-all" style={{ width: `${pct}%` }} />
+                <div className="h-1 bg-border rounded-full overflow-hidden">
+                  <div className="h-1 rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: color }} />
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Botón registrar */}
-          <button
-            onClick={() => setQuickLogOpen(true)}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-foreground text-background hover:opacity-85 transition-opacity mt-auto"
-            style={{ ...MONO, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}
-          >
-            <Plus className="h-4 w-4" strokeWidth={2.5} />
-            Registrar sesión
-          </button>
-
-          <Link
-            to="/diario/sesiones-bjj"
-            className="text-center text-muted-foreground hover:text-foreground transition-colors"
-            style={{ ...MONO, fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}
-          >
-            Ver todas las sesiones →
-          </Link>
+          {/* Links rápidos */}
+          <div className="grid grid-cols-3 gap-2 mt-auto pt-2 border-t border-border">
+            {[
+              { icon: <Dumbbell className="h-3.5 w-3.5" strokeWidth={1.5} />, label: 'Diario', to: '/diario/sesiones-bjj' },
+              { icon: <BookOpen className="h-3.5 w-3.5" strokeWidth={1.5} />, label: 'Estudio', to: '/estudio/tecnicas' },
+              { icon: <LayoutGrid className="h-3.5 w-3.5" strokeWidth={1.5} />, label: 'Análisis', to: '/analisis' },
+            ].map(({ icon, label, to }) => (
+              <Link
+                key={to}
+                to={to}
+                className="flex flex-col items-center gap-1.5 py-2 rounded-sm border border-border hover:border-foreground hover:bg-accent/30 transition-colors"
+              >
+                <span className="text-muted-foreground">{icon}</span>
+                <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>{label}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Catálogo rápido */}
+      <DashboardStats />
 
       {/* Sesiones recientes */}
       {recentSessions.length > 0 && (
@@ -204,20 +226,23 @@ export function HomePage() {
           <div className="px-5 py-3 border-b border-border flex items-center justify-between">
             <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>Últimas sesiones</span>
             <div className="flex gap-4">
-              <Link to="/diario/sesiones-bjj" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }} className="hover:text-foreground transition-colors">BJJ →</Link>
-              <Link to="/diario/sesiones-fisicas" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }} className="hover:text-foreground transition-colors">Físico →</Link>
+              <Link to="/diario/sesiones-bjj" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }} className="hover:text-foreground transition-colors flex items-center gap-1">BJJ <ArrowRight className="h-3 w-3" strokeWidth={1.5} /></Link>
+              <Link to="/diario/sesiones-fisicas" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }} className="hover:text-foreground transition-colors flex items-center gap-1">Físico <ArrowRight className="h-3 w-3" strokeWidth={1.5} /></Link>
             </div>
           </div>
           {recentSessions.map((item) => (
             <Link
               key={item.id}
               to={item.to}
-              className="flex items-center gap-3 px-5 py-3 border-b border-border last:border-b-0 hover:bg-accent transition-colors"
+              className="flex items-center gap-3 px-5 py-3.5 border-b border-border last:border-b-0 hover:bg-accent/40 transition-colors"
             >
-              <span className="border px-1.5 py-0.5 shrink-0" style={{ ...MONO, fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.06em', borderColor: 'var(--color-border)', color: 'var(--color-muted-foreground)' }}>
+              <span
+                className="border px-2 py-0.5 shrink-0"
+                style={{ ...MONO, fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.06em', borderColor: item.color, color: item.color }}
+              >
                 {item.type}
               </span>
-              <span className="flex-1 truncate text-foreground" style={{ ...SERIF, fontSize: '14px' }}>{item.name}</span>
+              <span className="flex-1 truncate" style={{ ...SERIF, fontSize: '14px' }}>{item.name}</span>
               <span style={{ ...MONO, fontSize: '10px', color: 'var(--color-muted-foreground)' }}>{item.date}</span>
             </Link>
           ))}

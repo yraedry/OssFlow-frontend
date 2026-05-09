@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
+import { PaginationControls } from '@/shared/components/ui/pagination-controls'
 import { TechniqueCard } from '../components/TechniqueCard'
 import { TechniqueForm } from '../components/TechniqueForm'
 import { useTechniques, useCreateTechnique, useUpdateTechnique, useDeleteTechnique } from '../hooks'
@@ -160,32 +161,7 @@ export function TechniquesPage() {
             ))}
           </div>
 
-          {/* Paginación */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-4 pt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
-                disabled={currentPage === 0}
-              >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Anterior
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                Página {currentPage + 1} de {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(p => Math.min(totalPages - 1, p + 1))}
-                disabled={currentPage >= totalPages - 1}
-              >
-                Siguiente
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
-            </div>
-          )}
+          <PaginationControls page={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
         </>
       )}
     </div>

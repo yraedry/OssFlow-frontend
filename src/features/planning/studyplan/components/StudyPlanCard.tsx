@@ -1,9 +1,11 @@
-import { format } from 'date-fns'
+import { format, differenceInDays, isPast } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar, Trash2 } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
+import { Trash2, BookOpen, CalendarRange } from 'lucide-react'
 import type { StudyPlan } from '../types'
+
+const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
+const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
+const LABEL: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '9px', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }
 
 type StudyPlanCardProps = {
   plan: StudyPlan
@@ -12,41 +14,60 @@ type StudyPlanCardProps = {
 }
 
 function formatDate(dateStr: string) {
-  return format(new Date(dateStr), 'd MMM yyyy', { locale: es })
+  return format(new Date(dateStr), 'd MMM', { locale: es })
+}
+
+function getPlanStatus(plan: StudyPlan): { label: string; color: string } {
+  if (!plan.endDate) return { label: 'En curso', color: '#10b981' }
+  const end = new Date(plan.endDate)
+  if (isPast(end)) return { label: 'Completado', color: '#6b7280' }
+  const daysLeft = differenceInDays(end, new Date())
+  if (daysLeft <= 7) return { label: `${daysLeft}d restantes`, color: '#f59e0b' }
+  return { label: `${daysLeft}d restantes`, color: '#10b981' }
 }
 
 export function StudyPlanCard({ plan, onClick, onDelete }: StudyPlanCardProps) {
+  const status = getPlanStatus(plan)
+
   return (
-    <Card
-      className="cursor-pointer hover:shadow-md transition-shadow"
+    <div
+      className="group relative border border-border bg-card hover:border-foreground transition-colors cursor-pointer"
       onClick={() => onClick(plan)}
+      style={{ borderLeft: `3px solid ${status.color}` }}
     >
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between">
-          <CardTitle className="text-base">{plan.title}</CardTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-destructive hover:text-destructive shrink-0"
-            onClick={(e) => {
-              e.stopPropagation()
-              onDelete(plan.id)
-            }}
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2">
+            <BookOpen className="h-3.5 w-3.5 shrink-0" style={{ color: status.color }} strokeWidth={1.5} />
+            <h3 className="font-bold leading-tight" style={{ ...SERIF, fontSize: '15px' }}>{plan.title}</h3>
+          </div>
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onDelete(plan.id) }}
+            className="shrink-0 p-1 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-all"
+            aria-label="Eliminar plan"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-          </Button>
+            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </button>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <Calendar className="h-3.5 w-3.5" />
-          {plan.startDate && <span>{formatDate(plan.startDate)}</span>}
-          {plan.endDate && <span>→ {formatDate(plan.endDate)}</span>}
-        </div>
+
         {plan.goalMarkdown && (
-          <p className="text-sm text-muted-foreground line-clamp-2">{plan.goalMarkdown}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2 mb-3" style={MONO}>{plan.goalMarkdown}</p>
         )}
-      </CardContent>
-    </Card>
+
+        <div className="flex items-center justify-between gap-2">
+          {(plan.startDate || plan.endDate) ? (
+            <div className="flex items-center gap-1.5" style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>
+              <CalendarRange className="h-3 w-3" strokeWidth={1.5} />
+              {plan.startDate && <span>{formatDate(plan.startDate)}</span>}
+              {plan.endDate && <span>→ {formatDate(plan.endDate)}</span>}
+            </div>
+          ) : (
+            <span />
+          )}
+          <span style={{ ...LABEL, color: status.color }}>{status.label}</span>
+        </div>
+      </div>
+    </div>
   )
 }
