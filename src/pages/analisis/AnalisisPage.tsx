@@ -8,12 +8,6 @@ import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { useBjjRadar, useFisicoRadar } from '@/features/analisis/radar/hooks'
 import type { RadarDataPoint } from '@/features/analisis/radar/types'
 
-// ─── Familias por sub-radar ───────────────────────────────────────────────────
-
-const GUARDIAS_FAMILIES = ['CLOSED_GUARD', 'HALF_GUARD', 'OPEN_GUARD', 'DLR_GUARD', 'BUTTERFLY_GUARD', 'LEG_ENTANGLEMENT']
-const SUMISIONES_FAMILIES = ['CHOKES', 'GUILLOTINES', 'TRIANGLES', 'ARMBARS', 'SHOULDER_LOCKS', 'LEG_LOCKS']
-const MOVIMIENTO_FAMILIES = ['GUARD_PASSES', 'TAKEDOWNS', 'SWEEPS', 'BACK_TAKES', 'ESCAPES']
-
 // ─── Period selector ──────────────────────────────────────────────────────────
 
 const PERIOD_OPTIONS = [
@@ -23,6 +17,127 @@ const PERIOD_OPTIONS = [
   { label: '1 año',   days: 365 },
   { label: 'Todo',    days: 3650 },
 ]
+
+// ─── Tab definitions ──────────────────────────────────────────────────────────
+
+type TabId = 'guardias' | 'sumisiones' | 'pasajes' | 'derribos' | 'fuerza' | 'movilidad' | 'flexibilidad'
+type DataSource = 'bjj' | 'fisico'
+
+interface TabDef {
+  id: TabId
+  label: string
+  icon: string
+  color: string
+  source: DataSource
+  families: string[]
+  title: string
+  subtitle: string
+  emptyHint: string
+  group: 'bjj' | 'fisico'
+}
+
+const TABS: TabDef[] = [
+  {
+    id: 'guardias',
+    label: 'Guardias',
+    icon: '🛡',
+    color: '#f97316',
+    source: 'bjj',
+    families: ['CLOSED_GUARD', 'HALF_GUARD', 'OPEN_GUARD', 'DLR_GUARD', 'BUTTERFLY_GUARD', 'LEG_ENTANGLEMENT'],
+    title: 'Guardias',
+    subtitle: 'reps',
+    emptyHint: 'Registra técnicas desde guardia cerrada, media guardia, De La Riva, mariposa o entrelazados',
+    group: 'bjj',
+  },
+  {
+    id: 'sumisiones',
+    label: 'Sumisiones',
+    icon: '✊',
+    color: '#e11d48',
+    source: 'bjj',
+    families: ['CHOKES', 'GUILLOTINES', 'TRIANGLES', 'ARMBARS', 'SHOULDER_LOCKS', 'LEG_LOCKS'],
+    title: 'Sumisiones',
+    subtitle: 'reps',
+    emptyHint: 'Registra estrangulaciones, guillotinas, triángulos, armbars, kimuras y leg locks',
+    group: 'bjj',
+  },
+  {
+    id: 'pasajes',
+    label: 'Pasajes',
+    icon: '⚡',
+    color: '#0ea5e9',
+    source: 'bjj',
+    families: ['GUARD_PASSES'],
+    title: 'Pasajes de Guardia',
+    subtitle: 'reps',
+    emptyHint: 'Registra pasajes: toreando, knee slice, over-under, leg drag, body lock...',
+    group: 'bjj',
+  },
+  {
+    id: 'derribos',
+    label: 'Derribos',
+    icon: '↓',
+    color: '#eab308',
+    source: 'bjj',
+    families: ['TAKEDOWNS', 'SWEEPS', 'BACK_TAKES', 'ESCAPES'],
+    title: 'Derribos y Movimiento',
+    subtitle: 'reps',
+    emptyHint: 'Registra derribos, barridas, tomas de espalda y escapadas',
+    group: 'bjj',
+  },
+  {
+    id: 'fuerza',
+    label: 'Fuerza',
+    icon: '💪',
+    color: '#06b6d4',
+    source: 'fisico',
+    families: ['STRENGTH', 'CARDIO', 'HIIT', 'OTHER'],
+    title: 'Acondicionamiento Físico',
+    subtitle: 'sesiones',
+    emptyHint: 'Registra sesiones de fuerza, cardio o HIIT para ver tu radar aquí',
+    group: 'fisico',
+  },
+  {
+    id: 'movilidad',
+    label: 'Movilidad',
+    icon: '🌀',
+    color: '#10b981',
+    source: 'fisico',
+    families: ['MOBILITY'],
+    title: 'Movilidad',
+    subtitle: 'sesiones',
+    emptyHint: 'Registra sesiones de movilidad para ver tu radar aquí',
+    group: 'fisico',
+  },
+  {
+    id: 'flexibilidad',
+    label: 'Flexibilidad',
+    icon: '🤸',
+    color: '#d946ef',
+    source: 'fisico',
+    families: ['FLEXIBILITY'],
+    title: 'Flexibilidad',
+    subtitle: 'sesiones',
+    emptyHint: 'Registra sesiones de flexibilidad para ver tu radar aquí',
+    group: 'fisico',
+  },
+]
+
+const BJJ_TABS  = TABS.filter(t => t.group === 'bjj')
+const FISICO_TABS = TABS.filter(t => t.group === 'fisico')
+
+// ─── Shared tooltip style ─────────────────────────────────────────────────────
+
+const TOOLTIP_STYLE = {
+  background: '#1e293b',
+  border: '1px solid #334155',
+  borderRadius: '6px',
+  fontSize: '12px',
+  fontFamily: 'var(--font-mono)',
+  color: '#e2e8f0',
+}
+
+// ─── Period button ────────────────────────────────────────────────────────────
 
 function PeriodButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
@@ -41,205 +156,178 @@ function PeriodButton({ active, onClick, children }: { active: boolean; onClick:
 
 // ─── Tab button ───────────────────────────────────────────────────────────────
 
-function TabButton({ active, color, onClick, children }: { active: boolean; color: string; onClick: () => void; children: React.ReactNode }) {
+function TabButton({ active, tab, onClick }: { active: boolean; tab: TabDef; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2 text-sm font-medium rounded-t-lg border-b-2 transition-colors ${
+      className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-md transition-all ${
         active
-          ? 'text-foreground'
-          : 'text-muted-foreground border-transparent hover:text-foreground'
+          ? 'text-background font-semibold shadow-sm'
+          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
       }`}
-      style={active ? { borderBottomColor: color, color } : {}}
+      style={active ? { backgroundColor: tab.color } : {}}
     >
-      {children}
+      <span>{tab.icon}</span>
+      <span>{tab.label}</span>
     </button>
   )
 }
 
-// ─── Radar card ───────────────────────────────────────────────────────────────
+// ─── Radar display ────────────────────────────────────────────────────────────
 
-const TOOLTIP_STYLE = {
-  background: 'hsl(var(--card))',
-  border: '1px solid hsl(var(--border))',
-  borderRadius: '6px',
-  fontSize: '12px',
-  fontFamily: 'var(--font-mono)',
-  color: 'hsl(var(--foreground))',
-}
-
-function RadarCard({
-  title,
-  subtitle,
-  color,
+function RadarDisplay({
+  tab,
   data,
   isLoading,
   error,
-  emptyHint,
 }: {
-  title: string
-  subtitle: string
-  color: string
+  tab: TabDef
   data: RadarDataPoint[] | undefined
   isLoading: boolean
   error: unknown
-  emptyHint: string
 }) {
-  const totalReps = data?.reduce((s, d) => s + d.value, 0) ?? 0
-  const hasData = totalReps > 0
+  const filtered = data?.filter(d => tab.families.includes(d.family)) ?? []
+  const total = filtered.reduce((s, d) => s + d.value, 0)
+  const hasData = total > 0
+
+  if (isLoading) {
+    return <div className="flex justify-center py-24"><Spinner /></div>
+  }
+  if (error) {
+    return <Alert variant="destructive"><AlertDescription>Error al cargar datos</AlertDescription></Alert>
+  }
+  if (!hasData) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
+        <span className="text-4xl opacity-40">{tab.icon}</span>
+        <p className="text-sm text-muted-foreground text-center max-w-xs">{tab.emptyHint}</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="rounded-lg border border-border bg-card p-6 space-y-4" style={{ borderLeft: `4px solid ${color}` }}>
-      <div>
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <p className="text-sm text-muted-foreground">
-          {hasData ? `${totalReps} ${subtitle} en el período` : 'Sin datos en el período'}
-        </p>
+    <div className="space-y-4">
+      <ResponsiveContainer width="100%" height={340}>
+        <RadarChart data={filtered} margin={{ top: 16, right: 48, bottom: 16, left: 48 }}>
+          <PolarGrid stroke="rgba(255,255,255,0.1)" />
+          <PolarAngleAxis
+            dataKey="label"
+            tick={{ fill: '#e2e8f0', fontSize: 11, fontFamily: 'var(--font-mono)' }}
+          />
+          <PolarRadiusAxis
+            angle={90}
+            domain={[0, 'auto']}
+            tick={{ fill: '#94a3b8', fontSize: 9 }}
+            tickCount={4}
+          />
+          <Radar
+            name="Total"
+            dataKey="value"
+            stroke={tab.color}
+            fill={tab.color}
+            fillOpacity={0.4}
+            strokeWidth={2.5}
+            dot={{ r: 5, fill: tab.color, stroke: '#0f172a', strokeWidth: 1.5 }}
+          />
+          <Tooltip
+            contentStyle={TOOLTIP_STYLE}
+            formatter={(v) => [`${v} ${tab.subtitle}`, '']}
+          />
+        </RadarChart>
+      </ResponsiveContainer>
+
+      {/* Legend */}
+      <div className="grid grid-cols-2 gap-1 pt-3 border-t border-border">
+        {filtered
+          .filter(d => d.value > 0)
+          .sort((a, b) => b.value - a.value)
+          .map(d => (
+            <div key={d.family} className="flex items-center justify-between px-2 py-1 rounded hover:bg-muted transition-colors">
+              <span className="flex items-center gap-2 text-xs text-muted-foreground font-mono truncate">
+                <span className="inline-block h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: tab.color }} />
+                {d.label}
+              </span>
+              <span className="text-xs font-bold tabular-nums ml-2" style={{ color: tab.color }}>{d.value}</span>
+            </div>
+          ))}
       </div>
-
-      {isLoading ? (
-        <div className="flex justify-center py-20"><Spinner /></div>
-      ) : error ? (
-        <Alert variant="destructive"><AlertDescription>Error al cargar datos</AlertDescription></Alert>
-      ) : !hasData ? (
-        <div className="flex justify-center items-center py-20 text-muted-foreground">
-          <p className="text-sm text-center">{emptyHint}</p>
-        </div>
-      ) : (
-        <ResponsiveContainer width="100%" height={320}>
-          <RadarChart data={data} margin={{ top: 10, right: 40, bottom: 10, left: 40 }}>
-            <PolarGrid stroke="rgba(255,255,255,0.12)" />
-            <PolarAngleAxis
-              dataKey="label"
-              tick={{ fill: '#e2e8f0', fontSize: 11, fontFamily: 'var(--font-mono)' }}
-            />
-            <PolarRadiusAxis
-              angle={90}
-              domain={[0, 'auto']}
-              tick={{ fill: '#94a3b8', fontSize: 9 }}
-              tickCount={4}
-            />
-            <Radar
-              name="Total"
-              dataKey="value"
-              stroke={color}
-              fill={color}
-              fillOpacity={0.45}
-              strokeWidth={3}
-              dot={{ r: 5, fill: color, stroke: 'white', strokeWidth: 1.5 }}
-            />
-            <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${v}`, 'reps']} />
-          </RadarChart>
-        </ResponsiveContainer>
-      )}
-
-      {hasData && data && (
-        <div className="grid grid-cols-2 gap-1 pt-2 border-t border-border">
-          {data
-            .filter(d => d.value > 0)
-            .sort((a, b) => b.value - a.value)
-            .map(d => (
-              <div key={d.family} className="flex items-center justify-between px-2 py-1">
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono">
-                  <span className="inline-block h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
-                  {d.label}
-                </span>
-                <span className="text-xs font-semibold tabular-nums">{d.value}</span>
-              </div>
-            ))}
-        </div>
-      )}
     </div>
   )
 }
 
-// ─── BJJ tabs ─────────────────────────────────────────────────────────────────
+// ─── Tab group ────────────────────────────────────────────────────────────────
 
-type BjjTab = 'guardias' | 'sumisiones' | 'movimiento'
+function TabGroup({
+  label,
+  tabs,
+  activeId,
+  onSelect,
+  bjjData,
+  bjjLoading,
+  bjjError,
+  fisicoData,
+  fisicoLoading,
+  fisicoError,
+}: {
+  label: string
+  tabs: TabDef[]
+  activeId: TabId
+  onSelect: (id: TabId) => void
+  bjjData: RadarDataPoint[] | undefined
+  bjjLoading: boolean
+  bjjError: unknown
+  fisicoData: RadarDataPoint[] | undefined
+  fisicoLoading: boolean
+  fisicoError: unknown
+}) {
+  const activeTab = tabs.find(t => t.id === activeId) ?? tabs[0]
+  const isActive = tabs.some(t => t.id === activeId)
 
-const BJJ_TABS: { id: BjjTab; label: string; families: string[]; color: string; title: string; subtitle: string; hint: string }[] = [
-  {
-    id: 'guardias',
-    label: 'Guardias',
-    families: GUARDIAS_FAMILIES,
-    color: '#f97316',
-    title: 'Radar · Guardias',
-    subtitle: 'reps',
-    hint: 'Registra técnicas desde guardia cerrada, media guardia, De La Riva, mariposa o entrelazados',
-  },
-  {
-    id: 'sumisiones',
-    label: 'Sumisiones',
-    families: SUMISIONES_FAMILIES,
-    color: '#e11d48',
-    title: 'Radar · Sumisiones',
-    subtitle: 'reps',
-    hint: 'Registra estrangulaciones, guillotinas, triángulos, armbars, kimuras y leg locks',
-  },
-  {
-    id: 'movimiento',
-    label: 'Movimiento',
-    families: MOVIMIENTO_FAMILIES,
-    color: '#a855f7',
-    title: 'Radar · Movimiento',
-    subtitle: 'reps',
-    hint: 'Registra pasajes, derribos, barridas, tomas de espalda y escapadas',
-  },
-]
+  if (!isActive) return null
 
-function BjjTabs({ days }: { days: number }) {
-  const [activeTab, setActiveTab] = useState<BjjTab>('guardias')
-  const { data: allData, isLoading, error } = useBjjRadar(days)
+  const data    = activeTab.source === 'bjj' ? bjjData : fisicoData
+  const loading = activeTab.source === 'bjj' ? bjjLoading : fisicoLoading
+  const error   = activeTab.source === 'bjj' ? bjjError : fisicoError
 
-  const current = BJJ_TABS.find(t => t.id === activeTab)!
-  const filteredData = allData?.filter(d => current.families.includes(d.family))
+  const total = (data?.filter(d => activeTab.families.includes(d.family)) ?? []).reduce((s, d) => s + d.value, 0)
 
   return (
-    <div className="rounded-lg border border-border bg-card overflow-hidden" style={{ borderLeft: `4px solid ${current.color}` }}>
-      {/* Tab bar */}
-      <div className="flex border-b border-border px-4 pt-4 gap-1">
-        {BJJ_TABS.map(tab => (
-          <TabButton
-            key={tab.id}
-            active={activeTab === tab.id}
-            color={tab.color}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            {tab.label}
-          </TabButton>
-        ))}
+    <div
+      className="rounded-xl border border-border bg-card overflow-hidden"
+      style={{ borderTop: `3px solid ${activeTab.color}` }}
+    >
+      {/* Header */}
+      <div className="px-5 pt-4 pb-3 border-b border-border">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-0.5">{label}</p>
+            <h2 className="text-base font-semibold">{activeTab.title}</h2>
+          </div>
+          {total > 0 && (
+            <div className="text-right">
+              <p className="text-2xl font-bold tabular-nums" style={{ color: activeTab.color }}>{total}</p>
+              <p className="text-xs text-muted-foreground">{activeTab.subtitle}</p>
+            </div>
+          )}
+        </div>
+        {/* Tab buttons */}
+        <div className="flex flex-wrap gap-1">
+          {tabs.map(tab => (
+            <TabButton
+              key={tab.id}
+              tab={tab}
+              active={activeId === tab.id}
+              onClick={() => onSelect(tab.id)}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Content */}
-      <div className="p-6">
-        <RadarCard
-          title={current.title}
-          subtitle={current.subtitle}
-          color={current.color}
-          data={filteredData}
-          isLoading={isLoading}
-          error={error}
-          emptyHint={current.hint}
-        />
+      <div className="px-5 py-4">
+        <RadarDisplay tab={activeTab} data={data} isLoading={loading} error={error} />
       </div>
     </div>
-  )
-}
-
-// ─── Físico card ──────────────────────────────────────────────────────────────
-
-function FisicoRadarCard({ days }: { days: number }) {
-  const { data, isLoading, error } = useFisicoRadar(days)
-  return (
-    <RadarCard
-      title="Radar Físico"
-      subtitle="sesiones"
-      color="#06b6d4"
-      data={data}
-      isLoading={isLoading}
-      error={error}
-      emptyHint="Registra sesiones físicas (fuerza, cardio, flexibilidad...) para ver tu radar aquí"
-    />
   )
 }
 
@@ -247,9 +335,15 @@ function FisicoRadarCard({ days }: { days: number }) {
 
 export function AnalisisPage() {
   const [days, setDays] = useState(90)
+  const [activeBjj, setActiveBjj]     = useState<TabId>('guardias')
+  const [activeFisico, setActiveFisico] = useState<TabId>('fuerza')
+
+  const { data: bjjData, isLoading: bjjLoading, error: bjjError } = useBjjRadar(days)
+  const { data: fisicoData, isLoading: fisicoLoading, error: fisicoError } = useFisicoRadar(days)
 
   return (
     <div className="space-y-6">
+      {/* Page header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold">Análisis</h1>
@@ -264,9 +358,32 @@ export function AnalisisPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <BjjTabs days={days} />
-        <FisicoRadarCard days={days} />
+      {/* Radar grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <TabGroup
+          label="Jiu-Jitsu Brasileño"
+          tabs={BJJ_TABS}
+          activeId={activeBjj}
+          onSelect={setActiveBjj}
+          bjjData={bjjData}
+          bjjLoading={bjjLoading}
+          bjjError={bjjError}
+          fisicoData={fisicoData}
+          fisicoLoading={fisicoLoading}
+          fisicoError={fisicoError}
+        />
+        <TabGroup
+          label="Preparación Física"
+          tabs={FISICO_TABS}
+          activeId={activeFisico}
+          onSelect={setActiveFisico}
+          bjjData={bjjData}
+          bjjLoading={bjjLoading}
+          bjjError={bjjError}
+          fisicoData={fisicoData}
+          fisicoLoading={fisicoLoading}
+          fisicoError={fisicoError}
+        />
       </div>
     </div>
   )
