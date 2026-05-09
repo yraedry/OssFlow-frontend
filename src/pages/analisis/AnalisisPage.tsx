@@ -160,14 +160,14 @@ function TabButton({ active, tab, onClick }: { active: boolean; tab: TabDef; onC
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-md transition-all ${
+      className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-md transition-all whitespace-nowrap flex-shrink-0 ${
         active
           ? 'text-background font-semibold shadow-sm'
           : 'text-muted-foreground hover:text-foreground hover:bg-muted'
       }`}
       style={active ? { backgroundColor: tab.color } : {}}
     >
-      <span>{tab.icon}</span>
+      <span className="hidden sm:inline">{tab.icon}</span>
       <span>{tab.label}</span>
     </button>
   )
@@ -207,12 +207,12 @@ function RadarDisplay({
 
   return (
     <div className="space-y-4">
-      <ResponsiveContainer width="100%" height={340}>
-        <RadarChart data={filtered} margin={{ top: 16, right: 48, bottom: 16, left: 48 }}>
+      <ResponsiveContainer width="100%" height={280}>
+        <RadarChart data={filtered} margin={{ top: 10, right: 28, bottom: 10, left: 28 }}>
           <PolarGrid stroke="rgba(255,255,255,0.1)" />
           <PolarAngleAxis
             dataKey="label"
-            tick={{ fill: '#e2e8f0', fontSize: 11, fontFamily: 'var(--font-mono)' }}
+            tick={{ fill: '#e2e8f0', fontSize: 10, fontFamily: 'var(--font-mono)' }}
           />
           <PolarRadiusAxis
             angle={90}
@@ -297,8 +297,8 @@ function TabGroup({
       style={{ borderTop: `3px solid ${activeTab.color}` }}
     >
       {/* Header */}
-      <div className="px-5 pt-4 pb-3 border-b border-border">
-        <div className="flex items-center justify-between mb-3">
+      <div className="pt-4 pb-3 border-b border-border">
+        <div className="flex items-center justify-between mb-3 px-4">
           <div>
             <p className="text-xs font-mono text-muted-foreground uppercase tracking-wider mb-0.5">{label}</p>
             <h2 className="text-base font-semibold">{activeTab.title}</h2>
@@ -310,8 +310,8 @@ function TabGroup({
             </div>
           )}
         </div>
-        {/* Tab buttons */}
-        <div className="flex flex-wrap gap-1">
+        {/* Tab buttons — scroll horizontal en móvil */}
+        <div className="flex gap-1 overflow-x-auto px-4 pb-0.5 scrollbar-none">
           {tabs.map(tab => (
             <TabButton
               key={tab.id}
@@ -324,7 +324,7 @@ function TabGroup({
       </div>
 
       {/* Content */}
-      <div className="px-5 py-4">
+      <div className="px-4 py-4">
         <RadarDisplay tab={activeTab} data={data} isLoading={loading} error={error} />
       </div>
     </div>
@@ -344,12 +344,12 @@ export function AnalisisPage() {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="space-y-3">
         <div>
           <h1 className="text-2xl font-bold">Análisis</h1>
           <p className="text-muted-foreground text-sm">Tu evolución como peleador</p>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 overflow-x-auto pb-0.5 scrollbar-none">
           {PERIOD_OPTIONS.map(o => (
             <PeriodButton key={o.days} active={days === o.days} onClick={() => setDays(o.days)}>
               {o.label}

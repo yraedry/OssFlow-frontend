@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, Pencil, Trash2, Dumbbell, PlayCircle, ArrowLeft } from 'lucide-react'
+import { Plus, Pencil, Trash2, Dumbbell, PlayCircle, ArrowLeft, Package, Home, Building2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
@@ -163,6 +163,53 @@ function ExerciseDetailView({
           </Button>
         </div>
       )}
+
+      {/* Equivalencias de material */}
+      <div className="rounded-lg border border-border bg-card p-5 space-y-3">
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Material necesario</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className={`rounded-lg p-3 space-y-1 border-2 transition-colors ${
+            ex.equipment === 'NO_EQUIPMENT' ? 'border-emerald-500 bg-emerald-500/10' : 'border-border bg-muted/30'
+          }`}>
+            <div className="flex items-center gap-2">
+              <Package className="h-4 w-4 text-emerald-400" />
+              <span className="text-xs font-semibold">Sin material</span>
+              {ex.equipment === 'NO_EQUIPMENT' && <span className="ml-auto text-xs text-emerald-400 font-mono">✓ Este</span>}
+            </div>
+            <p className="text-xs text-muted-foreground">Solo el peso corporal. Puedes hacerlo en cualquier sitio.</p>
+          </div>
+          <div className={`rounded-lg p-3 space-y-1 border-2 transition-colors ${
+            ex.equipment === 'HOME' ? 'border-sky-500 bg-sky-500/10' : 'border-border bg-muted/30'
+          }`}>
+            <div className="flex items-center gap-2">
+              <Home className="h-4 w-4 text-sky-400" />
+              <span className="text-xs font-semibold">En casa</span>
+              {ex.equipment === 'HOME' && <span className="ml-auto text-xs text-sky-400 font-mono">✓ Este</span>}
+            </div>
+            <p className="text-xs text-muted-foreground">Material básico: banda elástica, mancuerna, silla o pared.</p>
+          </div>
+          <div className={`rounded-lg p-3 space-y-1 border-2 transition-colors ${
+            ex.equipment === 'GYM' ? 'border-violet-500 bg-violet-500/10' : 'border-border bg-muted/30'
+          }`}>
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-violet-400" />
+              <span className="text-xs font-semibold">Gimnasio</span>
+              {ex.equipment === 'GYM' && <span className="ml-auto text-xs text-violet-400 font-mono">✓ Este</span>}
+            </div>
+            <p className="text-xs text-muted-foreground">Requiere máquinas o equipamiento de gym.</p>
+          </div>
+        </div>
+        {ex.equipment === 'GYM' && (
+          <p className="text-xs text-muted-foreground pt-1">
+            💡 <strong>Sin gym:</strong> busca una variante con banda elástica o con peso corporal del mismo patrón de movimiento.
+          </p>
+        )}
+        {ex.equipment === 'HOME' && (
+          <p className="text-xs text-muted-foreground pt-1">
+            💡 <strong>Sin material:</strong> puedes adaptar este ejercicio usando solo tu peso corporal ajustando el ángulo o el tempo.
+          </p>
+        )}
+      </div>
     </div>
   )
 }
