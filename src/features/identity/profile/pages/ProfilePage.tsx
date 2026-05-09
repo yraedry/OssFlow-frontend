@@ -1,77 +1,90 @@
-import { useState } from 'react'
-import { Building2, Calendar, Shield, Users, Pencil } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Pencil, Building2, Calendar, Shield, Activity, Flame, BookOpen } from 'lucide-react'
+import { useQuery } from '@tanstack/react-query'
 import { useProfile, useCreateProfile, useUpdateProfile } from '../hooks'
 import { useFederations, useUpdateProfileFederations } from '@/features/identity/federation/hooks'
 import { ProfileForm } from '../components/ProfileForm'
 import { AvatarUpload } from '../components/AvatarUpload'
 import { FederationSelector } from '@/features/identity/federation/components/FederationSelector'
 import { InjurySection } from '@/features/identity/injury/InjurySection'
-import { Badge } from '@/shared/components/ui/badge'
-import { Card, CardContent } from '@/shared/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/shared/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
+import { fetchWeeklyStats } from '@/shared/api/dashboardApi'
 import type { UpdateProfileForm } from '../schemas'
 import type { FederationAssignment } from '@/features/identity/federation/types'
-import { useEffect } from 'react'
 
-// ─── Belt config ──────────────────────────────────────────────────────────────
+// ─── Configuración visual de cinturones ───────────────────────────────────────
 
-const BELT_CONFIG: Record<string, { label: string; className: string }> = {
-  WHITE:  { label: 'Blanco',  className: 'bg-gray-100 text-gray-800 border border-gray-300' },
-  BLUE:   { label: 'Azul',    className: 'bg-blue-500 text-white border-transparent' },
-  PURPLE: { label: 'Morado',  className: 'bg-purple-600 text-white border-transparent' },
-  BROWN:  { label: 'Marrón',  className: 'bg-amber-700 text-white border-transparent' },
-  BLACK:  { label: 'Negro',   className: 'bg-gray-900 text-white border-transparent' },
+const BELT: Record<string, { label: string; bg: string; text: string; stripe: string }> = {
+  WHITE:  { label: 'Blanco',  bg: '#e5e7eb', text: '#111827', stripe: '#d1d5db' },
+  BLUE:   { label: 'Azul',    bg: '#3b82f6', text: '#ffffff', stripe: '#1d4ed8' },
+  PURPLE: { label: 'Morado',  bg: '#9333ea', text: '#ffffff', stripe: '#6b21a8' },
+  BROWN:  { label: 'Marrón',  bg: '#92400e', text: '#ffffff', stripe: '#78350f' },
+  BLACK:  { label: 'Negro',   bg: '#111827', text: '#ffffff', stripe: '#374151' },
 }
 
-const MODALITY_CONFIG: Record<string, { label: string }> = {
-  GI:   { label: 'Gi' },
-  NOGI: { label: 'No-Gi' },
-  BOTH: { label: 'Gi + No-Gi' },
+const MODALITY: Record<string, string> = {
+  GI:   'Gi',
+  NOGI: 'No-Gi',
+  BOTH: 'Gi + No-Gi',
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getInitials(name?: string | null): string {
+function getInitials(name?: string | null) {
   if (!name) return '?'
-  return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
 }
 
-function formatDate(iso?: string | null): string {
+function formatDate(iso?: string | null) {
   if (!iso) return ''
-  const d = new Date(iso)
-  return d.toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
+  return new Date(iso).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
 }
 
-function timeAtBelt(isoSince?: string | null): string {
-  if (!isoSince) return ''
-  const since = new Date(isoSince)
-  const now = new Date()
-  const months =
-    (now.getFullYear() - since.getFullYear()) * 12 + (now.getMonth() - since.getMonth())
+function timeAtBelt(iso?: string | null) {
+  if (!iso) return null
+  const months = (new Date().getFullYear() - new Date(iso).getFullYear()) * 12
+    + (new Date().getMonth() - new Date(iso).getMonth())
   if (months < 1) return 'Reciente'
-  if (months < 12) return `${months} mes${months > 1 ? 'es' : ''}`
-  const years = Math.floor(months / 12)
-  const rem = months % 12
-  if (rem === 0) return `${years} año${years > 1 ? 's' : ''}`
-  return `${years}a ${rem}m`
+  if (months < 12) return `${months}m`
+  const y = Math.floor(months / 12), m = months % 12
+  return m === 0 ? `${y}a` : `${y}a ${m}m`
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Stat box ─────────────────────────────────────────────────────────────────
+
+function StatBox({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+  return (
+    <div className="flex flex-col gap-0.5 p-3 border border-border rounded-lg bg-background">
+      <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
+      <span className="text-xl font-bold tabular-nums leading-none">{value}</span>
+      {sub && <span className="text-[10px] text-muted-foreground">{sub}</span>}
+    </div>
+  )
+}
+
+// ─── Belt strip visual ────────────────────────────────────────────────────────
+
+function BeltStrip({ belt }: { belt: typeof BELT[string] }) {
+  return (
+    <div className="flex h-3 rounded-sm overflow-hidden w-full max-w-[120px]">
+      <div className="flex-1" style={{ backgroundColor: belt.bg }} />
+      <div className="w-4" style={{ backgroundColor: belt.stripe }} />
+      <div className="w-4" style={{ backgroundColor: belt.bg }} />
+      <div className="w-4 bg-black" />
+    </div>
+  )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function ProfilePage() {
   const { data: profile, isLoading } = useProfile()
   const createProfile = useCreateProfile()
   const updateProfile = useUpdateProfile()
-
   const { data: allFederations = [] } = useFederations()
   const updateFederations = useUpdateProfileFederations()
+  const { data: stats } = useQuery({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
 
   const [selectedFederations, setSelectedFederations] = useState<FederationAssignment[]>([])
   const [federationsInitialized, setFederationsInitialized] = useState(false)
@@ -84,23 +97,13 @@ export function ProfilePage() {
     return () => window.removeEventListener('ossflow_avatar_changed', handler)
   }, [])
 
-  if (profile?.federations && profile.federations.length > 0 && !federationsInitialized) {
-    setSelectedFederations(
-      profile.federations.map((pf) => ({
-        federationId: pf.federationId,
-        isPrimary: pf.isPrimary,
-      })),
-    )
+  if (profile?.federations?.length && !federationsInitialized) {
+    setSelectedFederations(profile.federations.map(f => ({ federationId: f.federationId, isPrimary: f.isPrimary })))
     setFederationsInitialized(true)
   }
 
   function handleProfileSubmit(data: UpdateProfileForm) {
-    const payload = {
-      displayName: data.displayName,
-      currentBelt: data.currentBelt,
-      preferredModality: data.preferredModality,
-      academy: data.academy || undefined,
-    }
+    const payload = { displayName: data.displayName, currentBelt: data.currentBelt, preferredModality: data.preferredModality, academy: data.academy || undefined }
     if (profile) {
       updateProfile.mutate(payload, { onSuccess: () => setEditOpen(false) })
     } else {
@@ -108,216 +111,186 @@ export function ProfilePage() {
     }
   }
 
-  function handleFederationsSubmit() {
-    updateFederations.mutate(selectedFederations)
-  }
+  if (isLoading) return <div className="text-sm text-muted-foreground p-4">Cargando...</div>
 
-  if (isLoading) {
-    return <div className="text-sm text-muted-foreground">Cargando perfil...</div>
-  }
-
-  // ── No profile yet ──
+  // ── Sin perfil ──
   if (!profile) {
     return (
-      <div className="max-w-2xl space-y-8">
+      <div className="max-w-lg space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Configura tu perfil</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Completa tu perfil para empezar a usar OssFlow
-          </p>
+          <p className="text-sm text-muted-foreground mt-1">Completa tu perfil para empezar a usar OssFlow</p>
         </div>
-        <section className="rounded-lg border p-6 space-y-4">
-          <h2 className="text-lg font-semibold">Foto de perfil</h2>
+        <section className="rounded-lg border p-5 space-y-4">
+          <h2 className="text-sm font-semibold font-mono uppercase tracking-wider">Foto</h2>
           <AvatarUpload displayName={null} />
         </section>
-        <section className="rounded-lg border p-6 space-y-4">
-          <h2 className="text-lg font-semibold">Información personal</h2>
-          <ProfileForm
-            profile={null}
-            onSubmit={handleProfileSubmit}
-            isPending={createProfile.isPending}
-          />
+        <section className="rounded-lg border p-5 space-y-4">
+          <h2 className="text-sm font-semibold font-mono uppercase tracking-wider">Información</h2>
+          <ProfileForm profile={null} onSubmit={handleProfileSubmit} isPending={createProfile.isPending} />
         </section>
       </div>
     )
   }
 
-  // ── Profile card ──
-  const belt = BELT_CONFIG[profile.currentBelt] ?? { label: profile.currentBelt, className: 'bg-muted text-muted-foreground border-border' }
-  const modality = MODALITY_CONFIG[profile.preferredModality] ?? { label: profile.preferredModality }
+  const belt = BELT[profile.currentBelt] ?? { label: profile.currentBelt, bg: '#6b7280', text: '#fff', stripe: '#4b5563' }
   const initials = getInitials(profile.displayName)
   const beltTime = timeAtBelt(profile.beltSince)
-  const enrolledCount = profile.federations?.length ?? 0
-
-  // Determine avatar background color based on belt
-  const avatarBg: Record<string, string> = {
-    WHITE:  'bg-gray-100 text-gray-700',
-    BLUE:   'bg-blue-500 text-white',
-    PURPLE: 'bg-purple-600 text-white',
-    BROWN:  'bg-amber-700 text-white',
-    BLACK:  'bg-gray-900 text-white',
-  }
-  const avatarClass = avatarBg[profile.currentBelt] ?? 'bg-muted text-muted-foreground'
+  const primaryFed = profile.federations?.find(f => f.isPrimary)
+  const primaryFedName = primaryFed ? allFederations.find(f => f.id === primaryFed.federationId)?.code : null
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="max-w-lg space-y-4">
 
-      {/* ── Profile Hero Card ── */}
-      <Card className="overflow-hidden">
-        {/* Top color strip based on belt */}
-        <div className={`h-2 w-full ${belt.className.split(' ').find(c => c.startsWith('bg-')) ?? 'bg-muted'}`} />
+      {/* ── Hero ── */}
+      <div className="rounded-xl border border-border overflow-hidden bg-card">
 
-        <CardContent className="pt-6 pb-6 px-6">
-          <div className="flex items-start gap-5">
-            {/* Avatar */}
+        {/* Banda de cinturón */}
+        <div className="h-16 relative flex items-end px-5 pb-0" style={{ backgroundColor: belt.bg }}>
+          {/* Franja negra del cinturón */}
+          <div className="absolute right-0 top-0 bottom-0 w-12" style={{ backgroundColor: belt.stripe, opacity: 0.6 }} />
+          <div className="absolute right-0 top-0 bottom-0 w-6 bg-black opacity-70" />
+        </div>
+
+        <div className="px-5 pb-5">
+          {/* Avatar flotando sobre la banda */}
+          <div className="flex items-end justify-between -mt-8 mb-4">
             <div
-              className={`shrink-0 rounded-full overflow-hidden border-4 border-background shadow-md flex items-center justify-center ${avatarClass}`}
-              style={{ width: 80, height: 80, fontSize: '28px', fontWeight: 800, fontFamily: 'var(--font-mono)' }}
+              className="rounded-full border-4 border-card flex items-center justify-center overflow-hidden shadow-lg flex-shrink-0"
+              style={{
+                width: 72, height: 72,
+                backgroundColor: belt.bg,
+                color: belt.text,
+                fontSize: 22, fontWeight: 800, fontFamily: 'var(--font-mono)',
+              }}
             >
               {avatar
                 ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
                 : initials}
             </div>
 
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-2">
-                <div>
-                  <h1
-                    className="text-2xl font-black leading-tight truncate"
-                    style={{ fontFamily: 'var(--font-serif)' }}
-                  >
-                    {profile.displayName}
-                  </h1>
-
-                  {/* Belt badge */}
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-widest border mt-1 ${belt.className}`}
-                  >
-                    {belt.label}
-                  </span>
-                </div>
-
-                {/* Edit button */}
-                <Dialog open={editOpen} onOpenChange={setEditOpen}>
-                  <DialogTrigger asChild>
-                    <button
-                      className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-border text-xs font-medium hover:bg-accent transition-colors"
-                      style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em', fontSize: '10px' }}
-                    >
-                      <Pencil className="h-3 w-3" strokeWidth={1.5} />
-                      Editar
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>Editar perfil</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-6 pt-2">
-                      <div>
-                        <h3 className="text-sm font-semibold mb-3">Foto de perfil</h3>
-                        <AvatarUpload displayName={profile.displayName} />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-semibold mb-3">Información personal</h3>
-                        <ProfileForm
-                          profile={profile}
-                          onSubmit={handleProfileSubmit}
-                          isPending={createProfile.isPending || updateProfile.isPending}
-                        />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-semibold mb-3">Federaciones</h3>
-                        <p className="text-xs text-muted-foreground mb-3">
-                          Selecciona las federaciones a las que perteneces.
-                        </p>
-                        <FederationSelector
-                          federations={allFederations}
-                          selected={selectedFederations}
-                          onChange={setSelectedFederations}
-                        />
-                        <button
-                          type="button"
-                          onClick={handleFederationsSubmit}
-                          disabled={updateFederations.isPending}
-                          className="mt-3 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                        >
-                          {updateFederations.isPending ? 'Guardando...' : 'Guardar Federaciones'}
-                        </button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div>
-
-              {/* Meta row */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-sm text-muted-foreground">
-                {profile.academy && (
-                  <span className="flex items-center gap-1">
-                    <Building2 className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
-                    <span className="truncate">{profile.academy}</span>
-                  </span>
-                )}
-                {profile.beltSince && (
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
-                    Desde {formatDate(profile.beltSince)}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ── Stats row ── */}
-          <div className="grid grid-cols-3 gap-3 mt-6">
-            {/* Modality */}
-            <div className="border border-border p-3 space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
-                Modalidad
-              </p>
-              <p className="text-sm font-semibold">{modality.label}</p>
-            </div>
-
-            {/* Time at belt */}
-            <div className="border border-border p-3 space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
-                En cinturón
-              </p>
-              <p className="text-sm font-semibold">{beltTime || '—'}</p>
-            </div>
-
-            {/* Federations */}
-            <div className="border border-border p-3 space-y-1">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
-                Federaciones
-              </p>
-              <p className="text-sm font-semibold">{enrolledCount}</p>
-            </div>
-          </div>
-
-          {/* ── Federations list ── */}
-          {profile.federations && profile.federations.length > 0 && (
-            <div className="mt-5 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
-                <Users className="h-3.5 w-3.5" strokeWidth={1.5} />
-                Federaciones inscritas
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {profile.federations.map((pf) => (
-                  <div key={pf.federationId} className="flex items-center gap-1.5">
-                    <Badge variant={pf.isPrimary ? 'default' : 'outline'} className="flex items-center gap-1">
-                      {pf.isPrimary && <Shield className="h-2.5 w-2.5" strokeWidth={2} />}
-                      Fed. #{pf.federationId}
-                    </Badge>
+            {/* Edit */}
+            <Dialog open={editOpen} onOpenChange={setEditOpen}>
+              <DialogTrigger asChild>
+                <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-xs font-mono uppercase tracking-wide hover:bg-muted transition-colors rounded-md">
+                  <Pencil className="h-3 w-3" strokeWidth={1.5} />
+                  Editar
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogHeader><DialogTitle>Editar perfil</DialogTitle></DialogHeader>
+                <div className="space-y-6 pt-2">
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3">Foto</h3>
+                    <AvatarUpload displayName={profile.displayName} />
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3">Información</h3>
+                    <ProfileForm profile={profile} onSubmit={handleProfileSubmit} isPending={createProfile.isPending || updateProfile.isPending} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold mb-3">Federaciones</h3>
+                    <FederationSelector federations={allFederations} selected={selectedFederations} onChange={setSelectedFederations} />
+                    <button
+                      type="button"
+                      onClick={() => updateFederations.mutate(selectedFederations)}
+                      disabled={updateFederations.isPending}
+                      className="mt-3 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                    >
+                      {updateFederations.isPending ? 'Guardando...' : 'Guardar federaciones'}
+                    </button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
 
-      {/* ── Injuries ── */}
+          {/* Nombre + cinturón */}
+          <div className="space-y-1.5 mb-5">
+            <h1 className="text-2xl font-black leading-tight">{profile.displayName}</h1>
+            <div className="flex items-center gap-3">
+              <BeltStrip belt={belt} />
+              <span className="text-sm font-semibold" style={{ color: belt.bg === '#e5e7eb' ? '#374151' : belt.bg }}>
+                {belt.label}
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground font-mono mt-1">
+              {profile.academy && (
+                <span className="flex items-center gap-1">
+                  <Building2 className="h-3 w-3" strokeWidth={1.5} />
+                  {profile.academy}
+                </span>
+              )}
+              {profile.beltSince && (
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-3 w-3" strokeWidth={1.5} />
+                  Cinturón desde {formatDate(profile.beltSince)}
+                </span>
+              )}
+              {primaryFedName && (
+                <span className="flex items-center gap-1">
+                  <Shield className="h-3 w-3" strokeWidth={1.5} />
+                  {primaryFedName}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Stats grid */}
+          <div className="grid grid-cols-3 gap-2">
+            <StatBox
+              label="Modalidad"
+              value={MODALITY[profile.preferredModality] ?? profile.preferredModality}
+            />
+            <StatBox
+              label="En cinturón"
+              value={beltTime ?? '—'}
+              sub={profile.beltSince ? formatDate(profile.beltSince) : undefined}
+            />
+            <StatBox
+              label="Federaciones"
+              value={profile.federations?.length ?? 0}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Stats de entrenamiento ── */}
+      {stats && (
+        <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-3">
+          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Esta semana</p>
+          <div className="grid grid-cols-3 gap-2">
+            <StatBox
+              label="Racha"
+              value={stats.streakDays}
+              sub="días"
+            />
+            <StatBox
+              label="BJJ"
+              value={`${stats.bjjSessions}/${stats.bjjGoal}`}
+              sub="sesiones"
+            />
+            <StatBox
+              label="Físico"
+              value={`${stats.physicalSessions}/${stats.physicalGoal}`}
+              sub="sesiones"
+            />
+          </div>
+          <div className="grid grid-cols-3 gap-2">
+            <div className="col-span-3 flex items-center gap-2 p-3 border border-border rounded-lg bg-background">
+              <BookOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" strokeWidth={1.5} />
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Técnicas este mes</p>
+                <p className="text-xl font-bold tabular-nums">{stats.techniquesThisMonth}</p>
+              </div>
+              <Flame className="h-4 w-4 flex-shrink-0" style={{ color: stats.streakDays > 0 ? '#f97316' : '#475569' }} strokeWidth={1.5} />
+              <Activity className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Lesiones ── */}
       <InjurySection />
     </div>
   )
