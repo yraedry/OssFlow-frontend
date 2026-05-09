@@ -12,17 +12,66 @@ type NavItem = {
   path: string
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Inicio', path: '/' },
-  { label: 'Posiciones', path: '/estudio/posiciones' },
-  { label: 'Técnicas', path: '/estudio/tecnicas' },
-  { label: 'Sistemas', path: '/estudio/sistemas' },
-  { label: 'Notas', path: '/diario/notas' },
-  { label: 'Sesiones de entrenamiento', path: '/diario/sesiones-bjj' },
-  { label: 'Competencias', path: '/diario/competicion' },
-  { label: 'Planes de estudio', path: '/planificacion/planes' },
-  { label: 'Perfil', path: '/profile' },
+type NavGroup = {
+  heading: string
+  items: NavItem[]
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    heading: 'General',
+    items: [
+      { label: 'Inicio', path: '/' },
+      { label: 'Análisis', path: '/analisis' },
+    ],
+  },
+  {
+    heading: 'Diario',
+    items: [
+      { label: 'Sesiones de entrenamiento', path: '/diario/sesiones-bjj' },
+      { label: 'Sesiones físicas', path: '/diario/sesiones-fisicas' },
+      { label: 'Movilidad (diario)', path: '/diario/movilidad' },
+      { label: 'Flexibilidad (diario)', path: '/diario/flexibilidad' },
+      { label: 'Notas', path: '/diario/notas' },
+      { label: 'Competición', path: '/diario/competicion' },
+    ],
+  },
+  {
+    heading: 'Estudio',
+    items: [
+      { label: 'Técnicas', path: '/estudio/tecnicas' },
+      { label: 'Posiciones', path: '/estudio/posiciones' },
+      { label: 'Sistemas', path: '/estudio/sistemas' },
+      { label: 'Ejercicios físicos', path: '/estudio/ejercicios' },
+      { label: 'Ejercicios de movilidad', path: '/estudio/movilidad' },
+      { label: 'Ejercicios de flexibilidad', path: '/estudio/flexibilidad' },
+      { label: 'Reglamentos', path: '/estudio/reglamentos' },
+    ],
+  },
+  {
+    heading: 'Planificación',
+    items: [
+      { label: 'Planes de estudio', path: '/planificacion/planes' },
+      { label: 'Plantilla semanal', path: '/planificacion/plantilla' },
+      { label: 'Calendario', path: '/planificacion/calendario' },
+    ],
+  },
+  {
+    heading: 'Cuenta',
+    items: [
+      { label: 'Perfil', path: '/profile' },
+      { label: 'Configuración', path: '/configuracion' },
+      { label: 'Exportar datos', path: '/export' },
+      { label: 'Papelera', path: '/trash' },
+    ],
+  },
 ]
+
+const GROUP_CLASSES =
+  'overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground'
+
+const ITEM_CLASSES =
+  'relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50'
 
 export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const navigate = useNavigate()
@@ -58,25 +107,28 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               className="flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
-          <Command.List className="max-h-72 overflow-y-auto overflow-x-hidden p-1">
+          <Command.List className="max-h-96 overflow-y-auto overflow-x-hidden p-1">
             <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
               No se encontraron resultados.
             </Command.Empty>
-            <Command.Group
-              heading="Navegación"
-              className="overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground"
-            >
-              {NAV_ITEMS.map((item) => (
-                <Command.Item
-                  key={item.path}
-                  value={item.label}
-                  onSelect={() => handleSelect(item.path)}
-                  className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-accent aria-selected:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-                >
-                  {item.label}
-                </Command.Item>
-              ))}
-            </Command.Group>
+            {NAV_GROUPS.map((group) => (
+              <Command.Group
+                key={group.heading}
+                heading={group.heading}
+                className={GROUP_CLASSES}
+              >
+                {group.items.map((item) => (
+                  <Command.Item
+                    key={item.path}
+                    value={`${group.heading} ${item.label}`}
+                    onSelect={() => handleSelect(item.path)}
+                    className={ITEM_CLASSES}
+                  >
+                    {item.label}
+                  </Command.Item>
+                ))}
+              </Command.Group>
+            ))}
           </Command.List>
         </Command>
       </div>

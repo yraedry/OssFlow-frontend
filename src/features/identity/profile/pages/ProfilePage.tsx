@@ -14,14 +14,12 @@ import type { WeeklyStats } from '@/shared/api/dashboard'
 import type { UpdateProfileForm } from '../schemas'
 import type { FederationAssignment } from '@/features/identity/federation/types'
 
-// ─── Configuración visual de cinturones ───────────────────────────────────────
-
-const BELT: Record<string, { label: string; bg: string; text: string; stripe: string }> = {
-  WHITE:  { label: 'Blanco',  bg: '#e5e7eb', text: '#111827', stripe: '#d1d5db' },
-  BLUE:   { label: 'Azul',    bg: '#3b82f6', text: '#ffffff', stripe: '#1d4ed8' },
-  PURPLE: { label: 'Morado',  bg: '#9333ea', text: '#ffffff', stripe: '#6b21a8' },
-  BROWN:  { label: 'Marrón',  bg: '#92400e', text: '#ffffff', stripe: '#78350f' },
-  BLACK:  { label: 'Negro',   bg: '#111827', text: '#ffffff', stripe: '#374151' },
+const BELT: Record<string, { label: string; bg: string; bgDark: string; text: string; stripe: string }> = {
+  WHITE:  { label: 'Blanco',  bg: '#e5e7eb', bgDark: '#9ca3af', text: '#111827', stripe: '#d1d5db' },
+  BLUE:   { label: 'Azul',    bg: '#3b82f6', bgDark: '#1d4ed8', text: '#ffffff', stripe: '#1d4ed8' },
+  PURPLE: { label: 'Morado',  bg: '#9333ea', bgDark: '#6b21a8', text: '#ffffff', stripe: '#6b21a8' },
+  BROWN:  { label: 'Marrón',  bg: '#92400e', bgDark: '#451a03', text: '#ffffff', stripe: '#78350f' },
+  BLACK:  { label: 'Negro',   bg: '#111827', bgDark: '#030712', text: '#ffffff', stripe: '#374151' },
 }
 
 const MODALITY: Record<string, string> = {
@@ -29,8 +27,6 @@ const MODALITY: Record<string, string> = {
   NOGI: 'No-Gi',
   BOTH: 'Gi + No-Gi',
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function getInitials(name?: string | null) {
   if (!name) return '?'
@@ -52,32 +48,15 @@ function timeAtBelt(iso?: string | null) {
   return m === 0 ? `${y}a` : `${y}a ${m}m`
 }
 
-// ─── Stat box ─────────────────────────────────────────────────────────────────
-
-function StatBox({ label, value, sub }: { label: string; value: string | number; sub?: string }) {
+function ColorStatBox({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
   return (
-    <div className="flex flex-col gap-0.5 p-3 border border-border rounded-lg bg-background">
+    <div className="flex flex-col gap-0.5 p-3 bg-background rounded-sm" style={{ borderLeft: `3px solid ${color}` }}>
       <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
       <span className="text-xl font-bold tabular-nums leading-none">{value}</span>
       {sub && <span className="text-[10px] text-muted-foreground">{sub}</span>}
     </div>
   )
 }
-
-// ─── Belt strip visual ────────────────────────────────────────────────────────
-
-function BeltStrip({ belt }: { belt: typeof BELT[string] }) {
-  return (
-    <div className="flex h-3 rounded-sm overflow-hidden w-full max-w-[120px]">
-      <div className="flex-1" style={{ backgroundColor: belt.bg }} />
-      <div className="w-4" style={{ backgroundColor: belt.stripe }} />
-      <div className="w-4" style={{ backgroundColor: belt.bg }} />
-      <div className="w-4 bg-black" />
-    </div>
-  )
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function ProfilePage() {
   const { data: profile, isLoading } = useProfile()
@@ -114,7 +93,6 @@ export function ProfilePage() {
 
   if (isLoading) return <div className="text-sm text-muted-foreground p-4">Cargando...</div>
 
-  // ── Sin perfil ──
   if (!profile) {
     return (
       <div className="max-w-lg space-y-6">
@@ -134,7 +112,7 @@ export function ProfilePage() {
     )
   }
 
-  const belt = BELT[profile.currentBelt] ?? { label: profile.currentBelt, bg: '#6b7280', text: '#fff', stripe: '#4b5563' }
+  const belt = BELT[profile.currentBelt] ?? { label: profile.currentBelt, bg: '#6b7280', bgDark: '#374151', text: '#fff', stripe: '#4b5563' }
   const initials = getInitials(profile.displayName)
   const beltTime = timeAtBelt(profile.beltSince)
   const primaryFed = profile.federations?.find(f => f.isPrimary)
@@ -143,26 +121,38 @@ export function ProfilePage() {
   return (
     <div className="max-w-lg space-y-4">
 
-      {/* ── Hero ── */}
       <div className="rounded-xl border border-border overflow-hidden bg-card">
 
-        {/* Banda de cinturón */}
-        <div className="h-16 relative flex items-end px-5 pb-0" style={{ backgroundColor: belt.bg }}>
-          {/* Franja negra del cinturón */}
-          <div className="absolute right-0 top-0 bottom-0 w-12" style={{ backgroundColor: belt.stripe, opacity: 0.6 }} />
-          <div className="absolute right-0 top-0 bottom-0 w-6 bg-black opacity-70" />
+        {/* Banda gradiente con nombre encima */}
+        <div
+          className="h-[120px] relative"
+          style={{ background: `linear-gradient(135deg, ${belt.bgDark}, ${belt.bg})` }}
+        >
+          <div className="absolute right-0 top-0 bottom-0 w-10 bg-black opacity-60" />
+          <div className="absolute bottom-3 left-5 right-14">
+            <p className="text-white font-black text-xl leading-tight drop-shadow-sm">{profile.displayName}</p>
+            <p className="text-white/80 text-xs font-mono mt-0.5">
+              Cinturón {belt.label} · {MODALITY[profile.preferredModality] ?? profile.preferredModality}
+            </p>
+          </div>
         </div>
 
         <div className="px-5 pb-5">
-          {/* Avatar flotando sobre la banda */}
-          <div className="flex items-end justify-between -mt-8 mb-4">
+
+          {/* Avatar flotando + botón editar */}
+          <div className="flex items-center justify-between -mt-9 mb-4">
             <div
-              className="rounded-full border-4 border-card flex items-center justify-center overflow-hidden shadow-lg flex-shrink-0"
+              className="rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
               style={{
-                width: 72, height: 72,
+                width: 72,
+                height: 72,
                 backgroundColor: belt.bg,
                 color: belt.text,
-                fontSize: 22, fontWeight: 800, fontFamily: 'var(--font-mono)',
+                fontSize: 22,
+                fontWeight: 800,
+                fontFamily: 'var(--font-mono)',
+                border: '3px solid #111',
+                boxShadow: `0 0 0 3px ${belt.bg}, 0 0 0 6px #111`,
               }}
             >
               {avatar
@@ -170,7 +160,6 @@ export function ProfilePage() {
                 : initials}
             </div>
 
-            {/* Edit */}
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
               <DialogTrigger asChild>
                 <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-xs font-mono uppercase tracking-wide hover:bg-muted transition-colors rounded-md">
@@ -206,92 +195,67 @@ export function ProfilePage() {
             </Dialog>
           </div>
 
-          {/* Nombre + cinturón */}
-          <div className="space-y-1.5 mb-5">
-            <h1 className="text-2xl font-black leading-tight">{profile.displayName}</h1>
-            <div className="flex items-center gap-3">
-              <BeltStrip belt={belt} />
-              <span className="text-sm font-semibold" style={{ color: belt.bg === '#e5e7eb' ? '#374151' : belt.bg }}>
-                {belt.label}
+          {/* Info compacta: academia, fecha cinturón, federación */}
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground font-mono mb-5">
+            {profile.academy && (
+              <span className="flex items-center gap-1">
+                <Building2 className="h-3 w-3" strokeWidth={1.5} />
+                {profile.academy}
               </span>
-            </div>
-            <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground font-mono mt-1">
-              {profile.academy && (
-                <span className="flex items-center gap-1">
-                  <Building2 className="h-3 w-3" strokeWidth={1.5} />
-                  {profile.academy}
-                </span>
-              )}
-              {profile.beltSince && (
-                <span className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" strokeWidth={1.5} />
-                  Cinturón desde {formatDate(profile.beltSince)}
-                </span>
-              )}
-              {primaryFedName && (
-                <span className="flex items-center gap-1">
-                  <Shield className="h-3 w-3" strokeWidth={1.5} />
-                  {primaryFedName}
-                </span>
-              )}
-            </div>
+            )}
+            {profile.beltSince && (
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" strokeWidth={1.5} />
+                {beltTime ? `${beltTime} en cinturón` : formatDate(profile.beltSince)}
+              </span>
+            )}
+            {primaryFedName && (
+              <span className="flex items-center gap-1">
+                <Shield className="h-3 w-3" strokeWidth={1.5} />
+                {primaryFedName}
+              </span>
+            )}
           </div>
 
-          {/* Stats grid */}
-          <div className="grid grid-cols-3 gap-2">
-            <StatBox
-              label="Modalidad"
-              value={MODALITY[profile.preferredModality] ?? profile.preferredModality}
+          {/* Stats 2×2 con barra de color lateral */}
+          <div className="grid grid-cols-2 gap-2">
+            <ColorStatBox
+              label="Racha"
+              value={stats?.streakDays ?? '—'}
+              sub="días"
+              color="#f97316"
             />
-            <StatBox
-              label="En cinturón"
-              value={beltTime ?? '—'}
-              sub={profile.beltSince ? formatDate(profile.beltSince) : undefined}
+            <ColorStatBox
+              label="BJJ semana"
+              value={stats ? `${stats.bjjSessions}/${stats.bjjGoal}` : '—'}
+              sub="sesiones"
+              color="#3b82f6"
             />
-            <StatBox
-              label="Federaciones"
-              value={profile.federations?.length ?? 0}
+            <ColorStatBox
+              label="Físico semana"
+              value={stats ? `${stats.physicalSessions}/${stats.physicalGoal}` : '—'}
+              sub="sesiones"
+              color="#10b981"
+            />
+            <ColorStatBox
+              label="Técnicas mes"
+              value={stats?.techniquesThisMonth ?? '—'}
+              sub="este mes"
+              color="#a855f7"
             />
           </div>
+
+          {/* Iconos decorativos de actividad */}
+          {stats && (
+            <div className="flex items-center gap-2 mt-3 px-1">
+              <Flame className="h-3.5 w-3.5" style={{ color: stats.streakDays > 0 ? '#f97316' : '#475569' }} strokeWidth={1.5} />
+              <Activity className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
+              <BookOpen className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
+            </div>
+          )}
         </div>
       </div>
 
-      {/* ── Stats de entrenamiento ── */}
-      {stats && (
-        <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-3">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Esta semana</p>
-          <div className="grid grid-cols-3 gap-2">
-            <StatBox
-              label="Racha"
-              value={stats.streakDays}
-              sub="días"
-            />
-            <StatBox
-              label="BJJ"
-              value={`${stats.bjjSessions}/${stats.bjjGoal}`}
-              sub="sesiones"
-            />
-            <StatBox
-              label="Físico"
-              value={`${stats.physicalSessions}/${stats.physicalGoal}`}
-              sub="sesiones"
-            />
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <div className="col-span-3 flex items-center gap-2 p-3 border border-border rounded-lg bg-background">
-              <BookOpen className="h-4 w-4 text-muted-foreground flex-shrink-0" strokeWidth={1.5} />
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Técnicas este mes</p>
-                <p className="text-xl font-bold tabular-nums">{stats.techniquesThisMonth}</p>
-              </div>
-              <Flame className="h-4 w-4 flex-shrink-0" style={{ color: stats.streakDays > 0 ? '#f97316' : '#475569' }} strokeWidth={1.5} />
-              <Activity className="h-4 w-4 flex-shrink-0 text-muted-foreground" strokeWidth={1.5} />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Lesiones ── */}
       <InjurySection />
     </div>
   )

@@ -28,7 +28,7 @@ export function AppLayout() {
       </div>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto p-4 md:p-8 pb-24 md:pb-8 min-h-dvh md:min-h-0">
+      <main className="flex-1 overflow-auto p-4 md:p-8 pb-32 md:pb-8 min-h-dvh md:min-h-0">
         <Outlet />
       </main>
 

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 64" fill="none">
+  <!-- Símbolo cinturón — versión light -->
+  <rect x="0" y="20" width="56" height="20" fill="#1a1a1a"/>
+  <rect x="24" y="12" width="10" height="38" fill="#1a1a1a"/>
+  <rect x="27" y="15" width="4" height="32" fill="#fafaf8"/>
+  <rect x="0" y="29" width="22" height="2" fill="#fafaf8"/>
+  <rect x="36" y="29" width="20" height="2" fill="#fafaf8"/>
+  <rect x="21" y="40" width="7" height="11" fill="#1a1a1a"/>
+  <rect x="31" y="40" width="7" height="11" fill="#1a1a1a"/>
+
+  <!-- Logotipo texto -->
+  <text x="72" y="40" font-family="'Playfair Display', Georgia, serif" font-size="32" font-weight="900" fill="#1a1a1a" letter-spacing="-0.5">OssFlow</text>
+</svg>
