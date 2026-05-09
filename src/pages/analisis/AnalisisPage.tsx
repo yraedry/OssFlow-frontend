@@ -159,51 +159,6 @@ function RadarPanel({
   )
 }
 
-function MiniRadarCard({
-  section, data, isLoading,
-}: {
-  section: Section
-  data: RadarDataPoint[] | undefined
-  isLoading: boolean
-}) {
-  const points = data?.filter(d => section.families.includes(d.family)) ?? []
-  const total = points.reduce((s, d) => s + d.value, 0)
-
-  return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden" style={{ borderTop: `2px solid ${section.color}` }}>
-      <div className="px-4 pt-3 pb-1 flex items-center justify-between">
-        <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">{section.label}</p>
-        {total > 0 && (
-          <span className="text-sm font-bold tabular-nums" style={{ color: section.color }}>{total}</span>
-        )}
-      </div>
-      {isLoading ? (
-        <div className="flex justify-center py-8"><Spinner /></div>
-      ) : total === 0 ? (
-        <div className="flex items-center justify-center py-8">
-          <p className="text-xs text-muted-foreground">Sin datos</p>
-        </div>
-      ) : (
-        <ResponsiveContainer width="100%" height={180}>
-          <RadarChart data={points} margin={{ top: 4, right: 16, bottom: 4, left: 16 }}>
-            <PolarGrid stroke="rgba(255,255,255,0.08)" />
-            <PolarAngleAxis dataKey="label" tick={{ fill: '#94a3b8', fontSize: 9, fontFamily: 'var(--font-mono)' }} />
-            <PolarRadiusAxis angle={90} domain={[0, 'auto']} tick={false} tickCount={3} axisLine={false} />
-            <Radar
-              name="Total"
-              dataKey="value"
-              stroke={section.color}
-              fill={section.color}
-              fillOpacity={0.3}
-              strokeWidth={1.5}
-            />
-            <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v) => [`${v} ${section.subtitle}`, '']} />
-          </RadarChart>
-        </ResponsiveContainer>
-      )}
-    </div>
-  )
-}
 
 export function AnalisisPage() {
   const [days, setDays] = useState(90)
@@ -332,17 +287,6 @@ export function AnalisisPage() {
           ))}
         </div>
       )}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {SECTIONS.map(s => (
-          <MiniRadarCard
-            key={s.id}
-            section={s}
-            data={s.source === 'bjj' ? bjjData : fisicoData}
-            isLoading={s.source === 'bjj' ? bjjLoading : fisicoLoading}
-          />
-        ))}
-      </div>
 
       {gaps.length > 0 && (
         <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-2">

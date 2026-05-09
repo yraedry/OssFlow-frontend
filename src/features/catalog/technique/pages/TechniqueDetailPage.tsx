@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Pencil } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
-import { Badge } from '@/shared/components/ui/badge'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/components/ui/dialog'
@@ -27,10 +26,18 @@ const BELT_LABELS: Record<string, string> = {
   BLACK: 'Negro',
 }
 
+function ModalityBadge({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-secondary text-secondary-foreground">
+      {label}
+    </span>
+  )
+}
+
 function ModalityBadges({ modality }: { modality: string }) {
-  if (modality === 'BOTH') return <><Badge variant="secondary">Gi</Badge><Badge variant="secondary">No-Gi</Badge></>
-  if (modality === 'GI') return <Badge variant="secondary">Gi</Badge>
-  return <Badge variant="secondary">No-Gi</Badge>
+  if (modality === 'BOTH') return <><ModalityBadge label="Gi" /><ModalityBadge label="No-Gi" /></>
+  if (modality === 'GI') return <ModalityBadge label="Gi" />
+  return <ModalityBadge label="No-Gi" />
 }
 
 export function TechniqueDetailPage() {
@@ -92,9 +99,6 @@ export function TechniqueDetailPage() {
               {BELT_LABELS[technique.minimumBelt]}
             </span>
             <ModalityBadges modality={technique.modality} />
-            <Badge variant={technique.visibility === 'PUBLIC' ? 'default' : 'outline'}>
-              {technique.visibility === 'PUBLIC' ? 'Pública' : 'Privada'}
-            </Badge>
           </div>
         </div>
 
