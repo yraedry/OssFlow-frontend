@@ -9,7 +9,8 @@ import { FederationSelector } from '@/features/identity/federation/components/Fe
 import { InjurySection } from '@/features/identity/injury/InjurySection'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
-import { fetchWeeklyStats } from '@/shared/api/dashboardApi'
+import { fetchWeeklyStats } from '@/shared/api/dashboard'
+import type { WeeklyStats } from '@/shared/api/dashboard'
 import type { UpdateProfileForm } from '../schemas'
 import type { FederationAssignment } from '@/features/identity/federation/types'
 
@@ -84,7 +85,7 @@ export function ProfilePage() {
   const updateProfile = useUpdateProfile()
   const { data: allFederations = [] } = useFederations()
   const updateFederations = useUpdateProfileFederations()
-  const { data: stats } = useQuery({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
+  const { data: stats } = useQuery<WeeklyStats>({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
 
   const [selectedFederations, setSelectedFederations] = useState<FederationAssignment[]>([])
   const [federationsInitialized, setFederationsInitialized] = useState(false)
