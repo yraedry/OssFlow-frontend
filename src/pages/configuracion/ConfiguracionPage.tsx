@@ -51,14 +51,23 @@ function SettingRow({
   )
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean
+  onChange: (v: boolean) => void
+  label?: string
+}) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
+      aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex h-5 w-9 items-center transition-colors border ${
+      className={`relative inline-flex h-5 w-9 cursor-pointer items-center transition-colors border focus:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
         checked ? 'bg-foreground border-foreground' : 'bg-transparent border-border'
       }`}
     >
@@ -125,8 +134,9 @@ function ThemeSelector() {
         <button
           key={value}
           type="button"
+          aria-pressed={selected === value}
           onClick={() => handleSelect(value)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium transition-colors border-r border-border last:border-r-0 ${
+          className={`flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-[10px] font-medium transition-colors border-r border-border last:border-r-0 focus:outline-none focus-visible:ring-1 focus-visible:ring-ring ${
             selected === value
               ? 'bg-foreground text-background'
               : 'bg-transparent text-muted-foreground hover:text-foreground'
@@ -293,7 +303,11 @@ export function ConfiguracionPage() {
             >
               <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>lbs</span>
-                <Toggle checked={weightUnit} onChange={handleWeightUnit} />
+                <Toggle
+                  checked={weightUnit}
+                  onChange={handleWeightUnit}
+                  label={`Unidades de peso: ${weightUnit ? 'kilogramos' : 'libras'}`}
+                />
                 <span className="text-xs text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>kg</span>
               </div>
             </SettingRow>

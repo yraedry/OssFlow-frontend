@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { ArrowLeft } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { usePosition } from '../hooks'
+import { YouTubePlayerModal } from '@/shared/components/ui/youtube-player-modal'
 
 const TYPE_LABELS: Record<string, string> = {
   TOP: 'Posición dominante',
@@ -12,16 +13,6 @@ const TYPE_LABELS: Record<string, string> = {
   STANDING: 'De pie',
   GROUND_NEUTRAL: 'Suelo neutral',
   SUBMITTED: 'Sumisión',
-}
-
-function extractYouTubeId(url: string): string | null {
-  const vMatch = url.match(/[?&]v=([^&]+)/)
-  if (vMatch) return vMatch[1]
-  const embedMatch = url.match(/\/embed\/([^?&/]+)/)
-  if (embedMatch) return embedMatch[1]
-  const shortMatch = url.match(/youtu\.be\/([^?&/]+)/)
-  if (shortMatch) return shortMatch[1]
-  return null
 }
 
 export function PositionDetailPage() {
@@ -52,8 +43,6 @@ export function PositionDetailPage() {
     )
   }
 
-  const videoId = position.youtubeUrl ? extractYouTubeId(position.youtubeUrl) : null
-
   return (
     <div className="space-y-6 max-w-3xl">
       <Button variant="ghost" onClick={() => navigate('/estudio/posiciones')} className="gap-2 -ml-2">
@@ -66,15 +55,8 @@ export function PositionDetailPage() {
         <Badge variant="secondary">{TYPE_LABELS[position.type] ?? position.type}</Badge>
       </div>
 
-      {videoId && (
-        <div className="aspect-video w-full rounded-lg overflow-hidden">
-          <iframe
-            src={`https://www.youtube-nocookie.com/embed/${videoId}`}
-            className="w-full h-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        </div>
+      {position.youtubeUrl && (
+        <YouTubePlayerModal url={position.youtubeUrl} title={position.name} />
       )}
 
       {position.description && (

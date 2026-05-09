@@ -75,8 +75,9 @@ export function QuickLogDialog({ open, onOpenChange }: Props) {
         <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           {/* Fecha */}
           <div className="space-y-1">
-            <label style={LABEL}>Fecha</label>
+            <label htmlFor="ql-date" style={LABEL}>Fecha</label>
             <input
+              id="ql-date"
               type="date"
               value={sessionDate}
               onChange={(e) => setSessionDate(e.target.value)}
@@ -88,8 +89,9 @@ export function QuickLogDialog({ open, onOpenChange }: Props) {
 
           {/* Duración */}
           <div className="space-y-1">
-            <label style={LABEL}>Duración (minutos)</label>
+            <label htmlFor="ql-duration" style={LABEL}>Duración (minutos)</label>
             <input
+              id="ql-duration"
               type="number"
               min={1}
               max={480}
@@ -102,8 +104,8 @@ export function QuickLogDialog({ open, onOpenChange }: Props) {
           </div>
 
           {/* Intensidad */}
-          <div className="space-y-1">
-            <label style={LABEL}>Intensidad</label>
+          <div className="space-y-1" role="group" aria-labelledby="ql-intensity-label">
+            <span id="ql-intensity-label" style={LABEL}>Intensidad</span>
             <div className="grid grid-cols-4 gap-1">
               {INTENSITIES.map((i) => (
                 <button
@@ -129,8 +131,9 @@ export function QuickLogDialog({ open, onOpenChange }: Props) {
 
           {/* Notas */}
           <div className="space-y-1">
-            <label style={LABEL}>Notas (opcional)</label>
+            <label htmlFor="ql-notes" style={LABEL}>Notas (opcional)</label>
             <textarea
+              id="ql-notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}

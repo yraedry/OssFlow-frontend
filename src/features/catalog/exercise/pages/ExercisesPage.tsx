@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
 import { Plus, Pencil, Trash2, Dumbbell, PlayCircle, ArrowLeft, Package, Home, Building2 } from 'lucide-react'
+import { YouTubePlayerModal } from '@/shared/components/ui/youtube-player-modal'
 import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
@@ -18,6 +19,7 @@ import {
 import type { Exercise, ExerciseCategory, EquipmentType } from '../types'
 import { CATEGORY_LABELS, EQUIPMENT_LABELS } from '../types'
 import type { CreateExerciseForm } from '../schemas'
+import { getYouTubeEmbedId } from '@/shared/utils/youtube'
 
 const CATEGORY_COLORS: Record<ExerciseCategory, string> = {
   STRENGTH:    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
@@ -77,11 +79,6 @@ function ExerciseDetailView({
   onDelete: (id: number) => void
   onBack: () => void
 }) {
-  const youtubeId = ex.youtubeUrl
-    ? ex.youtubeUrl.match(/[?&]v=([^&]+)/)?.[1] ?? ex.youtubeUrl.split('/').pop()
-    : null
-  const watchUrl = youtubeId ? `https://www.youtube.com/watch?v=${youtubeId}` : ex.youtubeUrl
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
@@ -119,32 +116,10 @@ function ExerciseDetailView({
         </div>
       </div>
 
-      {/* Video prominente */}
-      {watchUrl && (
+      {ex.youtubeUrl && (
         <div className="rounded-lg border border-border bg-card p-5 space-y-3">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Video de referencia</h2>
-          <a
-            href={watchUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-4 group"
-          >
-            {youtubeId && (
-              <img
-                src={`https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`}
-                alt={`${ex.name} thumbnail`}
-                className="w-40 h-[90px] object-cover rounded border border-border flex-shrink-0"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-              />
-            )}
-            <div className="space-y-1.5">
-              <div className="flex items-center gap-2 text-sm font-medium group-hover:text-foreground text-muted-foreground transition-colors">
-                <PlayCircle className="h-4 w-4 text-red-500" />
-                Ver en YouTube
-              </div>
-              <p className="text-xs text-muted-foreground">{ex.name} — técnica y forma correcta</p>
-            </div>
-          </a>
+          <YouTubePlayerModal url={ex.youtubeUrl} title={ex.name} />
         </div>
       )}
 
@@ -222,9 +197,7 @@ type ExerciseCardProps = {
 }
 
 function ExerciseCard({ exercise: ex, onView, onEdit, onDelete }: ExerciseCardProps) {
-  const youtubeId = ex.youtubeUrl
-    ? ex.youtubeUrl.match(/[?&]v=([^&]+)/)?.[1] ?? ex.youtubeUrl.split('/').pop()
-    : null
+  const youtubeId = ex.youtubeUrl ? getYouTubeEmbedId(ex.youtubeUrl) : null
 
   return (
     <Card

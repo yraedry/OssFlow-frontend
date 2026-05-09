@@ -84,10 +84,22 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
       <div className="flex h-10 items-stretch">
         <NavLink
           to="/"
-          className="flex items-center px-4 border-r border-border shrink-0"
-          style={{ fontFamily: 'var(--font-serif)', fontSize: '14px', fontWeight: 900, letterSpacing: '-0.02em' }}
+          className="flex items-center px-4 border-r border-border shrink-0 gap-2"
+          aria-label="OssFlow — Inicio"
         >
-          OSSFLOW
+          {/* Logo: símbolo cinturón BJJ */}
+          <svg width="22" height="22" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="6" y="29" width="68" height="22" fill="currentColor"/>
+            <rect x="34" y="19" width="12" height="42" fill="currentColor"/>
+            <rect x="37" y="22" width="6" height="36" fill="var(--color-background)"/>
+            <rect x="6" y="39" width="28" height="3" fill="var(--color-background)"/>
+            <rect x="46" y="39" width="28" height="3" fill="var(--color-background)"/>
+            <rect x="30" y="51" width="8" height="13" fill="currentColor"/>
+            <rect x="42" y="51" width="8" height="13" fill="currentColor"/>
+          </svg>
+          <span style={{ fontFamily: 'var(--font-serif)', fontSize: '14px', fontWeight: 900, letterSpacing: '-0.02em' }}>
+            OssFlow
+          </span>
         </NavLink>
 
         <nav className="flex items-stretch flex-1 min-w-0 overflow-x-auto scrollbar-none">

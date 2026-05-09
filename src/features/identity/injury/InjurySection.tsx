@@ -8,6 +8,13 @@ import {
   STATUS_LABELS,
   STATUS_COLORS,
 } from './types'
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/shared/components/ui/select'
 
 const SEVERITIES: InjurySeverity[] = ['MILD', 'MODERATE', 'SEVERE']
 const STATUSES: InjuryStatus[] = ['ACTIVE', 'RECOVERED', 'CHRONIC']
@@ -30,10 +37,14 @@ export function InjurySection() {
   const [form, setForm] = useState<CreateInjuryRequest>(EMPTY_FORM)
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
+  }
+
+  function handleSelectChange(field: keyof CreateInjuryRequest) {
+    return (value: string) => setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -156,42 +167,40 @@ export function InjurySection() {
 
             {/* Severidad */}
             <div className="space-y-1">
-              <label htmlFor="severity" className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
+              <label className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
                 Severidad *
               </label>
-              <select
-                id="severity"
-                name="severity"
-                value={form.severity}
-                onChange={handleChange}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              >
-                {SEVERITIES.map((s) => (
-                  <option key={s} value={s}>
-                    {SEVERITY_LABELS[s]}
-                  </option>
-                ))}
-              </select>
+              <Select value={form.severity} onValueChange={handleSelectChange('severity')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona severidad" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SEVERITIES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {SEVERITY_LABELS[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Estado */}
             <div className="space-y-1">
-              <label htmlFor="status" className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
+              <label className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
                 Estado *
               </label>
-              <select
-                id="status"
-                name="status"
-                value={form.status}
-                onChange={handleChange}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-              >
-                {STATUSES.map((s) => (
-                  <option key={s} value={s}>
-                    {STATUS_LABELS[s]}
-                  </option>
-                ))}
-              </select>
+              <Select value={form.status} onValueChange={handleSelectChange('status')}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona estado" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {STATUS_LABELS[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Fecha inicio */}
