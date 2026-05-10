@@ -67,7 +67,7 @@ export function FlexibilidadPage() {
           <p className="text-sm">Registra tu primera sesión con el botón de arriba.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
           {sessions.map((s) => (
             <PhysicalSessionCard key={s.id} session={s} onDelete={handleDelete} />
           ))}

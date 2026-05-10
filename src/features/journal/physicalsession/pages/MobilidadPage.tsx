@@ -27,15 +27,15 @@ export function MobilidadPage() {
     await deleteMutation.mutateAsync(id)
   }
 
-  const sessions = (data?.content ?? []).filter((s) => s.sessionType === 'MOBILITY')
+  const sessions = (data?.content ?? []).filter((s) => s.sessionType === 'MOBILITY' || s.sessionType === 'FLEXIBILITY')
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
           <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>Diario</div>
-          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>Movilidad</h1>
-          <p className="text-sm text-muted-foreground mt-1">Sesiones de movilidad específica para BJJ</p>
+          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>Sesiones de movilidad</h1>
+          <p className="text-sm text-muted-foreground mt-1">Movilidad y flexibilidad</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -46,12 +46,13 @@ export function MobilidadPage() {
           </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Nueva sesión de movilidad</DialogTitle>
+              <DialogTitle>Nueva sesión de movilidad / flexibilidad</DialogTitle>
             </DialogHeader>
             <PhysicalSessionForm
               onSubmit={handleSubmit}
               isPending={createMutation.isPending}
               defaultSessionType="MOBILITY"
+              excludeTypes={['STRENGTH', 'CARDIO', 'HIIT', 'OTHER']}
             />
           </DialogContent>
         </Dialog>
@@ -67,7 +68,7 @@ export function MobilidadPage() {
           <p className="text-sm">Registra tu primera sesión con el botón de arriba.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
           {sessions.map((s) => (
             <PhysicalSessionCard key={s.id} session={s} onDelete={handleDelete} />
           ))}
