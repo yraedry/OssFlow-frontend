@@ -1,14 +1,10 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, FileText, Tag } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
+import { Plus, FileText, Tag, Pencil, Trash2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
-import { Badge } from '@/shared/components/ui/badge'
 import { PaginationControls } from '@/shared/components/ui/pagination-controls'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
-import { Pencil, Trash2 } from 'lucide-react'
 import { NoteForm } from '../components/NoteForm'
 import { useNotes, useCreateNote, useUpdateNote, useDeleteNote } from '../hooks'
 import type { Note } from '../types'
@@ -45,14 +41,27 @@ export function NotesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <h1 className="text-2xl font-bold">Notas</h1>
-          <p className="text-muted-foreground">{data?.totalElements ?? 0} notas en tu diario</p>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>
+            Diario
+          </div>
+          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
+            Notas
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">{data?.totalElements ?? 0} notas en tu diario</p>
         </div>
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditing(null)}><Plus className="h-4 w-4 mr-2" />Nueva nota</Button>
+            <button
+              type="button"
+              onClick={() => setEditing(null)}
+              className="flex items-center gap-1.5 px-4 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors shrink-0"
+              style={{ fontFamily: 'var(--font-mono)' }}
+            >
+              <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+              Nueva
+            </button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
@@ -72,48 +81,60 @@ export function NotesPage() {
       ) : error ? (
         <Alert variant="destructive"><AlertDescription>Error al cargar notas</AlertDescription></Alert>
       ) : (data?.content ?? []).length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <FileText className="h-12 w-12 mx-auto mb-4 opacity-30" />
-          <p>No hay notas todavía.</p>
+        <div className="border border-dashed border-border py-16 text-center text-muted-foreground">
+          <FileText className="h-10 w-10 mx-auto mb-3 opacity-30" />
+          <p className="text-sm font-medium">No hay notas todavía</p>
+          <p className="text-xs mt-1">Escribe tu primera nota de entrenamiento</p>
         </div>
       ) : (
         <>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {(data?.content ?? []).map((note) => (
-            <Card key={note.id} className="hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-base line-clamp-1">{note.title}</CardTitle>
-                  <div className="flex gap-1 shrink-0">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(note); setOpen(true) }}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"
-                      onClick={() => handleDeleteNote(note.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {(data?.content ?? []).map((note) => (
+              <div key={note.id} className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors">
+                {/* Acciones hover */}
+                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <button
+                    type="button"
+                    aria-label="Editar nota"
+                    onClick={() => { setEditing(note); setOpen(true) }}
+                    className="h-7 w-7 flex items-center justify-center border border-border bg-background hover:bg-muted transition-colors"
+                  >
+                    <Pencil className="h-3 w-3" strokeWidth={1.5} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Eliminar nota"
+                    onClick={() => handleDeleteNote(note.id)}
+                    className="h-7 w-7 flex items-center justify-center border border-destructive/50 bg-background text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+                  </button>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p className="text-sm text-muted-foreground line-clamp-3">{note.bodyMarkdown}</p>
-                {note.tags.length > 0 && (
-                  <div className="flex gap-1 flex-wrap">
-                    {note.tags.map((t) => (
-                      <Badge key={t} variant="outline" className="text-xs gap-1">
-                        <Tag className="h-2.5 w-2.5" />{t}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  {format(new Date(note.createdAt), "d MMM yyyy", { locale: es })}
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+
+                <div className="p-4 flex flex-col gap-2 flex-1">
+                  <p className="text-sm font-semibold leading-snug pr-16 line-clamp-1">{note.title}</p>
+                  <p className="text-xs text-muted-foreground line-clamp-3">{note.bodyMarkdown}</p>
+                  {note.tags.length > 0 && (
+                    <div className="flex gap-1.5 flex-wrap">
+                      {note.tags.map((t) => (
+                        <span key={t} className="flex items-center gap-1 text-[10px] text-muted-foreground border border-border px-1.5 py-0.5" style={{ fontFamily: 'var(--font-mono)' }}>
+                          <Tag className="h-2 w-2" strokeWidth={1.5} />
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="px-4 py-2 border-t border-border/50">
+                  <span className="text-[10px] text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
+                    {format(new Date(note.createdAt), "d MMM yyyy", { locale: es })}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
         </>
       )}
     </div>

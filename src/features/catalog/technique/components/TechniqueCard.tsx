@@ -1,17 +1,14 @@
 import { useNavigate } from 'react-router-dom'
-import { Pencil, Trash2, MoveRight } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
-import { YouTubeEmbed } from '@/shared/components/ui/youtube-embed'
+import { Pencil, Trash2, MoveRight, Play } from 'lucide-react'
 import type { Technique } from '../types'
 
-const CATEGORY_COLORS: Record<Technique['category'], string> = {
-  SUBMISSION: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  SWEEP:      'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
-  PASS:       'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  TAKEDOWN:   'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-  ESCAPE:     'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  TRANSITION: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+const CATEGORY_ACCENT: Record<Technique['category'], string> = {
+  SUBMISSION: '#e11d48',
+  SWEEP:      '#f59e0b',
+  PASS:       '#3b82f6',
+  TAKEDOWN:   '#f97316',
+  ESCAPE:     '#10b981',
+  TRANSITION: '#a855f7',
 }
 
 const CATEGORY_LABELS: Record<Technique['category'], string> = {
@@ -21,14 +18,6 @@ const CATEGORY_LABELS: Record<Technique['category'], string> = {
   TAKEDOWN:   'Derribo',
   ESCAPE:     'Escape',
   TRANSITION: 'Transición',
-}
-
-const BELT_COLORS: Record<Technique['minimumBelt'], string> = {
-  WHITE:  'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-  BLUE:   'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  PURPLE: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  BROWN:  'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
-  BLACK:  'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900',
 }
 
 const BELT_LABELS: Record<Technique['minimumBelt'], string> = {
@@ -47,56 +36,54 @@ type TechniqueCardProps = {
 
 export function TechniqueCard({ technique: t, onEdit, onDelete }: TechniqueCardProps) {
   const navigate = useNavigate()
+  const accent = CATEGORY_ACCENT[t.category]
 
   return (
-    <Card
-      className="cursor-pointer hover:shadow-md transition-shadow"
+    <div
+      className="group relative flex flex-col bg-card border border-border cursor-pointer hover:border-foreground/40 transition-colors"
+      style={{ borderLeft: `3px solid ${accent}` }}
       onClick={() => navigate(`/estudio/tecnicas/${t.id}`)}
     >
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base font-bold leading-tight">{t.name}</CardTitle>
-          <div className="flex gap-1 shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={(e) => { e.stopPropagation(); onEdit(t) }}
-              aria-label="Editar técnica"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive"
-              onClick={(e) => { e.stopPropagation(); onDelete(t.id) }}
-              aria-label="Eliminar técnica"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {/* Categoría + cinturón */}
-        <div className="flex flex-wrap gap-1.5">
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${CATEGORY_COLORS[t.category]}`}>
-            {CATEGORY_LABELS[t.category]}
-          </span>
-          <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${BELT_COLORS[t.minimumBelt]}`}>
-            {BELT_LABELS[t.minimumBelt]}
-          </span>
-        </div>
+      {/* Acciones — solo visibles en hover */}
+      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <button
+          type="button"
+          aria-label="Editar técnica"
+          onClick={(e) => { e.stopPropagation(); onEdit(t) }}
+          className="h-7 w-7 flex items-center justify-center border border-border bg-background hover:bg-muted transition-colors"
+        >
+          <Pencil className="h-3 w-3" strokeWidth={1.5} />
+        </button>
+        <button
+          type="button"
+          aria-label="Eliminar técnica"
+          onClick={(e) => { e.stopPropagation(); onDelete(t.id) }}
+          className="h-7 w-7 flex items-center justify-center border border-destructive/50 bg-background text-destructive hover:bg-destructive/10 transition-colors"
+        >
+          <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+        </button>
+      </div>
 
-        {/* Posición de inicio → fin */}
+      <div className="p-4 flex flex-col gap-2 flex-1">
+        {/* Categoría label */}
+        <span
+          className="text-[10px] font-bold uppercase tracking-widest"
+          style={{ fontFamily: 'var(--font-mono)', color: accent }}
+        >
+          {CATEGORY_LABELS[t.category]}
+        </span>
+
+        {/* Nombre */}
+        <p className="text-sm font-semibold leading-snug pr-16">{t.name}</p>
+
+        {/* Posición inicio → fin */}
         {t.startPositionName && (
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <span className="font-medium text-foreground">{t.startPositionName}</span>
+          <div className="flex items-center gap-1 text-[11px] text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
+            <span>{t.startPositionName}</span>
             {t.endPositionName && (
               <>
-                <MoveRight className="h-3 w-3 shrink-0" />
-                <span className="font-medium text-foreground">{t.endPositionName}</span>
+                <MoveRight className="h-3 w-3 shrink-0" strokeWidth={1.5} />
+                <span>{t.endPositionName}</span>
               </>
             )}
           </div>
@@ -104,16 +91,22 @@ export function TechniqueCard({ technique: t, onEdit, onDelete }: TechniqueCardP
 
         {/* Descripción */}
         {t.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">{t.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2">{t.description}</p>
         )}
+      </div>
 
-        {/* Video */}
+      {/* Footer */}
+      <div className="flex items-center justify-between px-4 py-2 border-t border-border/50">
+        <span className="text-[10px] text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
+          {BELT_LABELS[t.minimumBelt]}
+        </span>
         {t.youtubeUrl && (
-          <div className="pt-1">
-            <YouTubeEmbed url={t.youtubeUrl} title={t.name} />
-          </div>
+          <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
+            <Play className="h-2.5 w-2.5" strokeWidth={1.5} />
+            VIDEO
+          </span>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

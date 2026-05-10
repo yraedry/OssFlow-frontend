@@ -98,7 +98,7 @@ function CellPicker({ day, hour, block, onSet }: CellPickerProps) {
       >
         {info && (
           <span
-            className="px-1.5 py-0.5 rounded-full truncate max-w-full"
+            className="px-1.5 py-0.5 truncate max-w-full"
             style={{
               ...LABEL,
               fontSize: '8px',
@@ -128,7 +128,7 @@ function CellPicker({ day, hour, block, onSet }: CellPickerProps) {
                 onClick={() => handleSelect(s.type)}
                 className="w-full flex items-center gap-2 px-3 py-2 hover:bg-accent transition-colors text-left"
               >
-                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: s.color }} />
+                <span className="w-2 h-2 shrink-0" style={{ backgroundColor: s.color }} />
                 <span style={{ ...LABEL, color: 'var(--color-foreground)' }}>{s.label}</span>
               </button>
             ))}
@@ -183,7 +183,7 @@ export function WeeklyCalendar() {
         <div className="flex items-center gap-3 flex-wrap">
           {SESSION_TYPES.map((s) => (
             <div key={s.type} className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: s.color }} />
+              <span className="w-2 h-2" style={{ backgroundColor: s.color }} />
               <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>{s.label}</span>
             </div>
           ))}

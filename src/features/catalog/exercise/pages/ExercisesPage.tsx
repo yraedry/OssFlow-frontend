@@ -1,10 +1,9 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, Pencil, Trash2, Dumbbell, PlayCircle, ArrowLeft, Package, Home, Building2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Dumbbell, Play, ArrowLeft, Package, Home, Building2 } from 'lucide-react'
 import { YouTubePlayerModal } from '@/shared/components/ui/youtube-player-modal'
 import { Button } from '@/shared/components/ui/button'
 import { Badge } from '@/shared/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
@@ -19,28 +18,21 @@ import {
 import type { Exercise, ExerciseCategory, EquipmentType } from '../types'
 import { CATEGORY_LABELS, EQUIPMENT_LABELS } from '../types'
 import type { CreateExerciseForm } from '../schemas'
-import { getYouTubeEmbedId } from '@/shared/utils/youtube'
 
-const CATEGORY_COLORS: Record<ExerciseCategory, string> = {
-  STRENGTH:    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  CARDIO:      'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
-  FLEXIBILITY: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  CORE:        'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  MOBILITY:    'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  OTHER:       'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-}
-
-const EQUIPMENT_COLORS: Record<EquipmentType, string> = {
-  NO_EQUIPMENT: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200',
-  HOME:         'bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-200',
-  GYM:          'bg-violet-100 text-violet-800 dark:bg-violet-900 dark:text-violet-200',
+const CATEGORY_ACCENT: Record<ExerciseCategory, string> = {
+  STRENGTH:    '#e11d48',
+  CARDIO:      '#f97316',
+  FLEXIBILITY: '#10b981',
+  CORE:        '#3b82f6',
+  MOBILITY:    '#a855f7',
+  OTHER:       '#6b7280',
 }
 
 function FilterButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1.5 text-xs font-mono rounded border transition-colors ${
+      className={`px-3 py-1.5 text-xs font-mono border transition-colors ${
         active
           ? 'bg-foreground text-background border-foreground'
           : 'bg-background text-muted-foreground border-border hover:border-foreground hover:text-foreground'
@@ -53,7 +45,7 @@ function FilterButton({ active, onClick, children }: { active: boolean; onClick:
 
 function CategoryBadge({ category }: { category: ExerciseCategory }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${CATEGORY_COLORS[category]}`}>
+    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ fontFamily: 'var(--font-mono)', color: CATEGORY_ACCENT[category] }}>
       {CATEGORY_LABELS[category]}
     </span>
   )
@@ -61,7 +53,7 @@ function CategoryBadge({ category }: { category: ExerciseCategory }) {
 
 function EquipmentBadge({ equipment }: { equipment: EquipmentType }) {
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${EQUIPMENT_COLORS[equipment]}`}>
+    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
       {EQUIPMENT_LABELS[equipment]}
     </span>
   )
@@ -197,67 +189,52 @@ type ExerciseCardProps = {
 }
 
 function ExerciseCard({ exercise: ex, onView, onEdit, onDelete }: ExerciseCardProps) {
-  const youtubeId = ex.youtubeUrl ? getYouTubeEmbedId(ex.youtubeUrl) : null
+  const accent = CATEGORY_ACCENT[ex.category]
 
   return (
-    <Card
-      className="hover:shadow-md transition-shadow cursor-pointer"
+    <div
+      className="group relative flex flex-col bg-card border border-border cursor-pointer hover:border-foreground/40 transition-colors"
+      style={{ borderLeft: `3px solid ${accent}` }}
       onClick={() => onView(ex)}
     >
-      {/* Thumbnail del video si existe */}
-      {youtubeId && (
-        <div className="relative overflow-hidden rounded-t-lg">
-          <img
-            src={`https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`}
-            alt={ex.name}
-            className="w-full h-28 object-cover"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-          <div className="absolute bottom-2 right-2">
-            <span className="inline-flex items-center gap-1 bg-red-600/90 text-white text-xs px-2 py-0.5 rounded font-mono">
-              <PlayCircle className="h-3 w-3" />
-              Video
-            </span>
-          </div>
-        </div>
-      )}
+      {/* Acciones — solo en hover */}
+      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+        <button
+          type="button"
+          aria-label="Editar ejercicio"
+          onClick={(e) => { e.stopPropagation(); onEdit(ex) }}
+          className="h-7 w-7 flex items-center justify-center border border-border bg-background hover:bg-muted transition-colors"
+        >
+          <Pencil className="h-3 w-3" strokeWidth={1.5} />
+        </button>
+        <button
+          type="button"
+          aria-label="Eliminar ejercicio"
+          onClick={(e) => { e.stopPropagation(); onDelete(ex.id) }}
+          className="h-7 w-7 flex items-center justify-center border border-destructive/50 bg-background text-destructive hover:bg-destructive/10 transition-colors"
+        >
+          <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+        </button>
+      </div>
 
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <CardTitle className="text-base leading-tight">{ex.name}</CardTitle>
-          <div className="flex gap-1 shrink-0" onClick={e => e.stopPropagation()}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => onEdit(ex)}
-              aria-label="Editar"
-            >
-              <Pencil className="h-3 w-3" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 text-destructive hover:text-destructive"
-              onClick={() => onDelete(ex.id)}
-              aria-label="Eliminar"
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="flex flex-wrap gap-1.5">
-          <CategoryBadge category={ex.category} />
-          <EquipmentBadge equipment={ex.equipment} />
-        </div>
+      <div className="p-4 flex flex-col gap-2 flex-1">
+        <CategoryBadge category={ex.category} />
+        <p className="text-sm font-semibold leading-snug pr-16">{ex.name}</p>
         {ex.description && (
           <p className="text-xs text-muted-foreground line-clamp-2">{ex.description}</p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+
+      <div className="flex items-center justify-between px-4 py-2 border-t border-border/50">
+        <EquipmentBadge equipment={ex.equipment} />
+        {ex.youtubeUrl && (
+          <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
+            <Play className="h-2.5 w-2.5" strokeWidth={1.5} />
+            VIDEO
+          </span>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -351,19 +328,29 @@ export function ExercisesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <h1 className="text-2xl font-bold">Ejercicios físicos</h1>
-          <p className="text-muted-foreground text-sm">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>
+            Catálogo
+          </div>
+          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
+            Ejercicios físicos
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {data?.totalElements ?? 0} ejercicios en tu catálogo
           </p>
         </div>
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditing(null)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nuevo ejercicio
-            </Button>
+            <button
+              type="button"
+              onClick={() => setEditing(null)}
+              className="flex items-center gap-1.5 px-4 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors shrink-0"
+              style={{ fontFamily: 'var(--font-mono)' }}
+            >
+              <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+              Nuevo
+            </button>
           </DialogTrigger>
           <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
