@@ -1,7 +1,7 @@
 import { apiClient } from '@/shared/api/client'
 import type { TrainingSession, CreateTrainingSessionRequest, WorkedTechnique } from './types'
 
-interface PageResponse<T> { content: T[]; totalElements: number }
+interface PageResponse<T> { content: T[]; totalElements: number; totalPages: number }
 
 export const trainingSessionApi = {
   list: (params?: { page?: number; size?: number }) =>

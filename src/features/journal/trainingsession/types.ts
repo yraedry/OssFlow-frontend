@@ -35,4 +35,9 @@ export interface CreateTrainingSessionRequest {
   intensity: Intensity
   sessionType: SessionType
   notesMarkdown?: string
+  youtubeUrl?: string
+}
+
+export interface TrainingSessionWithVideo extends TrainingSession {
+  youtubeUrl?: string
 }
