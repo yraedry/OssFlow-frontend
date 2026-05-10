@@ -129,7 +129,8 @@ export function ProfilePage() {
   const initials = getInitials(profile.displayName)
   const beltTime = timeAtBelt(profile.beltSince)
   const primaryFed = profile.federations?.find(f => f.isPrimary)
-  const primaryFedName = primaryFed ? allFederations.find(f => f.id === primaryFed.federationId)?.code : null
+  const primaryFedObj = primaryFed ? allFederations.find(f => f.id === primaryFed.federationId) : null
+  const primaryFedName = primaryFedObj?.name ?? null
   const modalityLabel = MODALITY[profile.preferredModality?.toUpperCase?.()] ?? profile.preferredModality
 
   type RecentSession = { id: number; date: string; name: string; typeLabel: string; typeColor: string; duration?: number; route: string }

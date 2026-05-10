@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Check, Camera, X } from 'lucide-react'
+import { ArrowLeft, Check, Camera, X, Eye, EyeOff, Star } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useProfile, useCreateProfile, useUpdateProfile } from '../hooks'
@@ -10,18 +10,18 @@ import { Spinner } from '@/shared/components/ui/spinner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
 import { updateProfileSchema, type UpdateProfileForm } from '../schemas'
 import type { FederationAssignment } from '@/features/identity/federation/types'
-import { useRef } from 'react'
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
 
 const BELTS = [
-  { value: 'WHITE',  label: 'Blanco',  color: '#d1d5db' },
-  { value: 'BLUE',   label: 'Azul',    color: '#3b82f6' },
-  { value: 'PURPLE', label: 'Morado',  color: '#9333ea' },
-  { value: 'BROWN',  label: 'Marrón',  color: '#92400e' },
-  { value: 'BLACK',  label: 'Negro',   color: '#111827' },
+  { value: 'WHITE',  label: 'Blanco',  color: '#d1d5db', text: '#111827' },
+  { value: 'BLUE',   label: 'Azul',    color: '#3b82f6', text: '#ffffff' },
+  { value: 'PURPLE', label: 'Morado',  color: '#9333ea', text: '#ffffff' },
+  { value: 'BROWN',  label: 'Marrón',  color: '#92400e', text: '#ffffff' },
+  { value: 'BLACK',  label: 'Negro',   color: '#111827', text: '#ffffff' },
 ]
+const BELT_ORDER = ['WHITE', 'BLUE', 'PURPLE', 'BROWN', 'BLACK'] as const
 
 const MODALITIES = [
   { value: 'GI',   label: 'Gi (con kimono)' },
@@ -29,24 +29,44 @@ const MODALITIES = [
   { value: 'BOTH', label: 'Gi + No-Gi (ambas)' },
 ]
 
-function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+type Tab = 'cuenta' | 'bjj' | 'federaciones'
+
+function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5" style={MONO}>
+    <label className="block text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5" style={MONO}>
       {children}{required && <span className="text-destructive ml-0.5">*</span>}
     </label>
   )
 }
 
-function TextInput({ error, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { error?: string }) {
+function Input({ error, hint, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { error?: string; hint?: string }) {
   return (
     <div>
       <input
         {...props}
-        className="w-full border border-border bg-background px-3 py-2.5 text-sm focus:outline-none focus:border-foreground transition-colors placeholder:text-muted-foreground/50"
+        className={`w-full border bg-input px-3 py-2.5 text-sm focus:outline-none transition-colors placeholder:text-muted-foreground/50 disabled:opacity-40 disabled:cursor-not-allowed ${
+          error ? 'border-destructive' : 'border-border focus:border-foreground'
+        } ${props.className ?? ''}`}
       />
-      {error && <p className="text-[10px] text-destructive mt-1" style={MONO}>{error}</p>}
+      {hint && <p className="text-[9px] text-muted-foreground mt-1" style={MONO}>{hint}</p>}
+      {error && <p className="text-[9px] text-destructive mt-1" style={MONO}>{error}</p>}
     </div>
   )
+}
+
+function CardSection({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="bg-card border border-border">
+      <div className="px-6 py-3 border-b border-border">
+        <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>{title}</span>
+      </div>
+      <div className="p-6">{children}</div>
+    </div>
+  )
+}
+
+function BtnRow({ children }: { children: React.ReactNode }) {
+  return <div className="flex items-center gap-3 pt-4 mt-4 border-t border-border">{children}</div>
 }
 
 function getInitials(name?: string | null) {
@@ -62,32 +82,38 @@ export function ProfileEditPage() {
   const { data: allFederations = [] } = useFederations()
   const updateFederations = useUpdateProfileFederations()
 
-  const [selectedFederations, setSelectedFederations] = useState<FederationAssignment[]>([])
-  const [federationsInitialized, setFederationsInitialized] = useState(false)
+  const [activeTab, setActiveTab] = useState<Tab>('cuenta')
+  const [selectedFeds, setSelectedFeds] = useState<FederationAssignment[]>([])
+  const [fedsInitialized, setFedsInitialized] = useState(false)
   const [fedSaved, setFedSaved] = useState(false)
   const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
   const [uploading, setUploading] = useState(false)
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [showPass, setShowPass] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (profile?.federations?.length && !federationsInitialized) {
-      setSelectedFederations(profile.federations.map(f => ({ federationId: f.federationId, isPrimary: f.isPrimary })))
-      setFederationsInitialized(true)
+    if (profile?.federations?.length && !fedsInitialized) {
+      setSelectedFeds(profile.federations.map(f => ({ federationId: f.federationId, isPrimary: f.isPrimary })))
+      setFedsInitialized(true)
     }
-  }, [profile, federationsInitialized])
+  }, [profile, fedsInitialized])
 
   const { register, handleSubmit, control, watch, formState: { errors } } = useForm<UpdateProfileForm>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
+      firstName: '',
+      lastName: '',
       displayName: profile?.displayName ?? '',
       currentBelt: profile?.currentBelt ?? '',
       preferredModality: profile?.preferredModality ?? '',
       academy: profile?.academy ?? '',
+      beltSince: profile?.beltSince ?? '',
     },
   })
 
   const watchedBelt = watch('currentBelt')
   const beltDef = BELTS.find(b => b.value === watchedBelt?.toUpperCase())
+  const beltIdx = BELT_ORDER.indexOf(watchedBelt?.toUpperCase() as typeof BELT_ORDER[number])
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -100,7 +126,7 @@ export function ProfileEditPage() {
       window.dispatchEvent(new Event('ossflow_avatar_changed'))
     } finally {
       setUploading(false)
-      if (fileInputRef.current) fileInputRef.current.value = ''
+      if (fileRef.current) fileRef.current.value = ''
     }
   }
 
@@ -110,12 +136,13 @@ export function ProfileEditPage() {
     window.dispatchEvent(new Event('ossflow_avatar_changed'))
   }
 
-  function onSubmit(data: UpdateProfileForm) {
+  function onSubmitBjj(data: UpdateProfileForm) {
     const payload = {
       displayName: data.displayName,
       currentBelt: data.currentBelt,
       preferredModality: data.preferredModality,
       academy: data.academy || undefined,
+      beltSince: data.beltSince || undefined,
     }
     if (profile) {
       updateProfile.mutate(payload, { onSuccess: () => navigate('/profile') })
@@ -124,47 +151,63 @@ export function ProfileEditPage() {
     }
   }
 
-  function handleSaveFederations() {
-    updateFederations.mutate(selectedFederations, {
-      onSuccess: () => {
-        setFedSaved(true)
-        setTimeout(() => setFedSaved(false), 2000)
-      },
-    })
+  function onSubmitAccount(data: UpdateProfileForm) {
+    const payload = {
+      displayName: data.displayName,
+      currentBelt: profile?.currentBelt ?? 'WHITE',
+      preferredModality: profile?.preferredModality ?? 'GI',
+      academy: profile?.academy || undefined,
+      beltSince: profile?.beltSince || undefined,
+    }
+    if (profile) {
+      updateProfile.mutate(payload, { onSuccess: () => navigate('/profile') })
+    } else {
+      createProfile.mutate(payload, { onSuccess: () => navigate('/profile') })
+    }
   }
 
   function handleFedCheck(id: number, checked: boolean) {
     if (checked) {
-      const noneSelected = selectedFederations.length === 0
-      setSelectedFederations([...selectedFederations, { federationId: id, isPrimary: noneSelected }])
+      const noneSelected = selectedFeds.length === 0
+      setSelectedFeds([...selectedFeds, { federationId: id, isPrimary: noneSelected }])
     } else {
-      const next = selectedFederations.filter(s => s.federationId !== id)
-      const hadPrimary = selectedFederations.find(s => s.federationId === id)?.isPrimary
+      const next = selectedFeds.filter(s => s.federationId !== id)
+      const hadPrimary = selectedFeds.find(s => s.federationId === id)?.isPrimary
       if (hadPrimary && next.length > 0) {
-        setSelectedFederations([{ ...next[0], isPrimary: true }, ...next.slice(1)])
+        setSelectedFeds([{ ...next[0], isPrimary: true }, ...next.slice(1)])
       } else {
-        setSelectedFederations(next)
+        setSelectedFeds(next)
       }
     }
   }
 
   function handleSetPrimary(id: number) {
-    setSelectedFederations(selectedFederations.map(s => ({ ...s, isPrimary: s.federationId === id })))
+    setSelectedFeds(selectedFeds.map(s => ({ ...s, isPrimary: s.federationId === id })))
+  }
+
+  function handleSaveFeds() {
+    updateFederations.mutate(selectedFeds, {
+      onSuccess: () => { setFedSaved(true); setTimeout(() => setFedSaved(false), 2500) },
+    })
   }
 
   if (isLoading) return <div className="flex justify-center py-16"><Spinner /></div>
 
-  const initials = getInitials(profile?.displayName)
+  const TABS: { id: Tab; label: string }[] = [
+    { id: 'cuenta',       label: 'Cuenta' },
+    { id: 'bjj',          label: 'Perfil BJJ' },
+    { id: 'federaciones', label: 'Federaciones' },
+  ]
 
   return (
     <div className="space-y-4">
 
-      {/* ── HEADER ── */}
+      {/* PAGE HEADER */}
       <div className="flex items-center gap-4 border border-border bg-card px-5 py-4">
         <button
           type="button"
           onClick={() => navigate('/profile')}
-          className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           style={MONO}
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={2} />
@@ -172,267 +215,336 @@ export function ProfileEditPage() {
         </button>
         <div className="h-4 w-px bg-border" />
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Perfil</div>
+          <div className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Perfil</div>
           <h1 className="text-xl font-black leading-none" style={SERIF}>Editar perfil</h1>
         </div>
       </div>
 
-      {/* ── LAYOUT DOS COLUMNAS ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+      {/* TABS */}
+      <div className="flex border-b border-border">
+        {TABS.map(t => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setActiveTab(t.id)}
+            className={`px-5 py-3 text-[10px] font-bold uppercase tracking-widest transition-colors cursor-pointer border-b-2 -mb-px ${
+              activeTab === t.id
+                ? 'text-foreground border-foreground'
+                : 'text-muted-foreground border-transparent hover:text-foreground'
+            }`}
+            style={MONO}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-        {/* ── COLUMNA IZQUIERDA: Avatar + vista previa ── */}
-        <div className="space-y-3">
+      {/* ── TAB: CUENTA ── */}
+      {activeTab === 'cuenta' && (
+        <div className="space-y-4">
 
-          {/* Avatar */}
-          <div className="bg-card border border-border p-5 space-y-4">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Foto de perfil</p>
-
-            {/* Avatar grande cuadrado con overlay */}
-            <div className="relative mx-auto" style={{ width: 120, height: 120 }}>
-              <div
-                className="w-full h-full overflow-hidden flex items-center justify-center text-2xl font-black"
-                style={{
-                  backgroundColor: beltDef?.color ?? '#6b7280',
-                  color: ['WHITE'].includes(watchedBelt?.toUpperCase()) ? '#111827' : '#fff',
-                  fontFamily: 'var(--font-mono)',
-                }}
-              >
-                {avatar
-                  ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
-                  : initials}
+          <CardSection title="Foto y datos personales">
+            {/* Avatar */}
+            <div className="flex items-start gap-5 mb-6">
+              <div className="relative flex-shrink-0 cursor-pointer" style={{ width: 96, height: 96 }}
+                onClick={() => fileRef.current?.click()}>
+                <div
+                  className="w-full h-full overflow-hidden flex items-center justify-center text-2xl font-black"
+                  style={{
+                    backgroundColor: beltDef?.color ?? '#6b7280',
+                    color: beltDef?.text ?? '#fff',
+                    fontFamily: 'var(--font-mono)',
+                  }}
+                >
+                  {avatar ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" /> : getInitials(profile?.displayName)}
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center bg-black/55 opacity-0 hover:opacity-100 transition-opacity">
+                  <Camera className="h-5 w-5 text-white" strokeWidth={1.5} />
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
-                aria-label="Cambiar foto"
-              >
-                <Camera className="h-6 w-6 text-white" strokeWidth={1.5} />
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="w-full py-2 border border-border text-[10px] font-bold uppercase tracking-wide hover:bg-muted transition-colors disabled:opacity-50 cursor-pointer"
-                style={MONO}
-              >
-                {uploading ? 'Procesando...' : avatar ? 'Cambiar foto' : 'Subir foto'}
-              </button>
-              {avatar && (
+              <div className="flex flex-col gap-2 pt-1">
                 <button
                   type="button"
-                  onClick={handleRemoveAvatar}
-                  className="w-full py-2 border border-destructive/40 text-[10px] font-bold uppercase tracking-wide text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                  onClick={() => fileRef.current?.click()}
+                  disabled={uploading}
+                  className="px-4 py-1.5 border border-border text-[9px] font-bold uppercase tracking-wide hover:bg-muted transition-colors disabled:opacity-50 cursor-pointer"
                   style={MONO}
                 >
-                  <X className="h-3 w-3 inline mr-1" strokeWidth={2} />
-                  Eliminar foto
+                  {uploading ? 'Procesando...' : avatar ? 'Cambiar foto' : 'Subir foto'}
                 </button>
-              )}
-              <p className="text-[9px] text-muted-foreground text-center" style={MONO}>
-                Max 200×200 · JPEG / PNG / WebP
+                {avatar && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveAvatar}
+                    className="flex items-center gap-1 px-4 py-1.5 border border-destructive/30 text-[9px] font-bold uppercase tracking-wide text-destructive hover:bg-destructive/8 transition-colors cursor-pointer"
+                    style={MONO}
+                  >
+                    <X className="h-2.5 w-2.5" strokeWidth={2.5} />
+                    Eliminar foto
+                  </button>
+                )}
+                <p className="text-[9px] text-muted-foreground" style={MONO}>Max 200×200 · JPEG / PNG / WebP</p>
+              </div>
+            </div>
+
+            {/* Nombre + apellidos */}
+            <form onSubmit={handleSubmit(onSubmitAccount)} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Nombre</Label>
+                  <Input {...register('firstName')} placeholder="Tu nombre" error={errors.firstName?.message} />
+                </div>
+                <div>
+                  <Label>Apellidos</Label>
+                  <Input {...register('lastName')} placeholder="Tus apellidos" error={errors.lastName?.message} />
+                </div>
+              </div>
+              <div>
+                <Label required>Alias</Label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[11px] text-muted-foreground select-none" style={MONO}>@</span>
+                  <Input
+                    {...register('displayName')}
+                    className="pl-7"
+                    placeholder="tu_alias"
+                    error={errors.displayName?.message}
+                    hint="Visible para otros usuarios en la comunidad"
+                  />
+                </div>
+              </div>
+              <BtnRow>
+                <button type="submit" disabled={createProfile.isPending || updateProfile.isPending}
+                  className="px-5 py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-wide hover:opacity-85 transition-opacity disabled:opacity-50 cursor-pointer" style={MONO}>
+                  {createProfile.isPending || updateProfile.isPending ? 'Guardando...' : 'Guardar datos'}
+                </button>
+                <button type="button" onClick={() => navigate('/profile')}
+                  className="px-5 py-2.5 border border-border text-[10px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors cursor-pointer" style={MONO}>
+                  Cancelar
+                </button>
+              </BtnRow>
+            </form>
+          </CardSection>
+
+          <CardSection title="Credenciales de acceso">
+            {/* OAuth notice — estático, cuando llegue auth real será dinámico */}
+            <div className="flex items-start gap-3 p-3 mb-5 border border-blue-500/25 bg-blue-500/8">
+              <div className="h-1.5 w-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0" />
+              <p className="text-xs text-blue-300/80">
+                La gestión de email y contraseña estará disponible cuando se implemente el sistema de autenticación propio.
               </p>
             </div>
-          </div>
-
-          {/* Vista previa cinturón */}
-          {beltDef && (
-            <div className="bg-card border border-border p-4 space-y-2">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Vista previa</p>
-              <div className="flex items-center gap-3 py-2">
-                <div
-                  className="h-3 flex-1"
-                  style={{ backgroundColor: beltDef.color }}
-                />
-                <span className="text-xs font-bold uppercase tracking-wide" style={{ ...MONO, color: beltDef.color }}>
-                  {beltDef.label}
-                </span>
-              </div>
-            </div>
-          )}
-
-        </div>
-
-        {/* ── COLUMNA DERECHA: Formulario ── */}
-        <div className="lg:col-span-2 space-y-4">
-
-          {/* Información básica */}
-          <form onSubmit={handleSubmit(onSubmit)} className="bg-card border border-border p-6 space-y-5">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Información</p>
-
-            {/* Nombre */}
-            <div>
-              <FieldLabel required>Nombre visible</FieldLabel>
-              <TextInput
-                {...register('displayName')}
-                placeholder="Tu nombre en la comunidad"
-                error={errors.displayName?.message}
-              />
-            </div>
-
-            {/* Cinturón + Modalidad en grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <FieldLabel required>Cinturón</FieldLabel>
-                <Controller
-                  control={control}
-                  name="currentBelt"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="border-border bg-background h-10 text-sm focus:ring-0 focus:border-foreground transition-colors" style={{ borderRadius: 0 }}>
-                        <SelectValue placeholder="Selecciona" />
-                      </SelectTrigger>
-                      <SelectContent style={{ borderRadius: 0 }}>
-                        {BELTS.map(b => (
-                          <SelectItem key={b.value} value={b.value}>
-                            <div className="flex items-center gap-2">
-                              <div className="h-2 w-4 shrink-0" style={{ backgroundColor: b.color }} />
-                              {b.label}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.currentBelt && <p className="text-[10px] text-destructive mt-1" style={MONO}>{errors.currentBelt.message}</p>}
+                <Label>Email</Label>
+                <Input type="email" disabled placeholder="email@ejemplo.com" />
               </div>
+            </div>
+            <div className="mt-4">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-3 pb-3 border-b border-border" style={MONO}>Cambiar contraseña</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label>Contraseña actual</Label>
+                  <div className="relative">
+                    <Input type={showPass ? 'text' : 'password'} disabled placeholder="••••••••" />
+                    <button type="button" onClick={() => setShowPass(p => !p)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                      {showPass ? <EyeOff className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <Label>Nueva contraseña</Label>
+                  <Input type="password" disabled placeholder="••••••••" />
+                </div>
+              </div>
+            </div>
+            <BtnRow>
+              <button type="button" disabled
+                className="px-5 py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-wide opacity-30 cursor-not-allowed" style={MONO}>
+                Cambiar contraseña
+              </button>
+            </BtnRow>
+          </CardSection>
 
+          <CardSection title="Zona de riesgo">
+            <div className="flex items-center justify-between gap-6 p-4 border border-destructive/20">
               <div>
-                <FieldLabel required>Modalidad</FieldLabel>
-                <Controller
-                  control={control}
-                  name="preferredModality"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger className="border-border bg-background h-10 text-sm focus:ring-0 focus:border-foreground transition-colors" style={{ borderRadius: 0 }}>
-                        <SelectValue placeholder="Selecciona" />
-                      </SelectTrigger>
-                      <SelectContent style={{ borderRadius: 0 }}>
-                        {MODALITIES.map(m => (
-                          <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.preferredModality && <p className="text-[10px] text-destructive mt-1" style={MONO}>{errors.preferredModality.message}</p>}
+                <p className="text-[10px] font-bold uppercase tracking-wide text-destructive mb-0.5" style={MONO}>Eliminar cuenta</p>
+                <p className="text-xs text-muted-foreground">Esta acción es permanente y no se puede deshacer.</p>
+              </div>
+              <button type="button"
+                className="shrink-0 px-4 py-2 border border-destructive/40 text-[10px] font-bold uppercase tracking-wide text-destructive hover:bg-destructive/8 transition-colors cursor-pointer" style={MONO}>
+                Eliminar cuenta
+              </button>
+            </div>
+          </CardSection>
+
+        </div>
+      )}
+
+      {/* ── TAB: PERFIL BJJ ── */}
+      {activeTab === 'bjj' && (
+        <form onSubmit={handleSubmit(onSubmitBjj)} className="space-y-4">
+          <CardSection title="Datos de entrenamiento y competición">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+              <div>
+                <Label required>Cinturón actual</Label>
+                <Controller control={control} name="currentBelt" render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="border-border bg-input h-10 text-sm focus:ring-0 focus:border-foreground" style={{ borderRadius: 0 }}>
+                      <SelectValue placeholder="Selecciona tu cinturón" />
+                    </SelectTrigger>
+                    <SelectContent style={{ borderRadius: 0 }}>
+                      {BELTS.map(b => (
+                        <SelectItem key={b.value} value={b.value}>
+                          <div className="flex items-center gap-2">
+                            <div className="h-2.5 w-5 shrink-0" style={{ backgroundColor: b.color }} />
+                            {b.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )} />
+                {errors.currentBelt && <p className="text-[9px] text-destructive mt-1" style={MONO}>{errors.currentBelt.message}</p>}
+              </div>
+              <div>
+                <Label>Desde (opcional)</Label>
+                <Input {...register('beltSince')} type="date" hint="Fecha en la que recibiste este cinturón" />
               </div>
             </div>
 
-            {/* Academia */}
-            <div>
-              <FieldLabel>Academia</FieldLabel>
-              <TextInput
-                {...register('academy')}
-                placeholder="Nombre de tu academia (opcional)"
-              />
-            </div>
-
-            {/* Submit */}
-            <div className="flex items-center gap-3 pt-2 border-t border-border">
-              <button
-                type="submit"
-                disabled={createProfile.isPending || updateProfile.isPending}
-                className="px-5 py-2.5 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity disabled:opacity-50 cursor-pointer"
-                style={MONO}
-              >
-                {createProfile.isPending || updateProfile.isPending ? 'Guardando...' : 'Guardar cambios'}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/profile')}
-                className="px-5 py-2.5 border border-border text-xs font-bold uppercase tracking-wide hover:bg-muted transition-colors cursor-pointer"
-                style={MONO}
-              >
-                Cancelar
-              </button>
-            </div>
-          </form>
-
-          {/* Federaciones */}
-          <div className="bg-card border border-border p-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Federaciones</p>
-              <p className="text-[9px] text-muted-foreground" style={MONO}>{selectedFederations.length} seleccionadas</p>
-            </div>
-
-            {allFederations.length === 0 ? (
-              <p className="text-xs text-muted-foreground" style={MONO}>No hay federaciones disponibles.</p>
-            ) : (
-              <div className="space-y-1">
-                {allFederations.map(fed => {
-                  const checked = selectedFederations.some(s => s.federationId === fed.id)
-                  const primary = selectedFederations.some(s => s.federationId === fed.id && s.isPrimary)
-                  return (
-                    <div
-                      key={fed.id}
-                      className={`flex items-center gap-3 px-3 py-2.5 border transition-colors cursor-pointer ${
-                        checked ? 'border-foreground/40 bg-foreground/[0.03]' : 'border-border hover:border-border/80'
-                      }`}
-                      onClick={() => handleFedCheck(fed.id, !checked)}
-                    >
-                      <div
-                        className="h-4 w-4 border flex items-center justify-center shrink-0 transition-colors"
-                        style={{
-                          borderColor: checked ? 'var(--color-foreground)' : 'var(--color-border)',
-                          backgroundColor: checked ? 'var(--color-foreground)' : 'transparent',
-                        }}
-                      >
-                        {checked && <Check className="h-2.5 w-2.5 text-background" strokeWidth={3} />}
+            {/* Belt progression visual */}
+            {beltDef && (
+              <div className="mb-5">
+                <div className="flex gap-1">
+                  {BELT_ORDER.map((b, i) => {
+                    const isActive = i === beltIdx
+                    const isPast = i < beltIdx
+                    return (
+                      <div key={b} className="flex-1 space-y-1">
+                        <div className="h-2" style={{
+                          backgroundColor: isActive || isPast ? BELTS[i].color : 'transparent',
+                          border: isActive || isPast ? 'none' : '1px dashed var(--color-border)',
+                          opacity: isPast ? 0.45 : 1,
+                        }} />
+                        <p className="text-[8px] text-center truncate" style={{
+                          ...MONO,
+                          color: isActive ? BELTS[i].color : 'var(--color-muted-foreground)',
+                          fontWeight: isActive ? 700 : 400,
+                        }}>
+                          {BELTS[i].label}{isActive ? ' ●' : ''}
+                        </p>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-sm font-medium truncate">{fed.name}</span>
-                        <span className="text-[10px] text-muted-foreground ml-2" style={MONO}>{fed.code}</span>
-                      </div>
-                      {checked && (
-                        <button
-                          type="button"
-                          onClick={e => { e.stopPropagation(); handleSetPrimary(fed.id) }}
-                          className={`text-[9px] font-bold uppercase tracking-wide px-2 py-1 border transition-colors cursor-pointer shrink-0 ${
-                            primary
-                              ? 'border-foreground bg-foreground text-background'
-                              : 'border-border text-muted-foreground hover:border-foreground/40'
-                          }`}
-                          style={MONO}
-                        >
-                          {primary ? '★ Principal' : 'Principal'}
-                        </button>
-                      )}
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
             )}
 
-            <div className="flex items-center gap-3 pt-1 border-t border-border">
-              <button
-                type="button"
-                onClick={handleSaveFederations}
-                disabled={updateFederations.isPending}
-                className="flex items-center gap-1.5 px-5 py-2.5 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity disabled:opacity-50 cursor-pointer"
-                style={MONO}
-              >
-                {updateFederations.isPending ? <Spinner className="h-3 w-3" /> : fedSaved ? <Check className="h-3 w-3" strokeWidth={2.5} /> : null}
-                {updateFederations.isPending ? 'Guardando...' : fedSaved ? 'Guardado' : 'Guardar federaciones'}
-              </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <Label required>Modalidad preferida</Label>
+                <Controller control={control} name="preferredModality" render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger className="border-border bg-input h-10 text-sm focus:ring-0 focus:border-foreground" style={{ borderRadius: 0 }}>
+                      <SelectValue placeholder="Selecciona modalidad" />
+                    </SelectTrigger>
+                    <SelectContent style={{ borderRadius: 0 }}>
+                      {MODALITIES.map(m => (
+                        <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )} />
+                {errors.preferredModality && <p className="text-[9px] text-destructive mt-1" style={MONO}>{errors.preferredModality.message}</p>}
+              </div>
+              <div>
+                <Label>Academia (opcional)</Label>
+                <Input {...register('academy')} placeholder="Nombre de tu academia" />
+              </div>
             </div>
-          </div>
 
-        </div>
-      </div>
+            <BtnRow>
+              <button type="submit" disabled={createProfile.isPending || updateProfile.isPending}
+                className="px-5 py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-wide hover:opacity-85 transition-opacity disabled:opacity-50 cursor-pointer" style={MONO}>
+                {createProfile.isPending || updateProfile.isPending ? 'Guardando...' : 'Guardar perfil BJJ'}
+              </button>
+              <button type="button" onClick={() => navigate('/profile')}
+                className="px-5 py-2.5 border border-border text-[10px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors cursor-pointer" style={MONO}>
+                Cancelar
+              </button>
+            </BtnRow>
+          </CardSection>
+        </form>
+      )}
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleFileChange}
-      />
+      {/* ── TAB: FEDERACIONES ── */}
+      {activeTab === 'federaciones' && (
+        <CardSection title={`Federaciones de competición — ${selectedFeds.length} seleccionada${selectedFeds.length !== 1 ? 's' : ''}`}>
+          <p className="text-xs text-muted-foreground mb-4">
+            Selecciona las federaciones en las que compites o estás afiliado. Marca una como principal.
+          </p>
+
+          {allFederations.length === 0 ? (
+            <p className="text-xs text-muted-foreground py-6 text-center" style={MONO}>No hay federaciones disponibles.</p>
+          ) : (
+            <div className="flex flex-col gap-1 mb-4">
+              {allFederations.map(fed => {
+                const checked = selectedFeds.some(s => s.federationId === fed.id)
+                const primary = selectedFeds.some(s => s.federationId === fed.id && s.isPrimary)
+                return (
+                  <div
+                    key={fed.id}
+                    onClick={() => handleFedCheck(fed.id, !checked)}
+                    className={`flex items-center gap-3 px-3 py-2.5 border transition-colors cursor-pointer ${
+                      checked ? 'border-foreground/35 bg-foreground/[0.03]' : 'border-border hover:border-foreground/20'
+                    }`}
+                  >
+                    {/* Checkbox cuadrado */}
+                    <div className="h-4 w-4 border flex items-center justify-center flex-shrink-0 transition-colors"
+                      style={{
+                        borderColor: checked ? 'var(--color-foreground)' : 'var(--color-border)',
+                        backgroundColor: checked ? 'var(--color-foreground)' : 'transparent',
+                      }}>
+                      {checked && <Check className="h-2.5 w-2.5 text-background" strokeWidth={3} />}
+                    </div>
+
+                    <span className="text-sm font-medium flex-1">{fed.name}</span>
+                    <span className="text-[9px] text-muted-foreground" style={MONO}>{fed.code}</span>
+
+                    {checked && (
+                      <button
+                        type="button"
+                        onClick={e => { e.stopPropagation(); handleSetPrimary(fed.id) }}
+                        className={`flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide px-2.5 py-1 border transition-colors cursor-pointer shrink-0 ${
+                          primary
+                            ? 'border-foreground bg-foreground text-background'
+                            : 'border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground'
+                        }`}
+                        style={MONO}
+                      >
+                        <Star className="h-2.5 w-2.5" strokeWidth={primary ? 3 : 1.5} />
+                        Principal
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          <BtnRow>
+            <button type="button" onClick={handleSaveFeds} disabled={updateFederations.isPending}
+              className="flex items-center gap-1.5 px-5 py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-wide hover:opacity-85 transition-opacity disabled:opacity-50 cursor-pointer" style={MONO}>
+              {updateFederations.isPending ? <Spinner className="h-3 w-3" /> : fedSaved ? <Check className="h-3 w-3" strokeWidth={2.5} /> : null}
+              {updateFederations.isPending ? 'Guardando...' : fedSaved ? 'Guardado' : 'Guardar federaciones'}
+            </button>
+          </BtnRow>
+        </CardSection>
+      )}
+
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
     </div>
   )
 }
