@@ -165,7 +165,7 @@ export function NotesPage() {
               </p>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>Contenido</p>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{detailNote.bodyMarkdown}</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">{detailNote.bodyMarkdown}</p>
               </div>
             </div>
           )}

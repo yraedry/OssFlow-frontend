@@ -116,7 +116,7 @@ export function PhysicalSessionsPage() {
       </Dialog>
 
       <Dialog open={!!detailSession} onOpenChange={v => { if (!v) setDetailSession(null) }}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="sr-only">Detalle de sesión física</DialogTitle>
           </DialogHeader>
@@ -136,7 +136,7 @@ export function PhysicalSessionsPage() {
                 {detailSession.notes && (
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>Notas</p>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{detailSession.notes}</p>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">{detailSession.notes}</p>
                   </div>
                 )}
               </div>
