@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { format, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Plus, ArrowRight, Dumbbell, BookOpen, LayoutGrid } from 'lucide-react'
+import { ArrowRight, Dumbbell, BookOpen, LayoutGrid } from 'lucide-react'
 import { fetchWeeklyStats } from '@/shared/api/dashboard'
 import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
@@ -84,24 +84,12 @@ export function HomePage() {
 
       {/* Saludo principal */}
       <div className="border border-border bg-card px-5 py-5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <div>
-            <p style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '4px' }}>
-              {format(today, "EEEE, d 'de' MMMM", { locale: es })}
-            </p>
-            <h1 className="leading-none" style={{ ...SERIF, fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.03em' }}>
-              {getGreeting(today.getHours())}, Adrián.
-            </h1>
-          </div>
-          <button
-            onClick={() => setQuickLogOpen(true)}
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-foreground text-background hover:opacity-85 transition-opacity shrink-0 self-start sm:self-center"
-            style={{ ...MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}
-          >
-            <Plus className="h-4 w-4" strokeWidth={2.5} />
-            Registrar sesión
-          </button>
-        </div>
+        <p style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '4px' }}>
+          {format(today, "EEEE, d 'de' MMMM", { locale: es })}
+        </p>
+        <h1 className="leading-none" style={{ ...SERIF, fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.03em' }}>
+          {getGreeting(today.getHours())}, Adrián.
+        </h1>
       </div>
 
       {/* Grid principal */}
