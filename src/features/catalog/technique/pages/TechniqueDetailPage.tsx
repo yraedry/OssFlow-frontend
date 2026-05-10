@@ -126,7 +126,9 @@ export function TechniqueDetailPage() {
         {technique.youtubeUrl && (
           <div>
             <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>Video</p>
-            <YouTubePlayerModal url={technique.youtubeUrl} title={technique.name} />
+            <div className="max-w-sm">
+              <YouTubePlayerModal url={technique.youtubeUrl} title={technique.name} compact />
+            </div>
           </div>
         )}
 

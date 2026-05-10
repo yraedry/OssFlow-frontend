@@ -1,7 +1,7 @@
 import { Badge } from '@/shared/components/ui/badge'
 import { Button } from '@/shared/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
-import { YouTubeEmbed } from '@/shared/components/ui/youtube-embed'
+import { YouTubePlayerModal } from '@/shared/components/ui/youtube-player-modal'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import type { Position } from '../types'
@@ -59,8 +59,8 @@ export function PositionCard({ position, onEdit, onDelete }: PositionCardProps) 
           <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{position.description}</p>
         )}
         {position.youtubeUrl && (
-          <div className="mt-2 flex justify-end" onClick={(e) => e.stopPropagation()}>
-            <YouTubeEmbed url={position.youtubeUrl} title={position.name} />
+          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+            <YouTubePlayerModal url={position.youtubeUrl} title={position.name} compact />
           </div>
         )}
       </CardContent>

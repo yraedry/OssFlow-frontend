@@ -248,13 +248,10 @@ export function ConfiguracionPage() {
   }
 
   return (
-    <div className="max-w-2xl space-y-8">
+    <div className="space-y-6">
       {/* Page header */}
       <div>
-        <h1
-          className="text-2xl font-black"
-          style={{ fontFamily: 'var(--font-serif)' }}
-        >
+        <h1 className="text-2xl font-black" style={{ fontFamily: 'var(--font-serif)' }}>
           Configuración
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -262,124 +259,101 @@ export function ConfiguracionPage() {
         </p>
       </div>
 
-      {/* ── Apariencia ── */}
-      <section>
-        <SectionTitle icon={<Palette className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Apariencia" />
-        <Card>
-          <CardContent className="py-0">
-            <SettingRow
-              label="Tema"
-              description="Elige entre claro, oscuro o el tema del sistema"
-            >
-              <ThemeSelector />
-            </SettingRow>
-          </CardContent>
-        </Card>
-      </section>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Columna izquierda */}
+        <div className="space-y-6">
+          {/* ── Apariencia ── */}
+          <section>
+            <SectionTitle icon={<Palette className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Apariencia" />
+            <Card>
+              <CardContent className="py-0">
+                <SettingRow label="Tema" description="Elige entre claro, oscuro o el tema del sistema">
+                  <ThemeSelector />
+                </SettingRow>
+              </CardContent>
+            </Card>
+          </section>
 
-      {/* ── Preferencias de entrenamiento ── */}
-      <section>
-        <SectionTitle icon={<Settings className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Preferencias de entrenamiento" />
-        <Card>
-          <CardContent className="py-0">
-            <SettingRow
-              label="Modalidad por defecto"
-              description="Modalidad que se seleccionará al crear una sesión"
-            >
-              <InlineSelect
-                value={modality}
-                onChange={handleModality}
-                options={[
-                  { value: 'GI',   label: 'Gi' },
-                  { value: 'NOGI', label: 'No-Gi' },
-                  { value: 'BOTH', label: 'Ambas' },
-                ]}
-              />
-            </SettingRow>
+          {/* ── Preferencias de entrenamiento ── */}
+          <section>
+            <SectionTitle icon={<Settings className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Preferencias de entrenamiento" />
+            <Card>
+              <CardContent className="py-0">
+                <SettingRow label="Modalidad por defecto" description="Modalidad que se seleccionará al crear una sesión">
+                  <InlineSelect
+                    value={modality}
+                    onChange={handleModality}
+                    options={[
+                      { value: 'GI',   label: 'Gi' },
+                      { value: 'NOGI', label: 'No-Gi' },
+                      { value: 'BOTH', label: 'Ambas' },
+                    ]}
+                  />
+                </SettingRow>
+                <SettingRow label="Unidades de peso" description={`Actualmente: ${weightUnit ? 'kilogramos (kg)' : 'libras (lbs)'}`}>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>lbs</span>
+                    <Toggle checked={weightUnit} onChange={handleWeightUnit} label={`Unidades de peso: ${weightUnit ? 'kilogramos' : 'libras'}`} />
+                    <span className="text-xs text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>kg</span>
+                  </div>
+                </SettingRow>
+                <SettingRow label="Duración por defecto de sesión" description="Minutos que se usarán al crear una sesión nueva">
+                  <InlineSelect
+                    value={duration}
+                    onChange={handleDuration}
+                    options={[
+                      { value: '30',  label: '30 min' },
+                      { value: '60',  label: '60 min' },
+                      { value: '90',  label: '90 min' },
+                      { value: '120', label: '120 min' },
+                    ]}
+                  />
+                </SettingRow>
+              </CardContent>
+            </Card>
+          </section>
+        </div>
 
-            <SettingRow
-              label="Unidades de peso"
-              description={`Actualmente: ${weightUnit ? 'kilogramos (kg)' : 'libras (lbs)'}`}
-            >
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>lbs</span>
-                <Toggle
-                  checked={weightUnit}
-                  onChange={handleWeightUnit}
-                  label={`Unidades de peso: ${weightUnit ? 'kilogramos' : 'libras'}`}
-                />
-                <span className="text-xs text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>kg</span>
-              </div>
-            </SettingRow>
+        {/* Columna derecha */}
+        <div className="space-y-6">
+          {/* ── Notificaciones ── */}
+          <section>
+            <SectionTitle icon={<Bell className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Notificaciones" />
+            <Card>
+              <CardContent className="py-0">
+                <SettingRow label="Recordatorio diario de entrenamiento" description="Recibe un aviso diario para no saltarte el entreno">
+                  <DisabledToggle />
+                </SettingRow>
+                <SettingRow label="Resumen semanal por email" description="Un resumen de tu actividad cada semana">
+                  <DisabledToggle />
+                </SettingRow>
+              </CardContent>
+            </Card>
+          </section>
 
-            <SettingRow
-              label="Duración por defecto de sesión"
-              description="Minutos que se usarán al crear una sesión nueva"
-            >
-              <InlineSelect
-                value={duration}
-                onChange={handleDuration}
-                options={[
-                  { value: '30',  label: '30 min' },
-                  { value: '60',  label: '60 min' },
-                  { value: '90',  label: '90 min' },
-                  { value: '120', label: '120 min' },
-                ]}
-              />
-            </SettingRow>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* ── Notificaciones ── */}
-      <section>
-        <SectionTitle icon={<Bell className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Notificaciones" />
-        <Card>
-          <CardContent className="py-0">
-            <SettingRow
-              label="Recordatorio diario de entrenamiento"
-              description="Recibe un aviso diario para no saltarte el entreno"
-            >
-              <DisabledToggle />
-            </SettingRow>
-            <SettingRow
-              label="Resumen semanal por email"
-              description="Un resumen de tu actividad cada semana"
-            >
-              <DisabledToggle />
-            </SettingRow>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* ── Datos ── */}
-      <section>
-        <SectionTitle icon={<Database className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Datos" />
-        <Card>
-          <CardContent className="py-0">
-            <SettingRow
-              label="Exportar mis datos"
-              description="Descarga toda tu información en formato JSON"
-            >
-              <Link
-                to="/export"
-                className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:bg-accent transition-colors"
-                style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}
-              >
-                Exportar
-                <ChevronRight className="h-3 w-3" strokeWidth={2} />
-              </Link>
-            </SettingRow>
-
-            <SettingRow
-              label="Eliminar cuenta"
-              description="Elimina permanentemente tu cuenta y todos tus datos"
-            >
-              <DeleteAccountButton />
-            </SettingRow>
-          </CardContent>
-        </Card>
-      </section>
+          {/* ── Datos ── */}
+          <section>
+            <SectionTitle icon={<Database className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Datos" />
+            <Card>
+              <CardContent className="py-0">
+                <SettingRow label="Exportar mis datos" description="Descarga toda tu información en formato JSON">
+                  <Link
+                    to="/export"
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:bg-accent transition-colors"
+                    style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}
+                  >
+                    Exportar
+                    <ChevronRight className="h-3 w-3" strokeWidth={2} />
+                  </Link>
+                </SettingRow>
+                <SettingRow label="Eliminar cuenta" description="Elimina permanentemente tu cuenta y todos tus datos">
+                  <DeleteAccountButton />
+                </SettingRow>
+              </CardContent>
+            </Card>
+          </section>
+        </div>
+      </div>
     </div>
   )
 }
