@@ -98,18 +98,33 @@ export function ProfileEditPage() {
     }
   }, [profile, fedsInitialized])
 
-  const { register, handleSubmit, control, watch, formState: { errors } } = useForm<UpdateProfileForm>({
+  const { register, handleSubmit, control, watch, reset, formState: { errors } } = useForm<UpdateProfileForm>({
     resolver: zodResolver(updateProfileSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
-      displayName: profile?.displayName ?? '',
-      currentBelt: profile?.currentBelt ?? '',
-      preferredModality: profile?.preferredModality ?? '',
-      academy: profile?.academy ?? '',
-      beltSince: profile?.beltSince ?? '',
+      displayName: '',
+      currentBelt: '',
+      preferredModality: '',
+      academy: '',
+      beltSince: '',
     },
   })
+
+  // Rellenar el formulario cuando el perfil cargue desde la API
+  useEffect(() => {
+    if (profile) {
+      reset({
+        firstName: '',
+        lastName: '',
+        displayName: profile.displayName ?? '',
+        currentBelt: profile.currentBelt ?? '',
+        preferredModality: profile.preferredModality ?? '',
+        academy: profile.academy ?? '',
+        beltSince: profile.beltSince ?? '',
+      })
+    }
+  }, [profile, reset])
 
   const watchedBelt = watch('currentBelt')
   const beltDef = BELTS.find(b => b.value === watchedBelt?.toUpperCase())
