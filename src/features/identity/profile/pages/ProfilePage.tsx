@@ -112,11 +112,12 @@ export function ProfilePage() {
     )
   }
 
-  const belt = BELT[profile.currentBelt] ?? { label: profile.currentBelt, bg: '#6b7280', bgDark: '#374151', text: '#fff', stripe: '#4b5563' }
+  const belt = BELT[profile.currentBelt.toUpperCase()] ?? { label: profile.currentBelt, bg: '#6b7280', bgDark: '#374151', text: '#fff', stripe: '#4b5563' }
   const initials = getInitials(profile.displayName)
   const beltTime = timeAtBelt(profile.beltSince)
   const primaryFed = profile.federations?.find(f => f.isPrimary)
   const primaryFedName = primaryFed ? allFederations.find(f => f.id === primaryFed.federationId)?.code : null
+  const modalityLabel = MODALITY[profile.preferredModality?.toUpperCase?.()] ?? MODALITY[profile.preferredModality] ?? profile.preferredModality
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
@@ -132,7 +133,7 @@ export function ProfilePage() {
           <div className="absolute bottom-3 left-5 right-14">
             <p className="text-white font-black text-xl leading-tight drop-shadow-sm">{profile.displayName}</p>
             <p className="text-white/80 text-xs font-mono mt-0.5">
-              Cinturón {belt.label} · {MODALITY[profile.preferredModality] ?? profile.preferredModality}
+              Cinturón {belt.label} · {modalityLabel}
             </p>
           </div>
         </div>

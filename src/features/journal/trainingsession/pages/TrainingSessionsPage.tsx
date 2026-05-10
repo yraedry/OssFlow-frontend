@@ -367,7 +367,7 @@ export function TrainingSessionsPage() {
             {(data?.content ?? []).filter(Boolean).map((s) => {
               const accent = INTENSITY_COLORS[s.intensity] ?? '#6b7280'
               return (
-                <div key={s.id}
+                <div key={s.id} id={`session-${s.id}`}
                   className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors"
                   style={{ borderLeft: `3px solid ${accent}` }}
                 >
