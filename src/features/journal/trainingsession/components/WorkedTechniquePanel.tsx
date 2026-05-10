@@ -11,7 +11,6 @@ interface Props {
 export function WorkedTechniquePanel({ session }: Props) {
   const [open, setOpen] = useState(false)
   const [selectedTechniqueId, setSelectedTechniqueId] = useState<string>('')
-  const [repCount, setRepCount] = useState<string>('')
   const [notes, setNotes] = useState<string>('')
 
   const { data: techniquesData } = useTechniques({ size: 200 })
@@ -26,12 +25,10 @@ export function WorkedTechniquePanel({ session }: Props) {
     await upsert.mutateAsync({
       techniqueId: Number(selectedTechniqueId),
       data: {
-        repCount: repCount ? Number(repCount) : undefined,
         notesMarkdown: notes || undefined,
       },
     })
     setSelectedTechniqueId('')
-    setRepCount('')
     setNotes('')
   }
 
@@ -67,10 +64,9 @@ export function WorkedTechniquePanel({ session }: Props) {
                   >
                     <div className="min-w-0">
                       <span className="text-xs font-medium truncate block">{displayName}</span>
-                      <span className="text-[10px] font-mono text-muted-foreground">
-                        {wt.repCount != null ? `${wt.repCount} reps` : 'sin reps'}
-                        {wt.notesMarkdown ? ` · ${wt.notesMarkdown}` : ''}
-                      </span>
+                      {wt.notesMarkdown && (
+                        <span className="text-[10px] font-mono text-muted-foreground">{wt.notesMarkdown}</span>
+                      )}
                     </div>
                     <button
                       type="button"
@@ -102,14 +98,6 @@ export function WorkedTechniquePanel({ session }: Props) {
               ))}
             </select>
             <div className="flex gap-2">
-              <input
-                type="number"
-                min={0}
-                value={repCount}
-                onChange={(e) => setRepCount(e.target.value)}
-                placeholder="Reps"
-                className="w-20 rounded-md border border-input bg-background px-2.5 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-ring"
-              />
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}

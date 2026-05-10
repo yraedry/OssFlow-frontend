@@ -15,7 +15,7 @@ const TYPE_COLORS: Record<string, string> = {
 
 type Props = {
   session: PhysicalSession
-  onEdit: (session: PhysicalSession) => void
+  onEdit?: (session: PhysicalSession) => void
   onDelete: (id: number) => void
 }
 
@@ -30,7 +30,7 @@ export function PhysicalSessionCard({ session, onEdit, onDelete }: Props) {
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex gap-1">
         <button
           type="button"
-          onClick={() => onEdit(session)}
+          onClick={() => onEdit?.(session)}
           className="h-7 w-7 flex items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground transition-colors"
           aria-label="Editar sesión"
         >
