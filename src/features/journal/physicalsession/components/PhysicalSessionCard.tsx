@@ -46,7 +46,7 @@ export function PhysicalSessionCard({ session, onEdit, onDelete }: Props) {
         </button>
       </div>
 
-      <div className="p-4 flex flex-col gap-1.5 flex-1 pr-16">
+      <div className="p-4 flex flex-col gap-1.5 pr-16">
         <span className="text-[10px] font-bold uppercase tracking-widest" style={{ ...MONO, color: accent }}>
           {PHYSICAL_SESSION_TYPE_LABELS[session.sessionType]}
         </span>
