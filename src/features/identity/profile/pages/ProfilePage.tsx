@@ -50,7 +50,7 @@ function timeAtBelt(iso?: string | null) {
 
 function ColorStatBox({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
   return (
-    <div className="flex flex-col gap-0.5 p-3 bg-background rounded-sm" style={{ borderLeft: `3px solid ${color}` }}>
+    <div className="flex flex-col gap-0.5 p-3 bg-background" style={{ borderLeft: `3px solid ${color}` }}>
       <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
       <span className="text-xl font-bold tabular-nums leading-none">{value}</span>
       {sub && <span className="text-[10px] text-muted-foreground">{sub}</span>}
@@ -100,11 +100,11 @@ export function ProfilePage() {
           <h1 className="text-2xl font-bold">Configura tu perfil</h1>
           <p className="text-sm text-muted-foreground mt-1">Completa tu perfil para empezar a usar OssFlow</p>
         </div>
-        <section className="rounded-lg border p-5 space-y-4">
+        <section className="border border-border p-5 space-y-4">
           <h2 className="text-sm font-semibold font-mono uppercase tracking-wider">Foto</h2>
           <AvatarUpload displayName={null} />
         </section>
-        <section className="rounded-lg border p-5 space-y-4">
+        <section className="border border-border p-5 space-y-4">
           <h2 className="text-sm font-semibold font-mono uppercase tracking-wider">Información</h2>
           <ProfileForm profile={null} onSubmit={handleProfileSubmit} isPending={createProfile.isPending} />
         </section>
@@ -121,7 +121,7 @@ export function ProfilePage() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
 
-      <div className="rounded-xl border border-border overflow-hidden bg-card">
+      <div className="border border-border overflow-hidden bg-card">
 
         {/* Banda gradiente con nombre encima */}
         <div
@@ -162,7 +162,7 @@ export function ProfilePage() {
 
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
               <DialogTrigger asChild>
-                <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-xs font-mono uppercase tracking-wide hover:bg-muted transition-colors rounded-md">
+                <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-xs font-mono uppercase tracking-wide hover:bg-muted transition-colors">
                   <Pencil className="h-3 w-3" strokeWidth={1.5} />
                   Editar
                 </button>
