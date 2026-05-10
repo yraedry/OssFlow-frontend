@@ -188,122 +188,126 @@ export function AnalisisPage() {
   const physStatPct = stats ? Math.min(100, Math.round((stats.physicalSessions / (stats.physicalGoal || 1)) * 100)) : 0
 
   return (
-    <div className="space-y-5 max-w-2xl mx-auto">
+    <div className="space-y-4">
 
-      <div>
-        <h1 className="text-2xl font-bold">Análisis</h1>
-        <p className="text-muted-foreground text-sm">Tu evolución como peleador</p>
+      {/* Header + periodo */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Análisis</h1>
+          <p className="text-muted-foreground text-sm">Tu evolución como peleador</p>
+        </div>
+        <div className="flex gap-1.5 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
+          {PERIOD_OPTIONS.map(o => (
+            <button
+              key={o.days}
+              onClick={() => setDays(o.days)}
+              className={`px-3 py-1.5 text-xs font-mono border flex-shrink-0 transition-colors ${
+                days === o.days
+                  ? 'bg-foreground text-background border-foreground'
+                  : 'text-muted-foreground border-border hover:border-foreground hover:text-foreground'
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="flex gap-1.5 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
-        {PERIOD_OPTIONS.map(o => (
-          <button
-            key={o.days}
-            onClick={() => setDays(o.days)}
-            className={`px-3 py-1.5 text-xs font-mono rounded border flex-shrink-0 transition-colors ${
-              days === o.days
-                ? 'bg-foreground text-background border-foreground'
-                : 'text-muted-foreground border-border hover:border-foreground hover:text-foreground'
-            }`}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-
+      {/* Stats row */}
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          <div className="flex flex-col gap-1 p-3 bg-card rounded-sm border border-border" style={{ borderLeft: '3px solid #f97316' }}>
+          <div className="flex flex-col gap-1 p-3 bg-card border border-border" style={{ borderLeft: '3px solid #f97316' }}>
             <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Racha activa</span>
             <span className="text-2xl font-bold tabular-nums leading-none" style={{ color: '#f97316' }}>{stats.streakDays}</span>
             <span className="text-[10px] text-muted-foreground">días</span>
           </div>
-          <div className="flex flex-col gap-1 p-3 bg-card rounded-sm border border-border" style={{ borderLeft: '3px solid #3b82f6' }}>
+          <div className="flex flex-col gap-1 p-3 bg-card border border-border" style={{ borderLeft: '3px solid #3b82f6' }}>
             <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">BJJ esta semana</span>
             <span className="text-2xl font-bold tabular-nums leading-none" style={{ color: '#3b82f6' }}>{stats.bjjSessions}<span className="text-sm font-normal text-muted-foreground">/{stats.bjjGoal}</span></span>
-            <div className="h-0.5 bg-border rounded-full mt-1">
-              <div className="h-0.5 rounded-full transition-all" style={{ width: `${bjjStatPct}%`, backgroundColor: '#3b82f6' }} />
-            </div>
+            <div className="h-0.5 bg-border mt-1"><div className="h-0.5 transition-all" style={{ width: `${bjjStatPct}%`, backgroundColor: '#3b82f6' }} /></div>
           </div>
-          <div className="flex flex-col gap-1 p-3 bg-card rounded-sm border border-border" style={{ borderLeft: '3px solid #10b981' }}>
+          <div className="flex flex-col gap-1 p-3 bg-card border border-border" style={{ borderLeft: '3px solid #10b981' }}>
             <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Físico esta semana</span>
             <span className="text-2xl font-bold tabular-nums leading-none" style={{ color: '#10b981' }}>{stats.physicalSessions}<span className="text-sm font-normal text-muted-foreground">/{stats.physicalGoal}</span></span>
-            <div className="h-0.5 bg-border rounded-full mt-1">
-              <div className="h-0.5 rounded-full transition-all" style={{ width: `${physStatPct}%`, backgroundColor: '#10b981' }} />
-            </div>
+            <div className="h-0.5 bg-border mt-1"><div className="h-0.5 transition-all" style={{ width: `${physStatPct}%`, backgroundColor: '#10b981' }} /></div>
           </div>
-          <div className="flex flex-col gap-1 p-3 bg-card rounded-sm border border-border" style={{ borderLeft: '3px solid #a855f7' }}>
+          <div className="flex flex-col gap-1 p-3 bg-card border border-border" style={{ borderLeft: '3px solid #a855f7' }}>
             <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Técnicas este mes</span>
             <span className="text-2xl font-bold tabular-nums leading-none" style={{ color: '#a855f7' }}>{stats.techniquesThisMonth}</span>
           </div>
         </div>
       )}
 
-      <div className="rounded-xl border border-border bg-card overflow-hidden" style={{ borderTop: `3px solid ${section.color}` }}>
-        <div className="border-b border-border">
-          <div className="flex overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-            {SECTIONS.map(s => (
-              <button
-                key={s.id}
-                onClick={() => setActive(s.id)}
-                className={`flex-shrink-0 px-4 py-3 text-xs font-mono uppercase tracking-wide transition-colors border-b-2 ${
-                  active === s.id
-                    ? 'font-semibold border-current'
-                    : 'text-muted-foreground border-transparent hover:text-foreground'
-                }`}
-                style={active === s.id ? { color: s.color, borderBottomColor: s.color } : {}}
-              >
-                {s.label}
-              </button>
-            ))}
+      {/* Layout 2 columnas en desktop */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        {/* Radar — ocupa 2/3 en desktop */}
+        <div className="lg:col-span-2 border border-border bg-card overflow-hidden" style={{ borderTop: `3px solid ${section.color}` }}>
+          <div className="border-b border-border">
+            <div className="flex overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+              {SECTIONS.map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setActive(s.id)}
+                  className={`flex-shrink-0 px-4 py-3 text-xs font-mono uppercase tracking-wide transition-colors border-b-2 ${
+                    active === s.id
+                      ? 'font-semibold border-current'
+                      : 'text-muted-foreground border-transparent hover:text-foreground'
+                  }`}
+                  style={active === s.id ? { color: s.color, borderBottomColor: s.color } : {}}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center justify-between px-4 pt-4 pb-2">
+            <div>
+              <p className="text-base font-semibold">{section.title}</p>
+              {total > 0 && <p className="text-xs text-muted-foreground font-mono">{total} {section.subtitle}</p>}
+            </div>
+            {total > 0 && (
+              <span className="text-3xl font-bold tabular-nums" style={{ color: section.color }}>{total}</span>
+            )}
+          </div>
+          <div className="px-4 pb-4">
+            <RadarPanel section={section} data={data} isLoading={loading} error={error} />
           </div>
         </div>
-        <div className="flex items-center justify-between px-4 pt-4 pb-2">
-          <div>
-            <p className="text-base font-semibold">{section.title}</p>
-            {total > 0 && <p className="text-xs text-muted-foreground font-mono">{total} {section.subtitle}</p>}
-          </div>
-          {total > 0 && (
-            <span className="text-3xl font-bold tabular-nums" style={{ color: section.color }}>{total}</span>
+
+        {/* Sidebar — 1/3 en desktop */}
+        <div className="space-y-4">
+          {top5.length > 0 && (
+            <div className="border border-border bg-card px-4 py-4 space-y-3">
+              <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Top técnicas</p>
+              {top5.map((d, i) => (
+                <div key={d.family} className="flex items-center gap-3">
+                  <span className="text-[10px] font-mono text-muted-foreground w-4">{i + 1}.</span>
+                  <span className="text-xs flex-1 truncate">{d.label}</span>
+                  <div className="h-1 w-16 bg-border">
+                    <div className="h-1 bg-orange-500 transition-all" style={{ width: `${(d.value / maxVal) * 100}%` }} />
+                  </div>
+                  <span className="text-xs font-bold tabular-nums text-orange-500 w-5 text-right">{d.value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {gaps.length > 0 && (
+            <div className="border border-border bg-card px-4 py-4 space-y-2">
+              <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Áreas sin datos ({days}d)</p>
+              <div className="space-y-2">
+                {gaps.map(s => (
+                  <div key={s.id} className="flex items-center gap-2 py-2 border-b border-border last:border-0">
+                    <AlertTriangle className="h-3.5 w-3.5 shrink-0" style={{ color: s.color }} strokeWidth={1.5} />
+                    <span className="text-xs font-mono" style={{ color: s.color }}>{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
-        <div className="px-4 pb-4">
-          <RadarPanel section={section} data={data} isLoading={loading} error={error} />
-        </div>
       </div>
-
-      {top5.length > 0 && (
-        <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-3">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Top técnicas</p>
-          {top5.map((d, i) => (
-            <div key={d.family} className="flex items-center gap-3">
-              <span className="text-[10px] font-mono text-muted-foreground w-4">{i + 1}.</span>
-              <span className="text-xs flex-1 truncate">{d.label}</span>
-              <div className="h-1 w-24 bg-border rounded-full">
-                <div className="h-1 rounded-full bg-orange-500 transition-all" style={{ width: `${(d.value / maxVal) * 100}%` }} />
-              </div>
-              <span className="text-xs font-bold tabular-nums text-orange-500 w-6 text-right">{d.value}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {gaps.length > 0 && (
-        <div className="rounded-xl border border-border bg-card px-5 py-4 space-y-2">
-          <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Áreas sin datos ({days}d)</p>
-          <div className="space-y-2">
-            {gaps.map(s => (
-              <div key={s.id} className="flex items-center gap-3 p-3 rounded-lg bg-background border border-border" style={{ borderLeft: `3px solid ${s.color}` }}>
-                <AlertTriangle className="h-4 w-4 flex-shrink-0" style={{ color: s.color }} strokeWidth={1.5} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold">{s.label}</p>
-                  <p className="text-[10px] text-muted-foreground font-mono">0 registros en los últimos {days} días</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
     </div>
   )

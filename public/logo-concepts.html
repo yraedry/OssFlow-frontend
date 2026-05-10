@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OssFlow — Conceptos de Logo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=JetBrains+Mono:wght@400;600;800&family=Inter:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0f0f0f;
+    color: #f0ebe3;
+    font-family: 'Inter', sans-serif;
+    padding: 40px 24px 80px;
+    min-height: 100vh;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #666;
+    margin-bottom: 48px;
+  }
+
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #555;
+    margin-bottom: 24px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #222;
+  }
+
+  .concept {
+    margin-bottom: 64px;
+  }
+
+  .concept-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 6px;
+  }
+
+  .concept-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+  }
+
+  .concept-tagline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .concept-desc {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    max-width: 540px;
+  }
+
+  .logo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2px;
+  }
+
+  .logo-cell {
+    background: #1a1a1a;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  .logo-cell.dark  { background: #0f0f0f; }
+  .logo-cell.light { background: #fafaf8; }
+  .logo-cell.mid   { background: #1a1a1a; }
+
+  .logo-cell .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #444;
+  }
+
+  .logo-cell.light .label { color: #bbb; }
+
+  .favicon-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .favicon-cell {
+    width: 64px; height: 64px;
+    background: #1a1a1a;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .favicon-cell.light { background: #fafaf8; }
+  .favicon-cell.dark  { background: #0f0f0f; }
+
+  .favicon-sm {
+    width: 32px; height: 32px;
+    background: #1a1a1a;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .favicon-sm.light { background: #fafaf8; }
+
+  .favicon-xs {
+    width: 16px; height: 16px;
+    background: #1a1a1a;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .divider { height: 1px; background: #1e1e1e; margin: 64px 0; }
+</style>
+</head>
+<body>
+
+<h1>OssFlow — Conceptos de Logo</h1>
+<p class="subtitle">4 direcciones de diseño · SVG nativo · Favicon + Logotipo completo</p>
+
+<!-- ═══════════════════════════════════════════════════════
+     CONCEPTO A — "OSS" Brutalista Editorial
+     ═══════════════════════════════════════════════════════ -->
+
+<div class="concept">
+  <div class="concept-header">
+    <span class="concept-name">A — Brutalista Editorial</span>
+    <span class="concept-tagline">Tipografía pura · Sin ornamentos · Autoridad</span>
+  </div>
+  <p class="concept-desc">
+    La inicial "O" tratada como símbolo de tatami visto desde arriba. Estética de revista de artes marciales japonesa: peso tipográfico extremo, sin suavizados. El nombre en Playfair Display condensed. Funciona a cualquier tamaño.
+  </p>
+
+  <div class="logo-grid">
+    <!-- Horizontal oscuro -->
+    <div class="logo-cell dark" style="grid-column: span 2;">
+      <svg width="280" height="72" viewBox="0 0 280 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- O como tatami -->
+        <rect x="0" y="0" width="72" height="72" fill="#f0ebe3"/>
+        <rect x="6" y="6" width="60" height="60" fill="#0f0f0f"/>
+        <rect x="14" y="14" width="44" height="44" fill="#f0ebe3"/>
+        <rect x="22" y="22" width="28" height="28" fill="#0f0f0f"/>
+        <!-- Texto -->
+        <text x="88" y="46" font-family="'Playfair Display', serif" font-size="38" font-weight="900" fill="#f0ebe3" letter-spacing="-1">OSS</text>
+        <text x="89" y="63" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="400" fill="#555" letter-spacing="5">FLOW</text>
+      </svg>
+      <span class="label">Horizontal · Dark</span>
+    </div>
+
+    <!-- Cuadrado oscuro -->
+    <div class="logo-cell dark">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" fill="#f0ebe3"/>
+        <rect x="7" y="7" width="66" height="66" fill="#0f0f0f"/>
+        <rect x="16" y="16" width="48" height="48" fill="#f0ebe3"/>
+        <rect x="25" y="25" width="30" height="30" fill="#0f0f0f"/>
+      </svg>
+      <span class="label">Favicon · Dark</span>
+    </div>
+
+    <!-- Cuadrado claro -->
+    <div class="logo-cell light">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" fill="#1a1a1a"/>
+        <rect x="7" y="7" width="66" height="66" fill="#fafaf8"/>
+        <rect x="16" y="16" width="48" height="48" fill="#1a1a1a"/>
+        <rect x="25" y="25" width="30" height="30" fill="#fafaf8"/>
+      </svg>
+      <span class="label">Favicon · Light</span>
+    </div>
+  </div>
+
+  <!-- Favicon a distintos tamaños -->
+  <div class="favicon-row">
+    <span class="label" style="font-family: 'JetBrains Mono', monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.1em; color:#444; margin-right:8px;">Tamaños:</span>
+    <div class="favicon-cell dark">
+      <svg width="48" height="48" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" fill="#f0ebe3"/><rect x="7" y="7" width="66" height="66" fill="#0f0f0f"/><rect x="16" y="16" width="48" height="48" fill="#f0ebe3"/><rect x="25" y="25" width="30" height="30" fill="#0f0f0f"/></svg>
+    </div>
+    <div class="favicon-sm dark">
+      <svg width="24" height="24" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" fill="#f0ebe3"/><rect x="7" y="7" width="66" height="66" fill="#0f0f0f"/><rect x="16" y="16" width="48" height="48" fill="#f0ebe3"/><rect x="25" y="25" width="30" height="30" fill="#0f0f0f"/></svg>
+    </div>
+    <div class="favicon-xs dark">
+      <svg width="14" height="14" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" fill="#f0ebe3"/><rect x="7" y="7" width="66" height="66" fill="#0f0f0f"/><rect x="16" y="16" width="48" height="48" fill="#f0ebe3"/><rect x="25" y="25" width="30" height="30" fill="#0f0f0f"/></svg>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CONCEPTO B — "Flujo de Cinturón"
+     ═══════════════════════════════════════════════════════ -->
+
+<div class="concept">
+  <div class="concept-header">
+    <span class="concept-name">B — Flujo de Cinturón</span>
+    <span class="concept-tagline">Cinturón como símbolo · Movimiento · Progresión</span>
+  </div>
+  <p class="concept-desc">
+    Un cinturón BJJ visto desde arriba que forma una "O" entrelazada, símbolo de progresión del luchador. Las dos tiras verticales representan el flujo de entrenamiento. Geométrico y reconocible a 16px.
+  </p>
+
+  <div class="logo-grid">
+    <!-- Horizontal oscuro -->
+    <div class="logo-cell dark" style="grid-column: span 2;">
+      <svg width="280" height="72" viewBox="0 0 280 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Cinturón: rectángulo horizontal con nudo central -->
+        <rect x="4" y="24" width="64" height="24" rx="0" fill="#f0ebe3"/>
+        <!-- Nudo central: cuadrado oscuro -->
+        <rect x="28" y="18" width="16" height="36" fill="#f0ebe3"/>
+        <rect x="31" y="21" width="10" height="30" fill="#0f0f0f"/>
+        <!-- Tiras colgantes -->
+        <rect x="24" y="54" width="10" height="14" fill="#f0ebe3"/>
+        <rect x="38" y="54" width="10" height="14" fill="#f0ebe3"/>
+        <!-- Línea decorativa en cinturón -->
+        <rect x="4" y="34" width="64" height="4" fill="#0f0f0f"/>
+        <!-- Texto -->
+        <text x="88" y="46" font-family="'Playfair Display', serif" font-size="38" font-weight="900" fill="#f0ebe3" letter-spacing="-1">OSS</text>
+        <text x="89" y="63" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="400" fill="#555" letter-spacing="5">FLOW</text>
+      </svg>
+      <span class="label">Horizontal · Dark</span>
+    </div>
+
+    <!-- Favicon cuadrado oscuro -->
+    <div class="logo-cell dark">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" fill="#0f0f0f"/>
+        <!-- cinturón horizontal -->
+        <rect x="6" y="28" width="68" height="24" fill="#f0ebe3"/>
+        <!-- nudo central -->
+        <rect x="34" y="20" width="12" height="40" fill="#f0ebe3"/>
+        <rect x="37" y="23" width="6" height="34" fill="#0f0f0f"/>
+        <!-- línea del cinturón -->
+        <rect x="6" y="38" width="68" height="4" fill="#0f0f0f"/>
+        <!-- tiras -->
+        <rect x="30" y="52" width="8" height="12" fill="#f0ebe3"/>
+        <rect x="42" y="52" width="8" height="12" fill="#f0ebe3"/>
+      </svg>
+      <span class="label">Favicon · Dark</span>
+    </div>
+
+    <!-- Favicon cuadrado claro -->
+    <div class="logo-cell light">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" fill="#fafaf8"/>
+        <rect x="6" y="28" width="68" height="24" fill="#1a1a1a"/>
+        <rect x="34" y="20" width="12" height="40" fill="#1a1a1a"/>
+        <rect x="37" y="23" width="6" height="34" fill="#fafaf8"/>
+        <rect x="6" y="38" width="68" height="4" fill="#fafaf8"/>
+        <rect x="30" y="52" width="8" height="12" fill="#1a1a1a"/>
+        <rect x="42" y="52" width="8" height="12" fill="#1a1a1a"/>
+      </svg>
+      <span class="label">Favicon · Light</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CONCEPTO C — "Guardia" (silueta BJJ)
+     ═══════════════════════════════════════════════════════ -->
+
+<div class="concept">
+  <div class="concept-header">
+    <span class="concept-name">C — Guardia Cerrada</span>
+    <span class="concept-tagline">Silueta BJJ · Moderno · Distintivo</span>
+  </div>
+  <p class="concept-desc">
+    La guardia cerrada vista desde el perfil: la posición más icónica del BJJ convertida en símbolo geométrico. Dos formas que se abrazan, aludiendo también a la letra "O" de OssFlow. Alta legibilidad a cualquier tamaño.
+  </p>
+
+  <div class="logo-grid">
+    <!-- Horizontal oscuro -->
+    <div class="logo-cell dark" style="grid-column: span 2;">
+      <svg width="300" height="72" viewBox="0 0 300 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Figura guardia: dos formas geométricas entrelazadas -->
+        <!-- Cuerpo inferior (guardista) -->
+        <rect x="0" y="38" width="36" height="10" fill="#f0ebe3"/>
+        <rect x="8" y="28" width="10" height="44" fill="#f0ebe3"/>
+        <!-- Piernas abrazando -->
+        <rect x="0" y="38" width="12" height="34" fill="#f0ebe3"/>
+        <rect x="24" y="38" width="12" height="34" fill="#f0ebe3"/>
+        <rect x="0" y="66" width="36" height="6" fill="#f0ebe3"/>
+        <!-- Cuerpo superior (pasando) -->
+        <rect x="10" y="14" width="16" height="28" fill="#f0ebe3"/>
+        <rect x="4" y="10" width="28" height="10" fill="#f0ebe3"/>
+        <!-- Hueco entre figuras -->
+        <rect x="14" y="42" width="8" height="24" fill="#0f0f0f"/>
+        <!-- Texto -->
+        <text x="54" y="46" font-family="'Playfair Display', serif" font-size="38" font-weight="900" fill="#f0ebe3" letter-spacing="-1">OSSFLOW</text>
+        <text x="55" y="63" font-family="'JetBrains Mono', monospace" font-size="9.5" font-weight="400" fill="#555" letter-spacing="5.5">BJJ TRACKER</text>
+      </svg>
+      <span class="label">Horizontal · Dark</span>
+    </div>
+
+    <!-- Favicon: O de guardia -->
+    <div class="logo-cell dark">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" fill="#0f0f0f"/>
+        <!-- O con silueta de guardia integrada -->
+        <!-- Anillo exterior -->
+        <rect x="10" y="10" width="60" height="60" fill="#f0ebe3"/>
+        <!-- Hueco interior con forma de guardia -->
+        <rect x="20" y="20" width="40" height="40" fill="#0f0f0f"/>
+        <!-- Tiras de guardia (piernas) que rompen el hueco -->
+        <rect x="20" y="44" width="12" height="16" fill="#f0ebe3"/>
+        <rect x="48" y="44" width="12" height="16" fill="#f0ebe3"/>
+        <!-- Cuerpo en el centro -->
+        <rect x="30" y="20" width="20" height="24" fill="#f0ebe3"/>
+      </svg>
+      <span class="label">Favicon · Dark</span>
+    </div>
+
+    <div class="logo-cell light">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" fill="#fafaf8"/>
+        <rect x="10" y="10" width="60" height="60" fill="#1a1a1a"/>
+        <rect x="20" y="20" width="40" height="40" fill="#fafaf8"/>
+        <rect x="20" y="44" width="12" height="16" fill="#1a1a1a"/>
+        <rect x="48" y="44" width="12" height="16" fill="#1a1a1a"/>
+        <rect x="30" y="20" width="20" height="24" fill="#1a1a1a"/>
+      </svg>
+      <span class="label">Favicon · Light</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CONCEPTO D — "OF Monograma Moderno"
+     ═══════════════════════════════════════════════════════ -->
+
+<div class="concept">
+  <div class="concept-header">
+    <span class="concept-name">D — Monograma OF</span>
+    <span class="concept-tagline">Iniciales entrelazadas · Elegante · Escalable</span>
+  </div>
+  <p class="concept-desc">
+    Las iniciales O y F geométricamente entrelazadas sobre fondo negro. La O es un cuadrado con esquinas cortadas (tatami octogonal), la F es una estructura de barras. Minimalismo de alto impacto, funciona como app icon.
+  </p>
+
+  <div class="logo-grid">
+    <!-- Horizontal oscuro -->
+    <div class="logo-cell dark" style="grid-column: span 2;">
+      <svg width="300" height="72" viewBox="0 0 300 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Monograma OF: cuadrado + F integrada -->
+        <rect x="0" y="6" width="60" height="60" fill="#f0ebe3"/>
+        <!-- Hueco de la O con cortes octogonales -->
+        <polygon points="16,20 20,16 40,16 44,20 44,52 40,56 20,56 16,52" fill="#0f0f0f"/>
+        <!-- Barra horizontal superior F -->
+        <rect x="22" y="28" width="16" height="5" fill="#f0ebe3"/>
+        <!-- Texto -->
+        <text x="76" y="47" font-family="'Playfair Display', serif" font-size="40" font-weight="900" fill="#f0ebe3" letter-spacing="-1.5">OssFlow</text>
+      </svg>
+      <span class="label">Horizontal · Dark</span>
+    </div>
+
+    <!-- Horizontal claro -->
+    <div class="logo-cell light" style="grid-column: span 2;">
+      <svg width="300" height="72" viewBox="0 0 300 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="6" width="60" height="60" fill="#1a1a1a"/>
+        <polygon points="16,20 20,16 40,16 44,20 44,52 40,56 20,56 16,52" fill="#fafaf8"/>
+        <rect x="22" y="28" width="16" height="5" fill="#1a1a1a"/>
+        <text x="76" y="47" font-family="'Playfair Display', serif" font-size="40" font-weight="900" fill="#1a1a1a" letter-spacing="-1.5">OssFlow</text>
+      </svg>
+      <span class="label">Horizontal · Light</span>
+    </div>
+
+    <!-- Favicon oscuro -->
+    <div class="logo-cell dark">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" fill="#f0ebe3"/>
+        <!-- O octogonal -->
+        <polygon points="20,10 26,4 54,4 60,10 60,70 54,76 26,76 20,70" fill="#0f0f0f"/>
+        <!-- Hueco con F -->
+        <polygon points="28,18 32,14 48,14 52,18 52,62 48,66 32,66 28,62" fill="#f0ebe3"/>
+        <!-- Barra horizontal media F -->
+        <rect x="30" y="34" width="18" height="5" fill="#0f0f0f"/>
+        <!-- Vertical F ya viene del propio hueco -->
+        <rect x="30" y="14" width="5" height="52" fill="#0f0f0f"/>
+      </svg>
+      <span class="label">Favicon · Cream bg</span>
+    </div>
+
+    <!-- Favicon negro puro -->
+    <div class="logo-cell dark" style="background:#000;">
+      <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="80" height="80" fill="#000"/>
+        <polygon points="10,10 16,4 64,4 70,10 70,70 64,76 16,76 10,70" fill="#f0ebe3"/>
+        <polygon points="20,20 26,14 54,14 60,20 60,60 54,66 26,66 20,60" fill="#000"/>
+        <rect x="28" y="34" width="22" height="5" fill="#f0ebe3"/>
+        <rect x="28" y="14" width="5" height="52" fill="#f0ebe3"/>
+      </svg>
+      <span class="label">Favicon · Pure Black</span>
+    </div>
+  </div>
+
+  <!-- Variante con acento naranja (colores de análisis) -->
+  <div style="margin-top: 2px;">
+    <div class="logo-cell dark" style="display:flex; flex-direction: row; gap: 24px; align-items:center; background:#1a1a1a; padding: 24px;">
+      <svg width="200" height="52" viewBox="0 0 200 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="2" width="48" height="48" fill="#f97316"/>
+        <polygon points="10,12 13,9 35,9 38,12 38,40 35,43 13,43 10,40" fill="#1a1a1a"/>
+        <rect x="16" y="24" width="14" height="4" fill="#f97316"/>
+        <rect x="16" y="9" width="4" height="34" fill="#f97316"/>
+        <text x="60" y="35" font-family="'Playfair Display', serif" font-size="30" font-weight="900" fill="#f0ebe3" letter-spacing="-0.5">OssFlow</text>
+      </svg>
+      <span class="label">Variante acento naranja</span>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     COMPARATIVA FAVICONS
+     ═══════════════════════════════════════════════════════ -->
+
+<p class="section-title">Comparativa de favicons a 32×32</p>
+<div style="display:flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin-bottom: 48px;">
+
+  <div style="text-align:center;">
+    <div style="width:32px; height:32px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; margin: 0 auto 6px;">
+      <svg width="28" height="28" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" fill="#f0ebe3"/><rect x="7" y="7" width="66" height="66" fill="#0f0f0f"/><rect x="16" y="16" width="48" height="48" fill="#f0ebe3"/><rect x="25" y="25" width="30" height="30" fill="#0f0f0f"/></svg>
+    </div>
+    <span style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#444; text-transform:uppercase;">A</span>
+  </div>
+
+  <div style="text-align:center;">
+    <div style="width:32px; height:32px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; margin: 0 auto 6px;">
+      <svg width="28" height="28" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" fill="#0f0f0f"/><rect x="6" y="28" width="68" height="24" fill="#f0ebe3"/><rect x="34" y="20" width="12" height="40" fill="#f0ebe3"/><rect x="37" y="23" width="6" height="34" fill="#0f0f0f"/><rect x="6" y="38" width="68" height="4" fill="#0f0f0f"/><rect x="30" y="52" width="8" height="12" fill="#f0ebe3"/><rect x="42" y="52" width="8" height="12" fill="#f0ebe3"/></svg>
+    </div>
+    <span style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#444; text-transform:uppercase;">B</span>
+  </div>
+
+  <div style="text-align:center;">
+    <div style="width:32px; height:32px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; margin: 0 auto 6px;">
+      <svg width="28" height="28" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" fill="#0f0f0f"/><rect x="10" y="10" width="60" height="60" fill="#f0ebe3"/><rect x="20" y="20" width="40" height="40" fill="#0f0f0f"/><rect x="20" y="44" width="12" height="16" fill="#f0ebe3"/><rect x="48" y="44" width="12" height="16" fill="#f0ebe3"/><rect x="30" y="20" width="20" height="24" fill="#f0ebe3"/></svg>
+    </div>
+    <span style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#444; text-transform:uppercase;">C</span>
+  </div>
+
+  <div style="text-align:center;">
+    <div style="width:32px; height:32px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; margin: 0 auto 6px;">
+      <svg width="28" height="28" viewBox="0 0 80 80" fill="none"><rect width="80" height="80" fill="#000"/><polygon points="10,10 16,4 64,4 70,10 70,70 64,76 16,76 10,70" fill="#f0ebe3"/><polygon points="20,20 26,14 54,14 60,20 60,60 54,66 26,66 20,60" fill="#000"/><rect x="28" y="34" width="22" height="5" fill="#f0ebe3"/><rect x="28" y="14" width="5" height="52" fill="#f0ebe3"/></svg>
+    </div>
+    <span style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#444; text-transform:uppercase;">D</span>
+  </div>
+
+  <div style="text-align:center; margin-left: 24px;">
+    <div style="width:32px; height:32px; background:#1a1a1a; display:flex; align-items:center; justify-content:center; margin: 0 auto 6px;">
+      <!-- Actual favicon (el rayo morado) -->
+      <svg width="24" height="23" viewBox="0 0 48 46" fill="none"><path fill="#863bff" d="M25.946 44.938c-.664.845-2.021.375-2.021-.698V33.937a2.26 2.26 0 0 0-2.262-2.262H10.287c-.92 0-1.456-1.04-.92-1.788l7.48-10.471c1.07-1.497 0-3.578-1.842-3.578H1.237c-.92 0-1.456-1.04-.92-1.788L10.013.474c.214-.297.556-.474.92-.474h28.894c.92 0 1.456 1.04.92 1.788l-7.48 10.471c-1.07 1.498 0 3.579 1.842 3.579h11.377c.943 0 1.473 1.088.89 1.83L25.947 44.94z"/></svg>
+    </div>
+    <span style="font-family:'JetBrains Mono',monospace; font-size:9px; color:#444; text-transform:uppercase;">Actual</span>
+  </div>
+</div>
+
+<p style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#333; text-transform:uppercase; letter-spacing:0.1em;">
+  Abre este archivo en el navegador · Elige la opción que más encaje · Te genero el SVG final optimizado + favicon.ico
+</p>
+
+</body>
+</html>

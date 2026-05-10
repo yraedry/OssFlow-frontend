@@ -119,7 +119,7 @@ export function ProfilePage() {
   const primaryFedName = primaryFed ? allFederations.find(f => f.id === primaryFed.federationId)?.code : null
 
   return (
-    <div className="max-w-lg space-y-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
 
       <div className="rounded-xl border border-border overflow-hidden bg-card">
 
@@ -256,7 +256,9 @@ export function ProfilePage() {
         </div>
       </div>
 
-      <InjurySection />
+      <div>
+        <InjurySection />
+      </div>
     </div>
   )
 }
