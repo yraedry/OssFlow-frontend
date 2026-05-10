@@ -14,11 +14,13 @@ type Props = {
   defaultValues?: Partial<CreatePhysicalSessionForm>
   defaultSessionType?: CreatePhysicalSessionForm['sessionType']
   submitLabel?: string
+  excludeTypes?: CreatePhysicalSessionForm['sessionType'][]
 }
 
-const SESSION_TYPES = ['STRENGTH', 'CARDIO', 'FLEXIBILITY', 'MOBILITY', 'HIIT', 'OTHER'] as const
+const ALL_SESSION_TYPES = ['STRENGTH', 'CARDIO', 'FLEXIBILITY', 'MOBILITY', 'HIIT', 'OTHER'] as const
 
-export function PhysicalSessionForm({ onSubmit, isPending, defaultValues, defaultSessionType, submitLabel }: Props) {
+export function PhysicalSessionForm({ onSubmit, isPending, defaultValues, defaultSessionType, submitLabel, excludeTypes }: Props) {
+  const SESSION_TYPES = excludeTypes ? ALL_SESSION_TYPES.filter(t => !excludeTypes.includes(t)) : ALL_SESSION_TYPES
   const { register, handleSubmit, control, formState: { errors } } = useForm<CreatePhysicalSessionForm>({
     resolver: zodResolver(createPhysicalSessionSchema),
     defaultValues: {

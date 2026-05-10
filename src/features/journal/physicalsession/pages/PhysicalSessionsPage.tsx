@@ -36,7 +36,7 @@ export function PhysicalSessionsPage() {
     await deleteMutation.mutateAsync(id)
   }
 
-  const sessions = (data?.content ?? []).filter(Boolean)
+  const sessions = (data?.content ?? []).filter(s => s.sessionType !== 'MOBILITY' && s.sessionType !== 'FLEXIBILITY')
 
   return (
     <div className="space-y-6">
@@ -57,7 +57,7 @@ export function PhysicalSessionsPage() {
             <DialogHeader>
               <DialogTitle>Nueva sesión física</DialogTitle>
             </DialogHeader>
-            <PhysicalSessionForm onSubmit={handleSubmit} isPending={createMutation.isPending} />
+            <PhysicalSessionForm onSubmit={handleSubmit} isPending={createMutation.isPending} excludeTypes={['MOBILITY', 'FLEXIBILITY']} />
           </DialogContent>
         </Dialog>
       </div>
@@ -98,6 +98,7 @@ export function PhysicalSessionsPage() {
                 notes: editSession.notes ?? undefined,
               }}
               submitLabel="Guardar cambios"
+              excludeTypes={['MOBILITY', 'FLEXIBILITY']}
             />
           )}
         </DialogContent>

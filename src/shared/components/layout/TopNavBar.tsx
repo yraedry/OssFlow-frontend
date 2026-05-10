@@ -18,10 +18,13 @@ const SUB_NAV: Record<string, { to: string; label: string }[]> = {
   diario: [
     { to: '/diario/sesiones-bjj',    label: 'Sesiones BJJ' },
     { to: '/diario/sesiones-fisicas', label: 'Sesiones físicas' },
-    { to: '/diario/movilidad',       label: 'Movilidad' },
-    { to: '/diario/flexibilidad',    label: 'Flexibilidad' },
     { to: '/diario/notas',           label: 'Notas' },
     { to: '/diario/competicion',     label: 'Competición' },
+  ],
+  'diario-fisicas': [
+    { to: '/diario/sesiones-fisicas', label: 'Físico' },
+    { to: '/diario/movilidad',        label: 'Movilidad' },
+    { to: '/diario/flexibilidad',     label: 'Flexibilidad' },
   ],
   estudio: [
     { to: '/estudio/tecnicas',    label: 'Técnicas' },
@@ -39,6 +42,8 @@ const SUB_NAV: Record<string, { to: string; label: string }[]> = {
   ],
 }
 
+const FISICAS_PATHS = ['/diario/sesiones-fisicas', '/diario/movilidad', '/diario/flexibilidad']
+
 function getSection(pathname: string): string | null {
   if (pathname === '/') return null
   if (pathname.startsWith('/diario') || pathname.startsWith('/journal') || pathname.startsWith('/competition'))
@@ -50,6 +55,10 @@ function getSection(pathname: string): string | null {
   if (pathname.startsWith('/analisis'))
     return 'analisis'
   return null
+}
+
+function isInFisicasSection(pathname: string): boolean {
+  return FISICAS_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'))
 }
 
 const MONO = {
@@ -67,6 +76,8 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
   const { pathname } = useLocation()
   const activeSection = getSection(pathname)
   const subNav = activeSection ? (SUB_NAV[activeSection] ?? []) : []
+  const showFisicasSubnav = isInFisicasSection(pathname)
+  const fisicasSubNav = SUB_NAV['diario-fisicas']
 
   useEffect(() => {
     const handler = () => setAvatar(getAvatarFromStorage())
@@ -163,7 +174,33 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
       {/* Fila 2: subnav contextual */}
       {subNav.length > 0 && (
         <div className="flex h-8 items-stretch overflow-x-auto scrollbar-none border-t border-border/50 px-4">
-          {subNav.map(({ to, label }) => (
+          {subNav.map(({ to, label }) => {
+            const isFisicasParent = to === '/diario/sesiones-fisicas' && showFisicasSubnav
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                end={to === '/diario/sesiones-fisicas' ? false : undefined}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center px-3 border-b-2 transition-colors h-full shrink-0 whitespace-nowrap',
+                    'text-muted-foreground hover:text-foreground',
+                    (isActive || isFisicasParent) ? 'border-foreground text-foreground' : 'border-transparent',
+                  )
+                }
+                style={{ ...MONO, fontSize: '11px' }}
+              >
+                {label}
+              </NavLink>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Fila 3: subnav físicas (movilidad / flexibilidad) */}
+      {showFisicasSubnav && (
+        <div className="flex h-7 items-stretch overflow-x-auto scrollbar-none border-t border-border/30 px-8 bg-muted/30">
+          {fisicasSubNav.map(({ to, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -174,7 +211,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
                   isActive ? 'border-foreground text-foreground' : 'border-transparent',
                 )
               }
-              style={{ ...MONO, fontSize: '11px' }}
+              style={{ ...MONO, fontSize: '10px' }}
             >
               {label}
             </NavLink>
