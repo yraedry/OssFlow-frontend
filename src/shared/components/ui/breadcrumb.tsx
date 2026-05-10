@@ -13,8 +13,8 @@ type Crumb = { label: string; to?: string }
 const ROUTE_MAP: { pattern: RegExp; crumbs: Crumb[] }[] = [
   { pattern: /^\/diario\/sesiones-bjj/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Diario' }, { label: 'Sesiones BJJ' }] },
   { pattern: /^\/diario\/sesiones-fisicas/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Diario' }, { label: 'Sesiones físicas' }] },
-  { pattern: /^\/diario\/movilidad/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Diario' }, { label: 'Movilidad' }] },
-  { pattern: /^\/diario\/flexibilidad/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Diario' }, { label: 'Flexibilidad' }] },
+  { pattern: /^\/diario\/movilidad/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Diario' }, { label: 'Sesiones físicas', to: '/diario/sesiones-fisicas' }, { label: 'Movilidad' }] },
+  { pattern: /^\/diario\/flexibilidad/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Diario' }, { label: 'Sesiones físicas', to: '/diario/sesiones-fisicas' }, { label: 'Flexibilidad' }] },
   { pattern: /^\/diario\/notas/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Diario' }, { label: 'Notas' }] },
   { pattern: /^\/diario\/competicion/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Diario' }, { label: 'Competición' }] },
   { pattern: /^\/estudio\/tecnicas/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Estudio' }, { label: 'Técnicas' }] },
