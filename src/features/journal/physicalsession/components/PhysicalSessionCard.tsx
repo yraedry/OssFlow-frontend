@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, Copy } from 'lucide-react'
 import type { PhysicalSession } from '../types'
 import { PHYSICAL_SESSION_TYPE_LABELS } from '../types'
 
@@ -16,11 +16,12 @@ const TYPE_COLORS: Record<string, string> = {
 type Props = {
   session: PhysicalSession
   onEdit?: (session: PhysicalSession) => void
+  onDuplicate?: (session: PhysicalSession) => void
   onDelete: (id: number) => void
   onDetail?: (session: PhysicalSession) => void
 }
 
-export function PhysicalSessionCard({ session, onEdit, onDelete, onDetail }: Props) {
+export function PhysicalSessionCard({ session, onEdit, onDuplicate, onDelete, onDetail }: Props) {
   const accent = TYPE_COLORS[session.sessionType] ?? '#6b7280'
 
   return (
@@ -40,6 +41,16 @@ export function PhysicalSessionCard({ session, onEdit, onDelete, onDetail }: Pro
             <Pencil className="h-3 w-3" strokeWidth={1.5} />
           </button>
         )}
+        {onDuplicate && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onDuplicate(session) }}
+            className="h-7 w-7 flex items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Duplicar sesión"
+          >
+            <Copy className="h-3 w-3" strokeWidth={1.5} />
+          </button>
+        )}
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onDelete(session.id) }}
@@ -50,7 +61,7 @@ export function PhysicalSessionCard({ session, onEdit, onDelete, onDetail }: Pro
         </button>
       </div>
 
-      <div className="p-4 flex flex-col gap-1.5 pr-16">
+      <div className="p-4 flex flex-col gap-1.5 pr-20">
         <span className="text-[10px] font-bold uppercase tracking-widest" style={{ ...MONO, color: accent }}>
           {PHYSICAL_SESSION_TYPE_LABELS[session.sessionType]}
         </span>

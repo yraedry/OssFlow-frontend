@@ -47,6 +47,18 @@ export function PhysicalSessionsPage() {
     await deleteMutation.mutateAsync(id)
   }
 
+  const handleDuplicate = async (session: PhysicalSession) => {
+    const today = new Date().toISOString().split('T')[0]
+    await createMutation.mutateAsync({
+      sessionDate: today,
+      sessionType: session.sessionType,
+      title: session.title,
+      durationMinutes: session.durationMinutes ?? undefined,
+      notes: session.notes ?? undefined,
+      youtubeUrl: session.youtubeUrl ?? undefined,
+    })
+  }
+
   const sessions = (data?.content ?? []).filter(s => s.sessionType !== 'MOBILITY' && s.sessionType !== 'FLEXIBILITY')
 
   return (
@@ -86,7 +98,13 @@ export function PhysicalSessionsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
           {sessions.map((s) => (
             <div key={s.id} id={`session-${s.id}`} className="self-start">
-              <PhysicalSessionCard session={s} onEdit={setEditSession} onDelete={handleDelete} onDetail={setDetailSession} />
+              <PhysicalSessionCard
+                session={s}
+                onEdit={setEditSession}
+                onDuplicate={handleDuplicate}
+                onDelete={handleDelete}
+                onDetail={setDetailSession}
+              />
             </div>
           ))}
         </div>
@@ -118,7 +136,7 @@ export function PhysicalSessionsPage() {
       <Dialog open={!!detailSession} onOpenChange={v => { if (!v) setDetailSession(null) }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="sr-only">Detalle de sesión física</DialogTitle>
+            <DialogTitle>Detalle de sesión</DialogTitle>
           </DialogHeader>
           {detailSession && (() => {
             const accent = TYPE_COLORS[detailSession.sessionType] ?? '#6b7280'

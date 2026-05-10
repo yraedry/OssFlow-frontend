@@ -145,7 +145,7 @@ export function NotesPage() {
       <Dialog open={!!detailNote} onOpenChange={v => { if (!v) setDetailNote(null) }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="sr-only">Detalle de nota</DialogTitle>
+            <DialogTitle>Detalle de nota</DialogTitle>
           </DialogHeader>
           {detailNote && (
             <div className="space-y-4 overflow-y-auto max-h-[75vh] min-w-0">
