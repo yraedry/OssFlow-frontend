@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Pencil, Building2, Calendar, Shield, Activity, Flame, BookOpen } from 'lucide-react'
+import { Pencil, Building2, Calendar, Shield } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useProfile, useCreateProfile, useUpdateProfile } from '../hooks'
 import { useFederations, useUpdateProfileFederations } from '@/features/identity/federation/hooks'
@@ -10,32 +10,46 @@ import { InjurySection } from '@/features/identity/injury/InjurySection'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
 import { fetchWeeklyStats } from '@/shared/api/dashboard'
+import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
+import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
 import type { WeeklyStats } from '@/shared/api/dashboard'
 import type { UpdateProfileForm } from '../schemas'
 import type { FederationAssignment } from '@/features/identity/federation/types'
+import { useNavigate } from 'react-router-dom'
 
-const BELT: Record<string, { label: string; bg: string; bgDark: string; text: string; stripe: string }> = {
-  WHITE:  { label: 'Blanco',  bg: '#e5e7eb', bgDark: '#9ca3af', text: '#111827', stripe: '#d1d5db' },
-  BLUE:   { label: 'Azul',    bg: '#3b82f6', bgDark: '#1d4ed8', text: '#ffffff', stripe: '#1d4ed8' },
-  PURPLE: { label: 'Morado',  bg: '#9333ea', bgDark: '#6b21a8', text: '#ffffff', stripe: '#6b21a8' },
-  BROWN:  { label: 'Marrón',  bg: '#92400e', bgDark: '#451a03', text: '#ffffff', stripe: '#78350f' },
-  BLACK:  { label: 'Negro',   bg: '#111827', bgDark: '#030712', text: '#ffffff', stripe: '#374151' },
+const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
+
+const BELT_ORDER = ['WHITE', 'BLUE', 'PURPLE', 'BROWN', 'BLACK'] as const
+const BELT: Record<string, { label: string; color: string; text: string }> = {
+  WHITE:  { label: 'Blanco',  color: '#d1d5db', text: '#111827' },
+  BLUE:   { label: 'Azul',    color: '#3b82f6', text: '#ffffff' },
+  PURPLE: { label: 'Morado',  color: '#9333ea', text: '#ffffff' },
+  BROWN:  { label: 'Marrón',  color: '#92400e', text: '#ffffff' },
+  BLACK:  { label: 'Negro',   color: '#111827', text: '#ffffff' },
 }
 
 const MODALITY: Record<string, string> = {
-  GI:   'Gi',
-  NOGI: 'No-Gi',
-  BOTH: 'Gi + No-Gi',
+  GI: 'Gi', NOGI: 'No-Gi', BOTH: 'Gi + No-Gi',
+}
+
+const INTENSITY_LABELS: Record<string, string> = {
+  LIGHT: 'Baja', MODERATE: 'Moderada', HARD: 'Alta', COMPETITION: 'Competición',
+}
+const INTENSITY_COLORS: Record<string, string> = {
+  LIGHT: '#10b981', MODERATE: '#f59e0b', HARD: '#f97316', COMPETITION: '#e11d48',
+}
+const SESSION_TYPE_COLORS: Record<string, string> = {
+  STRENGTH: '#f59e0b', CARDIO: '#10b981', FLEXIBILITY: '#a855f7',
+  MOBILITY: '#3b82f6', HIIT: '#e11d48', OTHER: '#6b7280',
+}
+const SESSION_TYPE_LABELS: Record<string, string> = {
+  STRENGTH: 'Fuerza', CARDIO: 'Cardio', FLEXIBILITY: 'Flexibilidad',
+  MOBILITY: 'Movilidad', HIIT: 'HIIT', OTHER: 'Otro',
 }
 
 function getInitials(name?: string | null) {
   if (!name) return '?'
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-}
-
-function formatDate(iso?: string | null) {
-  if (!iso) return ''
-  return new Date(iso).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' })
 }
 
 function timeAtBelt(iso?: string | null) {
@@ -48,12 +62,36 @@ function timeAtBelt(iso?: string | null) {
   return m === 0 ? `${y}a` : `${y}a ${m}m`
 }
 
-function ColorStatBox({ label, value, sub, color }: { label: string; value: string | number; sub?: string; color: string }) {
+function relativeDate(iso: string) {
+  const diff = Math.floor((Date.now() - new Date(iso + 'T00:00:00').getTime()) / 86400000)
+  if (diff === 0) return 'Hoy'
+  if (diff === 1) return 'Ayer'
+  if (diff < 7) return `Hace ${diff}d`
+  return new Date(iso + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
+}
+
+function StatBox({ label, value, goal, sub, color }: {
+  label: string; value: number | string; goal?: number; sub?: string; color: string
+}) {
+  const numVal = typeof value === 'number' ? value : 0
+  const pct = goal ? Math.min(100, Math.round((numVal / goal) * 100)) : 0
+  const exceeded = goal != null && numVal >= goal
+
   return (
-    <div className="flex flex-col gap-0.5 p-3 bg-background" style={{ borderLeft: `3px solid ${color}` }}>
-      <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
-      <span className="text-xl font-bold tabular-nums leading-none">{value}</span>
-      {sub && <span className="text-[10px] text-muted-foreground">{sub}</span>}
+    <div className="bg-card border border-border p-4 flex flex-col gap-1">
+      <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>{label}</span>
+      <div className="flex items-baseline gap-1 mt-1">
+        <span className="text-3xl font-black leading-none tabular-nums" style={{ color }}>{value}</span>
+        {goal != null && (
+          <span className="text-sm font-bold text-muted-foreground" style={MONO}>/{goal}</span>
+        )}
+      </div>
+      {sub && <span className="text-[9px] text-muted-foreground" style={MONO}>{exceeded && goal != null ? 'meta superada ✓' : sub}</span>}
+      {goal != null && (
+        <div className="h-[2px] bg-border mt-2">
+          <div className="h-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
+        </div>
+      )}
     </div>
   )
 }
@@ -65,6 +103,9 @@ export function ProfilePage() {
   const { data: allFederations = [] } = useFederations()
   const updateFederations = useUpdateProfileFederations()
   const { data: stats } = useQuery<WeeklyStats>({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
+  const { data: bjjData } = useTrainingSessions({ page: 0, size: 3 })
+  const { data: physData } = usePhysicalSessions({ page: 0, size: 3 })
+  const navigate = useNavigate()
 
   const [selectedFederations, setSelectedFederations] = useState<FederationAssignment[]>([])
   const [federationsInitialized, setFederationsInitialized] = useState(false)
@@ -97,168 +138,254 @@ export function ProfilePage() {
     return (
       <div className="max-w-lg space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Configura tu perfil</h1>
+          <h1 className="text-2xl font-black" style={{ fontFamily: 'var(--font-serif)' }}>Configura tu perfil</h1>
           <p className="text-sm text-muted-foreground mt-1">Completa tu perfil para empezar a usar OssFlow</p>
         </div>
         <section className="border border-border p-5 space-y-4">
-          <h2 className="text-sm font-semibold font-mono uppercase tracking-wider">Foto</h2>
+          <h2 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Foto</h2>
           <AvatarUpload displayName={null} />
         </section>
         <section className="border border-border p-5 space-y-4">
-          <h2 className="text-sm font-semibold font-mono uppercase tracking-wider">Información</h2>
+          <h2 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Información</h2>
           <ProfileForm profile={null} onSubmit={handleProfileSubmit} isPending={createProfile.isPending} />
         </section>
       </div>
     )
   }
 
-  const belt = BELT[profile.currentBelt.toUpperCase()] ?? { label: profile.currentBelt, bg: '#6b7280', bgDark: '#374151', text: '#fff', stripe: '#4b5563' }
+  const beltKey = profile.currentBelt.toUpperCase()
+  const belt = BELT[beltKey] ?? { label: profile.currentBelt, color: '#6b7280', text: '#fff' }
   const initials = getInitials(profile.displayName)
   const beltTime = timeAtBelt(profile.beltSince)
   const primaryFed = profile.federations?.find(f => f.isPrimary)
   const primaryFedName = primaryFed ? allFederations.find(f => f.id === primaryFed.federationId)?.code : null
-  const modalityLabel = MODALITY[profile.preferredModality?.toUpperCase?.()] ?? MODALITY[profile.preferredModality] ?? profile.preferredModality
+  const modalityLabel = MODALITY[profile.preferredModality?.toUpperCase?.()] ?? profile.preferredModality
+
+  // Mezclar y ordenar últimas sesiones de ambas fuentes por fecha desc
+  type RecentSession = { id: number; date: string; name: string; typeLabel: string; typeColor: string; duration?: number; route: string }
+  const bjjSessions: RecentSession[] = (bjjData?.content ?? []).slice(0, 3).map(s => ({
+    id: s.id,
+    date: s.sessionDate,
+    name: s.location || s.sessionDate,
+    typeLabel: `BJJ · ${INTENSITY_LABELS[s.intensity] ?? s.intensity}`,
+    typeColor: INTENSITY_COLORS[s.intensity] ?? '#6b7280',
+    duration: s.durationMinutes,
+    route: '/diario/bjj',
+  }))
+  const physSessions: RecentSession[] = (physData?.content ?? []).slice(0, 3).map(s => ({
+    id: s.id,
+    date: s.sessionDate,
+    name: s.title,
+    typeLabel: SESSION_TYPE_LABELS[s.sessionType] ?? s.sessionType,
+    typeColor: SESSION_TYPE_COLORS[s.sessionType] ?? '#6b7280',
+    duration: s.durationMinutes,
+    route: '/diario/sesiones',
+  }))
+  const recentSessions = [...bjjSessions, ...physSessions]
+    .sort((a, b) => b.date.localeCompare(a.date))
+    .slice(0, 5)
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-start">
+    <div className="space-y-2">
 
-      <div className="border border-border overflow-hidden bg-card">
-
-        {/* Banda gradiente con nombre encima */}
+      {/* ── HEADER ── */}
+      <div
+        className="bg-card border border-border flex items-center gap-5 px-6 py-5"
+        style={{ borderLeft: `4px solid ${belt.color}` }}
+      >
+        {/* Avatar */}
         <div
-          className="h-[120px] relative"
-          style={{ background: `linear-gradient(135deg, ${belt.bgDark}, ${belt.bg})` }}
+          className="flex items-center justify-center overflow-hidden flex-shrink-0 text-lg font-black"
+          style={{
+            width: 60, height: 60,
+            backgroundColor: belt.color,
+            color: belt.text,
+            fontFamily: 'var(--font-mono)',
+          }}
         >
-          <div className="absolute right-0 top-0 bottom-0 w-10 bg-black opacity-60" />
-          <div className="absolute bottom-3 left-5 right-14">
-            <p className="text-white font-black text-xl leading-tight drop-shadow-sm">{profile.displayName}</p>
-            <p className="text-white/80 text-xs font-mono mt-0.5">
-              Cinturón {belt.label} · {modalityLabel}
-            </p>
-          </div>
+          {avatar
+            ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+            : initials}
         </div>
 
-        <div className="px-5 pb-5">
-
-          {/* Avatar flotando + botón editar */}
-          <div className="flex items-center justify-between -mt-9 mb-4">
-            <div
-              className="rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
-              style={{
-                width: 72,
-                height: 72,
-                backgroundColor: belt.bg,
-                color: belt.text,
-                fontSize: 22,
-                fontWeight: 800,
-                fontFamily: 'var(--font-mono)',
-                border: '3px solid #111',
-                boxShadow: `0 0 0 3px ${belt.bg}, 0 0 0 6px #111`,
-              }}
-            >
-              {avatar
-                ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
-                : initials}
-            </div>
-
-            <Dialog open={editOpen} onOpenChange={setEditOpen}>
-              <DialogTrigger asChild>
-                <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-xs font-mono uppercase tracking-wide hover:bg-muted transition-colors">
-                  <Pencil className="h-3 w-3" strokeWidth={1.5} />
-                  Editar
-                </button>
-              </DialogTrigger>
-              <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-                <DialogHeader><DialogTitle>Editar perfil</DialogTitle></DialogHeader>
-                <div className="space-y-6 pt-2">
-                  <div>
-                    <h3 className="text-sm font-semibold mb-3">Foto</h3>
-                    <AvatarUpload displayName={profile.displayName} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold mb-3">Información</h3>
-                    <ProfileForm profile={profile} onSubmit={handleProfileSubmit} isPending={createProfile.isPending || updateProfile.isPending} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold mb-3">Federaciones</h3>
-                    <FederationSelector federations={allFederations} selected={selectedFederations} onChange={setSelectedFederations} />
-                    <button
-                      type="button"
-                      onClick={() => updateFederations.mutate(selectedFederations)}
-                      disabled={updateFederations.isPending}
-                      className="mt-3 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                    >
-                      {updateFederations.isPending ? 'Guardando...' : 'Guardar federaciones'}
-                    </button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-
-          {/* Info compacta: academia, fecha cinturón, federación */}
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground font-mono mb-5">
+        {/* Info */}
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
+            {profile.displayName}
+          </h1>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1.5" style={MONO}>
+            Cinturón {belt.label} · {modalityLabel}
+          </p>
+          <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-2">
             {profile.academy && (
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
                 <Building2 className="h-3 w-3" strokeWidth={1.5} />
                 {profile.academy}
               </span>
             )}
-            {profile.beltSince && (
-              <span className="flex items-center gap-1">
+            {beltTime && (
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
                 <Calendar className="h-3 w-3" strokeWidth={1.5} />
-                {beltTime ? `${beltTime} en cinturón` : formatDate(profile.beltSince)}
+                {beltTime} en cinturón
               </span>
             )}
             {primaryFedName && (
-              <span className="flex items-center gap-1">
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
                 <Shield className="h-3 w-3" strokeWidth={1.5} />
                 {primaryFedName}
               </span>
             )}
           </div>
+        </div>
 
-          {/* Stats 2×2 con barra de color lateral */}
-          <div className="grid grid-cols-2 gap-2">
-            <ColorStatBox
-              label="Racha"
-              value={stats?.streakDays ?? '—'}
-              sub="días"
-              color="#f97316"
-            />
-            <ColorStatBox
-              label="BJJ semana"
-              value={stats ? `${stats.bjjSessions}/${stats.bjjGoal}` : '—'}
-              sub="sesiones"
-              color="#3b82f6"
-            />
-            <ColorStatBox
-              label="Físico semana"
-              value={stats ? `${stats.physicalSessions}/${stats.physicalGoal}` : '—'}
-              sub="sesiones"
-              color="#10b981"
-            />
-            <ColorStatBox
-              label="Técnicas mes"
-              value={stats?.techniquesThisMonth ?? '—'}
-              sub="este mes"
-              color="#a855f7"
-            />
+        {/* Editar */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogTrigger asChild>
+            <button
+              className="flex items-center gap-1.5 px-3 py-2 border border-border text-[10px] font-bold uppercase tracking-wide hover:bg-muted transition-colors shrink-0 self-start"
+              style={MONO}
+            >
+              <Pencil className="h-3 w-3" strokeWidth={1.5} />
+              Editar
+            </button>
+          </DialogTrigger>
+          <DialogContent className="max-w-lg">
+            <DialogHeader><DialogTitle>Editar perfil</DialogTitle></DialogHeader>
+            <div className="space-y-6 pt-2 overflow-y-auto max-h-[75vh]">
+              <div>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3" style={MONO}>Foto</h3>
+                <AvatarUpload displayName={profile.displayName} />
+              </div>
+              <div>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3" style={MONO}>Información</h3>
+                <ProfileForm profile={profile} onSubmit={handleProfileSubmit} isPending={createProfile.isPending || updateProfile.isPending} />
+              </div>
+              <div>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3" style={MONO}>Federaciones</h3>
+                <FederationSelector federations={allFederations} selected={selectedFederations} onChange={setSelectedFederations} />
+                <button
+                  type="button"
+                  onClick={() => updateFederations.mutate(selectedFederations)}
+                  disabled={updateFederations.isPending}
+                  className="mt-3 px-4 py-2 text-xs font-bold uppercase tracking-wide bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-50"
+                  style={MONO}
+                >
+                  {updateFederations.isPending ? 'Guardando...' : 'Guardar federaciones'}
+                </button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* ── STATS ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        <StatBox
+          label="Racha"
+          value={stats?.streakDays ?? '—'}
+          sub="días consecutivos"
+          color="#f97316"
+        />
+        <StatBox
+          label="BJJ semana"
+          value={stats?.bjjSessions ?? '—'}
+          goal={stats?.bjjGoal}
+          sub="sesiones"
+          color="#3b82f6"
+        />
+        <StatBox
+          label="Físico semana"
+          value={stats?.physicalSessions ?? '—'}
+          goal={stats?.physicalGoal}
+          sub="sesiones"
+          color="#10b981"
+        />
+        <StatBox
+          label="Técnicas mes"
+          value={stats?.techniquesThisMonth ?? '—'}
+          sub="este mes"
+          color="#a855f7"
+        />
+      </div>
+
+      {/* ── COLUMNAS INFERIORES ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+
+        {/* Últimas sesiones */}
+        <div className="bg-card border border-border p-5">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Últimas sesiones</span>
+            <button
+              type="button"
+              onClick={() => navigate('/diario/bjj')}
+              className="text-[9px] text-muted-foreground hover:text-foreground transition-colors"
+              style={MONO}
+            >
+              → ver todas
+            </button>
           </div>
-
-          {/* Iconos decorativos de actividad */}
-          {stats && (
-            <div className="flex items-center gap-2 mt-3 px-1">
-              <Flame className="h-3.5 w-3.5" style={{ color: stats.streakDays > 0 ? '#f97316' : '#475569' }} strokeWidth={1.5} />
-              <Activity className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-              <BookOpen className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
+          {recentSessions.length === 0 ? (
+            <p className="text-xs text-muted-foreground text-center py-6" style={MONO}>Sin sesiones registradas aún</p>
+          ) : (
+            <div className="space-y-0">
+              {recentSessions.map((s, i) => (
+                <div
+                  key={`${s.route}-${s.id}`}
+                  className="flex items-start justify-between py-2.5 gap-3"
+                  style={{ borderBottom: i < recentSessions.length - 1 ? '1px solid var(--color-border)' : undefined }}
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold leading-snug truncate" style={{ fontFamily: 'var(--font-serif)' }}>{s.name}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-wide mt-0.5" style={{ ...MONO, color: s.typeColor }}>{s.typeLabel}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-[10px] text-muted-foreground" style={MONO}>{relativeDate(s.date)}</p>
+                    {s.duration && <p className="text-[10px] text-muted-foreground" style={MONO}>{s.duration} min</p>}
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
-      </div>
 
-      <div>
-        <InjurySection />
+        {/* Lesiones + progresión cinturón */}
+        <div className="bg-card border border-border p-5 space-y-5">
+          <InjurySection />
+
+          {/* Barra de progresión de cinturón */}
+          <div>
+            <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-3" style={MONO}>Progresión cinturón</p>
+            <div className="flex gap-1">
+              {BELT_ORDER.map((b) => {
+                const isActive = b === beltKey
+                const isPast = BELT_ORDER.indexOf(b) < BELT_ORDER.indexOf(beltKey as typeof BELT_ORDER[number])
+                return (
+                  <div key={b} className="flex-1 space-y-1">
+                    <div
+                      className="h-2.5 w-full"
+                      style={{
+                        backgroundColor: isActive || isPast ? BELT[b].color : 'transparent',
+                        border: isActive || isPast ? 'none' : '1px dashed var(--color-border)',
+                        opacity: isPast ? 0.5 : 1,
+                      }}
+                    />
+                    <p
+                      className="text-[8px] text-center truncate"
+                      style={{
+                        ...MONO,
+                        color: isActive ? BELT[b].color : 'var(--color-muted-foreground)',
+                        fontWeight: isActive ? 700 : 400,
+                      }}
+                    >
+                      {BELT[b].label}{isActive ? ' ●' : ''}
+                    </p>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   )
