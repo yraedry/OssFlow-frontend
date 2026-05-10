@@ -29,7 +29,7 @@ function formatDate(iso: string) {
   try { return format(new Date(iso + 'T00:00:00'), "d MMM yyyy", { locale: es }) } catch { return iso }
 }
 
-function SessionDetailDialog({ session, onClose }: { session: TrainingSession; onClose: () => void }) {
+function SessionDetailDialog({ session }: { session: TrainingSession }) {
   const [selectedId, setSelectedId] = useState('')
   const [notes, setNotes] = useState('')
 
@@ -429,7 +429,7 @@ export function TrainingSessionsPage() {
             <DialogTitle>Detalle de sesión</DialogTitle>
           </DialogHeader>
           {detailSession && (
-            <SessionDetailDialog session={detailSession} onClose={() => setDetailSession(null)} />
+            <SessionDetailDialog session={detailSession} />
           )}
         </DialogContent>
       </Dialog>
