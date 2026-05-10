@@ -1,20 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Pencil, Building2, Calendar, Shield } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
-import { useProfile, useCreateProfile, useUpdateProfile } from '../hooks'
-import { useFederations, useUpdateProfileFederations } from '@/features/identity/federation/hooks'
-import { ProfileForm } from '../components/ProfileForm'
-import { AvatarUpload } from '../components/AvatarUpload'
-import { FederationSelector } from '@/features/identity/federation/components/FederationSelector'
+import { useProfile } from '../hooks'
+import { useFederations } from '@/features/identity/federation/hooks'
 import { InjurySection } from '@/features/identity/injury/InjurySection'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
 import { fetchWeeklyStats } from '@/shared/api/dashboard'
 import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
 import type { WeeklyStats } from '@/shared/api/dashboard'
-import type { UpdateProfileForm } from '../schemas'
-import type { FederationAssignment } from '@/features/identity/federation/types'
 import { useNavigate } from 'react-router-dom'
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
@@ -98,18 +92,12 @@ function StatBox({ label, value, goal, sub, color }: {
 
 export function ProfilePage() {
   const { data: profile, isLoading } = useProfile()
-  const createProfile = useCreateProfile()
-  const updateProfile = useUpdateProfile()
   const { data: allFederations = [] } = useFederations()
-  const updateFederations = useUpdateProfileFederations()
   const { data: stats } = useQuery<WeeklyStats>({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
   const { data: bjjData } = useTrainingSessions({ page: 0, size: 3 })
   const { data: physData } = usePhysicalSessions({ page: 0, size: 3 })
   const navigate = useNavigate()
 
-  const [selectedFederations, setSelectedFederations] = useState<FederationAssignment[]>([])
-  const [federationsInitialized, setFederationsInitialized] = useState(false)
-  const [editOpen, setEditOpen] = useState(false)
   const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
 
   useEffect(() => {
@@ -118,37 +106,20 @@ export function ProfilePage() {
     return () => window.removeEventListener('ossflow_avatar_changed', handler)
   }, [])
 
-  if (profile?.federations?.length && !federationsInitialized) {
-    setSelectedFederations(profile.federations.map(f => ({ federationId: f.federationId, isPrimary: f.isPrimary })))
-    setFederationsInitialized(true)
-  }
-
-  function handleProfileSubmit(data: UpdateProfileForm) {
-    const payload = { displayName: data.displayName, currentBelt: data.currentBelt, preferredModality: data.preferredModality, academy: data.academy || undefined }
-    if (profile) {
-      updateProfile.mutate(payload, { onSuccess: () => setEditOpen(false) })
-    } else {
-      createProfile.mutate(payload, { onSuccess: () => setEditOpen(false) })
-    }
-  }
-
   if (isLoading) return <div className="text-sm text-muted-foreground p-4">Cargando...</div>
 
   if (!profile) {
     return (
-      <div className="max-w-lg space-y-6">
-        <div>
-          <h1 className="text-2xl font-black" style={{ fontFamily: 'var(--font-serif)' }}>Configura tu perfil</h1>
-          <p className="text-sm text-muted-foreground mt-1">Completa tu perfil para empezar a usar OssFlow</p>
-        </div>
-        <section className="border border-border p-5 space-y-4">
-          <h2 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Foto</h2>
-          <AvatarUpload displayName={null} />
-        </section>
-        <section className="border border-border p-5 space-y-4">
-          <h2 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Información</h2>
-          <ProfileForm profile={null} onSubmit={handleProfileSubmit} isPending={createProfile.isPending} />
-        </section>
+      <div className="text-center py-16 space-y-4">
+        <p className="text-muted-foreground">No tienes perfil configurado todavía.</p>
+        <button
+          type="button"
+          onClick={() => navigate('/profile/edit')}
+          className="px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity"
+          style={MONO}
+        >
+          Crear perfil
+        </button>
       </div>
     )
   }
@@ -161,7 +132,6 @@ export function ProfilePage() {
   const primaryFedName = primaryFed ? allFederations.find(f => f.id === primaryFed.federationId)?.code : null
   const modalityLabel = MODALITY[profile.preferredModality?.toUpperCase?.()] ?? profile.preferredModality
 
-  // Mezclar y ordenar últimas sesiones de ambas fuentes por fecha desc
   type RecentSession = { id: number; date: string; name: string; typeLabel: string; typeColor: string; duration?: number; route: string }
   const bjjSessions: RecentSession[] = (bjjData?.content ?? []).slice(0, 3).map(s => ({
     id: s.id,
@@ -239,43 +209,15 @@ export function ProfilePage() {
         </div>
 
         {/* Editar */}
-        <Dialog open={editOpen} onOpenChange={setEditOpen}>
-          <DialogTrigger asChild>
-            <button
-              className="flex items-center gap-1.5 px-3 py-2 border border-border text-[10px] font-bold uppercase tracking-wide hover:bg-muted transition-colors shrink-0 self-start"
-              style={MONO}
-            >
-              <Pencil className="h-3 w-3" strokeWidth={1.5} />
-              Editar
-            </button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>Editar perfil</DialogTitle></DialogHeader>
-            <div className="space-y-6 pt-2 overflow-y-auto max-h-[75vh]">
-              <div>
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3" style={MONO}>Foto</h3>
-                <AvatarUpload displayName={profile.displayName} />
-              </div>
-              <div>
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3" style={MONO}>Información</h3>
-                <ProfileForm profile={profile} onSubmit={handleProfileSubmit} isPending={createProfile.isPending || updateProfile.isPending} />
-              </div>
-              <div>
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3" style={MONO}>Federaciones</h3>
-                <FederationSelector federations={allFederations} selected={selectedFederations} onChange={setSelectedFederations} />
-                <button
-                  type="button"
-                  onClick={() => updateFederations.mutate(selectedFederations)}
-                  disabled={updateFederations.isPending}
-                  className="mt-3 px-4 py-2 text-xs font-bold uppercase tracking-wide bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-50"
-                  style={MONO}
-                >
-                  {updateFederations.isPending ? 'Guardando...' : 'Guardar federaciones'}
-                </button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        <button
+          type="button"
+          onClick={() => navigate('/profile/edit')}
+          className="flex items-center gap-1.5 px-3 py-2 border border-border text-[10px] font-bold uppercase tracking-wide hover:bg-muted transition-colors shrink-0 self-start"
+          style={MONO}
+        >
+          <Pencil className="h-3 w-3" strokeWidth={1.5} />
+          Editar
+        </button>
       </div>
 
       {/* ── STATS ── */}
