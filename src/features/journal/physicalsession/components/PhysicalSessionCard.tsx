@@ -1,59 +1,67 @@
-import { Trash2 } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
+import { Pencil, Trash2 } from 'lucide-react'
 import type { PhysicalSession } from '../types'
 import { PHYSICAL_SESSION_TYPE_LABELS } from '../types'
 
+const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
+
+const TYPE_COLORS: Record<string, string> = {
+  STRENGTH: '#f59e0b',
+  CARDIO: '#10b981',
+  FLEXIBILITY: '#a855f7',
+  MOBILITY: '#3b82f6',
+  HIIT: '#e11d48',
+  OTHER: '#6b7280',
+}
+
 type Props = {
   session: PhysicalSession
+  onEdit: (session: PhysicalSession) => void
   onDelete: (id: number) => void
 }
 
-export function PhysicalSessionCard({ session, onDelete }: Props) {
+export function PhysicalSessionCard({ session, onEdit, onDelete }: Props) {
+  const accent = TYPE_COLORS[session.sessionType] ?? '#6b7280'
+
   return (
-    <div className="border border-border p-4 flex flex-col gap-2">
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2 flex-wrap">
-          <span
-            className="border border-muted-foreground px-1.5 py-0.5 text-muted-foreground"
-            style={{ fontFamily: 'var(--font-mono)', fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.06em' }}
-          >
-            {PHYSICAL_SESSION_TYPE_LABELS[session.sessionType]}
-          </span>
-          <span
-            className="text-sm font-medium text-foreground"
-            style={{ fontFamily: 'var(--font-serif)' }}
-          >
-            {session.title}
-          </span>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
+    <div
+      className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors"
+      style={{ borderLeft: `3px solid ${accent}` }}
+    >
+      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex gap-1">
+        <button
+          type="button"
+          onClick={() => onEdit(session)}
+          className="h-7 w-7 flex items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground transition-colors"
+          aria-label="Editar sesión"
+        >
+          <Pencil className="h-3 w-3" strokeWidth={1.5} />
+        </button>
+        <button
+          type="button"
           onClick={() => onDelete(session.id)}
-          className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
+          className="h-7 w-7 flex items-center justify-center border border-destructive/50 bg-background text-destructive hover:bg-destructive/10 transition-colors"
           aria-label="Eliminar sesión"
         >
-          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-        </Button>
+          <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+        </button>
       </div>
-      <div className="flex gap-3 text-xs text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
+
+      <div className="p-4 flex flex-col gap-1.5 flex-1 pr-16">
+        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ ...MONO, color: accent }}>
+          {PHYSICAL_SESSION_TYPE_LABELS[session.sessionType]}
+        </span>
+        <p className="text-sm font-semibold leading-snug" style={{ fontFamily: 'var(--font-serif)' }}>
+          {session.title}
+        </p>
+        {session.notes && (
+          <p className="text-xs text-muted-foreground line-clamp-2">{session.notes}</p>
+        )}
+      </div>
+
+      <div className="flex items-center gap-3 px-4 py-2 border-t border-border/50 text-[10px] text-muted-foreground" style={MONO}>
         <span>{session.sessionDate}</span>
         {session.durationMinutes && <span>{session.durationMinutes} min</span>}
       </div>
-      {session.youtubeUrl && (
-        <a
-          href={session.youtubeUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors underline"
-          style={{ fontFamily: 'var(--font-mono)' }}
-        >
-          Ver en YouTube →
-        </a>
-      )}
-      {session.notes && (
-        <p className="text-xs text-muted-foreground line-clamp-2">{session.notes}</p>
-      )}
     </div>
   )
 }

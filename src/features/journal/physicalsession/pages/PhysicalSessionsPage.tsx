@@ -6,19 +6,28 @@ import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { PhysicalSessionCard } from '../components/PhysicalSessionCard'
 import { PhysicalSessionForm } from '../components/PhysicalSessionForm'
-import { usePhysicalSessions, useCreatePhysicalSession, useDeletePhysicalSession } from '../hooks'
+import { usePhysicalSessions, useCreatePhysicalSession, useUpdatePhysicalSession, useDeletePhysicalSession } from '../hooks'
 import type { CreatePhysicalSessionForm } from '../schemas'
+import type { PhysicalSession } from '../types'
 
 export function PhysicalSessionsPage() {
   const [open, setOpen] = useState(false)
+  const [editSession, setEditSession] = useState<PhysicalSession | null>(null)
   const { data, isLoading, error } = usePhysicalSessions()
   const createMutation = useCreatePhysicalSession()
+  const updateMutation = useUpdatePhysicalSession()
   const deleteMutation = useDeletePhysicalSession()
   const confirm = useConfirm()
 
   const handleSubmit = async (formData: CreatePhysicalSessionForm) => {
     await createMutation.mutateAsync(formData)
     setOpen(false)
+  }
+
+  const handleUpdate = async (formData: CreatePhysicalSessionForm) => {
+    if (!editSession) return
+    await updateMutation.mutateAsync({ id: editSession.id, data: formData })
+    setEditSession(null)
   }
 
   const handleDelete = async (id: number) => {
@@ -66,11 +75,33 @@ export function PhysicalSessionsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {sessions.map((s) => (
             <div key={s.id} id={`session-${s.id}`}>
-              <PhysicalSessionCard session={s} onDelete={handleDelete} />
+              <PhysicalSessionCard session={s} onEdit={setEditSession} onDelete={handleDelete} />
             </div>
           ))}
         </div>
       )}
+
+      <Dialog open={!!editSession} onOpenChange={v => { if (!v) setEditSession(null) }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Editar sesión física</DialogTitle>
+          </DialogHeader>
+          {editSession && (
+            <PhysicalSessionForm
+              onSubmit={handleUpdate}
+              isPending={updateMutation.isPending}
+              defaultValues={{
+                sessionDate: editSession.sessionDate,
+                sessionType: editSession.sessionType,
+                title: editSession.title,
+                durationMinutes: editSession.durationMinutes ?? undefined,
+                notes: editSession.notes ?? undefined,
+              }}
+              submitLabel="Guardar cambios"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

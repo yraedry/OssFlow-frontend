@@ -25,6 +25,19 @@ export function useCreatePhysicalSession() {
   })
 }
 
+export function useUpdatePhysicalSession() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: CreatePhysicalSessionRequest }) =>
+      physicalSessionApi.update(id, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: PHYSICAL_SESSIONS_KEY })
+      toast.success('Sesión actualizada')
+    },
+    onError: () => toast.error('Error al actualizar la sesión'),
+  })
+}
+
 export function useDeletePhysicalSession() {
   const qc = useQueryClient()
   return useMutation({

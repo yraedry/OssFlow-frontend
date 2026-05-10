@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, Trash2, BookOpen, X, ChevronDown, ChevronUp, Play } from 'lucide-react'
+import { Plus, Trash2, BookOpen, X, ChevronDown, ChevronUp, Play, Pencil } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { PaginationControls } from '@/shared/components/ui/pagination-controls'
 import { useTrainingSessions, useCreateTrainingSession, useDeleteTrainingSession, useUpsertWorkedTechnique, useRemoveWorkedTechnique } from '../hooks'
 import { useTechniques } from '@/features/catalog/technique/hooks'
+import { useUpdateTrainingSession } from '../hooks'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import type { Intensity, TrainingSession, TrainingSessionWithVideo } from '../types'
@@ -30,7 +31,6 @@ function formatDate(iso: string) {
 function TechniquesPanelInCard({ session }: { session: TrainingSession }) {
   const [open, setOpen] = useState(false)
   const [selectedId, setSelectedId] = useState('')
-  const [repCount, setRepCount] = useState('')
   const [notes, setNotes] = useState('')
 
   const { data: techniquesData } = useTechniques({ size: 200 })
@@ -41,8 +41,8 @@ function TechniquesPanelInCard({ session }: { session: TrainingSession }) {
 
   const handleAdd = async () => {
     if (!selectedId) return
-    await upsert.mutateAsync({ techniqueId: Number(selectedId), data: { repCount: repCount ? Number(repCount) : undefined, notesMarkdown: notes || undefined } })
-    setSelectedId(''); setRepCount(''); setNotes('')
+    await upsert.mutateAsync({ techniqueId: Number(selectedId), data: { notesMarkdown: notes || undefined } })
+    setSelectedId(''); setNotes('')
   }
 
   return (
@@ -69,15 +69,14 @@ function TechniquesPanelInCard({ session }: { session: TrainingSession }) {
                 const name = wt.techniqueName ?? techniques.find(t => t.id === wt.techniqueId)?.name ?? `#${wt.techniqueId}`
                 return (
                   <li key={wt.techniqueId} className="flex items-center justify-between border border-border bg-muted/20 px-2.5 py-1.5">
-                    <div>
+                    <div className="min-w-0">
                       <span className="text-xs font-medium">{name}</span>
-                      <span className="text-[10px] text-muted-foreground ml-2" style={MONO}>
-                        {wt.repCount != null ? `${wt.repCount} reps` : ''}
-                        {wt.notesMarkdown ? ` · ${wt.notesMarkdown}` : ''}
-                      </span>
+                      {wt.notesMarkdown && (
+                        <span className="text-[10px] text-muted-foreground ml-2" style={MONO}>· {wt.notesMarkdown}</span>
+                      )}
                     </div>
                     <button type="button" onClick={() => remove.mutate(wt.techniqueId)} disabled={remove.isPending}
-                      className="text-muted-foreground hover:text-destructive transition-colors ml-2">
+                      className="text-muted-foreground hover:text-destructive transition-colors ml-2 shrink-0">
                       <X className="h-3 w-3" />
                     </button>
                   </li>
@@ -94,12 +93,10 @@ function TechniquesPanelInCard({ session }: { session: TrainingSession }) {
               {techniques.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
             <div className="flex gap-2">
-              <input type="number" min={0} value={repCount} onChange={e => setRepCount(e.target.value)}
-                placeholder="Reps" className="w-16 border border-border bg-background px-2 py-1 text-xs focus:outline-none" style={MONO} />
               <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
                 placeholder="Notas (opcional)" className="flex-1 border border-border bg-background px-2 py-1 text-xs focus:outline-none" style={MONO} />
               <button type="button" onClick={handleAdd} disabled={!selectedId || upsert.isPending}
-                className="flex items-center gap-1 border border-border px-2.5 py-1 text-[10px] uppercase tracking-wide hover:bg-accent transition-colors disabled:opacity-40"
+                className="flex items-center gap-1 px-2.5 py-1 text-[10px] uppercase tracking-wide bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-40"
                 style={MONO}
               >
                 <Plus className="h-2.5 w-2.5" />
@@ -113,31 +110,30 @@ function TechniquesPanelInCard({ session }: { session: TrainingSession }) {
   )
 }
 
-function CreateBjjForm({ onCreated }: { onCreated: (session: TrainingSession) => void }) {
-  const createMutation = useCreateTrainingSession()
+function SessionForm({
+  defaultValues,
+  onSubmit,
+  isPending,
+  submitLabel,
+}: {
+  defaultValues?: Partial<TrainingSession>
+  onSubmit: (data: { sessionDate: string; durationMinutes: number; intensity: Intensity; location: string; notes: string; youtubeUrl: string }) => void
+  isPending?: boolean
+  submitLabel: string
+}) {
   const today = new Date().toISOString().split('T')[0]
-
-  const [sessionDate, setSessionDate] = useState(today)
-  const [durationMinutes, setDurationMinutes] = useState(90)
-  const [intensity, setIntensity] = useState<Intensity>('MODERATE')
-  const [location, setLocation] = useState('')
-  const [notes, setNotes] = useState('')
-  const [youtubeUrl, setYoutubeUrl] = useState('')
+  const [sessionDate, setSessionDate] = useState(defaultValues?.sessionDate ?? today)
+  const [durationMinutes, setDurationMinutes] = useState(defaultValues?.durationMinutes ?? 90)
+  const [intensity, setIntensity] = useState<Intensity>((defaultValues?.intensity as Intensity) ?? 'MODERATE')
+  const [location, setLocation] = useState(defaultValues?.location ?? '')
+  const [notes, setNotes] = useState(defaultValues?.notesMarkdown ?? '')
+  const [youtubeUrl, setYoutubeUrl] = useState((defaultValues as TrainingSessionWithVideo)?.youtubeUrl ?? '')
 
   const intensities: Intensity[] = ['LIGHT', 'MODERATE', 'HARD', 'COMPETITION']
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    const session = await createMutation.mutateAsync({
-      sessionDate,
-      durationMinutes: Number(durationMinutes),
-      intensity,
-      sessionType: 'BJJ',
-      location: location || undefined,
-      notesMarkdown: notes || undefined,
-      youtubeUrl: youtubeUrl || undefined,
-    } as Parameters<typeof createMutation.mutateAsync>[0])
-    onCreated(session)
+    onSubmit({ sessionDate, durationMinutes: Number(durationMinutes), intensity, location, notes, youtubeUrl })
   }
 
   return (
@@ -195,11 +191,11 @@ function CreateBjjForm({ onCreated }: { onCreated: (session: TrainingSession) =>
           className={INPUT_CLASS} style={MONO} />
       </div>
 
-      <button type="submit" disabled={createMutation.isPending}
+      <button type="submit" disabled={isPending}
         className="w-full py-2.5 bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-50"
         style={{ ...MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}
       >
-        {createMutation.isPending ? 'Creando...' : 'Crear sesión'}
+        {isPending ? 'Guardando...' : submitLabel}
       </button>
     </form>
   )
@@ -207,7 +203,6 @@ function CreateBjjForm({ onCreated }: { onCreated: (session: TrainingSession) =>
 
 function AddTechniquesStep({ session, onDone }: { session: TrainingSession; onDone: () => void }) {
   const [selectedId, setSelectedId] = useState('')
-  const [repCount, setRepCount] = useState('')
   const [notes, setNotes] = useState('')
   const [worked, setWorked] = useState<TrainingSession['workedTechniques']>(session.workedTechniques ?? [])
 
@@ -218,11 +213,10 @@ function AddTechniquesStep({ session, onDone }: { session: TrainingSession; onDo
 
   const handleAdd = async () => {
     if (!selectedId) return
-    const wt = await upsert.mutateAsync({ techniqueId: Number(selectedId), data: { repCount: repCount ? Number(repCount) : undefined, notesMarkdown: notes || undefined } })
+    await upsert.mutateAsync({ techniqueId: Number(selectedId), data: { notesMarkdown: notes || undefined } })
     const tech = techniques.find(t => t.id === Number(selectedId))
-    setWorked(prev => [...prev.filter(w => w.techniqueId !== Number(selectedId)), { trainingSessionId: session.id, techniqueId: Number(selectedId), techniqueName: tech?.name, repCount: repCount ? Number(repCount) : undefined, notesMarkdown: notes || undefined }])
-    setSelectedId(''); setRepCount(''); setNotes('')
-    return wt
+    setWorked(prev => [...prev.filter(w => w.techniqueId !== Number(selectedId)), { trainingSessionId: session.id, techniqueId: Number(selectedId), techniqueName: tech?.name, notesMarkdown: notes || undefined }])
+    setSelectedId(''); setNotes('')
   }
 
   const handleRemove = async (techniqueId: number) => {
@@ -240,13 +234,12 @@ function AddTechniquesStep({ session, onDone }: { session: TrainingSession; onDo
             const name = wt.techniqueName ?? techniques.find(t => t.id === wt.techniqueId)?.name ?? `#${wt.techniqueId}`
             return (
               <li key={wt.techniqueId} className="flex items-center justify-between border border-border bg-muted/20 px-3 py-2">
-                <div>
+                <div className="min-w-0">
                   <span className="text-xs font-medium">{name}</span>
-                  {wt.repCount != null && <span className="text-[10px] text-muted-foreground ml-2" style={MONO}>{wt.repCount} reps</span>}
                   {wt.notesMarkdown && <span className="text-[10px] text-muted-foreground ml-1" style={MONO}>· {wt.notesMarkdown}</span>}
                 </div>
                 <button type="button" onClick={() => handleRemove(wt.techniqueId)} disabled={remove.isPending}
-                  className="text-muted-foreground hover:text-destructive transition-colors">
+                  className="text-muted-foreground hover:text-destructive transition-colors shrink-0 ml-2">
                   <X className="h-3.5 w-3.5" />
                 </button>
               </li>
@@ -264,12 +257,10 @@ function AddTechniquesStep({ session, onDone }: { session: TrainingSession; onDo
           {techniques.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
         </select>
         <div className="flex gap-2">
-          <input type="number" min={0} value={repCount} onChange={e => setRepCount(e.target.value)}
-            placeholder="Reps" className="w-20 border border-border bg-background px-2.5 py-1.5 text-xs focus:outline-none" style={MONO} />
           <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
             placeholder="Notas (opcional)" className="flex-1 border border-border bg-background px-2.5 py-1.5 text-xs focus:outline-none" style={MONO} />
           <button type="button" onClick={handleAdd} disabled={!selectedId || upsert.isPending}
-            className="flex items-center gap-1 border border-border px-3 py-1.5 text-[10px] uppercase tracking-wide hover:bg-accent transition-colors disabled:opacity-40"
+            className="flex items-center gap-1 px-3 py-1.5 text-[10px] uppercase tracking-wide bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-40"
             style={MONO}
           >
             <Plus className="h-3 w-3" />
@@ -291,8 +282,11 @@ function AddTechniquesStep({ session, onDone }: { session: TrainingSession; onDo
 export function TrainingSessionsPage() {
   const [open, setOpen] = useState(false)
   const [createdSession, setCreatedSession] = useState<TrainingSession | null>(null)
+  const [editSession, setEditSession] = useState<TrainingSession | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
   const { data, isLoading, error } = useTrainingSessions({ page: currentPage, size: 20 })
+  const createMutation = useCreateTrainingSession()
+  const updateMutation = useUpdateTrainingSession()
   const deleteMutation = useDeleteTrainingSession()
   const confirm = useConfirm()
 
@@ -301,13 +295,34 @@ export function TrainingSessionsPage() {
     if (!v) setCreatedSession(null)
   }
 
-  const handleCreated = (session: TrainingSession) => {
+  const handleCreate = async (formData: { sessionDate: string; durationMinutes: number; intensity: Intensity; location: string; notes: string; youtubeUrl: string }) => {
+    const session = await createMutation.mutateAsync({
+      sessionDate: formData.sessionDate,
+      durationMinutes: formData.durationMinutes,
+      intensity: formData.intensity,
+      sessionType: 'BJJ',
+      location: formData.location || undefined,
+      notesMarkdown: formData.notes || undefined,
+      youtubeUrl: formData.youtubeUrl || undefined,
+    } as Parameters<typeof createMutation.mutateAsync>[0])
     setCreatedSession(session)
   }
 
-  const handleDone = () => {
-    setOpen(false)
-    setCreatedSession(null)
+  const handleUpdate = async (formData: { sessionDate: string; durationMinutes: number; intensity: Intensity; location: string; notes: string; youtubeUrl: string }) => {
+    if (!editSession) return
+    await updateMutation.mutateAsync({
+      id: editSession.id,
+      data: {
+        sessionDate: formData.sessionDate,
+        durationMinutes: formData.durationMinutes,
+        intensity: formData.intensity,
+        sessionType: 'BJJ',
+        location: formData.location || undefined,
+        notesMarkdown: formData.notes || undefined,
+        youtubeUrl: formData.youtubeUrl || undefined,
+      } as Parameters<typeof createMutation.mutateAsync>[0],
+    })
+    setEditSession(null)
   }
 
   const handleDelete = async (id: number) => {
@@ -344,12 +359,29 @@ export function TrainingSessionsPage() {
               </DialogTitle>
             </DialogHeader>
             {createdSession
-              ? <AddTechniquesStep session={createdSession} onDone={handleDone} />
-              : <CreateBjjForm onCreated={handleCreated} />
+              ? <AddTechniquesStep session={createdSession} onDone={() => { setOpen(false); setCreatedSession(null) }} />
+              : <SessionForm onSubmit={handleCreate} isPending={createMutation.isPending} submitLabel="Crear sesión" />
             }
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Dialog de edición */}
+      <Dialog open={!!editSession} onOpenChange={v => { if (!v) setEditSession(null) }}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar sesión BJJ</DialogTitle>
+          </DialogHeader>
+          {editSession && (
+            <SessionForm
+              defaultValues={editSession}
+              onSubmit={handleUpdate}
+              isPending={updateMutation.isPending}
+              submitLabel="Guardar cambios"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {isLoading ? (
         <div className="flex justify-center py-12"><Spinner /></div>
@@ -371,7 +403,11 @@ export function TrainingSessionsPage() {
                   className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors"
                   style={{ borderLeft: `3px solid ${accent}` }}
                 >
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex gap-1">
+                    <button type="button" aria-label="Editar sesión" onClick={() => setEditSession(s)}
+                      className="h-7 w-7 flex items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground transition-colors">
+                      <Pencil className="h-3 w-3" strokeWidth={1.5} />
+                    </button>
                     <button type="button" aria-label="Eliminar sesión" onClick={() => handleDelete(s.id)}
                       className="h-7 w-7 flex items-center justify-center border border-destructive/50 bg-background text-destructive hover:bg-destructive/10 transition-colors">
                       <Trash2 className="h-3 w-3" strokeWidth={1.5} />
@@ -382,7 +418,7 @@ export function TrainingSessionsPage() {
                     <span className="text-[10px] font-bold uppercase tracking-widest" style={{ ...MONO, color: accent }}>
                       {INTENSITY_LABELS[s.intensity]}
                     </span>
-                    <p className="text-sm font-semibold leading-snug pr-8">
+                    <p className="text-sm font-semibold leading-snug pr-16">
                       {formatDate(s.sessionDate)}
                     </p>
                     {s.notesMarkdown && (
