@@ -1,6 +1,6 @@
 // src/shared/components/ui/fab-menu.tsx
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { Plus, X, Dumbbell, Zap, BookOpen, FileText, CalendarPlus } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
@@ -12,9 +12,20 @@ const ACTIONS = [
   { label: 'Programar', icon: CalendarPlus, to: '/planificacion/planes?new=1' },
 ] as const
 
+const SUB_PATHS = ['/diario', '/estudio', '/planificacion', '/journal', '/competition', '/catalog', '/physical', '/planning']
+
 export function FabMenu() {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
+  const { pathname } = useLocation()
+
+  const hasSubNav = SUB_PATHS.some(p => pathname.startsWith(p))
+  const fabBottom = hasSubNav
+    ? 'calc(env(safe-area-inset-bottom, 0px) + 96px)'
+    : 'calc(env(safe-area-inset-bottom, 0px) + 64px)'
+  const menuBottom = hasSubNav
+    ? 'calc(env(safe-area-inset-bottom, 0px) + 112px)'
+    : 'calc(env(safe-area-inset-bottom, 0px) + 80px)'
 
   const handleAction = (to: string) => {
     setOpen(false)
@@ -32,8 +43,8 @@ export function FabMenu() {
 
       {open && (
         <div
-          className="fixed bottom-[80px] right-4 z-50 w-56 border border-border bg-background"
-          style={{ fontFamily: 'var(--font-mono)' }}
+          className="fixed right-4 z-50 w-56 border border-border bg-background"
+          style={{ fontFamily: 'var(--font-mono)', bottom: menuBottom }}
         >
           {ACTIONS.map(({ label, icon: Icon, to }) => (
             <button
@@ -50,7 +61,7 @@ export function FabMenu() {
 
       <div
         className="fixed right-4 z-50"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }}
+        style={{ bottom: fabBottom }}
       >
         <button
           onClick={() => setOpen((v) => !v)}

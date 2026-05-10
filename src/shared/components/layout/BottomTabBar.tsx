@@ -66,11 +66,15 @@ export function BottomTabBar() {
   const activeTab = getActiveTab(pathname)
   const section = getSection(pathname)
   const subNav = SUB_NAV[section] ?? []
+  const hasSubNav = subNav.length > 0
 
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      style={{
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        '--bottom-bar-height': hasSubNav ? '88px' : '56px',
+      } as React.CSSProperties}
     >
       {subNav.length > 0 && (
         <div className="border-t border-border/50 flex overflow-x-auto scrollbar-none">
