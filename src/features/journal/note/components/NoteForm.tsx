@@ -80,9 +80,9 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
         )}
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full">
+      <button type="submit" disabled={isPending} className="w-full py-2.5 bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-50" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
         {isPending ? 'Guardando...' : defaultValues ? 'Actualizar' : 'Crear nota'}
-      </Button>
+      </button>
     </form>
   )
 }

@@ -6,7 +6,7 @@ export const createExerciseSchema = z.object({
   category: z.enum(['STRENGTH', 'CARDIO', 'FLEXIBILITY', 'CORE', 'MOBILITY', 'OTHER']),
   equipment: z.enum(['NO_EQUIPMENT', 'HOME', 'GYM']),
   youtubeUrl: z.string().url('URL no válida').optional().or(z.literal('')),
-  visibility: z.enum(['PUBLIC', 'PRIVATE']),
+  visibility: z.enum(['PUBLIC', 'PRIVATE']).optional(),
 })
 
 export type CreateExerciseForm = z.infer<typeof createExerciseSchema>

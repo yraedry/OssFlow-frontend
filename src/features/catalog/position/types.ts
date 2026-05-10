@@ -12,7 +12,7 @@ export interface Position {
 export interface CreatePositionRequest {
   name: string
   type: Position['type']
-  visibility: Position['visibility']
+  visibility?: Position['visibility']
   description?: string
   youtubeUrl?: string
 }

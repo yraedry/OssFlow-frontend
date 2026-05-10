@@ -4,7 +4,6 @@ import type { System } from '../types'
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
-const LABEL: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '9px', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }
 
 type SystemCardProps = {
   system: System
@@ -51,13 +50,10 @@ export function SystemCard({ system, onEdit, onDelete }: SystemCardProps) {
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-1 border-t border-border">
-          <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>
-            {system.visibility === 'PUBLIC' ? 'Público' : 'Privado'}
-          </span>
+        <div className="flex items-center justify-end pt-1 border-t border-border">
           <Link
             to={`/estudio/sistemas/${system.id}/edit`}
-            className="flex items-center gap-1.5 text-xs hover:text-foreground text-muted-foreground transition-colors"
+            className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide hover:text-foreground text-muted-foreground transition-colors"
             style={MONO}
             onClick={(e) => e.stopPropagation()}
           >

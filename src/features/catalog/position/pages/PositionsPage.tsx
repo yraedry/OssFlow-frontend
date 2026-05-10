@@ -65,7 +65,7 @@ export function PositionsPage() {
             <button
               type="button"
               onClick={() => setEditing(null)}
-              className="flex items-center gap-1.5 px-4 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0"
               style={{ fontFamily: 'var(--font-mono)' }}
             >
               <Plus className="h-3.5 w-3.5" strokeWidth={2} />

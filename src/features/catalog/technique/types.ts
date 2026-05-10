@@ -25,7 +25,7 @@ export interface CreateTechniqueRequest {
   endPositionId?: number
   minimumBelt: Technique['minimumBelt']
   modality: Technique['modality']
-  visibility: Technique['visibility']
+  visibility?: Technique['visibility']
   description?: string
   youtubeUrl?: string
 }

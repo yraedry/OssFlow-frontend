@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
+import { Button } from '@/shared/components/ui/button'
 import { Plus, Pencil, Trash2, Dumbbell, Play, ArrowLeft, Package, Home, Building2 } from 'lucide-react'
 import { YouTubePlayerModal } from '@/shared/components/ui/youtube-player-modal'
-import { Button } from '@/shared/components/ui/button'
-import { Badge } from '@/shared/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
@@ -86,9 +85,6 @@ function ExerciseDetailView({
           <div className="flex flex-wrap gap-2">
             <CategoryBadge category={ex.category} />
             <EquipmentBadge equipment={ex.equipment} />
-            {ex.visibility === 'PRIVATE' && (
-              <Badge variant="outline" className="text-xs">Privado</Badge>
-            )}
           </div>
         </div>
         <div className="flex gap-2">
@@ -345,7 +341,7 @@ export function ExercisesPage() {
             <button
               type="button"
               onClick={() => setEditing(null)}
-              className="flex items-center gap-1.5 px-4 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors shrink-0"
+              className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0"
               style={{ fontFamily: 'var(--font-mono)' }}
             >
               <Plus className="h-3.5 w-3.5" strokeWidth={2} />

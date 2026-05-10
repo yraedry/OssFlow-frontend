@@ -1,16 +1,8 @@
-import { useForm, Controller } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { Textarea } from '@/shared/components/ui/textarea'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/shared/components/ui/select'
 import { createSystemSchema, type CreateSystemForm } from '../schemas'
 import type { System } from '../types'
 
@@ -24,7 +16,6 @@ export function SystemForm({ defaultValues, onSubmit, isPending }: SystemFormPro
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors },
   } = useForm<CreateSystemForm>({
     resolver: zodResolver(createSystemSchema),
@@ -32,7 +23,6 @@ export function SystemForm({ defaultValues, onSubmit, isPending }: SystemFormPro
       name: defaultValues?.name ?? '',
       description: defaultValues?.description ?? '',
       flowDefinition: defaultValues?.flowDefinition ?? '{"nodes":[],"edges":[]}',
-      visibility: defaultValues?.visibility ?? 'PRIVATE',
     },
   })
 
@@ -70,31 +60,9 @@ export function SystemForm({ defaultValues, onSubmit, isPending }: SystemFormPro
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label>Visibilidad</Label>
-        <Controller
-          control={control}
-          name="visibility"
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar visibilidad" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="PUBLIC">Público</SelectItem>
-                <SelectItem value="PRIVATE">Privado</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-        />
-        {errors.visibility && (
-          <p className="text-sm text-destructive">{errors.visibility.message}</p>
-        )}
-      </div>
-
-      <Button type="submit" disabled={isPending} className="w-full">
+      <button type="submit" disabled={isPending} className="w-full py-2.5 bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-50" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
         {isPending ? 'Guardando...' : defaultValues?.id ? 'Actualizar' : 'Crear sistema'}
-      </Button>
+      </button>
     </form>
   )
 }
