@@ -56,7 +56,7 @@ function SessionDetailDialog({ session }: { session: TrainingSession }) {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 overflow-y-auto max-h-[75vh] min-w-0">
       {/* Cabecera de sesión */}
       <div className="border-l-2 pl-3" style={{ borderColor: accent }}>
         <span className="text-[10px] font-bold uppercase tracking-widest" style={{ ...MONO, color: accent }}>
@@ -76,7 +76,7 @@ function SessionDetailDialog({ session }: { session: TrainingSession }) {
       {session.notesMarkdown && (
         <div>
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={MONO}>Notas</p>
-          <p className="text-sm text-muted-foreground">{session.notesMarkdown}</p>
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap break-words">{session.notesMarkdown}</p>
         </div>
       )}
 

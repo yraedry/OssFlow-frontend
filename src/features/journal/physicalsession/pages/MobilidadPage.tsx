@@ -87,19 +87,19 @@ export function MobilidadPage() {
         </div>
       )}
       <Dialog open={!!detailSession} onOpenChange={v => { if (!v) setDetailSession(null) }}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="sr-only">Detalle de sesión de movilidad</DialogTitle>
           </DialogHeader>
           {detailSession && (() => {
             const accent = TYPE_COLORS[detailSession.sessionType] ?? '#6b7280'
             return (
-              <div className="space-y-4">
+              <div className="space-y-4 overflow-y-auto max-h-[75vh] min-w-0">
                 <div className="border-l-2 pl-3" style={{ borderColor: accent }}>
                   <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: accent, fontFamily: 'var(--font-mono)' }}>
                     {PHYSICAL_SESSION_TYPE_LABELS[detailSession.sessionType]}
                   </span>
-                  <p className="text-base font-semibold mt-0.5" style={{ fontFamily: 'var(--font-serif)' }}>{detailSession.title}</p>
+                  <p className="text-base font-semibold mt-0.5 break-words" style={{ fontFamily: 'var(--font-serif)' }}>{detailSession.title}</p>
                   <p className="text-[10px] text-muted-foreground mt-1" style={{ fontFamily: 'var(--font-mono)' }}>
                     {detailSession.sessionDate}{detailSession.durationMinutes ? ` · ${detailSession.durationMinutes} min` : ''}
                   </p>
