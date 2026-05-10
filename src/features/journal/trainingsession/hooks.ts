@@ -19,6 +19,16 @@ export function useCreateTrainingSession() {
   })
 }
 
+export function useUpdateTrainingSession() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: Partial<CreateTrainingSessionRequest> }) =>
+      trainingSessionApi.update(id, data),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: SESSIONS_KEY }); toast.success('Sesión actualizada') },
+    onError: () => toast.error('Error al actualizar la sesión'),
+  })
+}
+
 export function useDeleteTrainingSession() {
   const qc = useQueryClient()
   return useMutation({
@@ -31,7 +41,7 @@ export function useDeleteTrainingSession() {
 export function useUpsertWorkedTechnique(sessionId: number) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ techniqueId, data }: { techniqueId: number; data: { repCount?: number; notesMarkdown?: string } }) =>
+    mutationFn: ({ techniqueId, data }: { techniqueId: number; data: { notesMarkdown?: string } }) =>
       trainingSessionApi.upsertTechnique(sessionId, techniqueId, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: SESSIONS_KEY }); toast.success('Técnica guardada') },
     onError: () => toast.error('Error al guardar técnica'),

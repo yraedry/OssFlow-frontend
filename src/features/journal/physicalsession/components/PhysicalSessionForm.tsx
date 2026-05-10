@@ -11,17 +11,20 @@ import { PHYSICAL_SESSION_TYPE_LABELS } from '../types'
 type Props = {
   onSubmit: (data: CreatePhysicalSessionForm) => Promise<void>
   isPending: boolean
+  defaultValues?: Partial<CreatePhysicalSessionForm>
   defaultSessionType?: CreatePhysicalSessionForm['sessionType']
+  submitLabel?: string
 }
 
 const SESSION_TYPES = ['STRENGTH', 'CARDIO', 'FLEXIBILITY', 'MOBILITY', 'HIIT', 'OTHER'] as const
 
-export function PhysicalSessionForm({ onSubmit, isPending, defaultSessionType }: Props) {
+export function PhysicalSessionForm({ onSubmit, isPending, defaultValues, defaultSessionType, submitLabel }: Props) {
   const { register, handleSubmit, control, formState: { errors } } = useForm<CreatePhysicalSessionForm>({
     resolver: zodResolver(createPhysicalSessionSchema),
     defaultValues: {
       sessionDate: new Date().toISOString().split('T')[0],
       sessionType: defaultSessionType ?? 'STRENGTH',
+      ...defaultValues,
     },
   })
 
@@ -82,7 +85,7 @@ export function PhysicalSessionForm({ onSubmit, isPending, defaultSessionType }:
       </div>
 
       <button type="submit" disabled={isPending} className="w-full py-2.5 bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-50" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
-        {isPending ? 'Guardando...' : 'Guardar sesión'}
+        {isPending ? 'Guardando...' : (submitLabel ?? 'Guardar sesión')}
       </button>
     </form>
   )

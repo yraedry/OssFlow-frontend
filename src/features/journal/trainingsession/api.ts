@@ -12,8 +12,8 @@ export const trainingSessionApi = {
   update: (id: number, data: Partial<CreateTrainingSessionRequest>) =>
     apiClient.patch(`journal/training-sessions/${id}`, { json: data }).json<TrainingSession>(),
   delete: (id: number) => apiClient.delete(`journal/training-sessions/${id}`),
-  upsertTechnique: (sessionId: number, techniqueId: number, data: { repCount?: number; notesMarkdown?: string }) =>
-    apiClient.put(`journal/training-sessions/${sessionId}/techniques/${techniqueId}`, { json: data }).json<WorkedTechnique>(),
+  upsertTechnique: (sessionId: number, techniqueId: number, data: { notesMarkdown?: string }) =>
+    apiClient.post(`journal/training-sessions/${sessionId}/worked-techniques`, { json: { techniqueId, ...data } }).json<WorkedTechnique>(),
   removeTechnique: (sessionId: number, techniqueId: number) =>
-    apiClient.delete(`journal/training-sessions/${sessionId}/techniques/${techniqueId}`),
+    apiClient.delete(`journal/training-sessions/${sessionId}/worked-techniques/${techniqueId}`),
 }
