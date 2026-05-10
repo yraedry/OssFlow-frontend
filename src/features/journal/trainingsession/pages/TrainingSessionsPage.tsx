@@ -1,145 +1,352 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, Dumbbell } from 'lucide-react'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '@/shared/components/ui/button'
-import { Input } from '@/shared/components/ui/input'
-import { Label } from '@/shared/components/ui/label'
-import { Textarea } from '@/shared/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
+import { Plus, Trash2, BookOpen, X, ChevronDown, ChevronUp, Play } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
-import { Badge } from '@/shared/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card'
-import { Trash2 } from 'lucide-react'
-import { DatePicker } from '@/shared/components/ui/date-picker'
-import { useTrainingSessions, useCreateTrainingSession, useDeleteTrainingSession } from '../hooks'
-import { WorkedTechniquePanel } from '../components/WorkedTechniquePanel'
-import { createTrainingSessionSchema, type CreateTrainingSessionForm } from '../schemas'
+import { PaginationControls } from '@/shared/components/ui/pagination-controls'
+import { useTrainingSessions, useCreateTrainingSession, useDeleteTrainingSession, useUpsertWorkedTechnique, useRemoveWorkedTechnique } from '../hooks'
+import { useTechniques } from '@/features/catalog/technique/hooks'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import type { Intensity, SessionType } from '../types'
+import type { Intensity, TrainingSession, TrainingSessionWithVideo } from '../types'
+
+const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 
 const INTENSITY_LABELS: Record<Intensity, string> = {
   LIGHT: 'Baja', MODERATE: 'Moderada', HARD: 'Alta', COMPETITION: 'Competición',
 }
 const INTENSITY_COLORS: Record<Intensity, string> = {
-  LIGHT: 'bg-green-100 text-green-800',
-  MODERATE: 'bg-yellow-100 text-yellow-800',
-  HARD: 'bg-orange-100 text-orange-800',
-  COMPETITION: 'bg-red-100 text-red-800',
+  LIGHT: '#10b981', MODERATE: '#f59e0b', HARD: '#f97316', COMPETITION: '#e11d48',
 }
 
-const SESSION_TYPE_LABELS: Record<SessionType, string> = {
-  BJJ: 'BJJ', PHYSICAL: 'Físico', CARDIO: 'Cardio',
+const INPUT_CLASS = 'w-full border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-foreground transition-colors'
+const LABEL_STYLE: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-muted-foreground)' }
+
+function formatDate(iso: string) {
+  try { return format(new Date(iso + 'T00:00:00'), "d MMM yyyy", { locale: es }) } catch { return iso }
 }
-const SESSION_TYPE_ICONS: Record<SessionType, string> = {
-  BJJ: '🥋', PHYSICAL: '💪', CARDIO: '🏃',
+
+function TechniquesPanelInCard({ session }: { session: TrainingSession }) {
+  const [open, setOpen] = useState(false)
+  const [selectedId, setSelectedId] = useState('')
+  const [repCount, setRepCount] = useState('')
+  const [notes, setNotes] = useState('')
+
+  const { data: techniquesData } = useTechniques({ size: 200 })
+  const upsert = useUpsertWorkedTechnique(session.id)
+  const remove = useRemoveWorkedTechnique(session.id)
+  const techniques = techniquesData?.content ?? []
+  const worked = session.workedTechniques ?? []
+
+  const handleAdd = async () => {
+    if (!selectedId) return
+    await upsert.mutateAsync({ techniqueId: Number(selectedId), data: { repCount: repCount ? Number(repCount) : undefined, notesMarkdown: notes || undefined } })
+    setSelectedId(''); setRepCount(''); setNotes('')
+  }
+
+  return (
+    <div className="border-t border-border/50 px-4 py-2">
+      <button type="button" onClick={() => setOpen(v => !v)}
+        className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+        style={MONO}
+      >
+        {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+        <BookOpen className="h-3 w-3" />
+        <span className="uppercase tracking-wide">Técnicas trabajadas</span>
+        {worked.length > 0 && (
+          <span className="ml-1 text-[10px] font-bold" style={{ color: '#4a7cff' }}>({worked.length})</span>
+        )}
+      </button>
+
+      {open && (
+        <div className="mt-2 space-y-2">
+          {worked.length === 0 ? (
+            <p className="text-[10px] text-muted-foreground" style={MONO}>Sin técnicas registradas</p>
+          ) : (
+            <ul className="space-y-1">
+              {worked.map((wt) => {
+                const name = wt.techniqueName ?? techniques.find(t => t.id === wt.techniqueId)?.name ?? `#${wt.techniqueId}`
+                return (
+                  <li key={wt.techniqueId} className="flex items-center justify-between border border-border bg-muted/20 px-2.5 py-1.5">
+                    <div>
+                      <span className="text-xs font-medium">{name}</span>
+                      <span className="text-[10px] text-muted-foreground ml-2" style={MONO}>
+                        {wt.repCount != null ? `${wt.repCount} reps` : ''}
+                        {wt.notesMarkdown ? ` · ${wt.notesMarkdown}` : ''}
+                      </span>
+                    </div>
+                    <button type="button" onClick={() => remove.mutate(wt.techniqueId)} disabled={remove.isPending}
+                      className="text-muted-foreground hover:text-destructive transition-colors ml-2">
+                      <X className="h-3 w-3" />
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+          <div className="border border-border bg-muted/10 p-2.5 space-y-2">
+            <select value={selectedId} onChange={e => setSelectedId(e.target.value)}
+              className="w-full border border-border bg-background px-2 py-1.5 text-xs focus:outline-none"
+              style={MONO}
+            >
+              <option value="">— Seleccionar técnica —</option>
+              {techniques.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+            <div className="flex gap-2">
+              <input type="number" min={0} value={repCount} onChange={e => setRepCount(e.target.value)}
+                placeholder="Reps" className="w-16 border border-border bg-background px-2 py-1 text-xs focus:outline-none" style={MONO} />
+              <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
+                placeholder="Notas (opcional)" className="flex-1 border border-border bg-background px-2 py-1 text-xs focus:outline-none" style={MONO} />
+              <button type="button" onClick={handleAdd} disabled={!selectedId || upsert.isPending}
+                className="flex items-center gap-1 border border-border px-2.5 py-1 text-[10px] uppercase tracking-wide hover:bg-accent transition-colors disabled:opacity-40"
+                style={MONO}
+              >
+                <Plus className="h-2.5 w-2.5" />
+                {upsert.isPending ? '...' : 'Añadir'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
 }
-const SESSION_TYPE_BADGE_COLORS: Record<SessionType, string> = {
-  BJJ: 'bg-blue-100 text-blue-800',
-  PHYSICAL: 'bg-green-100 text-green-800',
-  CARDIO: 'bg-orange-100 text-orange-800',
+
+function CreateBjjForm({ onCreated }: { onCreated: (session: TrainingSession) => void }) {
+  const createMutation = useCreateTrainingSession()
+  const today = new Date().toISOString().split('T')[0]
+
+  const [sessionDate, setSessionDate] = useState(today)
+  const [durationMinutes, setDurationMinutes] = useState(90)
+  const [intensity, setIntensity] = useState<Intensity>('MODERATE')
+  const [location, setLocation] = useState('')
+  const [notes, setNotes] = useState('')
+  const [youtubeUrl, setYoutubeUrl] = useState('')
+
+  const intensities: Intensity[] = ['LIGHT', 'MODERATE', 'HARD', 'COMPETITION']
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    const session = await createMutation.mutateAsync({
+      sessionDate,
+      durationMinutes: Number(durationMinutes),
+      intensity,
+      sessionType: 'BJJ',
+      location: location || undefined,
+      notesMarkdown: notes || undefined,
+      youtubeUrl: youtubeUrl || undefined,
+    } as Parameters<typeof createMutation.mutateAsync>[0])
+    onCreated(session)
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <label style={LABEL_STYLE}>Fecha</label>
+          <input type="date" value={sessionDate} onChange={e => setSessionDate(e.target.value)}
+            className={INPUT_CLASS} style={MONO} required />
+        </div>
+        <div className="space-y-1">
+          <label style={LABEL_STYLE}>Duración (min)</label>
+          <input type="number" min={1} max={480} value={durationMinutes}
+            onChange={e => setDurationMinutes(Number(e.target.value))}
+            className={INPUT_CLASS} style={MONO} required />
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label style={LABEL_STYLE}>Gimnasio (opcional)</label>
+        <input type="text" value={location} onChange={e => setLocation(e.target.value)}
+          placeholder="Gym Central" className={INPUT_CLASS} style={MONO} />
+      </div>
+
+      <div className="space-y-1" role="group">
+        <span style={LABEL_STYLE}>Intensidad</span>
+        <div className="grid grid-cols-4 gap-1">
+          {intensities.map(i => (
+            <button key={i} type="button" onClick={() => setIntensity(i)}
+              className="py-1.5 border text-center transition-colors"
+              style={{
+                ...MONO, fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.06em',
+                borderColor: intensity === i ? INTENSITY_COLORS[i] : 'var(--color-border)',
+                backgroundColor: intensity === i ? INTENSITY_COLORS[i] + '20' : 'transparent',
+                color: intensity === i ? INTENSITY_COLORS[i] : 'var(--color-muted-foreground)',
+              }}
+            >
+              {INTENSITY_LABELS[i]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <label style={LABEL_STYLE}>Notas</label>
+        <textarea value={notes} onChange={e => setNotes(e.target.value)}
+          rows={2} placeholder="Técnicas trabajadas, sparring..."
+          className={INPUT_CLASS + ' resize-none'} style={MONO} />
+      </div>
+
+      <div className="space-y-1">
+        <label style={LABEL_STYLE}>URL sparring / video (opcional)</label>
+        <input type="url" value={youtubeUrl} onChange={e => setYoutubeUrl(e.target.value)}
+          placeholder="https://youtube.com/watch?v=..."
+          className={INPUT_CLASS} style={MONO} />
+      </div>
+
+      <button type="submit" disabled={createMutation.isPending}
+        className="w-full py-2.5 bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-50"
+        style={{ ...MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}
+      >
+        {createMutation.isPending ? 'Creando...' : 'Crear sesión'}
+      </button>
+    </form>
+  )
+}
+
+function AddTechniquesStep({ session, onDone }: { session: TrainingSession; onDone: () => void }) {
+  const [selectedId, setSelectedId] = useState('')
+  const [repCount, setRepCount] = useState('')
+  const [notes, setNotes] = useState('')
+  const [worked, setWorked] = useState<TrainingSession['workedTechniques']>(session.workedTechniques ?? [])
+
+  const { data: techniquesData } = useTechniques({ size: 200 })
+  const upsert = useUpsertWorkedTechnique(session.id)
+  const remove = useRemoveWorkedTechnique(session.id)
+  const techniques = techniquesData?.content ?? []
+
+  const handleAdd = async () => {
+    if (!selectedId) return
+    const wt = await upsert.mutateAsync({ techniqueId: Number(selectedId), data: { repCount: repCount ? Number(repCount) : undefined, notesMarkdown: notes || undefined } })
+    const tech = techniques.find(t => t.id === Number(selectedId))
+    setWorked(prev => [...prev.filter(w => w.techniqueId !== Number(selectedId)), { trainingSessionId: session.id, techniqueId: Number(selectedId), techniqueName: tech?.name, repCount: repCount ? Number(repCount) : undefined, notesMarkdown: notes || undefined }])
+    setSelectedId(''); setRepCount(''); setNotes('')
+    return wt
+  }
+
+  const handleRemove = async (techniqueId: number) => {
+    await remove.mutateAsync(techniqueId)
+    setWorked(prev => prev.filter(w => w.techniqueId !== techniqueId))
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs text-muted-foreground" style={MONO}>Sesión creada. Añade las técnicas trabajadas hoy (opcional).</p>
+
+      {worked.length > 0 && (
+        <ul className="space-y-1">
+          {worked.map(wt => {
+            const name = wt.techniqueName ?? techniques.find(t => t.id === wt.techniqueId)?.name ?? `#${wt.techniqueId}`
+            return (
+              <li key={wt.techniqueId} className="flex items-center justify-between border border-border bg-muted/20 px-3 py-2">
+                <div>
+                  <span className="text-xs font-medium">{name}</span>
+                  {wt.repCount != null && <span className="text-[10px] text-muted-foreground ml-2" style={MONO}>{wt.repCount} reps</span>}
+                  {wt.notesMarkdown && <span className="text-[10px] text-muted-foreground ml-1" style={MONO}>· {wt.notesMarkdown}</span>}
+                </div>
+                <button type="button" onClick={() => handleRemove(wt.techniqueId)} disabled={remove.isPending}
+                  className="text-muted-foreground hover:text-destructive transition-colors">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </li>
+            )
+          })}
+        </ul>
+      )}
+
+      <div className="border border-border p-3 space-y-2">
+        <select value={selectedId} onChange={e => setSelectedId(e.target.value)}
+          className="w-full border border-border bg-background px-2.5 py-2 text-xs focus:outline-none"
+          style={MONO}
+        >
+          <option value="">— Seleccionar técnica —</option>
+          {techniques.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
+        <div className="flex gap-2">
+          <input type="number" min={0} value={repCount} onChange={e => setRepCount(e.target.value)}
+            placeholder="Reps" className="w-20 border border-border bg-background px-2.5 py-1.5 text-xs focus:outline-none" style={MONO} />
+          <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
+            placeholder="Notas (opcional)" className="flex-1 border border-border bg-background px-2.5 py-1.5 text-xs focus:outline-none" style={MONO} />
+          <button type="button" onClick={handleAdd} disabled={!selectedId || upsert.isPending}
+            className="flex items-center gap-1 border border-border px-3 py-1.5 text-[10px] uppercase tracking-wide hover:bg-accent transition-colors disabled:opacity-40"
+            style={MONO}
+          >
+            <Plus className="h-3 w-3" />
+            {upsert.isPending ? '...' : 'Añadir'}
+          </button>
+        </div>
+      </div>
+
+      <button type="button" onClick={onDone}
+        className="w-full py-2.5 bg-foreground text-background hover:opacity-85 transition-opacity"
+        style={{ ...MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}
+      >
+        Finalizar
+      </button>
+    </div>
+  )
 }
 
 export function TrainingSessionsPage() {
   const [open, setOpen] = useState(false)
-  const { data, isLoading, error } = useTrainingSessions()
-  const createMutation = useCreateTrainingSession()
+  const [createdSession, setCreatedSession] = useState<TrainingSession | null>(null)
+  const [currentPage, setCurrentPage] = useState(0)
+  const { data, isLoading, error } = useTrainingSessions({ page: currentPage, size: 20 })
   const deleteMutation = useDeleteTrainingSession()
   const confirm = useConfirm()
 
-  const { register, handleSubmit, control, reset, formState: { errors } } = useForm<CreateTrainingSessionForm>({
-    resolver: zodResolver(createTrainingSessionSchema),
-    defaultValues: { sessionDate: new Date().toISOString().split('T')[0], durationMinutes: 90, intensity: 'MODERATE', sessionType: 'BJJ' },
-  })
-
-  const onSubmit = async (data: CreateTrainingSessionForm) => {
-    await createMutation.mutateAsync({ ...data, durationMinutes: Number(data.durationMinutes) })
-    setOpen(false)
-    reset()
+  const handleOpenChange = (v: boolean) => {
+    setOpen(v)
+    if (!v) setCreatedSession(null)
   }
 
-  const handleDeleteSession = async (id: number) => {
+  const handleCreated = (session: TrainingSession) => {
+    setCreatedSession(session)
+  }
+
+  const handleDone = () => {
+    setOpen(false)
+    setCreatedSession(null)
+  }
+
+  const handleDelete = async (id: number) => {
     const ok = await confirm({ description: '¿Eliminar esta sesión? Esta acción no se puede deshacer.' })
     if (ok) deleteMutation.mutate(id)
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <h1 className="text-2xl font-bold">Sesiones de entrenamiento</h1>
-          <p className="text-muted-foreground">{data?.totalElements ?? 0} sesiones registradas</p>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={MONO}>
+            Diario
+          </div>
+          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
+            Sesiones BJJ
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">{data?.totalElements ?? 0} sesiones registradas</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4 mr-2" />Nueva sesión</Button>
+            <button type="button"
+              className="flex items-center gap-1.5 px-4 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors shrink-0"
+              style={MONO}
+            >
+              <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+              Nueva
+            </button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
-            <DialogHeader><DialogTitle>Nueva sesión de entrenamiento</DialogTitle></DialogHeader>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Fecha</Label>
-                  <Controller control={control} name="sessionDate" render={({ field }) => (
-                    <DatePicker value={field.value ?? ''} onChange={field.onChange} placeholder="Seleccionar fecha" />
-                  )} />
-                  {errors.sessionDate && <p className="text-sm text-destructive">{errors.sessionDate.message}</p>}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="durationMinutes">Duración (min)</Label>
-                  <Input id="durationMinutes" type="number" {...register('durationMinutes', { valueAsNumber: true })} />
-                  {errors.durationMinutes && <p className="text-sm text-destructive">{errors.durationMinutes.message}</p>}
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Gimnasio (opcional)</Label>
-                <Input id="location" {...register('location')} placeholder="Gym Central" />
-              </div>
-              <div className="space-y-2">
-                <Label>Tipo de sesión</Label>
-                <Controller control={control} name="sessionType" render={({ field }) => (
-                  <div className="flex gap-2">
-                    {(Object.keys(SESSION_TYPE_LABELS) as SessionType[]).map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => field.onChange(type)}
-                        className={`flex-1 flex flex-col items-center gap-1 rounded-lg border-2 py-2.5 px-2 text-xs font-medium transition-colors
-                          ${field.value === type
-                            ? 'border-primary bg-primary/5 text-primary'
-                            : 'border-border bg-background text-muted-foreground hover:border-muted-foreground'
-                          }`}
-                      >
-                        <span className="text-lg">{SESSION_TYPE_ICONS[type]}</span>
-                        <span>{SESSION_TYPE_LABELS[type]}</span>
-                      </button>
-                    ))}
-                  </div>
-                )} />
-              </div>
-              <div className="space-y-2">
-                <Label>Intensidad</Label>
-                <Controller control={control} name="intensity" render={({ field }) => (
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {Object.entries(INTENSITY_LABELS).map(([v, l]) => <SelectItem key={v} value={v}>{l}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                )} />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="notesMarkdown">Notas</Label>
-                <Textarea id="notesMarkdown" {...register('notesMarkdown')} rows={3} placeholder="Trabajamos guard passing..." />
-              </div>
-              <Button type="submit" disabled={createMutation.isPending} className="w-full">
-                {createMutation.isPending ? 'Guardando...' : 'Crear sesión'}
-              </Button>
-            </form>
+          <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {createdSession ? 'Técnicas trabajadas' : 'Nueva sesión BJJ'}
+              </DialogTitle>
+            </DialogHeader>
+            {createdSession
+              ? <AddTechniquesStep session={createdSession} onDone={handleDone} />
+              : <CreateBjjForm onCreated={handleCreated} />
+            }
           </DialogContent>
         </Dialog>
       </div>
@@ -149,48 +356,67 @@ export function TrainingSessionsPage() {
       ) : error ? (
         <Alert variant="destructive"><AlertDescription>Error al cargar sesiones</AlertDescription></Alert>
       ) : (data?.content ?? []).length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <Dumbbell className="h-12 w-12 mx-auto mb-4 opacity-30" />
-          <p>No hay sesiones registradas.</p>
+        <div className="border border-dashed border-border py-16 text-center text-muted-foreground">
+          <BookOpen className="h-10 w-10 mx-auto mb-3 opacity-30" />
+          <p className="text-sm font-medium">No hay sesiones BJJ todavía</p>
+          <p className="text-xs mt-1">Registra tu primera sesión con el botón de arriba</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {(data?.content ?? []).filter(Boolean).map((s) => (
-            <Card key={s.id}>
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <CardTitle className="text-base">
-                    {s.sessionDate
-                      ? (() => { try { return format(new Date(s.sessionDate + 'T00:00:00'), "d MMM yyyy", { locale: es }) } catch { return s.sessionDate } })()
-                      : 'Sin fecha'}
-                  </CardTitle>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive"
-                    onClick={() => handleDeleteSession(s.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex gap-2 flex-wrap">
-                  {s.sessionType && (
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${SESSION_TYPE_BADGE_COLORS[s.sessionType] ?? 'bg-gray-100 text-gray-800'}`}>
-                      {SESSION_TYPE_ICONS[s.sessionType]} {SESSION_TYPE_LABELS[s.sessionType] ?? s.sessionType}
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {(data?.content ?? []).filter(Boolean).map((s) => {
+              const accent = INTENSITY_COLORS[s.intensity] ?? '#6b7280'
+              return (
+                <div key={s.id}
+                  className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors"
+                  style={{ borderLeft: `3px solid ${accent}` }}
+                >
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <button type="button" aria-label="Eliminar sesión" onClick={() => handleDelete(s.id)}
+                      className="h-7 w-7 flex items-center justify-center border border-destructive/50 bg-background text-destructive hover:bg-destructive/10 transition-colors">
+                      <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+                    </button>
+                  </div>
+
+                  <div className="p-4 flex flex-col gap-1.5 flex-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ ...MONO, color: accent }}>
+                      {INTENSITY_LABELS[s.intensity]}
                     </span>
-                  )}
-                  {s.intensity && (
-                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${INTENSITY_COLORS[s.intensity] ?? 'bg-gray-100 text-gray-800'}`}>
-                      {INTENSITY_LABELS[s.intensity] ?? s.intensity}
+                    <p className="text-sm font-semibold leading-snug pr-8">
+                      {formatDate(s.sessionDate)}
+                    </p>
+                    {s.notesMarkdown && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">{s.notesMarkdown}</p>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between px-4 py-2 border-t border-border/50">
+                    <span className="text-[10px] text-muted-foreground" style={MONO}>
+                      {s.durationMinutes} min{s.location ? ` · ${s.location}` : ''}
                     </span>
-                  )}
-                  <Badge variant="outline">{s.durationMinutes} min</Badge>
-                  {s.location && <Badge variant="outline">{s.location}</Badge>}
+                    <div className="flex items-center gap-2">
+                      {(s.workedTechniques?.length ?? 0) > 0 && (
+                        <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
+                          <BookOpen className="h-2.5 w-2.5" strokeWidth={1.5} />
+                          {s.workedTechniques.length}
+                        </span>
+                      )}
+                      {(s as TrainingSessionWithVideo).youtubeUrl && (
+                        <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
+                          <Play className="h-2.5 w-2.5" strokeWidth={1.5} />
+                          VIDEO
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <TechniquesPanelInCard session={s} />
                 </div>
-                {s.notesMarkdown && <p className="text-sm text-muted-foreground line-clamp-2">{s.notesMarkdown}</p>}
-                {s.sessionType === 'BJJ' && <WorkedTechniquePanel session={s} />}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+              )
+            })}
+          </div>
+          <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+        </>
       )}
     </div>
   )

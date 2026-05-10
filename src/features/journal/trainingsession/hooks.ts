@@ -6,8 +6,8 @@ import type { CreateTrainingSessionRequest } from './types'
 
 export const SESSIONS_KEY = ['training-sessions'] as const
 
-export function useTrainingSessions() {
-  return useQuery({ queryKey: SESSIONS_KEY, queryFn: () => trainingSessionApi.list() })
+export function useTrainingSessions(params?: { page?: number; size?: number }) {
+  return useQuery({ queryKey: [...SESSIONS_KEY, params], queryFn: () => trainingSessionApi.list(params) })
 }
 
 export function useCreateTrainingSession() {

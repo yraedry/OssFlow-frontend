@@ -78,17 +78,6 @@ export function PhysicalSessionForm({ onSubmit, isPending, defaultSessionType }:
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="youtubeUrl">URL YouTube (opcional)</Label>
-        <Input
-          id="youtubeUrl"
-          type="url"
-          {...register('youtubeUrl')}
-          placeholder="https://youtube.com/watch?v=..."
-        />
-        {errors.youtubeUrl && <p className="text-xs text-destructive mt-1">{errors.youtubeUrl.message}</p>}
-      </div>
-
-      <div className="space-y-2">
         <Label htmlFor="notes">Notas</Label>
         <Textarea id="notes" {...register('notes')} placeholder="Observaciones..." rows={3} />
       </div>
