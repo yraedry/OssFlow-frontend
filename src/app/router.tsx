@@ -1,5 +1,5 @@
 import React from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter, Outlet } from 'react-router-dom'
 import { AppLayout } from './AppLayout'
 import { AuthGuard } from './AuthGuard'
 import { OnboardingGuard } from './OnboardingGuard'
@@ -37,6 +37,15 @@ import { AnalisisPage } from '@/pages/analisis/AnalisisPage'
 import { ConfiguracionPage } from '@/pages/configuracion/ConfiguracionPage'
 import { Spinner } from '@/shared/components/ui/spinner'
 
+// Auth pages
+import { LandingPage } from '@/features/auth/pages/LandingPage'
+import { LoginPage } from '@/features/auth/pages/LoginPage'
+import { RegisterPage } from '@/features/auth/pages/RegisterPage'
+import { VerifyEmailPage } from '@/features/auth/pages/VerifyEmailPage'
+import { ForgotPasswordPage } from '@/features/auth/pages/ForgotPasswordPage'
+import { ResetPasswordPage } from '@/features/auth/pages/ResetPasswordPage'
+import { OAuthCallbackPage } from '@/features/auth/pages/OAuthCallbackPage'
+
 const lazySuspense = (element: React.ReactNode) => (
   <React.Suspense fallback={<div className="flex items-center justify-center h-full"><Spinner /></div>}>
     {element}
@@ -44,6 +53,24 @@ const lazySuspense = (element: React.ReactNode) => (
 )
 
 export const router = createBrowserRouter([
+  // ─── Public routes (no auth required) ────────────────────────────────────
+  {
+    element: <Outlet />,
+    children: [
+      // Landing page at /landing (marketing page for unauthenticated visitors)
+      { path: '/landing', element: <LandingPage /> },
+      { path: '/login', element: <LoginPage /> },
+      { path: '/register', element: <RegisterPage /> },
+      { path: '/verify-email', element: <VerifyEmailPage /> },
+      { path: '/forgot-password', element: <ForgotPasswordPage /> },
+      { path: '/reset-password', element: <ResetPasswordPage /> },
+    ],
+  },
+
+  // ─── OAuth2 callback ──────────────────────────────────────────────────────
+  { path: '/auth/callback', element: <OAuthCallbackPage /> },
+
+  // ─── Protected routes (AuthGuard redirects to /login if not authenticated)
   {
     path: '/',
     element: <AuthGuard />,
@@ -117,10 +144,13 @@ export const router = createBrowserRouter([
       },
     ],
   },
+
+  // ─── Onboarding ───────────────────────────────────────────────────────────
   {
     path: '/onboarding',
     element: <OnboardingGuard />,
     children: [{ index: true, element: <OnboardingPage /> }],
   },
+
   { path: '*', element: <NotFoundPage /> },
 ])
