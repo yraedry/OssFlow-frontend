@@ -5,7 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { PaginationControls } from '@/shared/components/ui/pagination-controls'
-import { useTrainingSessions, useCreateTrainingSession, useDeleteTrainingSession, useUpsertWorkedTechnique, useRemoveWorkedTechnique } from '../hooks'
+import { useTrainingSessions, useCreateTrainingSession, useDeleteTrainingSession, useUpsertWorkedTechnique, useRemoveWorkedTechnique, SESSIONS_KEY } from '../hooks'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTechniques } from '@/features/catalog/technique/hooks'
 import { useUpdateTrainingSession } from '../hooks'
 import { format } from 'date-fns'
@@ -153,9 +154,9 @@ function SessionForm({
       </div>
 
       <div className="space-y-1">
-        <label style={LABEL_STYLE}>Gimnasio (opcional)</label>
+        <label style={LABEL_STYLE}>Título (opcional)</label>
         <input type="text" value={location} onChange={e => setLocation(e.target.value)}
-          placeholder="Gym Central" className={INPUT_CLASS} style={MONO} />
+          placeholder="Ej: Clase con profe, competición, sparring..." className={INPUT_CLASS} style={MONO} />
       </div>
 
       <div className="space-y-1" role="group">
@@ -201,27 +202,30 @@ function SessionForm({
   )
 }
 
-function AddTechniquesStep({ session, onDone }: { session: TrainingSession; onDone: () => void }) {
+function AddTechniquesStep({ sessionId, onDone }: { sessionId: number; onDone: () => void }) {
   const [selectedId, setSelectedId] = useState('')
   const [notes, setNotes] = useState('')
-  const [worked, setWorked] = useState<TrainingSession['workedTechniques']>(session.workedTechniques ?? [])
 
+  const qc = useQueryClient()
+  const { data: sessionsData } = useTrainingSessions({ size: 200 })
   const { data: techniquesData } = useTechniques({ size: 200 })
-  const upsert = useUpsertWorkedTechnique(session.id)
-  const remove = useRemoveWorkedTechnique(session.id)
+  const upsert = useUpsertWorkedTechnique(sessionId)
+  const remove = useRemoveWorkedTechnique(sessionId)
+
   const techniques = techniquesData?.content ?? []
+  const liveSession = sessionsData?.content?.find(s => s.id === sessionId)
+  const worked = liveSession?.workedTechniques ?? []
 
   const handleAdd = async () => {
     if (!selectedId) return
     await upsert.mutateAsync({ techniqueId: Number(selectedId), data: { notesMarkdown: notes || undefined } })
-    const tech = techniques.find(t => t.id === Number(selectedId))
-    setWorked(prev => [...prev.filter(w => w.techniqueId !== Number(selectedId)), { trainingSessionId: session.id, techniqueId: Number(selectedId), techniqueName: tech?.name, notesMarkdown: notes || undefined }])
+    await qc.invalidateQueries({ queryKey: SESSIONS_KEY })
     setSelectedId(''); setNotes('')
   }
 
   const handleRemove = async (techniqueId: number) => {
     await remove.mutateAsync(techniqueId)
-    setWorked(prev => prev.filter(w => w.techniqueId !== techniqueId))
+    await qc.invalidateQueries({ queryKey: SESSIONS_KEY })
   }
 
   return (
@@ -359,7 +363,7 @@ export function TrainingSessionsPage() {
               </DialogTitle>
             </DialogHeader>
             {createdSession
-              ? <AddTechniquesStep session={createdSession} onDone={() => { setOpen(false); setCreatedSession(null) }} />
+              ? <AddTechniquesStep sessionId={createdSession.id} onDone={() => { setOpen(false); setCreatedSession(null) }} />
               : <SessionForm onSubmit={handleCreate} isPending={createMutation.isPending} submitLabel="Crear sesión" />
             }
           </DialogContent>
@@ -418,9 +422,12 @@ export function TrainingSessionsPage() {
                     <span className="text-[10px] font-bold uppercase tracking-widest" style={{ ...MONO, color: accent }}>
                       {INTENSITY_LABELS[s.intensity]}
                     </span>
-                    <p className="text-sm font-semibold leading-snug pr-16">
-                      {formatDate(s.sessionDate)}
+                    <p className="text-sm font-semibold leading-snug pr-16" style={{ fontFamily: 'var(--font-serif)' }}>
+                      {s.location ? s.location : formatDate(s.sessionDate)}
                     </p>
+                    {s.location && (
+                      <p className="text-[10px] text-muted-foreground" style={MONO}>{formatDate(s.sessionDate)}</p>
+                    )}
                     {s.notesMarkdown && (
                       <p className="text-xs text-muted-foreground line-clamp-2">{s.notesMarkdown}</p>
                     )}
