@@ -87,20 +87,29 @@ export function RulesetsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <h1 className="text-2xl font-bold">Reglamentos</h1>
-          <p className="text-muted-foreground">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>
+            Catálogo
+          </div>
+          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
+            Reglamentos
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {data?.totalElements ?? 0} reglamentos en tu catálogo
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Dialog open={fedOpen} onOpenChange={setFedOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline">
-                <Building2 className="h-4 w-4 mr-2" />
-                Nueva federación
-              </Button>
+              <button
+                type="button"
+                className="flex items-center gap-1.5 px-3 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors"
+                style={{ fontFamily: 'var(--font-mono)' }}
+              >
+                <Building2 className="h-3.5 w-3.5" />
+                Federación
+              </button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -143,10 +152,15 @@ export function RulesetsPage() {
 
           <Dialog open={open} onOpenChange={handleOpenChange}>
             <DialogTrigger asChild>
-              <Button onClick={() => setEditing(null)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Nuevo Reglamento
-              </Button>
+              <button
+                type="button"
+                onClick={() => setEditing(null)}
+                className="flex items-center gap-1.5 px-3 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors"
+                style={{ fontFamily: 'var(--font-mono)' }}
+              >
+                <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+                Reglamento
+              </button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -169,9 +183,9 @@ export function RulesetsPage() {
           <AlertDescription>Error al cargar los reglamentos</AlertDescription>
         </Alert>
       ) : (data?.content ?? []).length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>No hay reglamentos todavía.</p>
-          <p className="text-sm">Crea tu primer reglamento con el botón de arriba.</p>
+        <div className="border border-dashed border-border py-16 text-center text-muted-foreground">
+          <p className="text-sm font-medium">No hay reglamentos todavía</p>
+          <p className="text-xs mt-1">Crea tu primer reglamento con el botón de arriba</p>
         </div>
       ) : (
         <>

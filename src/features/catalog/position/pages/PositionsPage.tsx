@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
 import { Plus } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
@@ -51,14 +50,27 @@ export function PositionsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <h1 className="text-2xl font-bold">Posiciones</h1>
-          <p className="text-muted-foreground">{data?.totalElements ?? 0} posiciones en tu catálogo</p>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>
+            Catálogo
+          </div>
+          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
+            Posiciones
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">{data?.totalElements ?? 0} posiciones en tu catálogo</p>
         </div>
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditing(null)}><Plus className="h-4 w-4 mr-2" />Nueva posición</Button>
+            <button
+              type="button"
+              onClick={() => setEditing(null)}
+              className="flex items-center gap-1.5 px-4 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors shrink-0"
+              style={{ fontFamily: 'var(--font-mono)' }}
+            >
+              <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+              Nueva
+            </button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -78,9 +90,9 @@ export function PositionsPage() {
       ) : error ? (
         <Alert variant="destructive"><AlertDescription>Error al cargar las posiciones</AlertDescription></Alert>
       ) : (data?.content ?? []).length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <p>No hay posiciones todavía.</p>
-          <p className="text-sm">Crea tu primera posición con el botón de arriba.</p>
+        <div className="border border-dashed border-border py-16 text-center text-muted-foreground">
+          <p className="text-sm font-medium">No hay posiciones todavía</p>
+          <p className="text-xs mt-1">Crea tu primera posición con el botón de arriba</p>
         </div>
       ) : (
         <>

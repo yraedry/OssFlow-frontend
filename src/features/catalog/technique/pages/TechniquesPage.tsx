@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
 import { Plus } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
@@ -33,7 +32,7 @@ function FilterButton({ active, onClick, children }: FilterButtonProps) {
   return (
     <button
       onClick={onClick}
-      className={`px-3 py-1.5 text-xs font-mono rounded border transition-colors ${
+      className={`px-3 py-1.5 text-xs font-mono border transition-colors ${
         active
           ? 'bg-foreground text-background border-foreground'
           : 'bg-background text-muted-foreground border-border hover:border-foreground hover:text-foreground'
@@ -98,17 +97,27 @@ export function TechniquesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <h1 className="text-2xl font-bold">Técnicas</h1>
-          <p className="text-muted-foreground">{data?.totalElements ?? 0} técnicas en tu catálogo</p>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>
+            Catálogo
+          </div>
+          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
+            Técnicas
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">{data?.totalElements ?? 0} técnicas en tu catálogo</p>
         </div>
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditing(null)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva técnica
-            </Button>
+            <button
+              type="button"
+              onClick={() => setEditing(null)}
+              className="flex items-center gap-1.5 px-4 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors shrink-0"
+              style={{ fontFamily: 'var(--font-mono)' }}
+            >
+              <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+              Nueva
+            </button>
           </DialogTrigger>
           <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
