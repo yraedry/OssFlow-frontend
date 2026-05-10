@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, Trash2, BookOpen, X, Play, Pencil } from 'lucide-react'
+import { Plus, Trash2, BookOpen, X, Play, Pencil, Copy } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
@@ -320,6 +320,7 @@ function AddTechniquesStep({ sessionId, onDone }: { sessionId: number; onDone: (
 export function TrainingSessionsPage() {
   const [open, setOpen] = useState(false)
   const [createdSession, setCreatedSession] = useState<TrainingSession | null>(null)
+  const [prefillValues, setPrefillValues] = useState<Partial<TrainingSession> | undefined>()
   const [editSession, setEditSession] = useState<TrainingSession | null>(null)
   const [detailSession, setDetailSession] = useState<TrainingSession | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
@@ -331,7 +332,13 @@ export function TrainingSessionsPage() {
 
   const handleOpenChange = (v: boolean) => {
     setOpen(v)
-    if (!v) setCreatedSession(null)
+    if (!v) { setCreatedSession(null); setPrefillValues(undefined) }
+  }
+
+  const handleDuplicate = (session: TrainingSession) => {
+    const today = new Date().toISOString().split('T')[0]
+    setPrefillValues({ ...session, sessionDate: today })
+    setOpen(true)
   }
 
   const handleCreate = async (formData: { sessionDate: string; durationMinutes: number; intensity: Intensity; location: string; notes: string; youtubeUrl: string }) => {
@@ -384,6 +391,7 @@ export function TrainingSessionsPage() {
         <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <button type="button"
+              onClick={() => setPrefillValues(undefined)}
               className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0"
               style={MONO}
             >
@@ -394,12 +402,17 @@ export function TrainingSessionsPage() {
           <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
-                {createdSession ? 'Técnicas trabajadas' : 'Nueva sesión BJJ'}
+                {createdSession ? 'Técnicas trabajadas' : prefillValues ? 'Duplicar sesión BJJ' : 'Nueva sesión BJJ'}
               </DialogTitle>
             </DialogHeader>
             {createdSession
               ? <AddTechniquesStep sessionId={createdSession.id} onDone={() => { setOpen(false); setCreatedSession(null) }} />
-              : <SessionForm onSubmit={handleCreate} isPending={createMutation.isPending} submitLabel="Crear sesión" />
+              : <SessionForm
+                  defaultValues={prefillValues}
+                  onSubmit={handleCreate}
+                  isPending={createMutation.isPending}
+                  submitLabel={prefillValues ? 'Guardar copia' : 'Crear sesión'}
+                />
             }
           </DialogContent>
         </Dialog>
@@ -462,6 +475,11 @@ export function TrainingSessionsPage() {
                       className="h-7 w-7 flex items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground transition-colors">
                       <Pencil className="h-3 w-3" strokeWidth={1.5} />
                     </button>
+                    <button type="button" aria-label="Duplicar sesión"
+                      onClick={e => { e.stopPropagation(); handleDuplicate(s) }}
+                      className="h-7 w-7 flex items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground transition-colors">
+                      <Copy className="h-3 w-3" strokeWidth={1.5} />
+                    </button>
                     <button type="button" aria-label="Eliminar sesión"
                       onClick={e => { e.stopPropagation(); handleDelete(s.id) }}
                       className="h-7 w-7 flex items-center justify-center border border-destructive/50 bg-background text-destructive hover:bg-destructive/10 transition-colors">
@@ -473,7 +491,7 @@ export function TrainingSessionsPage() {
                     <span className="text-[10px] font-bold uppercase tracking-widest" style={{ ...MONO, color: accent }}>
                       {INTENSITY_LABELS[s.intensity]}
                     </span>
-                    <p className="text-sm font-semibold leading-snug pr-16" style={{ fontFamily: 'var(--font-serif)' }}>
+                    <p className="text-sm font-semibold leading-snug pr-24" style={{ fontFamily: 'var(--font-serif)' }}>
                       {s.location ? s.location : formatDate(s.sessionDate)}
                     </p>
                     {s.location && (
