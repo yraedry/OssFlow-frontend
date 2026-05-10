@@ -15,6 +15,7 @@ import { es } from 'date-fns/locale'
 export function NotesPage() {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Note | null>(null)
+  const [detailNote, setDetailNote] = useState<Note | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
 
   const { data, isLoading, error } = useNotes({ page: currentPage, size: 20 })
@@ -88,15 +89,19 @@ export function NotesPage() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             {(data?.content ?? []).map((note) => (
-              <div key={note.id} className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors">
+              <div
+                key={note.id}
+                className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors cursor-pointer self-start"
+                onClick={() => setDetailNote(note)}
+              >
                 {/* Acciones hover */}
                 <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
                   <button
                     type="button"
                     aria-label="Editar nota"
-                    onClick={() => { setEditing(note); setOpen(true) }}
+                    onClick={(e) => { e.stopPropagation(); setEditing(note); setOpen(true) }}
                     className="h-7 w-7 flex items-center justify-center border border-border bg-background hover:bg-muted transition-colors"
                   >
                     <Pencil className="h-3 w-3" strokeWidth={1.5} />
@@ -104,7 +109,7 @@ export function NotesPage() {
                   <button
                     type="button"
                     aria-label="Eliminar nota"
-                    onClick={() => handleDeleteNote(note.id)}
+                    onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id) }}
                     className="h-7 w-7 flex items-center justify-center border border-destructive/50 bg-background text-destructive hover:bg-destructive/10 transition-colors"
                   >
                     <Trash2 className="h-3 w-3" strokeWidth={1.5} />
@@ -137,6 +142,35 @@ export function NotesPage() {
           <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
         </>
       )}
+      <Dialog open={!!detailNote} onOpenChange={v => { if (!v) setDetailNote(null) }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="sr-only">Detalle de nota</DialogTitle>
+          </DialogHeader>
+          {detailNote && (
+            <div className="space-y-4">
+              <p className="text-base font-semibold leading-snug" style={{ fontFamily: 'var(--font-serif)' }}>{detailNote.title}</p>
+              {detailNote.tags.length > 0 && (
+                <div className="flex gap-1.5 flex-wrap">
+                  {detailNote.tags.map((t) => (
+                    <span key={t} className="flex items-center gap-1 text-[10px] text-muted-foreground border border-border px-1.5 py-0.5" style={{ fontFamily: 'var(--font-mono)' }}>
+                      <Tag className="h-2 w-2" strokeWidth={1.5} />
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              )}
+              <p className="text-[10px] text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
+                {format(new Date(detailNote.createdAt), "d MMM yyyy", { locale: es })}
+              </p>
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>Contenido</p>
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{detailNote.bodyMarkdown}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

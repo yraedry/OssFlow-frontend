@@ -8,9 +8,21 @@ import { PhysicalSessionCard } from '../components/PhysicalSessionCard'
 import { PhysicalSessionForm } from '../components/PhysicalSessionForm'
 import { usePhysicalSessions, useCreatePhysicalSession, useDeletePhysicalSession } from '../hooks'
 import type { CreatePhysicalSessionForm } from '../schemas'
+import type { PhysicalSession } from '../types'
+import { PHYSICAL_SESSION_TYPE_LABELS } from '../types'
+
+const TYPE_COLORS: Record<string, string> = {
+  STRENGTH: '#f59e0b',
+  CARDIO: '#10b981',
+  FLEXIBILITY: '#a855f7',
+  MOBILITY: '#3b82f6',
+  HIIT: '#e11d48',
+  OTHER: '#6b7280',
+}
 
 export function MobilidadPage() {
   const [open, setOpen] = useState(false)
+  const [detailSession, setDetailSession] = useState<PhysicalSession | null>(null)
   const { data, isLoading, error } = usePhysicalSessions()
   const createMutation = useCreatePhysicalSession()
   const deleteMutation = useDeletePhysicalSession()
@@ -70,10 +82,39 @@ export function MobilidadPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
           {sessions.map((s) => (
-            <PhysicalSessionCard key={s.id} session={s} onDelete={handleDelete} />
+            <PhysicalSessionCard key={s.id} session={s} onDelete={handleDelete} onDetail={setDetailSession} />
           ))}
         </div>
       )}
+      <Dialog open={!!detailSession} onOpenChange={v => { if (!v) setDetailSession(null) }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="sr-only">Detalle de sesión de movilidad</DialogTitle>
+          </DialogHeader>
+          {detailSession && (() => {
+            const accent = TYPE_COLORS[detailSession.sessionType] ?? '#6b7280'
+            return (
+              <div className="space-y-4">
+                <div className="border-l-2 pl-3" style={{ borderColor: accent }}>
+                  <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: accent, fontFamily: 'var(--font-mono)' }}>
+                    {PHYSICAL_SESSION_TYPE_LABELS[detailSession.sessionType]}
+                  </span>
+                  <p className="text-base font-semibold mt-0.5" style={{ fontFamily: 'var(--font-serif)' }}>{detailSession.title}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1" style={{ fontFamily: 'var(--font-mono)' }}>
+                    {detailSession.sessionDate}{detailSession.durationMinutes ? ` · ${detailSession.durationMinutes} min` : ''}
+                  </p>
+                </div>
+                {detailSession.notes && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>Notas</p>
+                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{detailSession.notes}</p>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

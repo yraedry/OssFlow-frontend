@@ -25,6 +25,19 @@ export function useCreateStudyBlock(planId: number) {
   })
 }
 
+export function useUpdateStudyBlock(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blockId, data }: { blockId: number; data: Partial<CreateStudyBlockRequest> }) =>
+      studyBlockApi.update(planId, blockId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: studyBlocksKey(planId) })
+      toast.success('Bloque actualizado')
+    },
+    onError: () => toast.error('Error al actualizar el bloque'),
+  })
+}
+
 export function useDeleteStudyBlock(planId: number) {
   const qc = useQueryClient()
   return useMutation({

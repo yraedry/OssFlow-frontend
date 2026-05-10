@@ -17,28 +17,32 @@ type Props = {
   session: PhysicalSession
   onEdit?: (session: PhysicalSession) => void
   onDelete: (id: number) => void
+  onDetail?: (session: PhysicalSession) => void
 }
 
-export function PhysicalSessionCard({ session, onEdit, onDelete }: Props) {
+export function PhysicalSessionCard({ session, onEdit, onDelete, onDetail }: Props) {
   const accent = TYPE_COLORS[session.sessionType] ?? '#6b7280'
 
   return (
     <div
-      className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors self-start"
+      className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors self-start cursor-pointer"
       style={{ borderLeft: `3px solid ${accent}` }}
+      onClick={() => onDetail?.(session)}
     >
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex gap-1">
+        {onEdit && (
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); onEdit(session) }}
+            className="h-7 w-7 flex items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Editar sesión"
+          >
+            <Pencil className="h-3 w-3" strokeWidth={1.5} />
+          </button>
+        )}
         <button
           type="button"
-          onClick={() => onEdit?.(session)}
-          className="h-7 w-7 flex items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Editar sesión"
-        >
-          <Pencil className="h-3 w-3" strokeWidth={1.5} />
-        </button>
-        <button
-          type="button"
-          onClick={() => onDelete(session.id)}
+          onClick={(e) => { e.stopPropagation(); onDelete(session.id) }}
           className="h-7 w-7 flex items-center justify-center border border-destructive/50 bg-background text-destructive hover:bg-destructive/10 transition-colors"
           aria-label="Eliminar sesión"
         >
