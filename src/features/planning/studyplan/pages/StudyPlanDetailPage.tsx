@@ -13,7 +13,6 @@ import type { CreateStudyBlockForm } from '@/features/planning/studyblock/schema
 import type { CreateStudyBlockRequest } from '@/features/planning/studyblock/types'
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
-const LABEL_STYLE: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--color-muted-foreground)' }
 
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: 'Borrador', ACTIVE: 'Activo', COMPLETED: 'Completado', ARCHIVED: 'Archivado',

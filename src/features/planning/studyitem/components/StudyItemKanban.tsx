@@ -21,7 +21,7 @@ type KanbanColumnProps = {
   blockId: number
 }
 
-function KanbanColumn({ status, label, color, items, planId, blockId }: KanbanColumnProps) {
+function KanbanColumn({ label, color, items, planId, blockId }: KanbanColumnProps) {
   const transitionMutation = useTransitionStudyItem(planId, blockId)
   const deleteMutation = useDeleteStudyItem(planId, blockId)
 
