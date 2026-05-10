@@ -74,7 +74,7 @@ export function PhysicalSessionsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
           {sessions.map((s) => (
-            <div key={s.id} id={`session-${s.id}`}>
+            <div key={s.id} id={`session-${s.id}`} className="self-start">
               <PhysicalSessionCard session={s} onEdit={setEditSession} onDelete={handleDelete} />
             </div>
           ))}
