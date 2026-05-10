@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, Trash2, BookOpen, X, ChevronDown, ChevronUp, Play, Pencil } from 'lucide-react'
+import { Plus, Trash2, BookOpen, X, Play, Pencil } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { PaginationControls } from '@/shared/components/ui/pagination-controls'
 import { useTrainingSessions, useTrainingSession, useCreateTrainingSession, useDeleteTrainingSession, useUpsertWorkedTechnique, useRemoveWorkedTechnique, SESSIONS_KEY } from '../hooks'
-import { useQueryClient } from '@tanstack/react-query'
 import { useTechniques } from '@/features/catalog/technique/hooks'
 import { useUpdateTrainingSession } from '../hooks'
+import { useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import type { Intensity, TrainingSession, TrainingSessionWithVideo } from '../types'
@@ -29,18 +29,19 @@ function formatDate(iso: string) {
   try { return format(new Date(iso + 'T00:00:00'), "d MMM yyyy", { locale: es }) } catch { return iso }
 }
 
-function TechniquesPanelInCard({ session }: { session: TrainingSession }) {
-  const [open, setOpen] = useState(false)
+function SessionDetailDialog({ session, onClose }: { session: TrainingSession; onClose: () => void }) {
   const [selectedId, setSelectedId] = useState('')
   const [notes, setNotes] = useState('')
 
   const qc = useQueryClient()
-  const { data: liveSession } = useTrainingSession(open ? session.id : 0)
+  const { data: liveSession, isLoading } = useTrainingSession(session.id)
   const { data: techniquesData } = useTechniques({ size: 200 })
   const upsert = useUpsertWorkedTechnique(session.id)
   const remove = useRemoveWorkedTechnique(session.id)
+
   const techniques = techniquesData?.content ?? []
   const worked = (liveSession ?? session).workedTechniques ?? []
+  const accent = INTENSITY_COLORS[session.intensity] ?? '#6b7280'
 
   const handleAdd = async () => {
     if (!selectedId) return
@@ -49,67 +50,98 @@ function TechniquesPanelInCard({ session }: { session: TrainingSession }) {
     setSelectedId(''); setNotes('')
   }
 
-  return (
-    <div className="border-t border-border/50 px-4 py-2">
-      <button type="button" onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors"
-        style={MONO}
-      >
-        {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-        <BookOpen className="h-3 w-3" />
-        <span className="uppercase tracking-wide">Técnicas trabajadas</span>
-        {worked.length > 0 && (
-          <span className="ml-1 text-[10px] font-bold" style={{ color: '#4a7cff' }}>({worked.length})</span>
-        )}
-      </button>
+  const handleRemove = async (techniqueId: number) => {
+    await remove.mutateAsync(techniqueId)
+    await qc.refetchQueries({ queryKey: [...SESSIONS_KEY, session.id] })
+  }
 
-      {open && (
-        <div className="mt-2 space-y-2">
-          {worked.length === 0 ? (
-            <p className="text-[10px] text-muted-foreground" style={MONO}>Sin técnicas registradas</p>
-          ) : (
-            <ul className="space-y-1">
-              {worked.map((wt) => {
-                const name = wt.techniqueName ?? techniques.find(t => t.id === wt.techniqueId)?.name ?? `#${wt.techniqueId}`
-                return (
-                  <li key={wt.techniqueId} className="flex items-center justify-between border border-border bg-muted/20 px-2.5 py-1.5">
-                    <div className="min-w-0">
-                      <span className="text-xs font-medium">{name}</span>
-                      {wt.notesMarkdown && (
-                        <span className="text-[10px] text-muted-foreground ml-2" style={MONO}>· {wt.notesMarkdown}</span>
-                      )}
-                    </div>
-                    <button type="button" onClick={() => remove.mutate(wt.techniqueId)} disabled={remove.isPending}
-                      className="text-muted-foreground hover:text-destructive transition-colors ml-2 shrink-0">
-                      <X className="h-3 w-3" />
-                    </button>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-          <div className="border border-border bg-muted/10 p-2.5 space-y-2">
-            <select value={selectedId} onChange={e => setSelectedId(e.target.value)}
-              className="w-full border border-border bg-background px-2 py-1.5 text-xs focus:outline-none"
-              style={MONO}
-            >
-              <option value="">— Seleccionar técnica —</option>
-              {techniques.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-            <div className="flex gap-2">
-              <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
-                placeholder="Notas (opcional)" className="flex-1 border border-border bg-background px-2 py-1 text-xs focus:outline-none" style={MONO} />
-              <button type="button" onClick={handleAdd} disabled={!selectedId || upsert.isPending}
-                className="flex items-center gap-1 px-2.5 py-1 text-[10px] uppercase tracking-wide bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-40"
-                style={MONO}
-              >
-                <Plus className="h-2.5 w-2.5" />
-                {upsert.isPending ? '...' : 'Añadir'}
-              </button>
-            </div>
-          </div>
+  return (
+    <div className="space-y-5">
+      {/* Cabecera de sesión */}
+      <div className="border-l-2 pl-3" style={{ borderColor: accent }}>
+        <span className="text-[10px] font-bold uppercase tracking-widest" style={{ ...MONO, color: accent }}>
+          {INTENSITY_LABELS[session.intensity]}
+        </span>
+        <p className="text-base font-semibold mt-0.5" style={{ fontFamily: 'var(--font-serif)' }}>
+          {session.location ? session.location : formatDate(session.sessionDate)}
+        </p>
+        {session.location && (
+          <p className="text-[10px] text-muted-foreground" style={MONO}>{formatDate(session.sessionDate)}</p>
+        )}
+        <p className="text-xs text-muted-foreground mt-1" style={MONO}>
+          {session.durationMinutes} min{session.location ? ` · ${session.location}` : ''}
+        </p>
+      </div>
+
+      {session.notesMarkdown && (
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={MONO}>Notas</p>
+          <p className="text-sm text-muted-foreground">{session.notesMarkdown}</p>
         </div>
       )}
+
+      {/* Técnicas */}
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1.5" style={MONO}>
+          <BookOpen className="h-3 w-3" />
+          Técnicas trabajadas
+          {worked.length > 0 && (
+            <span className="font-bold" style={{ color: '#4a7cff' }}>({worked.length})</span>
+          )}
+        </p>
+
+        {isLoading ? (
+          <div className="flex justify-center py-4"><Spinner /></div>
+        ) : worked.length === 0 ? (
+          <p className="text-xs text-muted-foreground" style={MONO}>Sin técnicas registradas aún.</p>
+        ) : (
+          <ul className="space-y-1.5 mb-4">
+            {worked.map((wt) => {
+              const name = wt.techniqueName ?? techniques.find(t => t.id === wt.techniqueId)?.name ?? `#${wt.techniqueId}`
+              return (
+                <li key={wt.techniqueId} className="flex items-start justify-between border border-border bg-muted/20 px-3 py-2 gap-2">
+                  <div className="min-w-0">
+                    <span className="text-xs font-medium">{name}</span>
+                    {wt.notesMarkdown && (
+                      <p className="text-[10px] text-muted-foreground mt-0.5" style={MONO}>{wt.notesMarkdown}</p>
+                    )}
+                  </div>
+                  <button type="button" onClick={() => handleRemove(wt.techniqueId)} disabled={remove.isPending}
+                    className="text-muted-foreground hover:text-destructive transition-colors shrink-0 mt-0.5">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+
+        {/* Añadir técnica */}
+        <div className="border border-border bg-muted/10 p-3 space-y-2">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>Añadir técnica</p>
+          <select value={selectedId} onChange={e => setSelectedId(e.target.value)}
+            className="w-full border border-border bg-background px-2.5 py-2 text-xs focus:outline-none"
+            style={MONO}
+          >
+            <option value="">— Seleccionar técnica —</option>
+            {techniques.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </select>
+          <div className="flex gap-2">
+            <input type="text" value={notes} onChange={e => setNotes(e.target.value)}
+              placeholder="Notas (opcional)"
+              className="flex-1 border border-border bg-background px-2.5 py-1.5 text-xs focus:outline-none"
+              style={MONO}
+            />
+            <button type="button" onClick={handleAdd} disabled={!selectedId || upsert.isPending}
+              className="flex items-center gap-1 px-3 py-1.5 text-[10px] uppercase tracking-wide bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-40"
+              style={MONO}
+            >
+              <Plus className="h-3 w-3" />
+              {upsert.isPending ? '...' : 'Añadir'}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -289,6 +321,7 @@ export function TrainingSessionsPage() {
   const [open, setOpen] = useState(false)
   const [createdSession, setCreatedSession] = useState<TrainingSession | null>(null)
   const [editSession, setEditSession] = useState<TrainingSession | null>(null)
+  const [detailSession, setDetailSession] = useState<TrainingSession | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
   const { data, isLoading, error } = useTrainingSessions({ page: currentPage, size: 20 })
   const createMutation = useCreateTrainingSession()
@@ -389,6 +422,18 @@ export function TrainingSessionsPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog de detalle / técnicas */}
+      <Dialog open={!!detailSession} onOpenChange={v => { if (!v) setDetailSession(null) }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalle de sesión</DialogTitle>
+          </DialogHeader>
+          {detailSession && (
+            <SessionDetailDialog session={detailSession} onClose={() => setDetailSession(null)} />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {isLoading ? (
         <div className="flex justify-center py-12"><Spinner /></div>
       ) : error ? (
@@ -406,15 +451,19 @@ export function TrainingSessionsPage() {
               const accent = INTENSITY_COLORS[s.intensity] ?? '#6b7280'
               return (
                 <div key={s.id} id={`session-${s.id}`}
-                  className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors"
+                  className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors cursor-pointer"
                   style={{ borderLeft: `3px solid ${accent}` }}
+                  onClick={() => setDetailSession(s)}
                 >
+                  {/* Botones hover — detienen la propagación */}
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex gap-1">
-                    <button type="button" aria-label="Editar sesión" onClick={() => setEditSession(s)}
+                    <button type="button" aria-label="Editar sesión"
+                      onClick={e => { e.stopPropagation(); setEditSession(s) }}
                       className="h-7 w-7 flex items-center justify-center border border-border bg-background text-muted-foreground hover:text-foreground transition-colors">
                       <Pencil className="h-3 w-3" strokeWidth={1.5} />
                     </button>
-                    <button type="button" aria-label="Eliminar sesión" onClick={() => handleDelete(s.id)}
+                    <button type="button" aria-label="Eliminar sesión"
+                      onClick={e => { e.stopPropagation(); handleDelete(s.id) }}
                       className="h-7 w-7 flex items-center justify-center border border-destructive/50 bg-background text-destructive hover:bg-destructive/10 transition-colors">
                       <Trash2 className="h-3 w-3" strokeWidth={1.5} />
                     </button>
@@ -454,8 +503,6 @@ export function TrainingSessionsPage() {
                       )}
                     </div>
                   </div>
-
-                  <TechniquesPanelInCard session={s} />
                 </div>
               )
             })}
