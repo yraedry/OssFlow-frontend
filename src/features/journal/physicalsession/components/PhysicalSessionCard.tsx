@@ -24,7 +24,7 @@ export function PhysicalSessionCard({ session, onEdit, onDelete }: Props) {
 
   return (
     <div
-      className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors"
+      className="group relative flex flex-col bg-card border border-border hover:border-foreground/40 transition-colors self-start"
       style={{ borderLeft: `3px solid ${accent}` }}
     >
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex gap-1">
