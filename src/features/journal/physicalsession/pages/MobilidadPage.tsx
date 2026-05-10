@@ -22,6 +22,7 @@ const TYPE_COLORS: Record<string, string> = {
 
 export function MobilidadPage() {
   const [open, setOpen] = useState(false)
+  const [prefillValues, setPrefillValues] = useState<Partial<CreatePhysicalSessionForm> | undefined>()
   const [editSession, setEditSession] = useState<PhysicalSession | null>(null)
   const [detailSession, setDetailSession] = useState<PhysicalSession | null>(null)
   const { data, isLoading, error } = usePhysicalSessions()
@@ -33,6 +34,7 @@ export function MobilidadPage() {
   const handleSubmit = async (formData: CreatePhysicalSessionForm) => {
     await createMutation.mutateAsync(formData)
     setOpen(false)
+    setPrefillValues(undefined)
   }
 
   const handleUpdate = async (formData: CreatePhysicalSessionForm) => {
@@ -47,9 +49,9 @@ export function MobilidadPage() {
     await deleteMutation.mutateAsync(id)
   }
 
-  const handleDuplicate = async (session: PhysicalSession) => {
+  const handleDuplicate = (session: PhysicalSession) => {
     const today = new Date().toISOString().split('T')[0]
-    await createMutation.mutateAsync({
+    setPrefillValues({
       sessionDate: today,
       sessionType: session.sessionType,
       title: session.title,
@@ -57,6 +59,12 @@ export function MobilidadPage() {
       notes: session.notes ?? undefined,
       youtubeUrl: session.youtubeUrl ?? undefined,
     })
+    setOpen(true)
+  }
+
+  const handleOpenChange = (v: boolean) => {
+    setOpen(v)
+    if (!v) setPrefillValues(undefined)
   }
 
   const sessions = (data?.content ?? []).filter((s) => s.sessionType === 'MOBILITY' || s.sessionType === 'FLEXIBILITY')
@@ -69,21 +77,28 @@ export function MobilidadPage() {
           <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>Sesiones de movilidad</h1>
           <p className="text-sm text-muted-foreground mt-1">Movilidad y flexibilidad</p>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
-            <button type="button" className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0" style={{ fontFamily: 'var(--font-mono)' }}>
+            <button
+              type="button"
+              onClick={() => setPrefillValues(undefined)}
+              className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0"
+              style={{ fontFamily: 'var(--font-mono)' }}
+            >
               <Plus className="h-3.5 w-3.5" strokeWidth={2} />
               Nueva
             </button>
           </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>
-              <DialogTitle>Nueva sesión de movilidad / flexibilidad</DialogTitle>
+              <DialogTitle>{prefillValues ? 'Duplicar sesión' : 'Nueva sesión de movilidad / flexibilidad'}</DialogTitle>
             </DialogHeader>
             <PhysicalSessionForm
               onSubmit={handleSubmit}
               isPending={createMutation.isPending}
-              defaultSessionType="MOBILITY"
+              defaultValues={prefillValues}
+              defaultSessionType={prefillValues ? undefined : 'MOBILITY'}
+              submitLabel={prefillValues ? 'Guardar copia' : undefined}
               excludeTypes={['STRENGTH', 'CARDIO', 'HIIT', 'OTHER']}
             />
           </DialogContent>
