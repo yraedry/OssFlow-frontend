@@ -143,13 +143,13 @@ export function NotesPage() {
         </>
       )}
       <Dialog open={!!detailNote} onOpenChange={v => { if (!v) setDetailNote(null) }}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="sr-only">Detalle de nota</DialogTitle>
           </DialogHeader>
           {detailNote && (
-            <div className="space-y-4">
-              <p className="text-base font-semibold leading-snug" style={{ fontFamily: 'var(--font-serif)' }}>{detailNote.title}</p>
+            <div className="space-y-4 overflow-y-auto max-h-[75vh] min-w-0">
+              <p className="text-base font-semibold leading-snug break-words" style={{ fontFamily: 'var(--font-serif)' }}>{detailNote.title}</p>
               {detailNote.tags.length > 0 && (
                 <div className="flex gap-1.5 flex-wrap">
                   {detailNote.tags.map((t) => (
