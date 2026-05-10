@@ -10,6 +10,14 @@ export function useTrainingSessions(params?: { page?: number; size?: number }) {
   return useQuery({ queryKey: [...SESSIONS_KEY, params], queryFn: () => trainingSessionApi.list(params) })
 }
 
+export function useTrainingSession(id: number) {
+  return useQuery({
+    queryKey: [...SESSIONS_KEY, id],
+    queryFn: () => trainingSessionApi.get(id),
+    enabled: id > 0,
+  })
+}
+
 export function useCreateTrainingSession() {
   const qc = useQueryClient()
   return useMutation({

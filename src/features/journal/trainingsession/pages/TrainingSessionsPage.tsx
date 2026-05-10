@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { PaginationControls } from '@/shared/components/ui/pagination-controls'
-import { useTrainingSessions, useCreateTrainingSession, useDeleteTrainingSession, useUpsertWorkedTechnique, useRemoveWorkedTechnique, SESSIONS_KEY } from '../hooks'
+import { useTrainingSessions, useTrainingSession, useCreateTrainingSession, useDeleteTrainingSession, useUpsertWorkedTechnique, useRemoveWorkedTechnique, SESSIONS_KEY } from '../hooks'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTechniques } from '@/features/catalog/technique/hooks'
 import { useUpdateTrainingSession } from '../hooks'
@@ -34,15 +34,18 @@ function TechniquesPanelInCard({ session }: { session: TrainingSession }) {
   const [selectedId, setSelectedId] = useState('')
   const [notes, setNotes] = useState('')
 
+  const qc = useQueryClient()
+  const { data: liveSession } = useTrainingSession(open ? session.id : 0)
   const { data: techniquesData } = useTechniques({ size: 200 })
   const upsert = useUpsertWorkedTechnique(session.id)
   const remove = useRemoveWorkedTechnique(session.id)
   const techniques = techniquesData?.content ?? []
-  const worked = session.workedTechniques ?? []
+  const worked = (liveSession ?? session).workedTechniques ?? []
 
   const handleAdd = async () => {
     if (!selectedId) return
     await upsert.mutateAsync({ techniqueId: Number(selectedId), data: { notesMarkdown: notes || undefined } })
+    await qc.refetchQueries({ queryKey: [...SESSIONS_KEY, session.id] })
     setSelectedId(''); setNotes('')
   }
 
@@ -207,25 +210,24 @@ function AddTechniquesStep({ sessionId, onDone }: { sessionId: number; onDone: (
   const [notes, setNotes] = useState('')
 
   const qc = useQueryClient()
-  const { data: sessionsData } = useTrainingSessions({ size: 200 })
+  const { data: liveSession } = useTrainingSession(sessionId)
   const { data: techniquesData } = useTechniques({ size: 200 })
   const upsert = useUpsertWorkedTechnique(sessionId)
   const remove = useRemoveWorkedTechnique(sessionId)
 
   const techniques = techniquesData?.content ?? []
-  const liveSession = sessionsData?.content?.find(s => s.id === sessionId)
   const worked = liveSession?.workedTechniques ?? []
 
   const handleAdd = async () => {
     if (!selectedId) return
     await upsert.mutateAsync({ techniqueId: Number(selectedId), data: { notesMarkdown: notes || undefined } })
-    await qc.invalidateQueries({ queryKey: SESSIONS_KEY })
+    await qc.refetchQueries({ queryKey: [...SESSIONS_KEY, sessionId] })
     setSelectedId(''); setNotes('')
   }
 
   const handleRemove = async (techniqueId: number) => {
     await remove.mutateAsync(techniqueId)
-    await qc.invalidateQueries({ queryKey: SESSIONS_KEY })
+    await qc.refetchQueries({ queryKey: [...SESSIONS_KEY, sessionId] })
   }
 
   return (
