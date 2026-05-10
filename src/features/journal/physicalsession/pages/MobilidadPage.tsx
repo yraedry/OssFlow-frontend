@@ -6,7 +6,7 @@ import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { PhysicalSessionCard } from '../components/PhysicalSessionCard'
 import { PhysicalSessionForm } from '../components/PhysicalSessionForm'
-import { usePhysicalSessions, useCreatePhysicalSession, useDeletePhysicalSession } from '../hooks'
+import { usePhysicalSessions, useCreatePhysicalSession, useUpdatePhysicalSession, useDeletePhysicalSession } from '../hooks'
 import type { CreatePhysicalSessionForm } from '../schemas'
 import type { PhysicalSession } from '../types'
 import { PHYSICAL_SESSION_TYPE_LABELS } from '../types'
@@ -22,9 +22,11 @@ const TYPE_COLORS: Record<string, string> = {
 
 export function MobilidadPage() {
   const [open, setOpen] = useState(false)
+  const [editSession, setEditSession] = useState<PhysicalSession | null>(null)
   const [detailSession, setDetailSession] = useState<PhysicalSession | null>(null)
   const { data, isLoading, error } = usePhysicalSessions()
   const createMutation = useCreatePhysicalSession()
+  const updateMutation = useUpdatePhysicalSession()
   const deleteMutation = useDeletePhysicalSession()
   const confirm = useConfirm()
 
@@ -33,10 +35,28 @@ export function MobilidadPage() {
     setOpen(false)
   }
 
+  const handleUpdate = async (formData: CreatePhysicalSessionForm) => {
+    if (!editSession) return
+    await updateMutation.mutateAsync({ id: editSession.id, data: formData })
+    setEditSession(null)
+  }
+
   const handleDelete = async (id: number) => {
     const ok = await confirm({ description: '¿Eliminar esta sesión? Esta acción no se puede deshacer.' })
     if (!ok) return
     await deleteMutation.mutateAsync(id)
+  }
+
+  const handleDuplicate = async (session: PhysicalSession) => {
+    const today = new Date().toISOString().split('T')[0]
+    await createMutation.mutateAsync({
+      sessionDate: today,
+      sessionType: session.sessionType,
+      title: session.title,
+      durationMinutes: session.durationMinutes ?? undefined,
+      notes: session.notes ?? undefined,
+      youtubeUrl: session.youtubeUrl ?? undefined,
+    })
   }
 
   const sessions = (data?.content ?? []).filter((s) => s.sessionType === 'MOBILITY' || s.sessionType === 'FLEXIBILITY')
@@ -82,14 +102,45 @@ export function MobilidadPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-start">
           {sessions.map((s) => (
-            <PhysicalSessionCard key={s.id} session={s} onDelete={handleDelete} onDetail={setDetailSession} />
+            <PhysicalSessionCard
+              key={s.id}
+              session={s}
+              onEdit={setEditSession}
+              onDuplicate={handleDuplicate}
+              onDelete={handleDelete}
+              onDetail={setDetailSession}
+            />
           ))}
         </div>
       )}
+
+      <Dialog open={!!editSession} onOpenChange={v => { if (!v) setEditSession(null) }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Editar sesión de movilidad / flexibilidad</DialogTitle>
+          </DialogHeader>
+          {editSession && (
+            <PhysicalSessionForm
+              onSubmit={handleUpdate}
+              isPending={updateMutation.isPending}
+              defaultValues={{
+                sessionDate: editSession.sessionDate,
+                sessionType: editSession.sessionType,
+                title: editSession.title,
+                durationMinutes: editSession.durationMinutes ?? undefined,
+                notes: editSession.notes ?? undefined,
+              }}
+              submitLabel="Guardar cambios"
+              excludeTypes={['STRENGTH', 'CARDIO', 'HIIT', 'OTHER']}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={!!detailSession} onOpenChange={v => { if (!v) setDetailSession(null) }}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="sr-only">Detalle de sesión de movilidad</DialogTitle>
+            <DialogTitle>Detalle de sesión</DialogTitle>
           </DialogHeader>
           {detailSession && (() => {
             const accent = TYPE_COLORS[detailSession.sessionType] ?? '#6b7280'
