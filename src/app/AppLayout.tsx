@@ -5,6 +5,7 @@ import { BottomTabBar } from '@/shared/components/layout/BottomTabBar'
 import { TopNavBar } from '@/shared/components/layout/TopNavBar'
 import { FabMenu } from '@/shared/components/ui/fab-menu'
 import { CommandPalette } from '@/shared/components/CommandPalette'
+import { Breadcrumb } from '@/shared/components/ui/breadcrumb'
 
 export function AppLayout() {
   const [cmdOpen, setCmdOpen] = useState(false)
@@ -29,6 +30,9 @@ export function AppLayout() {
 
       {/* Main content */}
       <main className="flex-1 overflow-auto p-4 md:p-8 pb-32 md:pb-8 min-h-dvh md:min-h-0">
+        <div className="hidden md:block mb-2">
+          <Breadcrumb />
+        </div>
         <Outlet />
       </main>
 
