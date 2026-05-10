@@ -7,7 +7,7 @@ export const createTechniqueSchema = z.object({
   endPositionId: z.number().positive().optional(),
   minimumBelt: z.enum(['WHITE', 'BLUE', 'PURPLE', 'BROWN', 'BLACK']),
   modality: z.enum(['GI', 'NOGI', 'BOTH']),
-  visibility: z.enum(['PUBLIC', 'PRIVATE']),
+  visibility: z.enum(['PUBLIC', 'PRIVATE']).optional(),
   description: z.string().max(10000).optional(),
   youtubeUrl: z.string().url('URL no válida').optional().or(z.literal('')),
 })

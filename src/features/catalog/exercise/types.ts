@@ -36,5 +36,5 @@ export interface CreateExerciseRequest {
   category: ExerciseCategory
   equipment: EquipmentType
   youtubeUrl?: string
-  visibility: 'PUBLIC' | 'PRIVATE'
+  visibility?: 'PUBLIC' | 'PRIVATE'
 }

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
 import { Plus } from 'lucide-react'
-import { Button } from '@/shared/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
@@ -32,19 +31,18 @@ export function MobilidadPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <h1 className="text-2xl font-bold" style={{ fontFamily: 'var(--font-serif)' }}>
-            Movilidad
-          </h1>
-          <p className="text-muted-foreground text-sm">Sesiones de movilidad específica para BJJ</p>
+          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>Diario</div>
+          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>Movilidad</h1>
+          <p className="text-sm text-muted-foreground mt-1">Sesiones de movilidad específica para BJJ</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Nueva sesión
-            </Button>
+            <button type="button" className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0" style={{ fontFamily: 'var(--font-mono)' }}>
+              <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+              Nueva
+            </button>
           </DialogTrigger>
           <DialogContent className="max-w-lg">
             <DialogHeader>

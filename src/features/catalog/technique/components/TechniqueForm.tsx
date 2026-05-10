@@ -1,6 +1,5 @@
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
 import { Textarea } from '@/shared/components/ui/textarea'
@@ -35,7 +34,6 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
       endPositionId: defaultValues?.endPositionId,
       minimumBelt: defaultValues?.minimumBelt ?? 'WHITE',
       modality: defaultValues?.modality ?? 'GI',
-      visibility: defaultValues?.visibility ?? 'PRIVATE',
       description: defaultValues?.description ?? '',
       youtubeUrl: defaultValues?.youtubeUrl ?? '',
     },
@@ -122,23 +120,6 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
       </div>
 
       <div className="space-y-2">
-        <Label>Visibilidad</Label>
-        <Controller
-          control={control}
-          name="visibility"
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent position="popper">
-                <SelectItem value="PUBLIC">Pública</SelectItem>
-                <SelectItem value="PRIVATE">Privada</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-        />
-      </div>
-
-      <div className="space-y-2">
         <Label htmlFor="youtubeUrl">URL YouTube (opcional)</Label>
         <Input id="youtubeUrl" {...register('youtubeUrl')} placeholder="https://youtube.com/watch?v=..." />
         {errors.youtubeUrl && <p className="text-sm text-destructive">{errors.youtubeUrl.message}</p>}
@@ -149,9 +130,9 @@ export function TechniqueForm({ defaultValues, onSubmit, isPending }: TechniqueF
         <Textarea id="description" {...register('description')} rows={3} />
       </div>
 
-      <Button type="submit" disabled={isPending} className="w-full">
+      <button type="submit" disabled={isPending} className="w-full py-2.5 bg-foreground text-background hover:opacity-85 transition-opacity disabled:opacity-50" style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
         {isPending ? 'Guardando...' : defaultValues ? 'Actualizar' : 'Crear técnica'}
-      </Button>
+      </button>
     </form>
   )
 }
