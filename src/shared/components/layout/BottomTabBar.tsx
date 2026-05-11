@@ -10,14 +10,13 @@ const TABS = [
   { to: '/profile',              label: 'Perfil',   icon: User,         end: true  },
 ]
 
-const SUB_NAV: Record<string, { to: string; label: string }[]> = {
+const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[] }[]> = {
   diario: [
-    { to: '/diario/sesiones-bjj',    label: 'Sesiones BJJ' },
+    { to: '/diario/sesiones-bjj',     label: 'Sesiones BJJ' },
     { to: '/diario/sesiones-fisicas', label: 'Sesiones físicas' },
-    { to: '/diario/movilidad',       label: 'Movilidad' },
-    { to: '/diario/flexibilidad',    label: 'Flexibilidad' },
-    { to: '/diario/notas',           label: 'Notas' },
-    { to: '/diario/competicion',     label: 'Competición' },
+    { to: '/diario/movilidad',        label: 'Sesiones de movilidad', matchPaths: ['/diario/movilidad', '/diario/flexibilidad'] },
+    { to: '/diario/notas',            label: 'Notas' },
+    { to: '/diario/competicion',      label: 'Competición' },
   ],
   estudio: [
     { to: '/estudio/tecnicas',    label: 'Técnicas' },
@@ -86,23 +85,36 @@ export function BottomTabBar() {
     >
       {subNav.length > 0 && (
         <div className="border-t border-border/50 flex overflow-x-auto scrollbar-none">
-          {subNav.map(({ to, label }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                cn(
-                  'flex-shrink-0 h-8 flex items-center px-3 uppercase transition-colors whitespace-nowrap',
-                  isActive
-                    ? 'text-foreground border-b-2 border-foreground'
-                    : 'text-muted-foreground border-b-2 border-transparent hover:text-foreground',
-                )
-              }
-              style={SUBNAV_MONO}
-            >
-              {label}
-            </NavLink>
-          ))}
+          {subNav.map(({ to, label, matchPaths }) => {
+            const isActive = matchPaths
+              ? matchPaths.some(p => pathname === p || pathname.startsWith(p + '/'))
+              : undefined
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                end={!matchPaths}
+                className={matchPaths
+                  ? cn(
+                      'flex-shrink-0 h-8 flex items-center px-3 uppercase transition-colors whitespace-nowrap border-b-2',
+                      isActive
+                        ? 'text-foreground border-foreground'
+                        : 'text-muted-foreground border-transparent hover:text-foreground',
+                    )
+                  : ({ isActive }: { isActive: boolean }) =>
+                      cn(
+                        'flex-shrink-0 h-8 flex items-center px-3 uppercase transition-colors whitespace-nowrap border-b-2',
+                        isActive
+                          ? 'text-foreground border-foreground'
+                          : 'text-muted-foreground border-transparent hover:text-foreground',
+                      )
+                }
+                style={SUBNAV_MONO}
+              >
+                {label}
+              </NavLink>
+            )
+          })}
         </div>
       )}
 
