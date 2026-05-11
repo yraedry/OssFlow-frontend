@@ -2,6 +2,7 @@ import React from 'react'
 import { createBrowserRouter, Outlet } from 'react-router-dom'
 import { AppLayout } from './AppLayout'
 import { AuthGuard } from './AuthGuard'
+import { GuestGuard } from './GuestGuard'
 import { OnboardingGuard } from './OnboardingGuard'
 import { HomePage } from '@/pages/HomePage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
@@ -53,14 +54,20 @@ const lazySuspense = (element: React.ReactNode) => (
 )
 
 export const router = createBrowserRouter([
-  // ─── Public routes (no auth required) ────────────────────────────────────
+  // ─── Auth pages: redirige a / si ya está autenticado ─────────────────────
   {
-    element: <Outlet />,
+    element: <GuestGuard />,
     children: [
-      // Landing page at /landing (marketing page for unauthenticated visitors)
       { path: '/landing', element: <LandingPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
+    ],
+  },
+
+  // ─── Public routes (accesibles siempre) ──────────────────────────────────
+  {
+    element: <Outlet />,
+    children: [
       { path: '/verify-email', element: <VerifyEmailPage /> },
       { path: '/forgot-password', element: <ForgotPasswordPage /> },
       { path: '/reset-password', element: <ResetPasswordPage /> },
