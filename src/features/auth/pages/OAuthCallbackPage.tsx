@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiClient } from '@/shared/api/client'
+import { refreshToken } from '../api'
 import { useAuthStore } from '../store/authStore'
 import type { AuthUser } from '../types'
 
@@ -10,45 +11,41 @@ interface ProfileResponse {
   ownerId: number
 }
 
+// El backend redirige aquí tras OAuth2 success con cookie HttpOnly ya seteada.
+// El access token NO viaja por URL (A11): lo obtenemos con un silent refresh
+// sobre la cookie que acabamos de recibir.
 export function OAuthCallbackPage() {
   const navigate = useNavigate()
   const { setAuth, clearAuth } = useAuthStore()
 
   useEffect(() => {
-    // Read access token from URL hash: #token=<AT>
-    const hash = window.location.hash
-    const params = new URLSearchParams(hash.replace(/^#/, ''))
-    const token = params.get('token')
+    const params = new URLSearchParams(window.location.search)
+    const ok = params.get('ok')
 
-    // Clear the hash from URL immediately (token should not linger)
-    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    // Limpia query inmediatamente.
+    window.history.replaceState(null, '', window.location.pathname)
 
-    if (!token) {
+    if (ok !== '1') {
       clearAuth()
       navigate('/login', { replace: true })
       return
     }
 
-    // Fetch user profile to get displayName and user id
-    apiClient
-      .get('identity/profile', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .json<ProfileResponse>()
-      .then((profile) => {
-        const user: AuthUser = {
-          id: profile.ownerId,
-          email: '', // Email not in profile response — OK for OAuth
-          displayName: profile.displayName,
-        }
-        setAuth(token, user)
-        navigate('/', { replace: true })
+    refreshToken()
+      .then(async (r) => {
+        const profile = await apiClient
+          .get('identity/profile', { headers: { Authorization: `Bearer ${r.accessToken}` } })
+          .json<ProfileResponse>()
+          .catch(() => null)
+        const user: AuthUser = profile
+          ? { id: profile.ownerId, email: '', displayName: profile.displayName }
+          : { id: 0, email: '', displayName: null }
+        setAuth(r.accessToken, user)
+        navigate(profile ? '/' : '/onboarding', { replace: true })
       })
       .catch(() => {
-        // Profile may not exist yet (first OAuth login) — still set auth
-        const user: AuthUser = { id: 0, email: '', displayName: null }
-        setAuth(token, user)
-        navigate('/', { replace: true })
+        clearAuth()
+        navigate('/login?error=oauth_failed', { replace: true })
       })
   }, [navigate, setAuth, clearAuth])
 
