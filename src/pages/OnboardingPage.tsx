@@ -189,7 +189,7 @@ export function OnboardingPage() {
                   Federaciones
                 </p>
                 <p className="text-xs text-muted-foreground mb-3" style={MONO}>
-                  Selecciona las federaciones con las que compites o entrenas.
+                  ¿Con qué federaciones compites? (opcional — puedes añadirlas más tarde desde tu perfil)
                 </p>
                 {loadingFeds ? (
                   <div className="flex justify-center py-4">
@@ -207,6 +207,14 @@ export function OnboardingPage() {
                 <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>Atrás</Button>
                 <Button className="flex-1" onClick={() => setStep(3)}>Siguiente</Button>
               </div>
+              <button
+                type="button"
+                onClick={() => { setData(prev => ({ ...prev, federations: [] })); setStep(3) }}
+                className="w-full text-center text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors cursor-pointer"
+                style={MONO}
+              >
+                Saltar este paso
+              </button>
             </div>
           )}
 

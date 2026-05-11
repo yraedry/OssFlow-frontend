@@ -5,6 +5,7 @@ import { format, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { ArrowRight, Dumbbell, BookOpen, LayoutGrid } from 'lucide-react'
 import { fetchWeeklyStats } from '@/shared/api/dashboard'
+import { useProfile } from '@/features/identity/profile/hooks'
 import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
 import { useWeeklyTemplate } from '@/features/planning/weeklytemplate/hooks'
@@ -29,6 +30,7 @@ export function HomePage() {
   const today = new Date()
   const [quickLogOpen, setQuickLogOpen] = useState(false)
 
+  const { data: profile } = useProfile()
   const { data: stats } = useQuery({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
   const { data: bjjData } = useTrainingSessions()
   const { data: physData } = usePhysicalSessions({ page: 0, size: 10 })
@@ -87,7 +89,7 @@ export function HomePage() {
           {format(today, "EEEE, d 'de' MMMM", { locale: es })}
         </p>
         <h1 className="leading-none" style={{ ...SERIF, fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.03em' }}>
-          {getGreeting(today.getHours())}, Adrián.
+          {getGreeting(today.getHours())}{profile?.alias ? `, ${profile.alias}` : profile?.displayName ? `, ${profile.displayName}` : ''}.
         </h1>
       </div>
 
