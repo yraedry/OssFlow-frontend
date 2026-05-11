@@ -1,7 +1,5 @@
 import { Link } from 'react-router-dom'
-
-const MONO = { fontFamily: 'var(--font-mono)' } as const
-const SERIF = { fontFamily: 'var(--font-serif)', fontWeight: 900, letterSpacing: '-0.02em' } as const
+import { MONO, SERIF } from '@/shared/lib/typography'
 
 export function AuthLogo() {
   return (
