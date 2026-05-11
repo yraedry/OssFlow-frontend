@@ -9,10 +9,8 @@ import { getAvatarFromStorage, saveAvatarToStorage, removeAvatarFromStorage, res
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
 import { updateProfileSchema, type UpdateProfileForm } from '../schemas'
+import { MONO, SERIF } from '@/shared/lib/typography'
 import type { FederationAssignment } from '@/features/identity/federation/types'
-
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
-const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
 
 const BELTS = [
   { value: 'WHITE',  label: 'Blanco',  color: '#d1d5db', text: '#111827' },
@@ -342,11 +340,11 @@ export function ProfileEditPage() {
           </CardSection>
 
           <CardSection title="Credenciales de acceso">
-            {/* OAuth notice — estático, cuando llegue auth real será dinámico */}
-            <div className="flex items-start gap-3 p-3 mb-5 border border-blue-500/25 bg-blue-500/8">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0" />
-              <p className="text-xs text-blue-300/80">
-                La gestión de email y contraseña estará disponible cuando se implemente el sistema de autenticación propio.
+            {/* Aviso de seccion en construccion, alineado con el sistema editorial. */}
+            <div className="flex items-start gap-3 p-3 mb-5 border border-border bg-muted/50">
+              <div className="h-1.5 w-1.5 bg-foreground mt-1.5 flex-shrink-0" />
+              <p className="text-xs text-muted-foreground" style={MONO}>
+                La gestion de email y contrasena estara disponible proximamente. Por ahora puedes cambiar tu contrasena desde &quot;Olvide mi contrasena&quot; en el login.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
