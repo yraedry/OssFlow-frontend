@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { apiClient } from '@/shared/api/client'
 import { refreshToken } from '../api'
 import { useAuthStore } from '../store/authStore'
+import { AuthLayout, AuthCard } from '../components/AuthLayout'
+import { Spinner } from '@/shared/components/ui/spinner'
+import { MONO } from '@/shared/lib/typography'
 import type { AuthUser } from '../types'
 
 interface ProfileResponse {
@@ -50,11 +53,15 @@ export function OAuthCallbackPage() {
   }, [navigate, setAuth, clearAuth])
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full mx-auto mb-4" />
-        <p className="text-gray-400">Completando autenticación...</p>
-      </div>
-    </div>
+    <AuthLayout title="Iniciando sesion" subtitle="Validando con Google">
+      <AuthCard>
+        <div className="flex flex-col items-center gap-4 py-4">
+          <Spinner />
+          <p className="text-muted-foreground text-xs uppercase tracking-widest" style={MONO}>
+            Completando autenticacion...
+          </p>
+        </div>
+      </AuthCard>
+    </AuthLayout>
   )
 }
