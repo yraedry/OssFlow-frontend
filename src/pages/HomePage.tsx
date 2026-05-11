@@ -11,10 +11,9 @@ import { useWeeklyTemplate } from '@/features/planning/weeklytemplate/hooks'
 import { QuickLogDialog } from '@/features/journal/trainingsession/components/QuickLogDialog'
 import { DashboardStats } from './DashboardStats'
 import { cn } from '@/shared/lib/utils'
+import { MONO, MONO_LABEL as LABEL } from '@/shared/lib/typography'
 
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
-const LABEL: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '9px', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }
 
 function javaDayOfWeek(date: Date): string {
   return ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][date.getDay()]
