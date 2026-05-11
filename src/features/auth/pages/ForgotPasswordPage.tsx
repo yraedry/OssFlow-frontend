@@ -46,7 +46,7 @@ export function ForgotPasswordPage() {
           Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.
         </p>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <AuthField label="Email" error={errors.email?.message}>
+          <AuthField label="Email" htmlFor="email" error={errors.email?.message}>
             <Input id="email" type="email" autoComplete="email" placeholder="tu@email.com" {...register('email')} />
           </AuthField>
           <Button type="submit" className="w-full" disabled={forgotPasswordMutation.isPending}>

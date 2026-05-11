@@ -56,13 +56,13 @@ export function RegisterPage() {
     <AuthLayout title="Crear cuenta" subtitle="Empieza gratis">
       <AuthCard>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <AuthField label="Email" error={errors.email?.message}>
+          <AuthField label="Email" htmlFor="email" error={errors.email?.message}>
             <Input id="email" type="email" autoComplete="email" placeholder="tu@email.com" {...register('email')} />
           </AuthField>
-          <AuthField label="Contraseña" error={errors.password?.message}>
+          <AuthField label="Contraseña" htmlFor="password" error={errors.password?.message}>
             <Input id="password" type="password" autoComplete="new-password" placeholder="Mín. 8 chars, 1 mayúscula, 1 número" {...register('password')} />
           </AuthField>
-          <AuthField label="Confirmar contraseña" error={errors.confirmPassword?.message}>
+          <AuthField label="Confirmar contraseña" htmlFor="confirmPassword" error={errors.confirmPassword?.message}>
             <Input id="confirmPassword" type="password" autoComplete="new-password" placeholder="Repite tu contraseña" {...register('confirmPassword')} />
           </AuthField>
           <Button type="submit" className="w-full" disabled={registerMutation.isPending}>

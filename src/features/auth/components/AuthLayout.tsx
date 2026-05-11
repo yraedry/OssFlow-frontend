@@ -48,14 +48,16 @@ export function AuthLayout({ title, subtitle, children, maxWidth = 'max-w-sm' }:
 
 interface AuthFieldProps {
   label: string
+  htmlFor?: string
   error?: string
   children: React.ReactNode
 }
 
-export function AuthField({ label, error, children }: AuthFieldProps) {
+// S3.13: htmlFor prop para asociar el label con el input hijo (accesibilidad).
+export function AuthField({ label, htmlFor, error, children }: AuthFieldProps) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-xs uppercase tracking-widest text-muted-foreground" style={MONO}>
+      <label htmlFor={htmlFor} className="block text-xs uppercase tracking-widest text-muted-foreground" style={MONO}>
         {label}
       </label>
       {children}

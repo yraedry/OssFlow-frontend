@@ -28,7 +28,7 @@ export function NodePalette({ className }: NodePaletteProps) {
   return (
     <div className={`flex flex-col gap-4 overflow-y-auto p-3 ${className ?? ''}`}>
       <section>
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400 mb-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-foreground mb-2">
           Posiciones
         </h3>
         <div className="flex flex-col gap-1">
@@ -37,7 +37,7 @@ export function NodePalette({ className }: NodePaletteProps) {
               key={pos.id}
               draggable
               onDragStart={e => handleDragStart(e, 'position', pos.id, pos.name)}
-              className="rounded-md border-2 border-blue-300 bg-blue-50 dark:bg-blue-950 dark:border-blue-700 px-3 py-2 text-xs font-medium cursor-grab active:cursor-grabbing hover:border-blue-500 transition-colors select-none"
+              className="rounded-none border-2 border-border bg-muted px-3 py-2 text-xs font-medium cursor-grab active:cursor-grabbing hover:border-foreground transition-colors select-none"
             >
               {pos.name}
             </div>
@@ -49,7 +49,7 @@ export function NodePalette({ className }: NodePaletteProps) {
       </section>
 
       <section>
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-purple-600 dark:text-purple-400 mb-2">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">
           Técnicas
         </h3>
         <div className="flex flex-col gap-1">
@@ -58,7 +58,7 @@ export function NodePalette({ className }: NodePaletteProps) {
               key={tech.id}
               draggable
               onDragStart={e => handleDragStart(e, 'technique', tech.id, tech.name)}
-              className="rounded-md border-2 border-purple-300 bg-purple-50 dark:bg-purple-950 dark:border-purple-700 px-3 py-2 text-xs font-medium cursor-grab active:cursor-grabbing hover:border-purple-500 transition-colors select-none"
+              className="rounded-none border-2 border-border bg-muted px-3 py-2 text-xs font-medium cursor-grab active:cursor-grabbing hover:border-foreground transition-colors select-none"
             >
               {tech.name}
             </div>

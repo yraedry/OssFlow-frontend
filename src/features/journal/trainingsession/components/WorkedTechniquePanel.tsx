@@ -60,7 +60,7 @@ export function WorkedTechniquePanel({ session }: Props) {
                 return (
                   <li
                     key={wt.techniqueId}
-                    className="flex items-center justify-between rounded-md border border-border bg-muted/30 px-2.5 py-1.5"
+                    className="flex items-center justify-between border border-border bg-muted/30 px-2.5 py-1.5"
                   >
                     <div className="min-w-0">
                       <span className="text-xs font-medium truncate block">{displayName}</span>
@@ -83,12 +83,12 @@ export function WorkedTechniquePanel({ session }: Props) {
             </ul>
           )}
 
-          <div className="rounded-md border border-border bg-muted/20 p-3 space-y-2">
+          <div className="border border-border bg-muted/20 p-3 space-y-2">
             <p className="text-[10px] font-mono uppercase tracking-wide text-muted-foreground">Añadir técnica</p>
             <select
               value={selectedTechniqueId}
               onChange={(e) => setSelectedTechniqueId(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-2.5 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-ring"
+              className="w-full border border-input bg-background px-2.5 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-ring"
             >
               <option value="">— Seleccionar técnica —</option>
               {techniques.map((t) => (
@@ -103,14 +103,14 @@ export function WorkedTechniquePanel({ session }: Props) {
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Notas (opcional)"
                 rows={1}
-                className="flex-1 rounded-md border border-input bg-background px-2.5 py-1.5 text-xs font-mono resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+                className="flex-1 border border-input bg-background px-2.5 py-1.5 text-xs font-mono resize-none focus:outline-none focus:ring-1 focus:ring-ring"
               />
             </div>
             <button
               type="button"
               onClick={handleAdd}
               disabled={!selectedTechniqueId || upsert.isPending}
-              className="flex items-center gap-1 rounded-md border border-border bg-background px-2.5 py-1.5 text-xs font-mono font-medium hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-1 border border-border bg-background px-2.5 py-1.5 text-xs font-mono font-medium hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus className="h-3 w-3" />
               {upsert.isPending ? 'Guardando...' : 'Guardar'}

@@ -35,15 +35,15 @@ export function LoginPage() {
     <AuthLayout title="Iniciar sesión" subtitle="Accede a tu cuenta">
       <AuthCard>
         {errorMessage && (
-          <div role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 text-destructive text-xs px-3 py-2">
+          <div role="alert" className="border border-destructive/30 bg-destructive/10 text-destructive text-xs px-3 py-2">
             {errorMessage}
           </div>
         )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <AuthField label="Email" error={errors.email?.message}>
+          <AuthField label="Email" htmlFor="email" error={errors.email?.message}>
             <Input id="email" type="email" autoComplete="email" placeholder="tu@email.com" {...register('email')} />
           </AuthField>
-          <AuthField label="Contraseña" error={errors.password?.message}>
+          <AuthField label="Contraseña" htmlFor="password" error={errors.password?.message}>
             <Input id="password" type="password" autoComplete="current-password" placeholder="••••••••" {...register('password')} />
           </AuthField>
           <div className="flex justify-end">

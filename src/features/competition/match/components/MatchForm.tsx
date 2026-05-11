@@ -51,7 +51,7 @@ export function MatchForm({ onSubmit, isPending }: MatchFormProps) {
           <select
             id="result"
             {...register('result')}
-            className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            className="flex h-9 w-full border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
             <option value="WIN">Victoria</option>
             <option value="LOSS">Derrota</option>

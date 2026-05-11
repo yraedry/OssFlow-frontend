@@ -52,7 +52,7 @@ export function ResetPasswordPage() {
     <AuthLayout title="Nueva contraseña" subtitle="Elige una contraseña segura">
       <AuthCard>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <AuthField label="Nueva contraseña" error={errors.newPassword?.message}>
+          <AuthField label="Nueva contraseña" htmlFor="newPassword" error={errors.newPassword?.message}>
             <Input
               id="newPassword"
               type="password"
@@ -61,7 +61,7 @@ export function ResetPasswordPage() {
               {...register('newPassword')}
             />
           </AuthField>
-          <AuthField label="Confirmar contraseña" error={errors.confirmPassword?.message}>
+          <AuthField label="Confirmar contraseña" htmlFor="confirmPassword" error={errors.confirmPassword?.message}>
             <Input
               id="confirmPassword"
               type="password"

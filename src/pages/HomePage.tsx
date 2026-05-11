@@ -194,7 +194,7 @@ export function HomePage() {
               <Link
                 key={to}
                 to={to}
-                className="flex flex-col items-center gap-1.5 py-2 rounded-sm border border-border hover:border-foreground hover:bg-accent/30 transition-colors"
+                className="flex flex-col items-center gap-1.5 py-2 border border-border hover:border-foreground hover:bg-accent/30 transition-colors"
               >
                 <span className="text-muted-foreground">{icon}</span>
                 <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>{label}</span>
