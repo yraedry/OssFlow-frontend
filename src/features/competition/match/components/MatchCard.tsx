@@ -9,10 +9,11 @@ type MatchCardProps = {
   onDelete: (matchId: number) => void
 }
 
+// S3.10: Reemplazadas clases dark: hardcoded por tokens del sistema de diseño.
 const resultColors: Record<CompetitionMatch['result'], string> = {
-  WIN: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-  LOSS: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-  DRAW: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
+  WIN: 'bg-muted text-foreground border border-border',
+  LOSS: 'bg-muted text-destructive border border-destructive/30',
+  DRAW: 'bg-muted text-muted-foreground border border-border',
 }
 
 const resultLabels: Record<CompetitionMatch['result'], string> = {

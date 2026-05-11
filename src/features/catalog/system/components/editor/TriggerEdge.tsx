@@ -59,13 +59,13 @@ export function TriggerEdge({
             onClick={() => edgeData.onLabelClick?.(id)}
           >
             {edgeData.condition ? (
-              <span className="rounded bg-indigo-100 dark:bg-indigo-900 px-2 py-0.5 text-xs text-indigo-700 dark:text-indigo-300 border border-indigo-300 shadow-sm">
+              <span className="rounded bg-muted px-2 py-0.5 text-xs text-foreground border border-border shadow-sm">
                 {edgeData.condition.length > 20
                   ? edgeData.condition.slice(0, 20) + '…'
                   : edgeData.condition}
               </span>
             ) : (
-              <span className="rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-xs text-slate-400 border border-dashed border-slate-300">
+              <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground border border-dashed border-border">
                 + condición
               </span>
             )}

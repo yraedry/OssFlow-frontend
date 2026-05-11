@@ -71,7 +71,7 @@ export function InjurySection() {
   }
 
   return (
-    <section className="rounded-lg border p-6 space-y-4">
+    <section className="border p-6 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Lesiones y dolencias</h2>
         {!showForm && (
@@ -97,7 +97,7 @@ export function InjurySection() {
           {injuries.map((injury) => (
             <li
               key={injury.id}
-              className="flex items-start justify-between gap-3 rounded-md border px-4 py-3"
+              className="flex items-start justify-between gap-3 border px-4 py-3"
             >
               <div className="flex-1 min-w-0 space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -145,7 +145,7 @@ export function InjurySection() {
 
       {/* Formulario inline */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="space-y-4 rounded-md border bg-muted/30 p-4">
+        <form onSubmit={handleSubmit} className="space-y-4 border bg-muted/30 p-4">
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Zona corporal */}
             <div className="space-y-1 sm:col-span-2">
@@ -161,7 +161,7 @@ export function InjurySection() {
                 placeholder="p.ej. Rodilla derecha"
                 value={form.bodyPart}
                 onChange={handleChange}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
@@ -214,7 +214,7 @@ export function InjurySection() {
                 type="date"
                 value={form.startedOn ?? ''}
                 onChange={handleChange}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
@@ -230,7 +230,7 @@ export function InjurySection() {
                   type="date"
                   value={form.recoveredOn ?? ''}
                   onChange={handleChange}
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
             )}
@@ -248,7 +248,7 @@ export function InjurySection() {
                 placeholder="Detalles sobre la lesión, tratamiento, etc."
                 value={form.description ?? ''}
                 onChange={handleChange}
-                className="w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                className="w-full border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
               />
             </div>
           </div>
@@ -257,14 +257,14 @@ export function InjurySection() {
             <button
               type="button"
               onClick={handleCancel}
-              className="rounded-md px-4 py-2 text-sm font-medium border hover:bg-muted transition-colors"
+              className="px-4 py-2 text-sm font-medium border hover:bg-muted transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={createInjury.isPending}
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+              className="bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
             >
               {createInjury.isPending ? 'Guardando...' : 'Guardar lesión'}
             </button>

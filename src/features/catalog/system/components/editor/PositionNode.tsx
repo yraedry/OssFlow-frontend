@@ -40,7 +40,7 @@ export function PositionNode({ id, data }: NodeProps) {
   }
 
   return (
-    <div className="relative rounded-lg border-2 border-blue-500 bg-blue-50 dark:bg-blue-950 p-3 min-w-[120px] text-center shadow-sm">
+    <div className="relative rounded border-2 border-border bg-card p-3 min-w-[120px] text-center shadow-sm">
       <Handle type="target" position={Position.Top} />
 
       {/* Delete button */}
@@ -53,7 +53,7 @@ export function PositionNode({ id, data }: NodeProps) {
         ×
       </button>
 
-      <div className="text-xs font-medium text-blue-700 dark:text-blue-300 uppercase tracking-wide mb-1">
+      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
         Posición
       </div>
 

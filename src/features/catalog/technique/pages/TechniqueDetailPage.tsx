@@ -10,12 +10,13 @@ import { useTechnique, useUpdateTechnique } from '../hooks'
 import type { CreateTechniqueForm } from '../schemas'
 import { YouTubePlayerModal } from '@/shared/components/ui/youtube-player-modal'
 
+// S3.10: Reemplazadas clases dark: hardcoded por tokens del sistema de diseño.
 const BELT_COLORS: Record<string, string> = {
-  WHITE: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200',
-  BLUE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
-  PURPLE: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
-  BROWN: 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200',
-  BLACK: 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900',
+  WHITE: 'bg-muted text-muted-foreground',
+  BLUE: 'bg-muted text-foreground border border-border',
+  PURPLE: 'bg-muted text-foreground border border-border',
+  BROWN: 'bg-muted text-foreground border border-border',
+  BLACK: 'bg-foreground text-background',
 }
 
 const BELT_LABELS: Record<string, string> = {

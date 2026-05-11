@@ -105,7 +105,7 @@ function ExerciseDetailView({
       </div>
 
       {ex.youtubeUrl && (
-        <div className="rounded-lg border border-border bg-card p-5 space-y-3">
+        <div className="border border-border bg-card p-5 space-y-3">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Video de referencia</h2>
           <YouTubePlayerModal url={ex.youtubeUrl} title={ex.name} compact />
         </div>
@@ -113,12 +113,12 @@ function ExerciseDetailView({
 
       {/* Descripción completa */}
       {ex.description ? (
-        <div className="rounded-lg border border-border bg-card p-5 space-y-2">
+        <div className="border border-border bg-card p-5 space-y-2">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Descripción</h2>
           <p className="text-sm leading-relaxed">{ex.description}</p>
         </div>
       ) : (
-        <div className="rounded-lg border border-border border-dashed p-5 text-center text-muted-foreground">
+        <div className="border border-border border-dashed p-5 text-center text-muted-foreground">
           <Dumbbell className="h-8 w-8 mx-auto mb-2 opacity-30" />
           <p className="text-sm">Sin descripción aún</p>
           <Button variant="ghost" size="sm" className="mt-2" onClick={() => onEdit(ex)}>
@@ -128,10 +128,10 @@ function ExerciseDetailView({
       )}
 
       {/* Equivalencias de material */}
-      <div className="rounded-lg border border-border bg-card p-5 space-y-3">
+      <div className="border border-border bg-card p-5 space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Material necesario</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className={`rounded-lg p-3 space-y-1 border-2 transition-colors ${
+          <div className={`p-3 space-y-1 border-2 transition-colors ${
             ex.equipment === 'NO_EQUIPMENT' ? 'border-emerald-500 bg-emerald-500/10' : 'border-border bg-muted/30'
           }`}>
             <div className="flex items-center gap-2">
@@ -141,7 +141,7 @@ function ExerciseDetailView({
             </div>
             <p className="text-xs text-muted-foreground">Solo el peso corporal. Puedes hacerlo en cualquier sitio.</p>
           </div>
-          <div className={`rounded-lg p-3 space-y-1 border-2 transition-colors ${
+          <div className={`p-3 space-y-1 border-2 transition-colors ${
             ex.equipment === 'HOME' ? 'border-sky-500 bg-sky-500/10' : 'border-border bg-muted/30'
           }`}>
             <div className="flex items-center gap-2">
@@ -151,7 +151,7 @@ function ExerciseDetailView({
             </div>
             <p className="text-xs text-muted-foreground">Material básico: banda elástica, mancuerna, silla o pared.</p>
           </div>
-          <div className={`rounded-lg p-3 space-y-1 border-2 transition-colors ${
+          <div className={`p-3 space-y-1 border-2 transition-colors ${
             ex.equipment === 'GYM' ? 'border-violet-500 bg-violet-500/10' : 'border-border bg-muted/30'
           }`}>
             <div className="flex items-center gap-2">
