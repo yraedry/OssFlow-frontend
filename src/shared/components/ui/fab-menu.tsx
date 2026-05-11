@@ -10,22 +10,13 @@ export function dispatchFabNew() {
 }
 
 const ACTIONS = [
-  { label: 'Sesión BJJ',       icon: Dumbbell,     to: '/diario/sesiones-bjj?new=bjj' },
-  { label: 'Sesión física',    icon: Zap,          to: '/diario/sesiones-fisicas?new=1' },
-  { label: 'Sesión movilidad', icon: Activity,     to: '/diario/movilidad?new=1' },
-  { label: 'Técnica',          icon: BookOpen,     to: '/estudio/tecnicas?new=1' },
-  { label: 'Nota',             icon: FileText,     to: '/diario/notas?new=1' },
-  { label: 'Programar',        icon: CalendarPlus, to: '/planificacion/planes?new=1' },
+  { label: 'Sesión BJJ',       icon: Dumbbell,     path: '/diario/sesiones-bjj' },
+  { label: 'Sesión física',    icon: Zap,          path: '/diario/sesiones-fisicas' },
+  { label: 'Sesión movilidad', icon: Activity,     path: '/diario/movilidad' },
+  { label: 'Técnica',          icon: BookOpen,     path: '/estudio/tecnicas' },
+  { label: 'Nota',             icon: FileText,     path: '/diario/notas' },
+  { label: 'Programar',        icon: CalendarPlus, path: '/planificacion/planes' },
 ] as const
-
-// En estas rutas el FAB abre directamente el diálogo de la página (no navega)
-const INLINE_NEW_PATHS: Record<string, string> = {
-  '/diario/sesiones-bjj':     'Sesión BJJ',
-  '/diario/sesiones-fisicas': 'Sesión física',
-  '/diario/movilidad':        'Sesión movilidad',
-  '/diario/flexibilidad':     'Sesión movilidad',
-  '/diario/notas':            'Nota',
-}
 
 const SUB_PATHS = ['/diario', '/estudio', '/planificacion', '/journal', '/competition', '/catalog', '/physical', '/planning']
 
@@ -42,20 +33,15 @@ export function FabMenu() {
     ? 'calc(env(safe-area-inset-bottom, 0px) + 112px)'
     : 'calc(env(safe-area-inset-bottom, 0px) + 80px)'
 
-  // Si estamos en una página con diálogo inline, el FAB abre directamente
-  const inlineLabel = INLINE_NEW_PATHS[pathname]
-
-  const handleFabClick = () => {
-    if (inlineLabel) {
+  const handleAction = (path: string) => {
+    setOpen(false)
+    if (pathname === path || pathname.startsWith(path + '/')) {
+      // Ya estamos en esa sección — abrir diálogo directamente
       dispatchFabNew()
     } else {
-      setOpen(v => !v)
+      // Navegar a la sección con ?new=1 para que la página abra el diálogo al montar
+      navigate(`${path}?new=1`)
     }
-  }
-
-  const handleAction = (to: string) => {
-    setOpen(false)
-    navigate(to)
   }
 
   return (
@@ -72,10 +58,10 @@ export function FabMenu() {
           className="fixed right-4 z-50 w-56 border border-border bg-background"
           style={{ fontFamily: 'var(--font-mono)', bottom: menuBottom }}
         >
-          {ACTIONS.map(({ label, icon: Icon, to }) => (
+          {ACTIONS.map(({ label, icon: Icon, path }) => (
             <button
-              key={to}
-              onClick={() => handleAction(to)}
+              key={path}
+              onClick={() => handleAction(path)}
               className="flex w-full items-center gap-3 border-b border-border px-4 py-3 text-left text-foreground hover:bg-accent transition-colors min-h-[48px] last:border-b-0"
             >
               <Icon className="h-4 w-4 shrink-0 text-muted-foreground" strokeWidth={1.5} />
@@ -90,8 +76,8 @@ export function FabMenu() {
         style={{ bottom: fabBottom }}
       >
         <button
-          onClick={handleFabClick}
-          aria-label={open ? 'Cerrar menú' : inlineLabel ? `Nueva ${inlineLabel}` : 'Añadir'}
+          onClick={() => setOpen(v => !v)}
+          aria-label={open ? 'Cerrar menú' : 'Añadir'}
           className={cn(
             'flex h-11 w-11 items-center justify-center border-[3px] border-background rounded-full transition-transform duration-150',
             open ? 'bg-foreground scale-95' : 'bg-foreground scale-100',

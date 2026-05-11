@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useCallback } from 'react'
+import { useFabNew } from '@/shared/hooks/useFabNew'
 import { useConfirm } from '@/shared/hooks/useConfirm'
 import { Plus, Trash2, BookOpen, X, Play, Pencil, Copy } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
@@ -335,11 +336,8 @@ export function TrainingSessionsPage() {
     if (!v) { setCreatedSession(null); setPrefillValues(undefined) }
   }
 
-  useEffect(() => {
-    const handler = () => { setPrefillValues(undefined); setCreatedSession(null); setOpen(true) }
-    window.addEventListener('fab:new', handler)
-    return () => window.removeEventListener('fab:new', handler)
-  }, [])
+  const openNew = useCallback(() => { setPrefillValues(undefined); setCreatedSession(null); setOpen(true) }, [])
+  useFabNew(openNew)
 
   const handleDuplicate = (session: TrainingSession) => {
     const today = new Date().toISOString().split('T')[0]

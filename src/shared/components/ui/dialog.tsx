@@ -28,6 +28,7 @@ const DialogContent = React.forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
+      onOpenAutoFocus={e => e.preventDefault()}
       className={cn(
         // Mobile: sheet desde abajo, ocupa hasta 92dvh con scroll
         'fixed bottom-0 left-0 right-0 z-50 w-full max-h-[92dvh] border-t border-border bg-background p-6 shadow-xl duration-150 overflow-y-auto flex flex-col gap-4',
