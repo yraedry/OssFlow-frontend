@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, BookOpen, Dumbbell, CalendarDays, BarChart2, User, Settings } from 'lucide-react'
+import { Home, BookOpen, Dumbbell, BarChart2, User } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
 const TABS = [
