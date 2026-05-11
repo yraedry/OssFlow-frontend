@@ -4,8 +4,7 @@ import { verifyEmail } from '../api'
 import { AuthLayout, AuthCard } from '../components/AuthLayout'
 import { Button } from '@/shared/components/ui/button'
 import { Spinner } from '@/shared/components/ui/spinner'
-
-const MONO = { fontFamily: 'var(--font-mono)' } as const
+import { MONO } from '@/shared/lib/typography'
 
 type Status = 'loading' | 'success' | 'error' | 'missing'
 

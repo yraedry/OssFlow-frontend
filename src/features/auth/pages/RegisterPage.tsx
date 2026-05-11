@@ -8,8 +8,7 @@ import { GoogleLoginButton } from '../components/GoogleLoginButton'
 import { AuthLayout, AuthCard, AuthField, AuthDivider } from '../components/AuthLayout'
 import { Input } from '@/shared/components/ui/input'
 import { Button } from '@/shared/components/ui/button'
-
-const MONO = { fontFamily: 'var(--font-mono)' } as const
+import { MONO } from '@/shared/lib/typography'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
