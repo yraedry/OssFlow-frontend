@@ -1,16 +1,31 @@
 // src/shared/components/ui/fab-menu.tsx
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { Plus, X, Dumbbell, Zap, BookOpen, FileText, CalendarPlus } from 'lucide-react'
+import { Plus, X, Dumbbell, Zap, BookOpen, FileText, CalendarPlus, Activity } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
+// Evento global para abrir el diálogo "nuevo" en la página activa
+export function dispatchFabNew() {
+  window.dispatchEvent(new CustomEvent('fab:new'))
+}
+
 const ACTIONS = [
-  { label: 'Sesión BJJ', icon: Dumbbell, to: '/diario/sesiones-bjj?new=bjj' },
-  { label: 'Sesión física', icon: Zap, to: '/diario/sesiones-fisicas?new=1' },
-  { label: 'Técnica', icon: BookOpen, to: '/estudio/tecnicas?new=1' },
-  { label: 'Nota', icon: FileText, to: '/diario/notas?new=1' },
-  { label: 'Programar', icon: CalendarPlus, to: '/planificacion/planes?new=1' },
+  { label: 'Sesión BJJ',       icon: Dumbbell,     to: '/diario/sesiones-bjj?new=bjj' },
+  { label: 'Sesión física',    icon: Zap,          to: '/diario/sesiones-fisicas?new=1' },
+  { label: 'Sesión movilidad', icon: Activity,     to: '/diario/movilidad?new=1' },
+  { label: 'Técnica',          icon: BookOpen,     to: '/estudio/tecnicas?new=1' },
+  { label: 'Nota',             icon: FileText,     to: '/diario/notas?new=1' },
+  { label: 'Programar',        icon: CalendarPlus, to: '/planificacion/planes?new=1' },
 ] as const
+
+// En estas rutas el FAB abre directamente el diálogo de la página (no navega)
+const INLINE_NEW_PATHS: Record<string, string> = {
+  '/diario/sesiones-bjj':     'Sesión BJJ',
+  '/diario/sesiones-fisicas': 'Sesión física',
+  '/diario/movilidad':        'Sesión movilidad',
+  '/diario/flexibilidad':     'Sesión movilidad',
+  '/diario/notas':            'Nota',
+}
 
 const SUB_PATHS = ['/diario', '/estudio', '/planificacion', '/journal', '/competition', '/catalog', '/physical', '/planning']
 
@@ -26,6 +41,17 @@ export function FabMenu() {
   const menuBottom = hasSubNav
     ? 'calc(env(safe-area-inset-bottom, 0px) + 112px)'
     : 'calc(env(safe-area-inset-bottom, 0px) + 80px)'
+
+  // Si estamos en una página con diálogo inline, el FAB abre directamente
+  const inlineLabel = INLINE_NEW_PATHS[pathname]
+
+  const handleFabClick = () => {
+    if (inlineLabel) {
+      dispatchFabNew()
+    } else {
+      setOpen(v => !v)
+    }
+  }
 
   const handleAction = (to: string) => {
     setOpen(false)
@@ -64,8 +90,8 @@ export function FabMenu() {
         style={{ bottom: fabBottom }}
       >
         <button
-          onClick={() => setOpen((v) => !v)}
-          aria-label={open ? 'Cerrar menú' : 'Añadir'}
+          onClick={handleFabClick}
+          aria-label={open ? 'Cerrar menú' : inlineLabel ? `Nueva ${inlineLabel}` : 'Añadir'}
           className={cn(
             'flex h-11 w-11 items-center justify-center border-[3px] border-background rounded-full transition-transform duration-150',
             open ? 'bg-foreground scale-95' : 'bg-foreground scale-100',
