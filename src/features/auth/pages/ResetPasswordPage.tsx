@@ -1,8 +1,13 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useResetPassword } from '../hooks'
+import { AuthLayout, AuthCard, AuthField, AuthLink } from '../components/AuthLayout'
+import { Input } from '@/shared/components/ui/input'
+import { Button } from '@/shared/components/ui/button'
+
+const MONO = { fontFamily: 'var(--font-mono)' } as const
 
 const schema = z
   .object({
@@ -25,11 +30,7 @@ export function ResetPasswordPage() {
   const token = searchParams.get('token') ?? ''
   const resetPasswordMutation = useResetPassword()
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<FormData>({ resolver: zodResolver(schema) })
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   const onSubmit = (data: FormData) => {
     resetPasswordMutation.mutate({ token, newPassword: data.newPassword })
@@ -37,82 +38,44 @@ export function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-4">
-        <div className="w-full max-w-md text-center">
-          <div className="text-5xl mb-4">⚠️</div>
-          <h2 className="text-2xl font-bold text-white mb-3">Enlace inválido</h2>
-          <p className="text-gray-400 mb-6">
+      <AuthLayout title="Enlace inválido">
+        <AuthCard>
+          <p className="text-sm text-muted-foreground text-center" style={MONO}>
             Este enlace de recuperación no es válido. Solicita uno nuevo.
           </p>
-          <Link
-            to="/forgot-password"
-            className="inline-block text-violet-400 hover:text-violet-300 font-medium transition-colors"
-          >
-            Solicitar nuevo enlace
-          </Link>
-        </div>
-      </div>
+          <AuthLink to="/forgot-password">Solicitar nuevo enlace</AuthLink>
+        </AuthCard>
+      </AuthLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <a href="/landing" className="inline-block">
-            <span className="text-3xl font-black text-white tracking-tight">
-              Oss<span className="text-violet-500">Flow</span>
-            </span>
-          </a>
-          <p className="text-gray-400 mt-2 text-sm">Elige una nueva contraseña</p>
-        </div>
-
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-            <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-300 mb-1.5">
-                Nueva contraseña
-              </label>
-              <input
-                id="newPassword"
-                type="password"
-                autoComplete="new-password"
-                {...register('newPassword')}
-                className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors"
-                placeholder="Mín. 8 chars, 1 mayúscula, 1 número"
-              />
-              {errors.newPassword && (
-                <p className="text-red-400 text-xs mt-1">{errors.newPassword.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-1.5">
-                Confirmar nueva contraseña
-              </label>
-              <input
-                id="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                {...register('confirmPassword')}
-                className="w-full px-4 py-2.5 rounded-lg bg-white/5 border border-white/20 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition-colors"
-                placeholder="Repite tu nueva contraseña"
-              />
-              {errors.confirmPassword && (
-                <p className="text-red-400 text-xs mt-1">{errors.confirmPassword.message}</p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting || resetPasswordMutation.isPending}
-              className="w-full py-2.5 px-4 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
-            >
-              {resetPasswordMutation.isPending ? 'Guardando...' : 'Cambiar contraseña'}
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
+    <AuthLayout title="Nueva contraseña" subtitle="Elige una contraseña segura">
+      <AuthCard>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          <AuthField label="Nueva contraseña" error={errors.newPassword?.message}>
+            <Input
+              id="newPassword"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Mín. 8 chars, 1 mayúscula, 1 número"
+              {...register('newPassword')}
+            />
+          </AuthField>
+          <AuthField label="Confirmar contraseña" error={errors.confirmPassword?.message}>
+            <Input
+              id="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              placeholder="Repite tu nueva contraseña"
+              {...register('confirmPassword')}
+            />
+          </AuthField>
+          <Button type="submit" className="w-full" disabled={resetPasswordMutation.isPending}>
+            {resetPasswordMutation.isPending ? 'Guardando...' : 'Cambiar contraseña'}
+          </Button>
+        </form>
+      </AuthCard>
+    </AuthLayout>
   )
 }

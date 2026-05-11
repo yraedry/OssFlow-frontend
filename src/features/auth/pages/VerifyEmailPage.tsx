@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { verifyEmail } from '../api'
+import { AuthLayout, AuthCard } from '../components/AuthLayout'
+import { Button } from '@/shared/components/ui/button'
+import { Spinner } from '@/shared/components/ui/spinner'
+
+const MONO = { fontFamily: 'var(--font-mono)' } as const
 
 type Status = 'loading' | 'success' | 'error' | 'missing'
 
@@ -17,63 +22,48 @@ export function VerifyEmailPage() {
   }, [token])
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center px-4">
-      <div className="w-full max-w-md text-center">
+    <AuthLayout title="Verificar email">
+      <AuthCard>
         {status === 'loading' && (
-          <>
-            <div className="animate-spin w-10 h-10 border-2 border-violet-500 border-t-transparent rounded-full mx-auto mb-4" />
-            <p className="text-gray-400">Verificando tu email...</p>
-          </>
+          <div className="flex flex-col items-center gap-3 py-2">
+            <Spinner />
+            <p className="text-muted-foreground text-xs text-center" style={MONO}>Verificando tu email...</p>
+          </div>
         )}
 
         {status === 'success' && (
-          <>
-            <div className="text-5xl mb-4">✅</div>
-            <h2 className="text-2xl font-bold text-white mb-3">Email verificado</h2>
-            <p className="text-gray-400 mb-6">
-              Tu email ha sido verificado correctamente. Ya puedes iniciar sesión.
+          <div className="space-y-4">
+            <p className="text-sm text-center" style={MONO}>
+              Email verificado correctamente. Ya puedes iniciar sesión.
             </p>
-            <Link
-              to="/login"
-              className="inline-block px-6 py-2.5 bg-violet-600 hover:bg-violet-500 text-white font-semibold rounded-lg transition-colors"
-            >
-              Iniciar sesión
+            <Link to="/login">
+              <Button className="w-full">Iniciar sesión</Button>
             </Link>
-          </>
+          </div>
         )}
 
         {status === 'error' && (
-          <>
-            <div className="text-5xl mb-4">❌</div>
-            <h2 className="text-2xl font-bold text-white mb-3">Enlace inválido</h2>
-            <p className="text-gray-400 mb-6">
-              El enlace de verificación es inválido o ha expirado. Solicita uno nuevo.
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground text-center" style={MONO}>
+              El enlace de verificación es inválido o ha expirado.
             </p>
-            <Link
-              to="/login"
-              className="inline-block text-violet-400 hover:text-violet-300 font-medium transition-colors"
-            >
-              Volver al inicio de sesión
+            <Link to="/login">
+              <Button variant="outline" className="w-full">Volver al inicio de sesión</Button>
             </Link>
-          </>
+          </div>
         )}
 
         {status === 'missing' && (
-          <>
-            <div className="text-5xl mb-4">⚠️</div>
-            <h2 className="text-2xl font-bold text-white mb-3">Token no encontrado</h2>
-            <p className="text-gray-400 mb-6">
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground text-center" style={MONO}>
               Este enlace de verificación no es válido.
             </p>
-            <Link
-              to="/login"
-              className="inline-block text-violet-400 hover:text-violet-300 font-medium transition-colors"
-            >
-              Volver al inicio de sesión
+            <Link to="/login">
+              <Button variant="outline" className="w-full">Volver al inicio de sesión</Button>
             </Link>
-          </>
+          </div>
         )}
-      </div>
-    </div>
+      </AuthCard>
+    </AuthLayout>
   )
 }
