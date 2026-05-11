@@ -12,10 +12,8 @@ import { useFederations } from '@/features/identity/federation/hooks'
 import { useCreateProfile } from '@/features/identity/profile/hooks'
 import { replaceFederations } from '@/features/identity/profile/api'
 import { AuthLogo } from '@/features/auth/components/AuthLayout'
+import { MONO, SERIF } from '@/shared/lib/typography'
 import type { FederationAssignment } from '@/features/identity/federation/types'
-
-const MONO = { fontFamily: 'var(--font-mono)' } as const
-const SERIF = { fontFamily: 'var(--font-serif)', fontWeight: 900, letterSpacing: '-0.02em' } as const
 
 const BELTS = [
   { value: 'WHITE', label: 'Blanco' },
