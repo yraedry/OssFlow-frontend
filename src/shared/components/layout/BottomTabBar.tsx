@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays } from 'lucide-react'
+import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
+import { useLogout } from '@/features/auth/hooks'
 
 const TABS = [
   { to: '/',                       label: 'Inicio',        icon: Home,         end: true  },
@@ -72,6 +73,7 @@ export function BottomTabBar() {
   const section = getSection(pathname)
   const subNav = SUB_NAV[section] ?? []
   const hasSubNav = subNav.length > 0
+  const logoutMutation = useLogout()
 
   return (
     <nav
@@ -113,6 +115,16 @@ export function BottomTabBar() {
               </NavLink>
             )
           })}
+          {section === 'perfil' && (
+            <button
+              onClick={() => logoutMutation.mutate()}
+              className="flex-shrink-0 h-8 flex items-center gap-1.5 px-3 uppercase transition-colors whitespace-nowrap border-b-2 border-transparent text-muted-foreground hover:text-foreground ml-auto"
+              style={SUBNAV_MONO}
+            >
+              <LogOut className="h-3 w-3" strokeWidth={1.5} />
+              Salir
+            </button>
+          )}
         </div>
       )}
 
