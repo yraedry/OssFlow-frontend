@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { updateProfileSchema, type UpdateProfileForm } from '../schemas'
 import { MONO, SERIF } from '@/shared/lib/typography'
 import { apiClient } from '@/shared/api/client'
+import { useAuthStore } from '@/features/auth/store/authStore'
 import type { FederationAssignment } from '@/features/identity/federation/types'
 
 const BELTS = [
@@ -128,7 +129,13 @@ export function ProfileEditPage() {
 
   const { data: accountData } = useQuery({
     queryKey: ['account-me'],
-    queryFn: () => apiClient.get('auth/me').json<{ id: number; email: string; provider: string }>(),
+    queryFn: async () => {
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${useAuthStore.getState().accessToken ?? ''}` },
+      })
+      if (!res.ok) return null
+      return res.json() as Promise<{ id: number; email: string; provider: string }>
+    },
   })
 
   // Rellenar el formulario cuando el perfil cargue desde la API
@@ -137,7 +144,7 @@ export function ProfileEditPage() {
       reset({
         firstName: profile.firstName ?? '',
         lastName: profile.lastName ?? '',
-        displayName: profile.alias ?? profile.displayName ?? '',
+        displayName: profile.alias ?? '',
         currentBelt: profile.currentBelt ?? '',
         preferredModality: profile.preferredModality ?? '',
         academy: profile.academy ?? '',
@@ -188,11 +195,12 @@ export function ProfileEditPage() {
   }
 
   function onSubmitAccount(data: UpdateProfileForm) {
+    const fullName = [data.firstName, data.lastName].filter(Boolean).join(' ')
     const payload = {
       firstName: data.firstName || undefined,
       lastName: data.lastName || undefined,
-      alias: data.displayName,
-      displayName: [data.firstName, data.lastName].filter(Boolean).join(' ') || data.displayName,
+      alias: data.displayName || undefined,
+      displayName: fullName || profile?.displayName || data.displayName,
       currentBelt: profile?.currentBelt ?? 'WHITE',
       preferredModality: profile?.preferredModality ?? 'GI',
       academy: profile?.academy || undefined,
