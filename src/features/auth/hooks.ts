@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { login, logout, register, forgotPassword, resetPassword } from './api'
 import { useAuthStore } from './store/authStore'
+import { getProfile } from '@/features/identity/profile/api'
 import type { LoginRequest, RegisterRequest } from './types'
 
 export function useLogin() {
@@ -11,9 +12,14 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: (data: LoginRequest) => login(data),
-    onSuccess: (response) => {
+    onSuccess: async (response) => {
       setAuth(response.accessToken, response.user)
-      navigate('/', { replace: true })
+      try {
+        const profile = await getProfile()
+        navigate(profile ? '/' : '/onboarding', { replace: true })
+      } catch {
+        navigate('/', { replace: true })
+      }
     },
     onError: () => {
       toast.error('Credenciales incorrectas. Comprueba tu email y contraseña.')
