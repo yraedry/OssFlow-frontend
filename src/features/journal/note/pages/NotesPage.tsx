@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useCallback } from 'react'
+import { useFabNew } from '@/shared/hooks/useFabNew'
 import { useConfirm } from '@/shared/hooks/useConfirm'
 import { Plus, FileText, Tag, Pencil, Trash2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
@@ -36,11 +37,8 @@ export function NotesPage() {
   const confirm = useConfirm()
   const handleOpenChange = (o: boolean) => { setOpen(o); if (!o) setEditing(null) }
 
-  useEffect(() => {
-    const handler = () => { setEditing(null); setOpen(true) }
-    window.addEventListener('fab:new', handler)
-    return () => window.removeEventListener('fab:new', handler)
-  }, [])
+  const openNew = useCallback(() => { setEditing(null); setOpen(true) }, [])
+  useFabNew(openNew)
   const handleDeleteNote = async (id: number) => {
     const ok = await confirm({ description: '¿Eliminar esta nota? Esta acción no se puede deshacer.' })
     if (ok) deleteMutation.mutate(id)

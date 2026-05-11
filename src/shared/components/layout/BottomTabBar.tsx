@@ -1,13 +1,13 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, BookOpen, Dumbbell, BarChart2, User } from 'lucide-react'
+import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
 const TABS = [
-  { to: '/',                     label: 'Inicio',   icon: Home,         end: true  },
-  { to: '/diario/sesiones-bjj',  label: 'Diario',   icon: BookOpen,     end: false },
-  { to: '/estudio/tecnicas',     label: 'Estudio',  icon: Dumbbell,     end: false },
-  { to: '/analisis',             label: 'Análisis', icon: BarChart2,    end: false },
-  { to: '/profile',              label: 'Perfil',   icon: User,         end: true  },
+  { to: '/',                       label: 'Inicio',        icon: Home,         end: true  },
+  { to: '/diario/sesiones-bjj',    label: 'Diario',        icon: BookOpen,     end: false },
+  { to: '/estudio/tecnicas',       label: 'Estudio',       icon: Dumbbell,     end: false },
+  { to: '/planificacion/planes',   label: 'Planificación', icon: CalendarDays, end: false },
+  { to: '/analisis',               label: 'Análisis',      icon: BarChart2,    end: false },
 ]
 
 const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[] }[]> = {
@@ -60,8 +60,6 @@ function getActiveTab(pathname: string): string {
     return '/planificacion/planes'
   if (pathname.startsWith('/analisis'))
     return '/analisis'
-  if (pathname.startsWith('/profile') || pathname.startsWith('/configuracion'))
-    return '/profile'
   return ''
 }
 
