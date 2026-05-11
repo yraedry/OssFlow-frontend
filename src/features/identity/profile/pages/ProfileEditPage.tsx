@@ -11,6 +11,7 @@ import { useFederations, useUpdateProfileFederations } from '@/features/identity
 import { getAvatarFromStorage, saveAvatarToStorage, removeAvatarFromStorage, resizeImageToBase64 } from '@/shared/hooks/useAvatar'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
+import { DatePicker } from '@/shared/components/ui/date-picker'
 import { updateProfileSchema, type UpdateProfileForm } from '../schemas'
 import { MONO, SERIF } from '@/shared/lib/typography'
 import { apiClient } from '@/shared/api/client'
@@ -483,7 +484,10 @@ export function ProfileEditPage() {
               </div>
               <div>
                 <Label>Desde (opcional)</Label>
-                <Input {...register('beltSince')} type="date" hint="Fecha en la que recibiste este cinturón" />
+                <Controller control={control} name="beltSince" render={({ field }) => (
+                  <DatePicker value={field.value} onChange={field.onChange} placeholder="Fecha del cinturón" />
+                )} />
+                <p className="text-[9px] text-muted-foreground mt-1" style={MONO}>Fecha en la que recibiste este cinturón</p>
               </div>
             </div>
 
