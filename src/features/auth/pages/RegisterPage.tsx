@@ -12,7 +12,6 @@ import { Button } from '@/shared/components/ui/button'
 const MONO = { fontFamily: 'var(--font-mono)' } as const
 
 const schema = z.object({
-  displayName: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   email: z.string().email('Email inválido'),
   password: z.string()
     .min(8, 'Mínimo 8 caracteres')
@@ -32,8 +31,9 @@ export function RegisterPage() {
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   const onSubmit = (data: FormData) => {
+    // displayName se establece en onboarding tras login (A6 plan).
     registerMutation.mutate(
-      { email: data.email, password: data.password, displayName: data.displayName },
+      { email: data.email, password: data.password },
       { onSuccess: () => setRegistered(true) },
     )
   }
@@ -57,9 +57,6 @@ export function RegisterPage() {
     <AuthLayout title="Crear cuenta" subtitle="Empieza gratis">
       <AuthCard>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-          <AuthField label="Nombre" error={errors.displayName?.message}>
-            <Input id="displayName" type="text" autoComplete="name" placeholder="Tu nombre" {...register('displayName')} />
-          </AuthField>
           <AuthField label="Email" error={errors.email?.message}>
             <Input id="email" type="email" autoComplete="email" placeholder="tu@email.com" {...register('email')} />
           </AuthField>
