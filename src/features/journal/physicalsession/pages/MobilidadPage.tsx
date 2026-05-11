@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
 import { Plus } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
@@ -66,6 +66,12 @@ export function MobilidadPage() {
     setOpen(v)
     if (!v) setPrefillValues(undefined)
   }
+
+  useEffect(() => {
+    const handler = () => { setPrefillValues(undefined); setOpen(true) }
+    window.addEventListener('fab:new', handler)
+    return () => window.removeEventListener('fab:new', handler)
+  }, [])
 
   const sessions = (data?.content ?? []).filter((s) => s.sessionType === 'MOBILITY' || s.sessionType === 'FLEXIBILITY')
 
