@@ -144,7 +144,7 @@ export function ProfileEditPage() {
       reset({
         firstName: profile.firstName ?? '',
         lastName: profile.lastName ?? '',
-        displayName: profile.alias ?? '',
+        displayName: profile.alias ?? profile.displayName ?? '',
         currentBelt: profile.currentBelt ?? '',
         preferredModality: profile.preferredModality ?? '',
         academy: profile.academy ?? '',
