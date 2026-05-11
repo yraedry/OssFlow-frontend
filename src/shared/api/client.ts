@@ -43,7 +43,7 @@ async function silentRefresh(): Promise<string> {
 }
 
 export const apiClient = ky.create({
-  prefixUrl: BASE_URL,
+  prefix: BASE_URL,
   timeout: 10_000,
   credentials: 'include',
   headers: {
