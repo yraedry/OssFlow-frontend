@@ -1,13 +1,13 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, BookOpen, Dumbbell, CalendarDays, BarChart2 } from 'lucide-react'
+import { Home, BookOpen, Dumbbell, CalendarDays, BarChart2, User, Settings } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
 const TABS = [
-  { to: '/',                     label: 'Inicio',        icon: Home,         end: true  },
-  { to: '/diario/sesiones-bjj',  label: 'Diario',        icon: BookOpen,     end: false },
-  { to: '/estudio/tecnicas',     label: 'Estudio',       icon: Dumbbell,     end: false },
-  { to: '/planificacion/planes', label: 'Planificación', icon: CalendarDays, end: false },
-  { to: '/analisis',             label: 'Análisis',      icon: BarChart2,    end: false },
+  { to: '/',                     label: 'Inicio',   icon: Home,         end: true  },
+  { to: '/diario/sesiones-bjj',  label: 'Diario',   icon: BookOpen,     end: false },
+  { to: '/estudio/tecnicas',     label: 'Estudio',  icon: Dumbbell,     end: false },
+  { to: '/analisis',             label: 'Análisis', icon: BarChart2,    end: false },
+  { to: '/profile',              label: 'Perfil',   icon: User,         end: true  },
 ]
 
 const SUB_NAV: Record<string, { to: string; label: string }[]> = {
@@ -33,6 +33,10 @@ const SUB_NAV: Record<string, { to: string; label: string }[]> = {
     { to: '/planificacion/plantilla', label: 'Plantilla' },
     { to: '/planificacion/calendario',label: 'Calendario' },
   ],
+  perfil: [
+    { to: '/profile',        label: 'Perfil' },
+    { to: '/configuracion',  label: 'Configuración' },
+  ],
 }
 
 function getSection(pathname: string): string {
@@ -42,6 +46,8 @@ function getSection(pathname: string): string {
     return 'estudio'
   if (pathname.startsWith('/planificacion') || pathname.startsWith('/planning'))
     return 'planificacion'
+  if (pathname.startsWith('/profile') || pathname.startsWith('/configuracion'))
+    return 'perfil'
   return ''
 }
 
@@ -55,6 +61,8 @@ function getActiveTab(pathname: string): string {
     return '/planificacion/planes'
   if (pathname.startsWith('/analisis'))
     return '/analisis'
+  if (pathname.startsWith('/profile') || pathname.startsWith('/configuracion'))
+    return '/profile'
   return ''
 }
 
