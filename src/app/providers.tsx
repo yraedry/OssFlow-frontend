@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'sonner'
@@ -16,20 +15,12 @@ const queryClient = new QueryClient({
   },
 })
 
-function ThemeInitializer() {
-  useEffect(() => {
-    const stored = localStorage.getItem('ossflow-theme') ?? 'dark'
-    const root = window.document.documentElement
-    root.classList.remove('light', 'dark')
-    root.classList.add(stored)
-  }, [])
-  return null
-}
+// ThemeInitializer movido a index.html <head> antes del bundle (B12 plan)
+// para evitar FOUC entre la entrega del HTML y la hidratación de React.
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeInitializer />
       <ConfirmDialogProvider>
         {children}
         <Toaster richColors position="top-right" />

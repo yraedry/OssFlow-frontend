@@ -3,6 +3,14 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { useAuthStore } from '@/features/auth/store/authStore'
 import { refreshToken } from '@/features/auth/api'
+import { apiClient } from '@/shared/api/client'
+import { ApiClientError } from '@/shared/api/client'
+
+interface ProfileResponse {
+  id: number
+  displayName: string | null
+  ownerId: number
+}
 
 export function AuthGuard() {
   const { accessToken, isInitialized, setAuth, clearAuth } = useAuthStore()
@@ -11,7 +19,6 @@ export function AuthGuard() {
   const attempted = useRef(false)
 
   useEffect(() => {
-    // If already initialized with a token, nothing to do
     if (isInitialized) {
       if (!accessToken) {
         navigate('/login', { replace: true })
@@ -19,21 +26,36 @@ export function AuthGuard() {
       return
     }
 
-    // Not initialized — try a silent refresh via cookie
     if (attempted.current) return
     attempted.current = true
 
     const timeout = setTimeout(() => {
-      // Max 3s: give up and redirect to login
       clearAuth()
       navigate('/login', { replace: true })
     }, 3000)
 
     refreshToken()
-      .then((r) => {
+      .then(async (r) => {
         clearTimeout(timeout)
-        // We don't have user info yet; set a placeholder — profile query will fill it
+        // Placeholder mientras cargamos profile; setAuth define isInitialized=true.
         setAuth(r.accessToken, { id: 0, email: '', displayName: null })
+        try {
+          const profile = await apiClient
+            .get('identity/profile', { headers: { Authorization: `Bearer ${r.accessToken}` } })
+            .json<ProfileResponse>()
+          setAuth(r.accessToken, {
+            id: profile.ownerId,
+            email: '',
+            displayName: profile.displayName,
+          })
+        } catch (e) {
+          // Profile no existe → primer login OAuth o usuario sin onboarding.
+          if (e instanceof ApiClientError && e.status === 404) {
+            navigate('/onboarding', { replace: true })
+            return
+          }
+          // Otro error: dejamos el placeholder, AuthGuard ya pasa el outlet.
+        }
         setChecking(false)
       })
       .catch(() => {
@@ -43,9 +65,8 @@ export function AuthGuard() {
       })
   }, [isInitialized, accessToken, setAuth, clearAuth, navigate])
 
-  // Already initialized
   if (isInitialized) {
-    if (!accessToken) return null // navigating to /login
+    if (!accessToken) return null
     return <Outlet />
   }
 
