@@ -48,7 +48,7 @@ jobs:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
         with:
-          host: VPS_HOST_REDACTED
+          host: ${{ secrets.VPS_HOST }}
           username: ossflow
           password: ${{ secrets.VPS_SSH_PASS }}
           script: |
