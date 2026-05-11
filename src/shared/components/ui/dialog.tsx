@@ -29,7 +29,10 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        'fixed left-[50%] top-[50%] z-50 w-full max-w-lg translate-x-[-50%] translate-y-[-50%] border border-border bg-background p-6 shadow-xl duration-150 overflow-hidden flex flex-col gap-4',
+        // Mobile: sheet desde abajo, ocupa hasta 92dvh con scroll
+        'fixed bottom-0 left-0 right-0 z-50 w-full max-h-[92dvh] border-t border-border bg-background p-6 shadow-xl duration-150 overflow-y-auto flex flex-col gap-4',
+        // Desktop: modal centrado clásico
+        'md:bottom-auto md:left-[50%] md:top-[50%] md:max-w-lg md:translate-x-[-50%] md:translate-y-[-50%] md:border md:max-h-[90vh]',
         className,
       )}
       {...props}
