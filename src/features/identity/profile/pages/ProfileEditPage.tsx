@@ -126,6 +126,7 @@ export function ProfileEditPage() {
     }
   }, [profile, reset])
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchedBelt = watch('currentBelt')
   const beltDef = BELTS.find(b => b.value === watchedBelt?.toUpperCase())
   const beltIdx = BELT_ORDER.indexOf(watchedBelt?.toUpperCase() as typeof BELT_ORDER[number])
