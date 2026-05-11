@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'sonner'
@@ -15,9 +16,20 @@ const queryClient = new QueryClient({
   },
 })
 
+function ThemeInitializer() {
+  useEffect(() => {
+    const stored = localStorage.getItem('ossflow-theme') ?? 'dark'
+    const root = window.document.documentElement
+    root.classList.remove('light', 'dark')
+    root.classList.add(stored)
+  }, [])
+  return null
+}
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
+      <ThemeInitializer />
       <ConfirmDialogProvider>
         {children}
         <Toaster richColors position="top-right" />
