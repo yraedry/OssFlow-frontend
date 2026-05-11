@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { login, logout, register, forgotPassword, resetPassword } from './api'
@@ -39,11 +39,15 @@ export function useRegister() {
 export function useLogout() {
   const { clearAuth } = useAuthStore()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: () => logout(),
+    // onSettled: limpiamos estado local incluso si el backend falla
+    // para evitar sesión fantasma en cliente cuando el servidor responde error.
     onSettled: () => {
       clearAuth()
+      queryClient.clear()
       navigate('/login', { replace: true })
     },
   })
