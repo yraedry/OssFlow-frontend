@@ -7,6 +7,7 @@ import { GoogleLoginButton } from '../components/GoogleLoginButton'
 import { AuthLayout, AuthCard, AuthField, AuthDivider, AuthLink } from '../components/AuthLayout'
 import { Input } from '@/shared/components/ui/input'
 import { Button } from '@/shared/components/ui/button'
+import { MONO } from '@/shared/lib/typography'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -56,7 +57,7 @@ export function LoginPage() {
         <AuthDivider label="o continúa con" />
         <GoogleLoginButton />
 
-        <p className="text-center text-xs text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
+        <p className="text-center text-xs text-muted-foreground" style={MONO}>
           ¿No tienes cuenta?{' '}
           <Link to="/register" className="text-foreground underline underline-offset-2 hover:text-muted-foreground transition-colors">
             Regístrate
