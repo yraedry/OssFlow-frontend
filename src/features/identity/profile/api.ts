@@ -1,5 +1,6 @@
 import { apiClient, ApiClientError } from '@/shared/api/client'
 import type { UserProfile, CreateProfileRequest, UpdateProfileRequest } from './types'
+import type { FederationAssignment } from '@/features/identity/federation/types'
 
 export async function getProfile(): Promise<UserProfile | null> {
   try {
@@ -16,4 +17,8 @@ export async function createProfile(data: CreateProfileRequest): Promise<UserPro
 
 export async function updateProfile(data: UpdateProfileRequest): Promise<UserProfile> {
   return apiClient.put('identity/profile', { json: data }).json<UserProfile>()
+}
+
+export async function replaceFederations(federations: FederationAssignment[]): Promise<UserProfile> {
+  return apiClient.put('identity/profile/federations', { json: federations }).json<UserProfile>()
 }

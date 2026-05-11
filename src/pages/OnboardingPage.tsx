@@ -11,6 +11,7 @@ import { Spinner } from '@/shared/components/ui/spinner'
 import { FederationSelector } from '@/features/identity/federation/components/FederationSelector'
 import { useFederations } from '@/features/identity/federation/hooks'
 import { useCreateProfile } from '@/features/identity/profile/hooks'
+import { replaceFederations } from '@/features/identity/profile/api'
 import type { FederationAssignment } from '@/features/identity/federation/types'
 
 const BELTS = [
@@ -85,6 +86,9 @@ export function OnboardingPage() {
       preferredModality: data.preferredModality,
       academy: data.academy || undefined,
     })
+    if (data.federations.length > 0) {
+      await replaceFederations(data.federations)
+    }
     navigate('/', { replace: true })
   }
 
