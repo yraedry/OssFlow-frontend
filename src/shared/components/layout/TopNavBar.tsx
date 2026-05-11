@@ -1,10 +1,11 @@
 import { NavLink, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { Search, Sun, Moon, Settings } from 'lucide-react'
+import { Search, Sun, Moon, Settings, LogOut } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useTheme } from '@/shared/hooks/useTheme'
 import { useProfile } from '@/features/identity/profile/hooks'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
+import { useLogout } from '@/features/auth/hooks'
 
 const PRIMARY_NAV = [
   { to: '/',                    label: 'Inicio',        end: true,  section: null },
@@ -62,6 +63,7 @@ type TopNavBarProps = { onSearchOpen: () => void }
 export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
   const { theme, toggleTheme } = useTheme()
   const { data: profile } = useProfile()
+  const logoutMutation = useLogout()
   const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
   const { pathname } = useLocation()
   const activeSection = getSection(pathname)
@@ -156,6 +158,13 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
               : initials}
           </NavLink>
+          <button
+            onClick={() => logoutMutation.mutate()}
+            className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors ml-1"
+            aria-label="Cerrar sesión"
+          >
+            <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </button>
         </div>
       </div>
 
