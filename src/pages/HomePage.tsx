@@ -89,7 +89,7 @@ export function HomePage() {
           {format(today, "EEEE, d 'de' MMMM", { locale: es })}
         </p>
         <h1 className="leading-none" style={{ ...SERIF, fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.03em' }}>
-          {getGreeting(today.getHours())}{profile?.alias ? `, ${profile.alias}` : profile?.displayName ? `, ${profile.displayName}` : ''}.
+          {getGreeting(today.getHours())}{profile?.alias ? `, ${profile.alias}` : ''}.
         </h1>
       </div>
 
