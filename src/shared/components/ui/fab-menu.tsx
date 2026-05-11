@@ -3,11 +3,7 @@ import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Plus, X, Dumbbell, Zap, BookOpen, FileText, CalendarPlus, Activity } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
-
-// Evento global para abrir el diálogo "nuevo" en la página activa
-export function dispatchFabNew() {
-  window.dispatchEvent(new CustomEvent('fab:new'))
-}
+import { dispatchFabNew } from '@/shared/hooks/useFabNew'
 
 const ACTIONS = [
   { label: 'Sesión BJJ',       icon: Dumbbell,     path: '/diario/sesiones-bjj' },
