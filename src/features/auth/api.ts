@@ -3,7 +3,7 @@ import type { AuthResponse, RefreshResponse, RegisterRequest, LoginRequest } fro
 
 // Auth endpoints use /api/auth (no /v1 prefix)
 const authClient = ky.create({
-  prefixUrl: '/api/auth',
+  prefix: '/api/auth',
   credentials: 'include',
   timeout: 10_000,
   headers: {
