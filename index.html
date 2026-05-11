@@ -1,10 +1,22 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="OssFlow — segundo cerebro para BJJ. Sesiones, técnicas, planes de estudio y competición en un solo lugar." />
+    <meta name="theme-color" content="#0a0a0f" />
     <title>OssFlow</title>
+    <script>
+      // B12: aplica tema antes del bundle para evitar FOUC (flash of unstyled content)
+      // cuando localStorage tiene 'light' tras un refresh.
+      try {
+        var t = localStorage.getItem('ossflow-theme') || 'dark';
+        document.documentElement.classList.add(t);
+      } catch (e) {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
