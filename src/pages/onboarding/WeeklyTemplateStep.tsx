@@ -17,7 +17,7 @@ type DaySlots = { type: SessionType; time?: string }[]
 type State = Record<DayOfWeek, DaySlots>
 
 function buildEmpty(): State {
-  return Object.fromEntries(ALL_DAYS.map(d => [d, []])) as State
+  return ALL_DAYS.reduce<State>((acc, d) => { acc[d] = []; return acc }, {} as State)
 }
 
 type Props = {

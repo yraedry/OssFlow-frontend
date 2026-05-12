@@ -1,9 +1,10 @@
-import { useState } from 'react'
-import { Settings, Palette, Bell, Database, Sun, Moon, Monitor, ChevronRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useState, useRef } from 'react'
+import { Settings, Palette, Bell, Database, Sun, Moon, Monitor, Upload, Download } from 'lucide-react'
 import { Card, CardContent } from '@/shared/components/ui/card'
 import { Badge } from '@/shared/components/ui/badge'
 import { useTheme } from '@/shared/hooks/useTheme'
+import { useExportBackup, useImportBackup } from '@/features/identity/profile/hooks'
+import { DeleteAccountModal } from '@/features/identity/profile/components/DeleteAccountModal'
 
 // ─── localStorage keys ────────────────────────────────────────────────────────
 
@@ -176,61 +177,16 @@ function InlineSelect({
   )
 }
 
-// ─── Delete Account Dialog ────────────────────────────────────────────────────
-
-function DeleteAccountButton() {
-  const [step, setStep] = useState<'idle' | 'confirm' | 'done'>('idle')
-
-  if (step === 'done') {
-    return (
-      <div className="text-xs text-muted-foreground border border-border px-3 py-2">
-        Esta funcionalidad estará disponible próximamente.
-      </div>
-    )
-  }
-
-  if (step === 'confirm') {
-    return (
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-destructive">¿Confirmar eliminación?</span>
-        <button
-          type="button"
-          onClick={() => setStep('done')}
-          className="px-3 py-1 text-[10px] border border-destructive text-destructive hover:bg-destructive/10 transition-colors"
-          style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}
-        >
-          Sí, eliminar
-        </button>
-        <button
-          type="button"
-          onClick={() => setStep('idle')}
-          className="px-3 py-1 text-[10px] border border-border text-muted-foreground hover:text-foreground transition-colors"
-          style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}
-        >
-          Cancelar
-        </button>
-      </div>
-    )
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={() => setStep('confirm')}
-      className="px-4 py-1.5 text-[10px] border border-destructive text-destructive hover:bg-destructive/10 transition-colors"
-      style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}
-    >
-      Eliminar cuenta
-    </button>
-  )
-}
-
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export function ConfiguracionPage() {
   const [modality, setModality] = useState(() => readLocal(KEY_MODALITY, 'BOTH'))
   const [weightUnit, setWeightUnit] = useState(() => readLocal(KEY_WEIGHT, 'kg') === 'kg')
   const [duration, setDuration] = useState(() => readLocal(KEY_DURATION, '60'))
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const importRef = useRef<HTMLInputElement>(null)
+  const exportBackup = useExportBackup()
+  const importBackup = useImportBackup()
 
   function handleModality(v: string) {
     setModality(v)
@@ -245,6 +201,22 @@ export function ConfiguracionPage() {
   function handleDuration(v: string) {
     setDuration(v)
     localStorage.setItem(KEY_DURATION, v)
+  }
+
+  function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      try {
+        const json = JSON.parse(ev.target?.result as string)
+        importBackup.mutate(json)
+      } catch {
+        // toast shown by hook onError
+      }
+    }
+    reader.readAsText(file)
+    e.target.value = ''
   }
 
   return (
@@ -337,23 +309,47 @@ export function ConfiguracionPage() {
             <Card>
               <CardContent className="py-0">
                 <SettingRow label="Exportar mis datos" description="Descarga toda tu información en formato JSON">
-                  <Link
-                    to="/export"
-                    className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:bg-accent transition-colors"
+                  <button
+                    type="button"
+                    onClick={() => exportBackup.mutate()}
+                    disabled={exportBackup.isPending}
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:bg-accent transition-colors cursor-pointer disabled:opacity-50"
                     style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}
                   >
-                    Exportar
-                    <ChevronRight className="h-3 w-3" strokeWidth={2} />
-                  </Link>
+                    <Download className="h-3 w-3" strokeWidth={2} />
+                    {exportBackup.isPending ? 'Descargando…' : 'Exportar'}
+                  </button>
+                </SettingRow>
+                <SettingRow label="Importar backup" description="Restaura posiciones, técnicas y más desde un archivo JSON de OssFlow">
+                  <button
+                    type="button"
+                    onClick={() => importRef.current?.click()}
+                    disabled={importBackup.isPending}
+                    className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-[10px] font-medium hover:bg-accent transition-colors cursor-pointer disabled:opacity-50"
+                    style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}
+                  >
+                    <Upload className="h-3 w-3" strokeWidth={2} />
+                    {importBackup.isPending ? 'Importando…' : 'Importar'}
+                  </button>
                 </SettingRow>
                 <SettingRow label="Eliminar cuenta" description="Elimina permanentemente tu cuenta y todos tus datos">
-                  <DeleteAccountButton />
+                  <button
+                    type="button"
+                    onClick={() => setDeleteModalOpen(true)}
+                    className="px-4 py-1.5 text-[10px] border border-destructive text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                    style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}
+                  >
+                    Eliminar cuenta
+                  </button>
                 </SettingRow>
               </CardContent>
             </Card>
           </section>
         </div>
       </div>
+
+      <input ref={importRef} type="file" accept="application/json,.json" className="hidden" onChange={handleImportFile} />
+      <DeleteAccountModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} />
     </div>
   )
 }

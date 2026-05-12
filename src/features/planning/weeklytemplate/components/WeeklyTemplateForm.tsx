@@ -16,7 +16,7 @@ type DaySlots = { type: SessionType; time?: string }[]
 type State = Record<DayOfWeek, DaySlots>
 
 function buildFromTemplate(template: WeeklyTemplate): State {
-  const base = Object.fromEntries(ALL_DAYS.map(d => [d, []])) as State
+  const base = ALL_DAYS.reduce<State>((acc, d) => { acc[d] = []; return acc }, {} as State)
   for (const day of template.days) {
     base[day.dayOfWeek] = day.sessions.map(s => ({ type: s.type, time: s.time }))
   }
@@ -24,7 +24,7 @@ function buildFromTemplate(template: WeeklyTemplate): State {
 }
 
 function buildEmpty(): State {
-  return Object.fromEntries(ALL_DAYS.map(d => [d, []])) as State
+  return ALL_DAYS.reduce<State>((acc, d) => { acc[d] = []; return acc }, {} as State)
 }
 
 type Props = {

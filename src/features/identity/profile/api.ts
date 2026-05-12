@@ -26,3 +26,18 @@ export async function replaceFederations(federations: FederationAssignment[]): P
 export async function deleteAccount(): Promise<void> {
   await apiClient.delete('me/account')
 }
+
+export async function exportFullBackup(): Promise<void> {
+  const response = await apiClient.get('export/full')
+  const blob = await response.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `ossflow-backup-${new Date().toISOString().slice(0, 10)}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+export async function importBackup(json: unknown): Promise<void> {
+  await apiClient.post('me/import', { json })
+}
