@@ -566,7 +566,7 @@ export function ProfileEditPage() {
           {allFederations.length === 0 ? (
             <p className="text-xs text-muted-foreground py-6 text-center" style={MONO}>No hay federaciones disponibles.</p>
           ) : (
-            <div className="flex flex-col gap-1 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
               {allFederations.map(fed => {
                 const checked = selectedFeds.some(s => s.federationId === fed.id)
                 const primary = selectedFeds.some(s => s.federationId === fed.id && s.isPrimary)
@@ -574,27 +574,30 @@ export function ProfileEditPage() {
                   <div
                     key={fed.id}
                     onClick={() => handleFedCheck(fed.id, !checked)}
-                    className={`flex items-center gap-3 px-3 py-2.5 border transition-colors cursor-pointer ${
+                    className={`flex flex-col gap-2 px-3 py-3 border transition-colors cursor-pointer ${
                       checked ? 'border-foreground/35 bg-foreground/[0.03]' : 'border-border hover:border-foreground/20'
                     }`}
                   >
-                    {/* Checkbox cuadrado */}
-                    <div className="h-4 w-4 border flex items-center justify-center flex-shrink-0 transition-colors"
-                      style={{
-                        borderColor: checked ? 'var(--color-foreground)' : 'var(--color-border)',
-                        backgroundColor: checked ? 'var(--color-foreground)' : 'transparent',
-                      }}>
-                      {checked && <Check className="h-2.5 w-2.5 text-background" strokeWidth={3} />}
+                    <div className="flex items-center gap-2.5">
+                      {/* Checkbox cuadrado */}
+                      <div className="h-4 w-4 border flex items-center justify-center flex-shrink-0 transition-colors"
+                        style={{
+                          borderColor: checked ? 'var(--color-foreground)' : 'var(--color-border)',
+                          backgroundColor: checked ? 'var(--color-foreground)' : 'transparent',
+                        }}>
+                        {checked && <Check className="h-2.5 w-2.5 text-background" strokeWidth={3} />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium leading-snug truncate">{fed.name}</p>
+                        <p className="text-[9px] text-muted-foreground" style={MONO}>{fed.code}</p>
+                      </div>
                     </div>
-
-                    <span className="text-sm font-medium flex-1">{fed.name}</span>
-                    <span className="text-[9px] text-muted-foreground" style={MONO}>{fed.code}</span>
 
                     {checked && (
                       <button
                         type="button"
                         onClick={e => { e.stopPropagation(); handleSetPrimary(fed.id) }}
-                        className={`flex items-center gap-1 text-[9px] font-bold uppercase tracking-wide px-2.5 py-1 border transition-colors cursor-pointer shrink-0 ${
+                        className={`flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wide px-2.5 py-1.5 border transition-colors cursor-pointer w-full ${
                           primary
                             ? 'border-foreground bg-foreground text-background'
                             : 'border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground'
@@ -602,7 +605,7 @@ export function ProfileEditPage() {
                         style={MONO}
                       >
                         <Star className="h-2.5 w-2.5" strokeWidth={primary ? 3 : 1.5} />
-                        Principal
+                        {primary ? 'Principal ✓' : 'Marcar como principal'}
                       </button>
                     )}
                   </div>
