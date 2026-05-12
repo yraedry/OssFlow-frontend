@@ -2,8 +2,12 @@ import ky from 'ky'
 import type { AuthResponse, RefreshResponse, RegisterRequest, LoginRequest } from './types'
 
 // Auth endpoints use /api/auth (no /v1 prefix)
+const AUTH_BASE = import.meta.env.VITE_PROXY_TARGET
+  ? `${import.meta.env.VITE_PROXY_TARGET}/api/auth`
+  : '/api/auth'
+
 const authClient = ky.create({
-  prefix: '/api/auth',
+  prefix: AUTH_BASE,
   credentials: 'include',
   timeout: 10_000,
   headers: {

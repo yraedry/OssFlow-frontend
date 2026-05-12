@@ -53,7 +53,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Planes de estudio', path: '/planificacion/planes' },
       { label: 'Plantilla semanal', path: '/planificacion/plantilla' },
-      { label: 'Calendario', path: '/planificacion/calendario' },
+      { label: 'Rutinas', path: '/planificacion/rutinas' },
     ],
   },
   {

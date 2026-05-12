@@ -23,6 +23,7 @@ import { StudyPlanDetailPage } from '@/features/planning/studyplan/pages/StudyPl
 import { StudyPlanTimelinePage } from '@/features/planning/studyplan/pages/StudyPlanTimelinePage'
 import { WeeklyTemplatePage } from '@/features/planning/weeklytemplate/pages/WeeklyTemplatePage'
 import { WeeklySchedulePage } from '@/features/planning/weeklytemplate/pages/WeeklySchedulePage'
+import { RoutinesPage } from '@/features/planning/routine/pages/RoutinesPage'
 import { ProfilePage } from '@/features/identity/profile/pages/ProfilePage'
 import { ProfileEditPage } from '@/features/identity/profile/pages/ProfileEditPage'
 import { CompetitionLogsPage } from '@/features/competition/log/pages/CompetitionLogsPage'
@@ -119,6 +120,7 @@ export const router = createBrowserRouter([
           { path: 'planificacion/planes/:id/timeline', element: <StudyPlanTimelinePage /> },
           { path: 'planificacion/plantilla', element: <WeeklyTemplatePage /> },
           { path: 'planificacion/calendario', element: <WeeklySchedulePage /> },
+          { path: 'planificacion/rutinas', element: <RoutinesPage /> },
 
           // Análisis
           { path: 'analisis', element: <AnalisisPage /> },
