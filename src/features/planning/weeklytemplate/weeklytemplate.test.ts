@@ -49,7 +49,7 @@ describe('saveWeeklyTemplateSchema', () => {
   })
 
   it('fails if more than 7 days', () => {
-    const days = Array.from({ length: 8 }, (_, i) => ({
+    const days = Array.from({ length: 8 }, () => ({
       dayOfWeek: 'MONDAY',
       sessions: [],
     }))
