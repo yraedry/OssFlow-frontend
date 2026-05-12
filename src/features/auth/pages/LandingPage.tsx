@@ -1,61 +1,8 @@
-import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Sun, Moon } from 'lucide-react'
 import { AuthLogo } from '../components/AuthLayout'
 import { GoogleLoginButton } from '../components/GoogleLoginButton'
 import { Button } from '@/shared/components/ui/button'
 import { MONO, SERIF, SERIF_HERO } from '@/shared/lib/typography'
-
-const THEME_KEY = 'ossflow-theme'
-
-function ThemePickerModal({ onClose }: { onClose: () => void }) {
-  const pick = (theme: 'dark' | 'light') => {
-    localStorage.setItem(THEME_KEY, theme)
-    document.documentElement.classList.remove('light', 'dark')
-    document.documentElement.classList.add(theme)
-    onClose()
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-      <div className="border border-border bg-card p-8 w-full max-w-sm space-y-6">
-        <div className="space-y-1">
-          <p style={{ ...MONO, fontSize: '10px', color: 'var(--color-muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-            Bienvenido a OssFlow
-          </p>
-          <h2 style={{ ...SERIF, fontSize: '20px' }} className="text-foreground">
-            Elige tu tema
-          </h2>
-          <p className="text-muted-foreground text-xs">
-            Puedes cambiarlo en cualquier momento desde Configuración.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <button
-            type="button"
-            onClick={() => pick('dark')}
-            className="flex flex-col items-center gap-3 border border-border bg-[#0f0f0f] p-5 hover:border-[#f0ebe3] transition-colors"
-          >
-            <Moon className="h-5 w-5 text-[#f0ebe3]" strokeWidth={1.5} />
-            <span style={{ ...MONO, fontSize: '10px', color: '#f0ebe3', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Oscuro
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => pick('light')}
-            className="flex flex-col items-center gap-3 border border-[#d0ccc6] bg-[#fafaf8] p-5 hover:border-[#1a1a1a] transition-colors"
-          >
-            <Sun className="h-5 w-5 text-[#1a1a1a]" strokeWidth={1.5} />
-            <span style={{ ...MONO, fontSize: '10px', color: '#1a1a1a', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Claro
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 const features = [
   {
@@ -81,17 +28,8 @@ const features = [
 ]
 
 export function LandingPage() {
-  const [showThemePicker, setShowThemePicker] = useState(false)
-
-  useEffect(() => {
-    if (!localStorage.getItem(THEME_KEY)) {
-      setShowThemePicker(true)
-    }
-  }, [])
-
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {showThemePicker && <ThemePickerModal onClose={() => setShowThemePicker(false)} />}
       {/* Nav superior */}
       <header className="border-b border-border">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-14">
