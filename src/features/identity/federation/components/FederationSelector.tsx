@@ -33,71 +33,84 @@ export function FederationSelector({ federations, selected, onChange }: Props) {
     return <p className="text-xs text-muted-foreground" style={MONO}>No hay federaciones disponibles.</p>
   }
 
+  const selectedFeds = federations.filter(f => isChecked(f.id))
+
   return (
-    <div className="grid grid-cols-2 gap-2">
-      {federations.map((fed) => {
-        const checked = isChecked(fed.id)
-        const primary = isPrimary(fed.id)
-        return (
-          <button
-            key={fed.id}
-            type="button"
-            onClick={() => handleCheck(fed.id, !checked)}
-            className="relative text-left border p-2.5 transition-colors hover:bg-accent/20 focus:outline-none"
-            style={{
-              borderColor: checked ? 'var(--color-foreground)' : 'var(--color-border)',
-              backgroundColor: checked ? 'rgba(255,255,255,0.03)' : 'transparent',
-            }}
-          >
-            {/* Checkmark */}
-            <span
-              className="absolute top-2 right-2 w-3 h-3 border flex items-center justify-center transition-colors"
+    <div className="space-y-3">
+      {/* Chips de selección */}
+      <div className="flex flex-wrap gap-2">
+        {federations.map((fed) => {
+          const checked = isChecked(fed.id)
+          return (
+            <button
+              key={fed.id}
+              type="button"
+              onClick={() => handleCheck(fed.id, !checked)}
+              className="flex items-center gap-1.5 px-3 py-1.5 border transition-all focus:outline-none cursor-pointer select-none"
               style={{
-                borderColor: checked ? 'var(--color-foreground)' : 'rgba(255,255,255,0.2)',
+                ...MONO,
+                fontSize: '10px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                borderColor: checked ? 'var(--color-foreground)' : 'var(--color-border)',
                 backgroundColor: checked ? 'var(--color-foreground)' : 'transparent',
+                color: checked ? 'var(--color-background)' : 'var(--color-muted-foreground)',
               }}
+              aria-pressed={checked}
+              title={fed.name}
             >
               {checked && (
-                <svg width="7" height="5" viewBox="0 0 7 5" fill="none">
-                  <path d="M1 2.5L2.8 4.5L6 1" stroke="var(--color-background)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width="8" height="6" viewBox="0 0 8 6" fill="none" aria-hidden>
+                  <path d="M1 3L3 5L7 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               )}
-            </span>
-
-            {/* Código */}
-            <span
-              className="block text-[9px] font-bold uppercase tracking-widest mb-0.5"
-              style={{ ...MONO, color: checked ? 'var(--color-foreground)' : 'var(--color-muted-foreground)' }}
-            >
               {fed.code}
-            </span>
-            {/* Nombre */}
-            <span
-              className="block text-[10px] leading-tight pr-4"
-              style={{ ...MONO, color: checked ? 'var(--color-foreground)' : 'var(--color-muted-foreground)' }}
-            >
-              {fed.name}
-            </span>
+            </button>
+          )
+        })}
+      </div>
 
-            {/* Botón principal */}
-            {checked && (
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleSetPrimary(fed.id) }}
-                className="mt-2 text-[8px] uppercase tracking-widest border px-1.5 py-0.5 transition-colors"
-                style={{
-                  ...MONO,
-                  borderColor: primary ? 'var(--color-foreground)' : 'rgba(255,255,255,0.15)',
-                  color: primary ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
-                  backgroundColor: primary ? 'rgba(255,255,255,0.06)' : 'transparent',
-                }}
-              >
-                {primary ? '★ Principal' : 'Marcar principal'}
-              </button>
-            )}
-          </button>
-        )
-      })}
+      {/* Nombres completos de seleccionados + marcar principal */}
+      {selectedFeds.length > 0 && (
+        <div className="border border-border divide-y divide-border">
+          {selectedFeds.map((fed) => {
+            const primary = isPrimary(fed.id)
+            return (
+              <div key={fed.id} className="flex items-center justify-between gap-3 px-3 py-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className="shrink-0 text-[9px] font-bold uppercase tracking-widest"
+                    style={{ ...MONO, color: 'var(--color-foreground)' }}
+                  >
+                    {fed.code}
+                  </span>
+                  <span
+                    className="text-[10px] text-muted-foreground truncate"
+                    style={MONO}
+                  >
+                    {fed.name}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSetPrimary(fed.id)}
+                  className="shrink-0 text-[8px] uppercase tracking-widest border px-2 py-0.5 transition-all cursor-pointer focus:outline-none"
+                  style={{
+                    ...MONO,
+                    borderColor: primary ? 'var(--color-foreground)' : 'var(--color-border)',
+                    color: primary ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
+                    backgroundColor: primary ? 'var(--color-foreground)' : 'transparent',
+                    ...(primary ? { color: 'var(--color-background)' } : {}),
+                  }}
+                >
+                  {primary ? '★ Principal' : 'Principal'}
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

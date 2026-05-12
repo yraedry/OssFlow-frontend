@@ -363,13 +363,17 @@ export function OnboardingPage() {
                 )}
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" className="flex-1" onClick={() => setStep(3)}>Atrás</Button>
-                <Button className="flex-1" onClick={() => setStep(5)}>Siguiente</Button>
+                <button type="button" onClick={() => setStep(3)}
+                  className="flex-1 py-2.5 border border-border text-[10px] font-bold uppercase tracking-widest hover:bg-accent transition-colors cursor-pointer"
+                  style={MONO}>Atrás</button>
+                <button type="button" onClick={() => setStep(5)}
+                  className="flex-[2] py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-widest hover:opacity-85 transition-opacity cursor-pointer"
+                  style={MONO}>Siguiente</button>
               </div>
               <button
                 type="button"
                 onClick={() => { setData(prev => ({ ...prev, federations: [] })); setStep(5) }}
-                className="w-full text-center text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors cursor-pointer"
+                className="w-full text-center text-[9px] uppercase tracking-widest text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors cursor-pointer"
                 style={MONO}
               >
                 Saltar este paso
