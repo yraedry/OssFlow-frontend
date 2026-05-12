@@ -20,7 +20,7 @@ const ROUTE_MAP: { pattern: RegExp; crumbs: Crumb[] }[] = [
   { pattern: /^\/estudio\/tecnicas/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Estudio' }, { label: 'Técnicas' }] },
   { pattern: /^\/estudio\/posiciones/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Estudio' }, { label: 'Posiciones' }] },
   { pattern: /^\/estudio\/sistemas/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Estudio' }, { label: 'Sistemas' }] },
-  { pattern: /^\/estudio\/ejercicios/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Estudio' }, { label: 'Ejercicios' }] },
+  { pattern: /^\/estudio\/ejercicios/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Estudio' }, { label: 'Físico' }] },
   { pattern: /^\/estudio\/movilidad/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Estudio' }, { label: 'Movilidad' }] },
   { pattern: /^\/estudio\/flexibilidad/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Estudio' }, { label: 'Flexibilidad' }] },
   { pattern: /^\/estudio\/reglamentos/, crumbs: [{ label: 'Inicio', to: '/' }, { label: 'Estudio' }, { label: 'Reglamentos' }] },

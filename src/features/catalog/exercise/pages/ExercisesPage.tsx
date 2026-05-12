@@ -75,7 +75,7 @@ function ExerciseDetailView({
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5">
           <ArrowLeft className="h-4 w-4" />
-          Ejercicios
+          Físico
         </Button>
       </div>
 
@@ -330,7 +330,7 @@ export function ExercisesPage() {
             Catálogo
           </div>
           <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
-            Ejercicios físicos
+            Físico
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {data?.totalElements ?? 0} ejercicios en tu catálogo

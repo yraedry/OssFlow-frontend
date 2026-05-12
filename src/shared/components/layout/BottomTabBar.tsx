@@ -23,7 +23,7 @@ const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[]
     { to: '/estudio/tecnicas',    label: 'Técnicas' },
     { to: '/estudio/posiciones',  label: 'Posiciones' },
     { to: '/estudio/sistemas',    label: 'Sistemas' },
-    { to: '/estudio/ejercicios',  label: 'Ejercicios' },
+    { to: '/estudio/ejercicios',  label: 'Físico' },
     { to: '/estudio/movilidad',   label: 'Movilidad' },
     { to: '/estudio/flexibilidad',label: 'Flexibilidad' },
     { to: '/estudio/reglamentos', label: 'Reglamentos' },
