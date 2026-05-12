@@ -4,16 +4,16 @@ import type { DayOfWeek, SessionType, WeeklyTemplate } from '../types'
 import type { SaveWeeklyTemplateForm } from '../schemas'
 import { MONO } from '@/shared/lib/typography'
 
-const COLS: { key: SessionType; label: string; color: string }[] = [
-  { key: 'BJJ',         label: 'BJJ',         color: '#4a7cff' },
-  { key: 'STRENGTH',    label: 'Fuerza',       color: '#f59e0b' },
-  { key: 'CARDIO',      label: 'Cardio',       color: '#10b981' },
-  { key: 'MOBILITY',    label: 'Movilidad',    color: '#a855f7' },
-  { key: 'FLEXIBILITY', label: 'Flexib.',      color: '#06b6d4' },
+const SESSION_TYPES: { key: SessionType; label: string; color: string }[] = [
+  { key: 'BJJ',         label: 'BJJ',      color: '#4a7cff' },
+  { key: 'STRENGTH',    label: 'Fuerza',   color: '#f59e0b' },
+  { key: 'CARDIO',      label: 'Cardio',   color: '#10b981' },
+  { key: 'MOBILITY',    label: 'Movil.',   color: '#a855f7' },
+  { key: 'FLEXIBILITY', label: 'Flexib.',  color: '#06b6d4' },
 ]
 
-type DaySlots = { type: SessionType; time?: string }[]
-type State = Record<DayOfWeek, DaySlots>
+type Slot = { type: SessionType; time?: string }
+type State = Record<DayOfWeek, Slot[]>
 
 function buildFromTemplate(template: WeeklyTemplate): State {
   const base = ALL_DAYS.reduce<State>((acc, d) => { acc[d] = []; return acc }, {} as State)
@@ -33,60 +33,6 @@ type Props = {
   isPending: boolean
 }
 
-function SessionChip({ label, color, active, time, onToggle, onTimeChange, onAdd }: {
-  label: string; color: string; active: boolean; time?: string
-  onToggle: () => void; onTimeChange: (v: string) => void; onAdd: () => void
-}) {
-  return (
-    <div className="flex items-center gap-0.5">
-      <button type="button" onClick={onToggle}
-        className="px-2 py-1 border transition-all focus:outline-none cursor-pointer select-none"
-        style={{ ...MONO, fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
-          backgroundColor: active ? color : 'transparent',
-          borderColor: active ? color : 'var(--color-border)',
-          color: active ? '#fff' : 'var(--color-muted-foreground)' }}
-      >{label}</button>
-      {active && (
-        <>
-          <input type="time" value={time ?? ''} onChange={e => onTimeChange(e.target.value)}
-            aria-label={`Hora ${label}`} onClick={e => e.stopPropagation()}
-            className="focus:outline-none cursor-pointer bg-transparent"
-            style={{ ...MONO, fontSize: '9px', width: '58px', padding: '3px 4px',
-              border: `1px solid ${time ? color : 'var(--color-border)'}`,
-              color: time ? color : 'var(--color-muted-foreground)', letterSpacing: '0.02em' }} />
-          <button type="button" onClick={e => { e.stopPropagation(); onAdd() }}
-            aria-label={`Añadir otra sesión de ${label}`}
-            className="px-1 border transition-colors focus:outline-none cursor-pointer bg-transparent hover:bg-accent"
-            style={{ ...MONO, fontSize: '11px', borderColor: 'var(--color-border)',
-              color: 'var(--color-muted-foreground)' }}>+</button>
-        </>
-      )}
-    </div>
-  )
-}
-
-function ExtraChip({ label, color, time, onTimeChange, onRemove }: {
-  label: string; color: string; time?: string
-  onTimeChange: (v: string) => void; onRemove: () => void
-}) {
-  return (
-    <div className="flex items-center gap-0.5">
-      <span className="px-2 py-1 border" style={{ ...MONO, fontSize: '9px', fontWeight: 700,
-        textTransform: 'uppercase', letterSpacing: '0.06em',
-        backgroundColor: color, borderColor: color, color: '#fff' }}>{label}</span>
-      <input type="time" value={time ?? ''} onChange={e => onTimeChange(e.target.value)}
-        aria-label={`Hora ${label}`} className="focus:outline-none cursor-pointer bg-transparent"
-        style={{ ...MONO, fontSize: '9px', width: '58px', padding: '3px 4px',
-          border: `1px solid ${time ? color : 'var(--color-border)'}`,
-          color: time ? color : 'var(--color-muted-foreground)', letterSpacing: '0.02em' }} />
-      <button type="button" onClick={onRemove} aria-label="Eliminar sesión"
-        className="px-1 border focus:outline-none cursor-pointer bg-transparent transition-colors hover:bg-destructive/10"
-        style={{ ...MONO, fontSize: '11px', borderColor: 'var(--color-border)',
-          color: 'var(--color-muted-foreground)' }}>×</button>
-    </div>
-  )
-}
-
 export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
   const [state, setState] = useState<State>(() =>
     template.days.length > 0 ? buildFromTemplate(template) : buildEmpty()
@@ -94,10 +40,6 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
 
   function isActive(day: DayOfWeek, type: SessionType) {
     return state[day].some(s => s.type === type)
-  }
-
-  function getFirstSlot(day: DayOfWeek, type: SessionType) {
-    return state[day].find(s => s.type === type)
   }
 
   function toggleType(day: DayOfWeek, type: SessionType) {
@@ -110,11 +52,11 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
     })
   }
 
-  function setTime(day: DayOfWeek, type: SessionType, slotIndex: number, value: string) {
+  function setTime(day: DayOfWeek, type: SessionType, slotIdx: number, value: string) {
     setState(prev => {
       const slots = [...prev[day]]
-      const realIdx = prev[day].reduce<number[]>((acc, s, i) => s.type === type ? [...acc, i] : acc, [])[slotIndex]
-      slots[realIdx] = { ...slots[realIdx], time: value || undefined }
+      const positions = prev[day].reduce<number[]>((acc, s, i) => s.type === type ? [...acc, i] : acc, [])
+      slots[positions[slotIdx]] = { ...slots[positions[slotIdx]], time: value || undefined }
       return { ...prev, [day]: slots }
     })
   }
@@ -123,14 +65,17 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
     setState(prev => ({ ...prev, [day]: [...prev[day], { type }] }))
   }
 
-  function removeSlot(day: DayOfWeek, type: SessionType, slotIndex: number) {
+  function removeSlot(day: DayOfWeek, type: SessionType, slotIdx: number) {
     setState(prev => {
       let count = -1
-      const slots = prev[day].filter(s => {
-        if (s.type === type) { count++; return count !== slotIndex }
-        return true
-      })
-      return { ...prev, [day]: slots }
+      return {
+        ...prev,
+        [day]: prev[day].filter(s => {
+          if (s.type !== type) return true
+          count++
+          return count !== slotIdx
+        }),
+      }
     })
   }
 
@@ -147,48 +92,121 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="border border-border divide-y divide-border">
         {ALL_DAYS.map(day => {
-          const dayActive = state[day].length > 0
+          const activeSlots = state[day]
+          const hasActive = activeSlots.length > 0
+
           return (
-            <div key={day} className="flex items-start gap-3 px-3 py-2.5 hover:bg-accent/30 transition-colors">
-              <span className="w-[62px] shrink-0 pt-1"
-                style={{ ...MONO, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
-                  color: dayActive ? 'var(--color-foreground)' : 'var(--color-muted-foreground)' }}>
-                {DAY_LABELS[day]}
-              </span>
-              <div className="flex flex-wrap gap-1.5 flex-1 min-h-[28px] items-center">
-                {COLS.map(col => {
-                  const active = isActive(day, col.key)
-                  const firstSlot = getFirstSlot(day, col.key)
-                  const extraSlots = state[day].filter(s => s.type === col.key).slice(1)
-                  return (
-                    <div key={col.key} className="flex flex-wrap gap-1">
-                      <SessionChip
-                        label={col.label} color={col.color} active={active} time={firstSlot?.time}
-                        onToggle={() => toggleType(day, col.key)}
-                        onTimeChange={v => setTime(day, col.key, 0, v)}
-                        onAdd={() => addSlot(day, col.key)}
-                      />
-                      {extraSlots.map((slot, i) => (
-                        <ExtraChip key={i} label={col.label} color={col.color} time={slot.time}
-                          onTimeChange={v => setTime(day, col.key, i + 1, v)}
-                          onRemove={() => removeSlot(day, col.key, i + 1)} />
-                      ))}
-                    </div>
-                  )
-                })}
+            <div key={day}>
+              {/* Fila principal: día + chips de tipo */}
+              <div className="flex items-center gap-3 px-3 py-2.5 hover:bg-accent/30 transition-colors">
+                <span
+                  className="w-[58px] shrink-0"
+                  style={{
+                    ...MONO, fontSize: '10px', fontWeight: 700,
+                    textTransform: 'uppercase', letterSpacing: '0.06em',
+                    color: hasActive ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
+                  }}
+                >
+                  {DAY_LABELS[day]}
+                </span>
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {SESSION_TYPES.map(({ key, label, color }) => {
+                    const active = isActive(day, key)
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => toggleType(day, key)}
+                        className="px-2.5 py-1 border transition-all focus:outline-none cursor-pointer select-none"
+                        style={{
+                          ...MONO, fontSize: '9px', fontWeight: 700,
+                          textTransform: 'uppercase', letterSpacing: '0.06em',
+                          backgroundColor: active ? color : 'transparent',
+                          borderColor: active ? color : 'var(--color-border)',
+                          color: active ? '#fff' : 'var(--color-muted-foreground)',
+                        }}
+                        aria-pressed={active}
+                      >
+                        {label}
+                      </button>
+                    )
+                  })}
+                </div>
               </div>
+
+              {/* Zona de detalle: hora + doble sesión */}
+              {hasActive && (
+                <div className="flex flex-wrap gap-2 px-3 pb-2.5 pl-[82px] -mt-0.5">
+                  {SESSION_TYPES.map(({ key, label, color }) => {
+                    const slots = activeSlots.filter(s => s.type === key)
+                    if (slots.length === 0) return null
+                    return slots.map((slot, i) => (
+                      <div key={`${key}-${i}`} className="flex items-center gap-0.5">
+                        <span
+                          className="px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wide shrink-0"
+                          style={{ ...MONO, backgroundColor: `${color}22`, color, borderLeft: `2px solid ${color}` }}
+                        >
+                          {label}{slots.length > 1 ? ` ${i + 1}` : ''}
+                        </span>
+                        <input
+                          type="time"
+                          value={slot.time ?? ''}
+                          onChange={e => setTime(day, key, i, e.target.value)}
+                          aria-label={`Hora ${label}`}
+                          className="focus:outline-none cursor-pointer bg-transparent"
+                          style={{
+                            ...MONO, fontSize: '9px', width: '54px', padding: '2px 4px',
+                            border: `1px solid ${slot.time ? color : 'var(--color-border)'}`,
+                            color: slot.time ? color : 'var(--color-muted-foreground)',
+                          }}
+                        />
+                        {i > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => removeSlot(day, key, i)}
+                            aria-label={`Eliminar sesión ${label}`}
+                            className="w-4 h-4 flex items-center justify-center border border-border hover:border-destructive hover:text-destructive transition-colors cursor-pointer bg-transparent"
+                            style={{ ...MONO, fontSize: '10px', color: 'var(--color-muted-foreground)' }}
+                          >×</button>
+                        )}
+                      </div>
+                    ))
+                  })}
+                  {SESSION_TYPES.filter(({ key }) => isActive(day, key)).map(({ key, label, color }) => (
+                    <button
+                      key={`add-${key}`}
+                      type="button"
+                      onClick={() => addSlot(day, key)}
+                      aria-label={`Añadir otra sesión de ${label}`}
+                      className="px-1.5 py-0.5 border border-dashed hover:border-solid transition-all cursor-pointer bg-transparent"
+                      style={{
+                        ...MONO, fontSize: '8px', fontWeight: 700,
+                        textTransform: 'uppercase', letterSpacing: '0.04em',
+                        borderColor: color, color,
+                        opacity: 0.6,
+                      }}
+                    >+{label}</button>
+                  ))}
+                </div>
+              )}
             </div>
           )
         })}
       </div>
 
-      <p className="text-center" style={{ ...MONO, fontSize: '8px', color: 'var(--color-muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-        Pulsa un tipo para activarlo · + para añadir doble sesión · la hora es opcional
+      <p
+        className="text-center text-muted-foreground"
+        style={{ ...MONO, fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
+      >
+        Pulsa un tipo para activarlo · la hora es opcional
       </p>
 
-      <button type="submit" disabled={isPending}
+      <button
+        type="submit"
+        disabled={isPending}
         className="w-full py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-widest hover:opacity-85 transition-opacity disabled:opacity-50 cursor-pointer"
-        style={MONO}>
+        style={MONO}
+      >
         {isPending ? 'Guardando...' : 'Guardar plantilla'}
       </button>
     </form>
