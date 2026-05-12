@@ -5,16 +5,16 @@ import { format, isSameDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { ArrowRight, Dumbbell, BookOpen, LayoutGrid } from 'lucide-react'
 import { fetchWeeklyStats } from '@/shared/api/dashboard'
+import { useProfile } from '@/features/identity/profile/hooks'
 import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
 import { useWeeklyTemplate } from '@/features/planning/weeklytemplate/hooks'
 import { QuickLogDialog } from '@/features/journal/trainingsession/components/QuickLogDialog'
 import { DashboardStats } from './DashboardStats'
 import { cn } from '@/shared/lib/utils'
+import { MONO, MONO_LABEL as LABEL } from '@/shared/lib/typography'
 
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
-const LABEL: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '9px', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }
 
 function javaDayOfWeek(date: Date): string {
   return ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][date.getDay()]
@@ -30,6 +30,7 @@ export function HomePage() {
   const today = new Date()
   const [quickLogOpen, setQuickLogOpen] = useState(false)
 
+  const { data: profile } = useProfile()
   const { data: stats } = useQuery({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
   const { data: bjjData } = useTrainingSessions()
   const { data: physData } = usePhysicalSessions({ page: 0, size: 10 })
@@ -88,7 +89,7 @@ export function HomePage() {
           {format(today, "EEEE, d 'de' MMMM", { locale: es })}
         </p>
         <h1 className="leading-none" style={{ ...SERIF, fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, letterSpacing: '-0.03em' }}>
-          {getGreeting(today.getHours())}, Adrián.
+          {getGreeting(today.getHours())}{profile?.alias ? `, ${profile.alias}` : ''}.
         </h1>
       </div>
 
@@ -195,7 +196,7 @@ export function HomePage() {
               <Link
                 key={to}
                 to={to}
-                className="flex flex-col items-center gap-1.5 py-2 rounded-sm border border-border hover:border-foreground hover:bg-accent/30 transition-colors"
+                className="flex flex-col items-center gap-1.5 py-2 border border-border hover:border-foreground hover:bg-accent/30 transition-colors"
               >
                 <span className="text-muted-foreground">{icon}</span>
                 <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>{label}</span>

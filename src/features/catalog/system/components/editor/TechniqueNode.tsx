@@ -40,7 +40,7 @@ export function TechniqueNode({ id, data }: NodeProps) {
   }
 
   return (
-    <div className="relative rounded-lg border-2 border-purple-500 bg-purple-50 dark:bg-purple-950 p-3 min-w-[120px] text-center shadow-sm">
+    <div className="relative rounded border-2 border-border bg-muted p-3 min-w-[120px] text-center shadow-sm">
       <Handle type="target" position={Position.Top} />
 
       {/* Delete button */}
@@ -53,7 +53,7 @@ export function TechniqueNode({ id, data }: NodeProps) {
         ×
       </button>
 
-      <div className="text-xs font-medium text-purple-700 dark:text-purple-300 uppercase tracking-wide mb-1">
+      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
         Técnica
       </div>
 

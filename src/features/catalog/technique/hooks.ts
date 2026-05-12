@@ -5,7 +5,7 @@ import type { CreateTechniqueRequest } from './types'
 
 export const TECHNIQUES_KEY = ['techniques'] as const
 
-export function useTechniques(params?: { page?: number; size?: number; category?: string }) {
+export function useTechniques(params?: { page?: number; size?: number; category?: string; search?: string }) {
   return useQuery({
     queryKey: [...TECHNIQUES_KEY, params],
     queryFn: () => techniqueApi.list(params),

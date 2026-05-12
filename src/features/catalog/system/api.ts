@@ -3,7 +3,7 @@ import type { Page } from '@/shared/types/pagination'
 import type { System, CreateSystemRequest, UpdateSystemRequest } from './types'
 
 export const systemApi = {
-  list: (params?: { page?: number; size?: number }) =>
+  list: (params?: { page?: number; size?: number; search?: string }) =>
     apiClient
       .get('catalog/systems', { searchParams: params as Record<string, string | number> })
       .json<Page<System>>(),

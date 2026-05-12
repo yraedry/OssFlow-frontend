@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
+import { useDebounce } from '@/shared/hooks/useDebounce'
+import { SearchInput } from '@/shared/components/ui/search-input'
 import { Plus } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
@@ -48,11 +50,14 @@ export function TechniquesPage() {
   const [editing, setEditing] = useState<Technique | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
   const [categoryFilter, setCategoryFilter] = useState<TechniqueCategory | undefined>()
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearch = useDebounce(searchQuery)
 
   const { data, isLoading, error } = useTechniques({
     page: currentPage,
     size: PAGE_SIZE,
     category: categoryFilter,
+    search: debouncedSearch || undefined,
   })
 
   const createMutation = useCreateTechnique()
@@ -89,6 +94,11 @@ export function TechniquesPage() {
 
   const toggleCategory = (cat: TechniqueCategory) => {
     setCategoryFilter(prev => (prev === cat ? undefined : cat))
+    setCurrentPage(0)
+  }
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value)
     setCurrentPage(0)
   }
 
@@ -132,6 +142,13 @@ export function TechniquesPage() {
         </Dialog>
       </div>
 
+      {/* Buscador */}
+      <SearchInput
+        value={searchQuery}
+        onChange={handleSearch}
+        placeholder="Buscar técnicas..."
+      />
+
       {/* Filtros por categoría */}
       <div className="flex flex-wrap gap-2 items-center">
         <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider w-20">Cat.</span>
@@ -155,7 +172,7 @@ export function TechniquesPage() {
         <Alert variant="destructive"><AlertDescription>Error al cargar técnicas</AlertDescription></Alert>
       ) : (data?.content ?? []).length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
-          <p>No hay técnicas todavía.</p>
+          <p>{debouncedSearch ? `Sin resultados para "${debouncedSearch}"` : 'No hay técnicas todavía.'}</p>
         </div>
       ) : (
         <>

@@ -42,7 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'Técnicas', path: '/estudio/tecnicas' },
       { label: 'Posiciones', path: '/estudio/posiciones' },
       { label: 'Sistemas', path: '/estudio/sistemas' },
-      { label: 'Ejercicios físicos', path: '/estudio/ejercicios' },
+      { label: 'Físico', path: '/estudio/ejercicios' },
       { label: 'Ejercicios de movilidad', path: '/estudio/movilidad' },
       { label: 'Ejercicios de flexibilidad', path: '/estudio/flexibilidad' },
       { label: 'Reglamentos', path: '/estudio/reglamentos' },

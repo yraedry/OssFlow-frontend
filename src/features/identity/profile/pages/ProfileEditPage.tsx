@@ -2,17 +2,21 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Check, Camera, X, Eye, EyeOff, Star } from 'lucide-react'
 import { useForm, Controller } from 'react-hook-form'
+import { useQuery } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { toast } from 'sonner'
 import { useProfile, useCreateProfile, useUpdateProfile } from '../hooks'
 import { useFederations, useUpdateProfileFederations } from '@/features/identity/federation/hooks'
 import { getAvatarFromStorage, saveAvatarToStorage, removeAvatarFromStorage, resizeImageToBase64 } from '@/shared/hooks/useAvatar'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
+import { DatePicker } from '@/shared/components/ui/date-picker'
 import { updateProfileSchema, type UpdateProfileForm } from '../schemas'
+import { MONO, SERIF } from '@/shared/lib/typography'
+import { apiClient } from '@/shared/api/client'
+import { useAuthStore } from '@/features/auth/store/authStore'
 import type { FederationAssignment } from '@/features/identity/federation/types'
-
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
-const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
 
 const BELTS = [
   { value: 'WHITE',  label: 'Blanco',  color: '#d1d5db', text: '#111827' },
@@ -28,6 +32,15 @@ const MODALITIES = [
   { value: 'NOGI', label: 'No-Gi (sin kimono)' },
   { value: 'BOTH', label: 'Gi + No-Gi (ambas)' },
 ]
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Requerido'),
+  newPassword: z.string()
+    .min(8, 'Mínimo 8 caracteres')
+    .regex(/[A-Z]/, 'Debe contener al menos una mayúscula')
+    .regex(/[0-9]/, 'Debe contener al menos un número'),
+})
+type ChangePasswordForm = z.infer<typeof changePasswordSchema>
 
 type Tab = 'cuenta' | 'bjj' | 'federaciones'
 
@@ -111,13 +124,28 @@ export function ProfileEditPage() {
     },
   })
 
+  const { register: regPwd, handleSubmit: handlePwd, formState: { errors: pwdErrors }, setError: setPwdError, reset: resetPwd } = useForm<ChangePasswordForm>({
+    resolver: zodResolver(changePasswordSchema),
+  })
+
+  const { data: accountData } = useQuery({
+    queryKey: ['account-me'],
+    queryFn: async () => {
+      const res = await fetch('/api/auth/me', {
+        headers: { Authorization: `Bearer ${useAuthStore.getState().accessToken ?? ''}` },
+      })
+      if (!res.ok) return null
+      return res.json() as Promise<{ id: number; email: string; provider: string }>
+    },
+  })
+
   // Rellenar el formulario cuando el perfil cargue desde la API
   useEffect(() => {
     if (profile) {
       reset({
-        firstName: '',
-        lastName: '',
-        displayName: profile.displayName ?? '',
+        firstName: profile.firstName ?? '',
+        lastName: profile.lastName ?? '',
+        displayName: profile.alias ?? profile.displayName ?? '',
         currentBelt: profile.currentBelt ?? '',
         preferredModality: profile.preferredModality ?? '',
         academy: profile.academy ?? '',
@@ -168,8 +196,12 @@ export function ProfileEditPage() {
   }
 
   function onSubmitAccount(data: UpdateProfileForm) {
+    const fullName = [data.firstName, data.lastName].filter(Boolean).join(' ')
     const payload = {
-      displayName: data.displayName,
+      firstName: data.firstName || undefined,
+      lastName: data.lastName || undefined,
+      alias: data.displayName || undefined,
+      displayName: fullName || profile?.displayName || data.displayName,
       currentBelt: profile?.currentBelt ?? 'WHITE',
       preferredModality: profile?.preferredModality ?? 'GI',
       academy: profile?.academy || undefined,
@@ -179,6 +211,16 @@ export function ProfileEditPage() {
       updateProfile.mutate(payload, { onSuccess: () => navigate('/profile') })
     } else {
       createProfile.mutate(payload, { onSuccess: () => navigate('/profile') })
+    }
+  }
+
+  async function onSubmitPassword(data: ChangePasswordForm) {
+    try {
+      await apiClient.post('auth/change-password', { json: data })
+      resetPwd()
+      toast.success('Contraseña actualizada')
+    } catch {
+      setPwdError('currentPassword', { message: 'Contraseña actual incorrecta' })
     }
   }
 
@@ -342,44 +384,60 @@ export function ProfileEditPage() {
           </CardSection>
 
           <CardSection title="Credenciales de acceso">
-            {/* OAuth notice — estático, cuando llegue auth real será dinámico */}
-            <div className="flex items-start gap-3 p-3 mb-5 border border-blue-500/25 bg-blue-500/8">
-              <div className="h-1.5 w-1.5 rounded-full bg-blue-400 mt-1.5 flex-shrink-0" />
-              <p className="text-xs text-blue-300/80">
-                La gestión de email y contraseña estará disponible cuando se implemente el sistema de autenticación propio.
-              </p>
-            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Email</Label>
-                <Input type="email" disabled placeholder="email@ejemplo.com" />
+                <Input
+                  type="email"
+                  disabled
+                  value={accountData?.email ?? ''}
+                  placeholder="email@ejemplo.com"
+                  readOnly
+                />
+                {accountData?.provider && accountData.provider !== 'LOCAL' && (
+                  <p className="text-[9px] text-muted-foreground mt-1" style={MONO}>
+                    Cuenta vinculada con {accountData.provider.toLowerCase()}
+                  </p>
+                )}
               </div>
             </div>
-            <div className="mt-4">
-              <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-3 pb-3 border-b border-border" style={MONO}>Cambiar contraseña</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Contraseña actual</Label>
-                  <div className="relative">
-                    <Input type={showPass ? 'text' : 'password'} disabled placeholder="••••••••" />
-                    <button type="button" onClick={() => setShowPass(p => !p)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
-                      {showPass ? <EyeOff className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />}
-                    </button>
+            {(!accountData?.provider || accountData.provider === 'LOCAL') && (
+              <form onSubmit={handlePwd(onSubmitPassword)} className="mt-4">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground mb-3 pb-3 border-b border-border" style={MONO}>Cambiar contraseña</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Contraseña actual</Label>
+                    <div className="relative">
+                      <Input
+                        {...regPwd('currentPassword')}
+                        type={showPass ? 'text' : 'password'}
+                        placeholder="••••••••"
+                        error={pwdErrors.currentPassword?.message}
+                      />
+                      <button type="button" onClick={() => setShowPass(p => !p)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                        {showPass ? <EyeOff className="h-3.5 w-3.5" strokeWidth={1.5} /> : <Eye className="h-3.5 w-3.5" strokeWidth={1.5} />}
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <Label>Nueva contraseña</Label>
+                    <Input
+                      {...regPwd('newPassword')}
+                      type="password"
+                      placeholder="••••••••"
+                      error={pwdErrors.newPassword?.message}
+                    />
                   </div>
                 </div>
-                <div>
-                  <Label>Nueva contraseña</Label>
-                  <Input type="password" disabled placeholder="••••••••" />
-                </div>
-              </div>
-            </div>
-            <BtnRow>
-              <button type="button" disabled
-                className="px-5 py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-wide opacity-30 cursor-not-allowed" style={MONO}>
-                Cambiar contraseña
-              </button>
-            </BtnRow>
+                <BtnRow>
+                  <button type="submit"
+                    className="px-5 py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-wide hover:opacity-85 transition-opacity disabled:opacity-50 cursor-pointer" style={MONO}>
+                    Cambiar contraseña
+                  </button>
+                </BtnRow>
+              </form>
+            )}
           </CardSection>
 
           <CardSection title="Zona de riesgo">
@@ -426,7 +484,10 @@ export function ProfileEditPage() {
               </div>
               <div>
                 <Label>Desde (opcional)</Label>
-                <Input {...register('beltSince')} type="date" hint="Fecha en la que recibiste este cinturón" />
+                <Controller control={control} name="beltSince" render={({ field }) => (
+                  <DatePicker value={field.value} onChange={field.onChange} placeholder="Fecha del cinturón" />
+                )} />
+                <p className="text-[9px] text-muted-foreground mt-1" style={MONO}>Fecha en la que recibiste este cinturón</p>
               </div>
             </div>
 

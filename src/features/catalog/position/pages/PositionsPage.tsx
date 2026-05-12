@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
+import { useDebounce } from '@/shared/hooks/useDebounce'
+import { SearchInput } from '@/shared/components/ui/search-input'
 import { Plus } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
@@ -15,8 +17,19 @@ export function PositionsPage() {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<Position | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearch = useDebounce(searchQuery)
 
-  const { data, isLoading, error } = usePositions({ page: currentPage, size: 20 })
+  const handleSearch = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(0)
+  }
+
+  const { data, isLoading, error } = usePositions({
+    page: currentPage,
+    size: 20,
+    search: debouncedSearch || undefined,
+  })
   const createMutation = useCreatePosition()
   const updateMutation = useUpdatePosition()
   const deleteMutation = useDeletePosition()
@@ -85,14 +98,21 @@ export function PositionsPage() {
         </Dialog>
       </div>
 
+      {/* Buscador */}
+      <SearchInput
+        value={searchQuery}
+        onChange={handleSearch}
+        placeholder="Buscar posiciones..."
+      />
+
       {isLoading ? (
         <div className="flex justify-center py-12"><Spinner /></div>
       ) : error ? (
         <Alert variant="destructive"><AlertDescription>Error al cargar las posiciones</AlertDescription></Alert>
       ) : (data?.content ?? []).length === 0 ? (
         <div className="border border-dashed border-border py-16 text-center text-muted-foreground">
-          <p className="text-sm font-medium">No hay posiciones todavía</p>
-          <p className="text-xs mt-1">Crea tu primera posición con el botón de arriba</p>
+          <p className="text-sm font-medium">{debouncedSearch ? `Sin resultados para "${debouncedSearch}"` : 'No hay posiciones todavía'}</p>
+          {!debouncedSearch && <p className="text-xs mt-1">Crea tu primera posición con el botón de arriba</p>}
         </div>
       ) : (
         <>

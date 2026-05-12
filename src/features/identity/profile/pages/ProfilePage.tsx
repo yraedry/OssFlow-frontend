@@ -10,8 +10,7 @@ import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
 import type { WeeklyStats } from '@/shared/api/dashboard'
 import { useNavigate } from 'react-router-dom'
-
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
+import { MONO } from '@/shared/lib/typography'
 
 const BELT_ORDER = ['WHITE', 'BLUE', 'PURPLE', 'BROWN', 'BLACK'] as const
 const BELT: Record<string, { label: string; color: string; text: string }> = {

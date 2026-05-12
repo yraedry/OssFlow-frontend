@@ -9,8 +9,8 @@ export const trainingSessionApi = {
   get: (id: number) => apiClient.get(`journal/training-sessions/${id}`).json<TrainingSession>(),
   create: (data: CreateTrainingSessionRequest) =>
     apiClient.post('journal/training-sessions', { json: data }).json<TrainingSession>(),
-  update: (id: number, data: Partial<CreateTrainingSessionRequest>) =>
-    apiClient.patch(`journal/training-sessions/${id}`, { json: data }).json<TrainingSession>(),
+  update: (id: number, data: CreateTrainingSessionRequest) =>
+    apiClient.put(`journal/training-sessions/${id}`, { json: data }).json<TrainingSession>(),
   delete: (id: number) => apiClient.delete(`journal/training-sessions/${id}`),
   upsertTechnique: (sessionId: number, techniqueId: number, data: { notesMarkdown?: string }) =>
     apiClient.post(`journal/training-sessions/${sessionId}/worked-techniques`, { json: { techniqueId, ...data } }).json<WorkedTechnique>(),
