@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { useAuthStore } from '@/features/auth/store/authStore'
 import { refreshToken } from '@/features/auth/api'
 import { apiClient } from '@/shared/api/client'
 import { ApiClientError } from '@/shared/api/client'
+import { LandingPage } from '@/features/auth/pages/LandingPage'
 
 interface ProfileResponse {
   id: number
@@ -16,28 +17,23 @@ export function AuthGuard() {
   const { accessToken, isInitialized, setAuth, clearAuth } = useAuthStore()
   const [checking, setChecking] = useState(!isInitialized)
   const navigate = useNavigate()
+  const location = useLocation()
   const attempted = useRef(false)
 
   useEffect(() => {
-    if (isInitialized) {
-      if (!accessToken) {
-        navigate('/login', { replace: true })
-      }
-      return
-    }
+    if (isInitialized) return
 
     if (attempted.current) return
     attempted.current = true
 
     const timeout = setTimeout(() => {
       clearAuth()
-      navigate('/login', { replace: true })
+      setChecking(false)
     }, 3000)
 
     refreshToken()
       .then(async (r) => {
         clearTimeout(timeout)
-        // Placeholder mientras cargamos profile; setAuth define isInitialized=true.
         setAuth(r.accessToken, { id: 0, email: '', displayName: null })
         try {
           const profile = await apiClient
@@ -49,26 +45,19 @@ export function AuthGuard() {
             displayName: profile.displayName,
           })
         } catch (e) {
-          // Profile no existe → primer login OAuth o usuario sin onboarding.
           if (e instanceof ApiClientError && e.status === 404) {
             navigate('/onboarding', { replace: true })
             return
           }
-          // Otro error: dejamos el placeholder, AuthGuard ya pasa el outlet.
         }
         setChecking(false)
       })
       .catch(() => {
         clearTimeout(timeout)
         clearAuth()
-        navigate('/login', { replace: true })
+        setChecking(false)
       })
-  }, [isInitialized, accessToken, setAuth, clearAuth, navigate])
-
-  if (isInitialized) {
-    if (!accessToken) return null
-    return <Outlet />
-  }
+  }, [isInitialized, setAuth, clearAuth, navigate])
 
   if (checking) {
     return (
@@ -76,6 +65,17 @@ export function AuthGuard() {
         <Spinner />
       </div>
     )
+  }
+
+  // Sin sesión activa: si estamos en /, mostramos el landing.
+  // Para cualquier otra ruta protegida (/diario/*, /estudio/*, etc.)
+  // redirigimos al login para no perder la intención de navegación.
+  if (!accessToken) {
+    if (location.pathname === '/') {
+      return <LandingPage />
+    }
+    navigate('/login', { replace: true })
+    return null
   }
 
   return <Outlet />
