@@ -5,14 +5,13 @@ import type { SaveWeeklyTemplateForm } from '@/features/planning/weeklytemplate/
 import { MONO } from '@/shared/lib/typography'
 
 const COLS: { key: SessionType; label: string; color: string }[] = [
-  { key: 'BJJ',         label: 'BJJ',         color: '#4a7cff' },
-  { key: 'STRENGTH',    label: 'Fuerza',       color: '#f59e0b' },
-  { key: 'CARDIO',      label: 'Cardio',       color: '#10b981' },
-  { key: 'MOBILITY',    label: 'Movilidad',    color: '#a855f7' },
-  { key: 'FLEXIBILITY', label: 'Flexib.',      color: '#06b6d4' },
+  { key: 'BJJ',         label: 'BJJ',      color: '#4a7cff' },
+  { key: 'STRENGTH',    label: 'Fuerza',   color: '#f59e0b' },
+  { key: 'CARDIO',      label: 'Cardio',   color: '#10b981' },
+  { key: 'MOBILITY',    label: 'Movil.',   color: '#a855f7' },
+  { key: 'FLEXIBILITY', label: 'Flexib.',  color: '#06b6d4' },
 ]
 
-// slots: array de {type, time?} por día — permite múltiples del mismo tipo
 type DaySlots = { type: SessionType; time?: string }[]
 type State = Record<DayOfWeek, DaySlots>
 
@@ -34,26 +33,33 @@ function SessionChip({ label, color, active, time, onToggle, onTimeChange, onAdd
       <button
         type="button"
         onClick={onToggle}
-        className="px-2 py-1 border transition-colors focus:outline-none cursor-pointer select-none"
-        style={{ ...MONO, fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+        className="px-2 py-1 border transition-all focus:outline-none cursor-pointer select-none"
+        style={{
+          ...MONO, fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
           backgroundColor: active ? color : 'transparent',
-          borderColor: active ? color : 'rgba(255,255,255,0.1)',
-          color: active ? '#000' : 'rgba(255,255,255,0.35)' }}
+          borderColor: active ? color : 'var(--color-border)',
+          color: active ? '#fff' : 'var(--color-muted-foreground)',
+        }}
       >{label}</button>
       {active && (
         <>
-          <input type="time" value={time ?? ''} onChange={e => onTimeChange(e.target.value)}
+          <input
+            type="time" value={time ?? ''} onChange={e => onTimeChange(e.target.value)}
             aria-label={`Hora ${label}`} onClick={e => e.stopPropagation()}
-            className="focus:outline-none cursor-pointer"
-            style={{ ...MONO, fontSize: '9px', width: '58px', padding: '3px 4px',
-              backgroundColor: 'transparent',
-              border: `1px solid ${time ? color : 'rgba(255,255,255,0.12)'}`,
-              color: time ? color : 'rgba(255,255,255,0.25)', letterSpacing: '0.02em' }} />
-          <button type="button" onClick={e => { e.stopPropagation(); onAdd() }}
+            className="focus:outline-none cursor-pointer bg-transparent"
+            style={{
+              ...MONO, fontSize: '9px', width: '58px', padding: '3px 4px',
+              border: `1px solid ${time ? color : 'var(--color-border)'}`,
+              color: time ? color : 'var(--color-muted-foreground)',
+              letterSpacing: '0.02em',
+            }}
+          />
+          <button
+            type="button" onClick={e => { e.stopPropagation(); onAdd() }}
             aria-label={`Añadir otra sesión de ${label}`}
-            className="px-1 border transition-colors focus:outline-none cursor-pointer"
-            style={{ ...MONO, fontSize: '9px', borderColor: 'rgba(255,255,255,0.12)',
-              color: 'rgba(255,255,255,0.3)', backgroundColor: 'transparent' }}>+</button>
+            className="px-1 border focus:outline-none cursor-pointer bg-transparent transition-colors hover:bg-accent"
+            style={{ ...MONO, fontSize: '11px', borderColor: 'var(--color-border)', color: 'var(--color-muted-foreground)' }}
+          >+</button>
         </>
       )}
     </div>
@@ -66,20 +72,28 @@ function ExtraChip({ label, color, time, onTimeChange, onRemove }: {
 }) {
   return (
     <div className="flex items-center gap-0.5">
-      <span className="px-2 py-1 border" style={{ ...MONO, fontSize: '9px', fontWeight: 700,
-        textTransform: 'uppercase', letterSpacing: '0.06em',
-        backgroundColor: color, borderColor: color, color: '#000' }}>{label}</span>
-      <input type="time" value={time ?? ''} onChange={e => onTimeChange(e.target.value)}
+      <span
+        className="px-2 py-1 border"
+        style={{ ...MONO, fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+          backgroundColor: color, borderColor: color, color: '#fff' }}
+      >{label}</span>
+      <input
+        type="time" value={time ?? ''} onChange={e => onTimeChange(e.target.value)}
         aria-label={`Hora ${label}`} onClick={e => e.stopPropagation()}
-        className="focus:outline-none cursor-pointer"
-        style={{ ...MONO, fontSize: '9px', width: '58px', padding: '3px 4px',
-          backgroundColor: 'transparent',
-          border: `1px solid ${time ? color : 'rgba(255,255,255,0.12)'}`,
-          color: time ? color : 'rgba(255,255,255,0.25)', letterSpacing: '0.02em' }} />
-      <button type="button" onClick={e => { e.stopPropagation(); onRemove() }}
-        aria-label="Eliminar sesión" className="px-1 border focus:outline-none cursor-pointer"
-        style={{ ...MONO, fontSize: '9px', borderColor: 'rgba(255,255,255,0.12)',
-          color: 'rgba(255,255,255,0.3)', backgroundColor: 'transparent' }}>×</button>
+        className="focus:outline-none cursor-pointer bg-transparent"
+        style={{
+          ...MONO, fontSize: '9px', width: '58px', padding: '3px 4px',
+          border: `1px solid ${time ? color : 'var(--color-border)'}`,
+          color: time ? color : 'var(--color-muted-foreground)',
+          letterSpacing: '0.02em',
+        }}
+      />
+      <button
+        type="button" onClick={e => { e.stopPropagation(); onRemove() }}
+        aria-label="Eliminar sesión"
+        className="px-1 border focus:outline-none cursor-pointer bg-transparent transition-colors hover:bg-destructive/10"
+        style={{ ...MONO, fontSize: '11px', borderColor: 'var(--color-border)', color: 'var(--color-muted-foreground)' }}
+      >×</button>
     </div>
   )
 }
@@ -100,7 +114,6 @@ export function WeeklyTemplateStep({ onNext, onBack }: Props) {
       const slots = prev[day]
       const idx = slots.findIndex(s => s.type === type)
       if (idx >= 0) {
-        // quitar TODAS las sesiones de ese tipo
         return { ...prev, [day]: slots.filter(s => s.type !== type) }
       } else {
         return { ...prev, [day]: [...slots, { type }] }
@@ -148,13 +161,20 @@ export function WeeklyTemplateStep({ onNext, onBack }: Props) {
         {ALL_DAYS.map(day => {
           const dayActive = state[day].length > 0
           return (
-            <div key={day} className="flex items-start gap-3 px-3 py-2.5 hover:bg-accent/10 transition-colors"
-              style={{ opacity: dayActive ? 1 : 0.45 }}>
-              <span className="w-[62px] shrink-0 pt-0.5"
-                style={{ ...MONO, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <div
+              key={day}
+              className="flex items-start gap-3 px-3 py-2.5 hover:bg-accent/30 transition-colors"
+            >
+              <span
+                className="w-[62px] shrink-0 pt-1"
+                style={{
+                  ...MONO, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+                  color: dayActive ? 'var(--color-foreground)' : 'var(--color-muted-foreground)',
+                }}
+              >
                 {DAY_LABELS[day]}
               </span>
-              <div className="flex flex-wrap gap-1.5 flex-1">
+              <div className="flex flex-wrap gap-1.5 flex-1 min-h-[28px] items-center">
                 {COLS.map(col => {
                   const active = isActive(day, col.key)
                   const firstSlot = getFirstSlot(day, col.key)
@@ -181,21 +201,30 @@ export function WeeklyTemplateStep({ onNext, onBack }: Props) {
         })}
       </div>
 
-      <p className="text-center" style={{ ...MONO, fontSize: '8px', color: 'var(--color-muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+      <p
+        className="text-center text-muted-foreground"
+        style={{ ...MONO, fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.08em' }}
+      >
         Pulsa un tipo para activarlo · + para añadir doble sesión · la hora es opcional
       </p>
 
       <div className="flex gap-3">
-        <button type="button" onClick={onBack}
+        <button
+          type="button" onClick={onBack}
           className="flex-1 py-2.5 border border-border text-[10px] font-bold uppercase tracking-widest hover:bg-accent transition-colors cursor-pointer"
-          style={MONO}>Atrás</button>
-        <button type="button" onClick={handleNext}
+          style={MONO}
+        >Atrás</button>
+        <button
+          type="button" onClick={handleNext}
           className="flex-[2] py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-widest hover:opacity-85 transition-opacity cursor-pointer"
-          style={MONO}>Siguiente</button>
+          style={MONO}
+        >Siguiente</button>
       </div>
-      <button type="button" onClick={() => onNext(null)}
+      <button
+        type="button" onClick={() => onNext(null)}
         className="w-full text-center text-[9px] uppercase tracking-widest text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors cursor-pointer"
-        style={MONO}>Saltar este paso</button>
+        style={MONO}
+      >Saltar este paso</button>
     </div>
   )
 }

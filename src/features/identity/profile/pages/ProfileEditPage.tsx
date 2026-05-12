@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { useProfile, useCreateProfile, useUpdateProfile } from '../hooks'
-import { DeleteAccountModal } from '../components/DeleteAccountModal'
+
 import { useFederations, useUpdateProfileFederations } from '@/features/identity/federation/hooks'
 import { getAvatarFromStorage, saveAvatarToStorage, removeAvatarFromStorage, resizeImageToBase64 } from '@/shared/hooks/useAvatar'
 import { Spinner } from '@/shared/components/ui/spinner'
@@ -103,7 +103,7 @@ export function ProfileEditPage() {
   const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
   const [uploading, setUploading] = useState(false)
   const [showPass, setShowPass] = useState(false)
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+
   const fileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -442,19 +442,6 @@ export function ProfileEditPage() {
             )}
           </CardSection>
 
-          <CardSection title="Zona de riesgo">
-            <div className="flex items-center justify-between gap-6 p-4 border border-destructive/20">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-wide text-destructive mb-0.5" style={MONO}>Eliminar cuenta</p>
-                <p className="text-xs text-muted-foreground">Esta acción es permanente y no se puede deshacer.</p>
-              </div>
-              <button type="button" onClick={() => setDeleteModalOpen(true)}
-                className="shrink-0 px-4 py-2 border border-destructive/40 text-[10px] font-bold uppercase tracking-wide text-destructive hover:bg-destructive/10 transition-colors cursor-pointer" style={MONO}>
-                Eliminar cuenta
-              </button>
-            </div>
-          </CardSection>
-
         </div>
       )}
 
@@ -628,7 +615,6 @@ export function ProfileEditPage() {
 
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
 
-      <DeleteAccountModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} />
     </div>
   )
 }
