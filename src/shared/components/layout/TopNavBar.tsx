@@ -35,7 +35,7 @@ const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[]
   planificacion: [
     { to: '/planificacion/planes',    label: 'Planes' },
     { to: '/planificacion/plantilla', label: 'Plantilla' },
-    { to: '/planificacion/calendario',label: 'Calendario' },
+    { to: '/planificacion/rutinas',   label: 'Rutinas' },
   ],
 }
 

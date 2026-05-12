@@ -14,9 +14,9 @@ export default defineConfig({
   // S3.14: Proxy para dev — evita CORS hardcodeado. En prod nginx hace el proxy.
   server: {
     proxy: {
-      '/api': { target: 'http://localhost:8080', changeOrigin: true },
-      '/oauth2': { target: 'http://localhost:8080', changeOrigin: true },
-      '/login/oauth2': { target: 'http://localhost:8080', changeOrigin: true },
+      '/api': { target: process.env.VITE_PROXY_TARGET ?? 'http://localhost:8080', changeOrigin: true },
+      '/oauth2': { target: process.env.VITE_PROXY_TARGET ?? 'http://localhost:8080', changeOrigin: true },
+      '/login/oauth2': { target: process.env.VITE_PROXY_TARGET ?? 'http://localhost:8080', changeOrigin: true },
     },
   },
   test: {
