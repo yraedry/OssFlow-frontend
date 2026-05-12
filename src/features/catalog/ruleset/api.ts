@@ -3,7 +3,7 @@ import type { Page } from '@/shared/types/pagination'
 import type { Ruleset, CreateRulesetRequest, UpdateRulesetRequest } from './types'
 
 export const rulesetApi = {
-  list: (params?: { page?: number; size?: number }) =>
+  list: (params?: { page?: number; size?: number; search?: string }) =>
     apiClient
       .get('catalog/rulesets', { searchParams: params as Record<string, string | number> })
       .json<Page<Ruleset>>(),
