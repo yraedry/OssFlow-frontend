@@ -12,9 +12,12 @@ import { FederationSelector } from '@/features/identity/federation/components/Fe
 import { useFederations } from '@/features/identity/federation/hooks'
 import { useCreateProfile } from '@/features/identity/profile/hooks'
 import { replaceFederations } from '@/features/identity/profile/api'
+import { useSaveWeeklyTemplate } from '@/features/planning/weeklytemplate/hooks'
 import { AuthLogo } from '@/features/auth/components/AuthLayout'
 import { MONO, SERIF } from '@/shared/lib/typography'
+import { WeeklyTemplateStep } from './onboarding/WeeklyTemplateStep'
 import type { FederationAssignment } from '@/features/identity/federation/types'
+import type { SaveWeeklyTemplateForm } from '@/features/planning/weeklytemplate/schemas'
 
 const THEME_KEY = 'ossflow-theme'
 
@@ -57,6 +60,7 @@ type OnboardingData = {
   preferredModality: string
   academy?: string
   federations: FederationAssignment[]
+  weeklyTemplateSet: boolean
 }
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
@@ -86,7 +90,7 @@ function FieldBlock({ label, error, children }: { label: string; error?: string;
 
 export function OnboardingPage() {
   const navigate = useNavigate()
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1)
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1)
   const [selectedTheme, setSelectedTheme] = useState<'dark' | 'light'>(() => {
     const stored = localStorage.getItem(THEME_KEY)
     if (stored === 'dark' || stored === 'light') return stored
@@ -100,10 +104,12 @@ export function OnboardingPage() {
     preferredModality: '',
     academy: undefined,
     federations: [],
+    weeklyTemplateSet: false,
   })
 
   const { data: federations, isLoading: loadingFeds } = useFederations()
   const createProfile = useCreateProfile()
+  const saveWeeklyTemplate = useSaveWeeklyTemplate()
 
   const { register, handleSubmit, control, formState: { errors } } = useForm<Step1Form>({
     resolver: zodResolver(step1Schema),
@@ -120,6 +126,14 @@ export function OnboardingPage() {
   const handleStep1 = (formData: Step1Form) => {
     setData((prev) => ({ ...prev, ...formData }))
     setStep(3)
+  }
+
+  const handleWeeklyTemplate = async (form: SaveWeeklyTemplateForm | null) => {
+    if (form) {
+      await saveWeeklyTemplate.mutateAsync(form)
+      setData(prev => ({ ...prev, weeklyTemplateSet: true }))
+    }
+    setStep(4)
   }
 
   const handleFinish = async () => {
@@ -142,23 +156,24 @@ export function OnboardingPage() {
   const stepTitles: Record<number, string> = {
     1: 'Elige tu tema',
     2: 'Tu perfil',
-    3: 'Federaciones',
-    4: 'Resumen',
+    3: 'Planificación semanal',
+    4: 'Federaciones',
+    5: 'Resumen',
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
+      <div className={`w-full ${step === 3 ? 'max-w-xl' : 'max-w-sm'}`}>
         <div className="mb-8 flex flex-col items-center gap-4">
           <AuthLogo />
           <div className="text-center">
             <h1 className="text-foreground" style={{ ...SERIF, fontSize: '22px' }}>{stepTitles[step]}</h1>
             <p className="text-muted-foreground mt-1.5 text-xs uppercase tracking-widest" style={MONO}>
-              Paso {step} de 4
+              Paso {step} de 5
             </p>
           </div>
           <div className="w-full">
-            <StepIndicator current={step} total={4} />
+            <StepIndicator current={step} total={5} />
           </div>
         </div>
 
@@ -287,6 +302,13 @@ export function OnboardingPage() {
           )}
 
           {step === 3 && (
+            <WeeklyTemplateStep
+              onNext={handleWeeklyTemplate}
+              onBack={() => setStep(2)}
+            />
+          )}
+
+          {step === 4 && (
             <div className="space-y-4">
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1" style={MONO}>
@@ -308,12 +330,12 @@ export function OnboardingPage() {
                 )}
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>Atrás</Button>
-                <Button className="flex-1" onClick={() => setStep(4)}>Siguiente</Button>
+                <Button variant="outline" className="flex-1" onClick={() => setStep(3)}>Atrás</Button>
+                <Button className="flex-1" onClick={() => setStep(5)}>Siguiente</Button>
               </div>
               <button
                 type="button"
-                onClick={() => { setData(prev => ({ ...prev, federations: [] })); setStep(4) }}
+                onClick={() => { setData(prev => ({ ...prev, federations: [] })); setStep(5) }}
                 className="w-full text-center text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors cursor-pointer"
                 style={MONO}
               >
@@ -322,7 +344,7 @@ export function OnboardingPage() {
             </div>
           )}
 
-          {step === 4 && (
+          {step === 5 && (
             <div className="space-y-4">
               <div className="border border-border p-4 space-y-3">
                 <p className="text-xs uppercase tracking-widest text-muted-foreground" style={MONO}>Resumen</p>
@@ -361,6 +383,10 @@ export function OnboardingPage() {
                   )}
                 </div>
                 <div>
+                  <p className="text-xs text-muted-foreground" style={MONO}>Planificación semanal</p>
+                  <p className="text-sm">{data.weeklyTemplateSet ? 'Configurada' : 'No configurada'}</p>
+                </div>
+                <div>
                   <p className="text-xs text-muted-foreground" style={MONO}>Federaciones</p>
                   <p className="text-sm">
                     {data.federations.length === 0
@@ -373,7 +399,7 @@ export function OnboardingPage() {
                 Puedes cambiar el tema en cualquier momento desde Configuración →  Apariencia.
               </p>
               <div className="flex gap-3">
-                <Button variant="outline" className="flex-1" onClick={() => setStep(3)}>Atrás</Button>
+                <Button variant="outline" className="flex-1" onClick={() => setStep(4)}>Atrás</Button>
                 <Button className="flex-1" onClick={handleFinish} disabled={createProfile.isPending}>
                   {createProfile.isPending ? 'Creando perfil...' : 'Empezar'}
                 </Button>

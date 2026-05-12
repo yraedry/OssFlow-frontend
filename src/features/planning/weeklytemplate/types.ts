@@ -5,6 +5,8 @@ export interface DayEntry {
   bjj: boolean
   strength: boolean
   cardio: boolean
+  mobility: boolean
+  flexibility: boolean
 }
 
 export interface WeeklyTemplate {

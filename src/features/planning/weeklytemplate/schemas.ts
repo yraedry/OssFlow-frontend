@@ -9,6 +9,8 @@ export const dayEntrySchema = z.object({
   bjj: z.boolean(),
   strength: z.boolean(),
   cardio: z.boolean(),
+  mobility: z.boolean(),
+  flexibility: z.boolean(),
 })
 
 export const saveWeeklyTemplateSchema = z.object({
