@@ -23,7 +23,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <ConfirmDialogProvider>
         {children}
-        <Toaster richColors position="top-right" />
+        <Toaster richColors position="top-right" closeButton duration={4000} />
         <ReactQueryDevtools initialIsOpen={false} />
       </ConfirmDialogProvider>
     </QueryClientProvider>
