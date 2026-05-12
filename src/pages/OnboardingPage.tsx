@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -20,6 +20,7 @@ import type { FederationAssignment } from '@/features/identity/federation/types'
 import type { SaveWeeklyTemplateForm } from '@/features/planning/weeklytemplate/schemas'
 
 const THEME_KEY = 'ossflow-theme'
+const ONBOARDING_KEY = 'ossflow-onboarding'
 
 function applyTheme(theme: 'dark' | 'light') {
   localStorage.setItem(THEME_KEY, theme)
@@ -63,6 +64,25 @@ type OnboardingData = {
   weeklyTemplateSet: boolean
 }
 
+type PersistedOnboarding = { step: 1 | 2 | 3 | 4 | 5; data: OnboardingData }
+
+function loadOnboarding(): PersistedOnboarding | null {
+  try {
+    const raw = sessionStorage.getItem(ONBOARDING_KEY)
+    return raw ? (JSON.parse(raw) as PersistedOnboarding) : null
+  } catch {
+    return null
+  }
+}
+
+function saveOnboarding(step: 1 | 2 | 3 | 4 | 5, data: OnboardingData) {
+  sessionStorage.setItem(ONBOARDING_KEY, JSON.stringify({ step, data }))
+}
+
+function clearOnboarding() {
+  sessionStorage.removeItem(ONBOARDING_KEY)
+}
+
 function StepIndicator({ current, total }: { current: number; total: number }) {
   return (
     <div className="flex items-center gap-2">
@@ -90,13 +110,14 @@ function FieldBlock({ label, error, children }: { label: string; error?: string;
 
 export function OnboardingPage() {
   const navigate = useNavigate()
-  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5>(1)
+  const persisted = loadOnboarding()
+  const [step, setStepRaw] = useState<1 | 2 | 3 | 4 | 5>(persisted?.step ?? 1)
   const [selectedTheme, setSelectedTheme] = useState<'dark' | 'light'>(() => {
     const stored = localStorage.getItem(THEME_KEY)
     if (stored === 'dark' || stored === 'light') return stored
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
-  const [data, setData] = useState<OnboardingData>({
+  const [data, setDataRaw] = useState<OnboardingData>(persisted?.data ?? {
     firstName: undefined,
     lastName: undefined,
     displayName: '',
@@ -106,6 +127,27 @@ export function OnboardingPage() {
     federations: [],
     weeklyTemplateSet: false,
   })
+
+  // Refs para poder leer valores actuales dentro de los setters sin reconstruirlos
+  const stepRef = useRef(step)
+  stepRef.current = step
+  const dataRef = useRef(data)
+  dataRef.current = data
+
+  function setStep(s: 1 | 2 | 3 | 4 | 5) {
+    stepRef.current = s
+    setStepRaw(s)
+    saveOnboarding(s, dataRef.current)
+  }
+
+  function setData(updater: OnboardingData | ((prev: OnboardingData) => OnboardingData)) {
+    setDataRaw(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater
+      dataRef.current = next
+      saveOnboarding(stepRef.current, next)
+      return next
+    })
+  }
 
   const { data: federations, isLoading: loadingFeds } = useFederations()
   const createProfile = useCreateProfile()
@@ -150,6 +192,7 @@ export function OnboardingPage() {
     if (data.federations.length > 0) {
       await replaceFederations(data.federations)
     }
+    clearOnboarding()
     navigate('/', { replace: true })
   }
 
