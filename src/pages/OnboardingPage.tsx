@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { Sun, Moon } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select'
@@ -14,6 +15,14 @@ import { replaceFederations } from '@/features/identity/profile/api'
 import { AuthLogo } from '@/features/auth/components/AuthLayout'
 import { MONO, SERIF } from '@/shared/lib/typography'
 import type { FederationAssignment } from '@/features/identity/federation/types'
+
+const THEME_KEY = 'ossflow-theme'
+
+function applyTheme(theme: 'dark' | 'light') {
+  localStorage.setItem(THEME_KEY, theme)
+  document.documentElement.classList.remove('light', 'dark')
+  document.documentElement.classList.add(theme)
+}
 
 const BELTS = [
   { value: 'WHITE', label: 'Blanco' },
@@ -73,7 +82,12 @@ function FieldBlock({ label, error, children }: { label: string; error?: string;
 
 export function OnboardingPage() {
   const navigate = useNavigate()
-  const [step, setStep] = useState<1 | 2 | 3>(1)
+  const [step, setStep] = useState<1 | 2 | 3 | 4>(1)
+  const [selectedTheme, setSelectedTheme] = useState<'dark' | 'light'>(() => {
+    const stored = localStorage.getItem(THEME_KEY)
+    if (stored === 'dark' || stored === 'light') return stored
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  })
   const [data, setData] = useState<OnboardingData>({
     displayName: '',
     currentBelt: '',
@@ -97,7 +111,7 @@ export function OnboardingPage() {
 
   const handleStep1 = (formData: Step1Form) => {
     setData((prev) => ({ ...prev, ...formData }))
-    setStep(2)
+    setStep(3)
   }
 
   const handleFinish = async () => {
@@ -113,24 +127,76 @@ export function OnboardingPage() {
     navigate('/', { replace: true })
   }
 
+  const stepTitles: Record<number, string> = {
+    1: 'Elige tu tema',
+    2: 'Tu perfil',
+    3: 'Federaciones',
+    4: 'Resumen',
+  }
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center gap-4">
           <AuthLogo />
           <div className="text-center">
-            <h1 className="text-foreground" style={{ ...SERIF, fontSize: '22px' }}>Configura tu perfil</h1>
+            <h1 className="text-foreground" style={{ ...SERIF, fontSize: '22px' }}>{stepTitles[step]}</h1>
             <p className="text-muted-foreground mt-1.5 text-xs uppercase tracking-widest" style={MONO}>
-              Paso {step} de 3
+              Paso {step} de 4
             </p>
           </div>
           <div className="w-full">
-            <StepIndicator current={step} total={3} />
+            <StepIndicator current={step} total={4} />
           </div>
         </div>
 
         <div className="border border-border bg-card p-8 space-y-5">
           {step === 1 && (
+            <div className="space-y-5">
+              <p className="text-xs text-muted-foreground" style={MONO}>
+                OssFlow usará el tema de tu sistema por defecto. Puedes cambiarlo aquí o en cualquier momento desde Configuración.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => { setSelectedTheme('dark'); applyTheme('dark') }}
+                  className={`flex flex-col items-center gap-3 border p-5 transition-colors ${
+                    selectedTheme === 'dark'
+                      ? 'border-foreground bg-[#0f0f0f]'
+                      : 'border-border bg-[#0f0f0f] opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <Moon className="h-5 w-5 text-[#f0ebe3]" strokeWidth={1.5} />
+                  <span style={{ ...MONO, fontSize: '10px', color: '#f0ebe3', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Oscuro
+                  </span>
+                  {selectedTheme === 'dark' && (
+                    <span style={{ ...MONO, fontSize: '9px', color: '#f0ebe3' }}>✓ Seleccionado</span>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setSelectedTheme('light'); applyTheme('light') }}
+                  className={`flex flex-col items-center gap-3 border p-5 transition-colors ${
+                    selectedTheme === 'light'
+                      ? 'border-[#1a1a1a] bg-[#fafaf8]'
+                      : 'border-[#d0ccc6] bg-[#fafaf8] opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <Sun className="h-5 w-5 text-[#1a1a1a]" strokeWidth={1.5} />
+                  <span style={{ ...MONO, fontSize: '10px', color: '#1a1a1a', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Claro
+                  </span>
+                  {selectedTheme === 'light' && (
+                    <span style={{ ...MONO, fontSize: '9px', color: '#1a1a1a' }}>✓ Seleccionado</span>
+                  )}
+                </button>
+              </div>
+              <Button className="w-full" onClick={() => setStep(2)}>Continuar</Button>
+            </div>
+          )}
+
+          {step === 2 && (
             <form onSubmit={handleSubmit(handleStep1)} className="space-y-4" noValidate>
               <FieldBlock label="Tu nombre" error={errors.displayName?.message}>
                 <Input id="displayName" {...register('displayName')} placeholder="Ej: Juan García" autoFocus />
@@ -178,11 +244,14 @@ export function OnboardingPage() {
                 <Input id="academy" {...register('academy')} placeholder="Nombre de tu academia" />
               </FieldBlock>
 
-              <Button type="submit" className="w-full">Siguiente</Button>
+              <div className="flex gap-3">
+                <Button type="button" variant="outline" className="flex-1" onClick={() => setStep(1)}>Atrás</Button>
+                <Button type="submit" className="flex-1">Siguiente</Button>
+              </div>
             </form>
           )}
 
-          {step === 2 && (
+          {step === 3 && (
             <div className="space-y-4">
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1" style={MONO}>
@@ -204,12 +273,12 @@ export function OnboardingPage() {
                 )}
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" className="flex-1" onClick={() => setStep(1)}>Atrás</Button>
-                <Button className="flex-1" onClick={() => setStep(3)}>Siguiente</Button>
+                <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>Atrás</Button>
+                <Button className="flex-1" onClick={() => setStep(4)}>Siguiente</Button>
               </div>
               <button
                 type="button"
-                onClick={() => { setData(prev => ({ ...prev, federations: [] })); setStep(3) }}
+                onClick={() => { setData(prev => ({ ...prev, federations: [] })); setStep(4) }}
                 className="w-full text-center text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors cursor-pointer"
                 style={MONO}
               >
@@ -218,11 +287,15 @@ export function OnboardingPage() {
             </div>
           )}
 
-          {step === 3 && (
+          {step === 4 && (
             <div className="space-y-4">
               <div className="border border-border p-4 space-y-3">
                 <p className="text-xs uppercase tracking-widest text-muted-foreground" style={MONO}>Resumen</p>
                 <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <p className="text-xs text-muted-foreground" style={MONO}>Tema</p>
+                    <p className="text-sm font-medium">{selectedTheme === 'dark' ? 'Oscuro' : 'Claro'}</p>
+                  </div>
                   <div>
                     <p className="text-xs text-muted-foreground" style={MONO}>Nombre</p>
                     <p className="text-sm font-medium">{data.displayName}</p>
@@ -255,8 +328,11 @@ export function OnboardingPage() {
                   </p>
                 </div>
               </div>
+              <p className="text-xs text-muted-foreground text-center" style={MONO}>
+                Puedes cambiar el tema en cualquier momento desde Configuración →  Apariencia.
+              </p>
               <div className="flex gap-3">
-                <Button variant="outline" className="flex-1" onClick={() => setStep(2)}>Atrás</Button>
+                <Button variant="outline" className="flex-1" onClick={() => setStep(3)}>Atrás</Button>
                 <Button className="flex-1" onClick={handleFinish} disabled={createProfile.isPending}>
                   {createProfile.isPending ? 'Creando perfil...' : 'Empezar'}
                 </Button>

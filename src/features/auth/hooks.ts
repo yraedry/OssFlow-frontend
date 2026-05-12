@@ -48,7 +48,7 @@ export function useLogout() {
     onSettled: () => {
       clearAuth()
       queryClient.clear()
-      navigate('/login', { replace: true })
+      navigate('/', { replace: true })
     },
   })
 }
