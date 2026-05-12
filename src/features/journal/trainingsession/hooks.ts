@@ -30,7 +30,7 @@ export function useCreateTrainingSession() {
 export function useUpdateTrainingSession() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: Partial<CreateTrainingSessionRequest> }) =>
+    mutationFn: ({ id, data }: { id: number; data: CreateTrainingSessionRequest }) =>
       trainingSessionApi.update(id, data),
     onSuccess: () => { qc.invalidateQueries({ queryKey: SESSIONS_KEY }); toast.success('Sesión actualizada') },
     onError: () => toast.error('Error al actualizar la sesión'),
