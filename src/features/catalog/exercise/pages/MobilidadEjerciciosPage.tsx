@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
+import { useDebounce } from '@/shared/hooks/useDebounce'
+import { SearchInput } from '@/shared/components/ui/search-input'
 import { Plus, Pencil, Trash2, Dumbbell, Play, ArrowLeft } from 'lucide-react'
 import { YouTubePlayerModal } from '@/shared/components/ui/youtube-player-modal'
 import { Button } from '@/shared/components/ui/button'
@@ -159,12 +161,26 @@ export function MobilidadEjerciciosPage() {
   const [editing, setEditing] = useState<Exercise | null>(null)
   const [viewing, setViewing] = useState<Exercise | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearch = useDebounce(searchQuery)
 
   const { data, isLoading, error } = useExercises({
     category: 'MOBILITY',
     page: currentPage,
     size: 24,
   })
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(0)
+  }
+
+  const filteredExercises = debouncedSearch
+    ? (data?.content ?? []).filter((ex) =>
+        ex.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        ex.description?.toLowerCase().includes(debouncedSearch.toLowerCase())
+      )
+    : (data?.content ?? [])
 
   const createMutation = useCreateExercise()
   const updateMutation = useUpdateExercise()
@@ -263,22 +279,29 @@ export function MobilidadEjerciciosPage() {
         </Dialog>
       </div>
 
+      {/* Buscador */}
+      <SearchInput
+        value={searchQuery}
+        onChange={handleSearch}
+        placeholder="Buscar ejercicios de movilidad..."
+      />
+
       {isLoading ? (
         <div className="flex justify-center py-12"><Spinner /></div>
       ) : error ? (
         <Alert variant="destructive">
           <AlertDescription>Error al cargar ejercicios</AlertDescription>
         </Alert>
-      ) : (data?.content ?? []).length === 0 ? (
+      ) : filteredExercises.length === 0 ? (
         <div className="border border-dashed border-border py-16 text-center text-muted-foreground">
           <Dumbbell className="h-8 w-8 mx-auto mb-3 opacity-30" />
-          <p className="text-sm font-medium">No hay ejercicios de movilidad</p>
-          <p className="text-xs mt-1">Añade tu primer drill o ejercicio de movilidad</p>
+          <p className="text-sm font-medium">{debouncedSearch ? `Sin resultados para "${debouncedSearch}"` : 'No hay ejercicios de movilidad'}</p>
+          {!debouncedSearch && <p className="text-xs mt-1">Añade tu primer drill o ejercicio de movilidad</p>}
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {(data?.content ?? []).map((ex) => (
+            {filteredExercises.map((ex) => (
               <ExerciseCard
                 key={ex.id}
                 exercise={ex}
@@ -288,7 +311,7 @@ export function MobilidadEjerciciosPage() {
               />
             ))}
           </div>
-          <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+          {!debouncedSearch && <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />}
         </>
       )}
     </div>

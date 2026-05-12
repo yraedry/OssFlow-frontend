@@ -10,7 +10,7 @@ interface PageResponse<T> {
 }
 
 export const positionApi = {
-  list: (params?: { page?: number; size?: number; type?: string }) =>
+  list: (params?: { page?: number; size?: number; type?: string; search?: string }) =>
     apiClient.get('catalog/positions', { searchParams: params as Record<string, string | number> }).json<PageResponse<Position>>(),
   get: (id: number) => apiClient.get(`catalog/positions/${id}`).json<Position>(),
   create: (data: CreatePositionRequest) =>

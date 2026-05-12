@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
+import { useDebounce } from '@/shared/hooks/useDebounce'
+import { SearchInput } from '@/shared/components/ui/search-input'
 import { Button } from '@/shared/components/ui/button'
 import { Plus, Pencil, Trash2, Dumbbell, Play, ArrowLeft, Package, Home, Building2 } from 'lucide-react'
 import { YouTubePlayerModal } from '@/shared/components/ui/youtube-player-modal'
@@ -241,6 +243,8 @@ export function ExercisesPage() {
   const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | undefined>()
   const [equipmentFilter, setEquipmentFilter] = useState<EquipmentType | undefined>()
   const [currentPage, setCurrentPage] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearch = useDebounce(searchQuery)
 
   const { data, isLoading, error } = useExercises({
     category: categoryFilter,
@@ -248,6 +252,19 @@ export function ExercisesPage() {
     page: currentPage,
     size: 24,
   })
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(0)
+  }
+
+  // Client-side filtering (backend exercises endpoint does not support ?search)
+  const filteredExercises = debouncedSearch
+    ? (data?.content ?? []).filter((ex) =>
+        ex.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        ex.description?.toLowerCase().includes(debouncedSearch.toLowerCase())
+      )
+    : (data?.content ?? [])
 
   const createMutation = useCreateExercise()
   const updateMutation = useUpdateExercise()
@@ -361,6 +378,13 @@ export function ExercisesPage() {
         </Dialog>
       </div>
 
+      {/* Buscador */}
+      <SearchInput
+        value={searchQuery}
+        onChange={handleSearch}
+        placeholder="Buscar ejercicios..."
+      />
+
       {/* Filtros */}
       <div className="space-y-3">
         <div className="flex flex-wrap gap-2 items-center">
@@ -394,15 +418,15 @@ export function ExercisesPage() {
         <Alert variant="destructive">
           <AlertDescription>Error al cargar ejercicios</AlertDescription>
         </Alert>
-      ) : (data?.content ?? []).length === 0 ? (
+      ) : filteredExercises.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
-          <p>No hay ejercicios todavía.</p>
-          <p className="text-sm mt-1">Crea tu primer ejercicio con el botón de arriba.</p>
+          <p>{debouncedSearch ? `Sin resultados para "${debouncedSearch}"` : 'No hay ejercicios todavía.'}</p>
+          {!debouncedSearch && <p className="text-sm mt-1">Crea tu primer ejercicio con el botón de arriba.</p>}
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {(data?.content ?? []).map((ex) => (
+            {filteredExercises.map((ex) => (
               <ExerciseCard
                 key={ex.id}
                 exercise={ex}
@@ -412,7 +436,7 @@ export function ExercisesPage() {
               />
             ))}
           </div>
-          <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+          {!debouncedSearch && <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />}
         </>
       )}
     </div>
