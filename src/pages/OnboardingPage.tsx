@@ -86,7 +86,7 @@ export function OnboardingPage() {
   const [selectedTheme, setSelectedTheme] = useState<'dark' | 'light'>(() => {
     const stored = localStorage.getItem(THEME_KEY)
     if (stored === 'dark' || stored === 'light') return stored
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    return 'dark'
   })
   const [data, setData] = useState<OnboardingData>({
     displayName: '',
