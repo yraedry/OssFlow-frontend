@@ -6,7 +6,8 @@ import { useQuery } from '@tanstack/react-query'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
-import { useProfile, useCreateProfile, useUpdateProfile, useDeleteAccount } from '../hooks'
+import { useProfile, useCreateProfile, useUpdateProfile } from '../hooks'
+import { DeleteAccountModal } from '../components/DeleteAccountModal'
 import { useFederations, useUpdateProfileFederations } from '@/features/identity/federation/hooks'
 import { getAvatarFromStorage, saveAvatarToStorage, removeAvatarFromStorage, resizeImageToBase64 } from '@/shared/hooks/useAvatar'
 import { Spinner } from '@/shared/components/ui/spinner'
@@ -95,8 +96,6 @@ export function ProfileEditPage() {
   const { data: allFederations = [] } = useFederations()
   const updateFederations = useUpdateProfileFederations()
 
-  const deleteAccount = useDeleteAccount()
-
   const [activeTab, setActiveTab] = useState<Tab>('cuenta')
   const [selectedFeds, setSelectedFeds] = useState<FederationAssignment[]>([])
   const [fedsInitialized, setFedsInitialized] = useState(false)
@@ -104,15 +103,8 @@ export function ProfileEditPage() {
   const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
   const [uploading, setUploading] = useState(false)
   const [showPass, setShowPass] = useState(false)
-  const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
-
-  async function handleDeleteAccount() {
-    if (!confirmingDelete) { setConfirmingDelete(true); return }
-    await deleteAccount.mutateAsync()
-    useAuthStore.getState().clearAuth()
-    navigate('/login', { replace: true })
-  }
 
   useEffect(() => {
     if (profile?.federations?.length && !fedsInitialized) {
@@ -454,22 +446,12 @@ export function ProfileEditPage() {
             <div className="flex items-center justify-between gap-6 p-4 border border-destructive/20">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wide text-destructive mb-0.5" style={MONO}>Eliminar cuenta</p>
-                <p className="text-xs text-muted-foreground">
-                  {confirmingDelete ? '¿Seguro? Esta acción borrará todos tus datos permanentemente.' : 'Esta acción es permanente y no se puede deshacer.'}
-                </p>
+                <p className="text-xs text-muted-foreground">Esta acción es permanente y no se puede deshacer.</p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {confirmingDelete && (
-                  <button type="button" onClick={() => setConfirmingDelete(false)}
-                    className="px-4 py-2 border border-border text-[10px] font-bold uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors cursor-pointer" style={MONO}>
-                    Cancelar
-                  </button>
-                )}
-                <button type="button" onClick={handleDeleteAccount} disabled={deleteAccount.isPending}
-                  className="px-4 py-2 border border-destructive/40 text-[10px] font-bold uppercase tracking-wide text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50" style={MONO}>
-                  {deleteAccount.isPending ? 'Eliminando…' : confirmingDelete ? 'Confirmar' : 'Eliminar cuenta'}
-                </button>
-              </div>
+              <button type="button" onClick={() => setDeleteModalOpen(true)}
+                className="shrink-0 px-4 py-2 border border-destructive/40 text-[10px] font-bold uppercase tracking-wide text-destructive hover:bg-destructive/10 transition-colors cursor-pointer" style={MONO}>
+                Eliminar cuenta
+              </button>
             </div>
           </CardSection>
 
@@ -645,6 +627,8 @@ export function ProfileEditPage() {
       )}
 
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+
+      <DeleteAccountModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} />
     </div>
   )
 }

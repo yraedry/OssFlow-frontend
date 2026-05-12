@@ -50,11 +50,12 @@ export function HomePage() {
     (s) => isSameDay(new Date(s.sessionDate), today) && s.sessionType === 'CARDIO',
   )
 
+  const todayTypes = new Set(todayEntry?.sessions?.map(s => s.type) ?? [])
   type TodayItem = { type: string; label: string; done: boolean; color: string }
   const todayItems: TodayItem[] = []
-  if (todayEntry?.cardio) todayItems.push({ type: 'Cardio', label: '1h zona 2', done: hasCardioToday, color: '#10b981' })
-  if (todayEntry?.strength) todayItems.push({ type: 'Fuerza', label: 'Sesión de fuerza', done: hasStrengthToday, color: '#f59e0b' })
-  if (todayEntry?.bjj) todayItems.push({ type: 'BJJ', label: 'Sesión grappling', done: hasBjjToday, color: '#4a7cff' })
+  if (todayTypes.has('CARDIO')) todayItems.push({ type: 'Cardio', label: '1h zona 2', done: hasCardioToday, color: '#10b981' })
+  if (todayTypes.has('STRENGTH')) todayItems.push({ type: 'Fuerza', label: 'Sesión de fuerza', done: hasStrengthToday, color: '#f59e0b' })
+  if (todayTypes.has('BJJ')) todayItems.push({ type: 'BJJ', label: 'Sesión grappling', done: hasBjjToday, color: '#4a7cff' })
 
   const recentSessions = [
     ...bjjSessions.slice(0, 3).map((s) => ({

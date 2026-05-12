@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { getProfile, createProfile, updateProfile, deleteAccount } from './api'
+import { getProfile, createProfile, updateProfile, deleteAccount, exportFullBackup, importBackup } from './api'
 import type { CreateProfileRequest, UpdateProfileRequest } from './types'
 
 export const PROFILE_KEY = ['profile'] as const
@@ -45,5 +45,25 @@ export function useDeleteAccount() {
   return useMutation({
     mutationFn: deleteAccount,
     onError: () => toast.error('Error al eliminar la cuenta'),
+  })
+}
+
+export function useExportBackup() {
+  return useMutation({
+    mutationFn: exportFullBackup,
+    onSuccess: () => toast.success('Backup descargado'),
+    onError: () => toast.error('Error al exportar los datos'),
+  })
+}
+
+export function useImportBackup() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (json: unknown) => importBackup(json),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: PROFILE_KEY })
+      toast.success('Datos importados correctamente')
+    },
+    onError: () => toast.error('Error al importar: verifica que el archivo sea un backup válido de OssFlow'),
   })
 }
