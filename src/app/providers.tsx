@@ -15,6 +15,9 @@ const queryClient = new QueryClient({
   },
 })
 
+// ThemeInitializer movido a index.html <head> antes del bundle (B12 plan)
+// para evitar FOUC entre la entrega del HTML y la hidratación de React.
+
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>

@@ -10,8 +10,12 @@ interface PageResponse<T> {
 }
 
 export const positionApi = {
-  list: (params?: { page?: number; size?: number; type?: string }) =>
-    apiClient.get('catalog/positions', { searchParams: params as Record<string, string | number> }).json<PageResponse<Position>>(),
+  list: (params?: { page?: number; size?: number; type?: string; search?: string }) => {
+    const { search, ...rest } = params ?? {}
+    const searchParams: Record<string, string | number> = { ...rest }
+    if (search) searchParams.name = search
+    return apiClient.get('catalog/positions', { searchParams }).json<PageResponse<Position>>()
+  },
   get: (id: number) => apiClient.get(`catalog/positions/${id}`).json<Position>(),
   create: (data: CreatePositionRequest) =>
     apiClient.post('catalog/positions', { json: data }).json<Position>(),

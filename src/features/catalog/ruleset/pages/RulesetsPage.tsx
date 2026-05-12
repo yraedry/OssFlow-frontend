@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
+import { useDebounce } from '@/shared/hooks/useDebounce'
+import { SearchInput } from '@/shared/components/ui/search-input'
 import { Plus, Building2 } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -36,8 +38,19 @@ export function RulesetsPage() {
   const [editing, setEditing] = useState<Ruleset | null>(null)
   const [fedOpen, setFedOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearch = useDebounce(searchQuery)
 
-  const { data, isLoading, error } = useRulesets({ page: currentPage, size: 20 })
+  const handleSearch = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(0)
+  }
+
+  const { data, isLoading, error } = useRulesets({
+    page: currentPage,
+    size: 20,
+    search: debouncedSearch || undefined,
+  })
   const createMutation = useCreateRuleset()
   const updateMutation = useUpdateRuleset()
   const deleteMutation = useDeleteRuleset()
@@ -176,6 +189,13 @@ export function RulesetsPage() {
         </div>
       </div>
 
+      {/* Buscador */}
+      <SearchInput
+        value={searchQuery}
+        onChange={handleSearch}
+        placeholder="Buscar reglamentos..."
+      />
+
       {isLoading ? (
         <div className="flex justify-center py-12"><Spinner /></div>
       ) : error ? (
@@ -184,8 +204,8 @@ export function RulesetsPage() {
         </Alert>
       ) : (data?.content ?? []).length === 0 ? (
         <div className="border border-dashed border-border py-16 text-center text-muted-foreground">
-          <p className="text-sm font-medium">No hay reglamentos todavía</p>
-          <p className="text-xs mt-1">Crea tu primer reglamento con el botón de arriba</p>
+          <p className="text-sm font-medium">{debouncedSearch ? `Sin resultados para "${debouncedSearch}"` : 'No hay reglamentos todavía'}</p>
+          {!debouncedSearch && <p className="text-xs mt-1">Crea tu primer reglamento con el botón de arriba</p>}
         </div>
       ) : (
         <>

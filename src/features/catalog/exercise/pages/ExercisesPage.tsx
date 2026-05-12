@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
+import { useDebounce } from '@/shared/hooks/useDebounce'
+import { SearchInput } from '@/shared/components/ui/search-input'
 import { Button } from '@/shared/components/ui/button'
 import { Plus, Pencil, Trash2, Dumbbell, Play, ArrowLeft, Package, Home, Building2 } from 'lucide-react'
 import { YouTubePlayerModal } from '@/shared/components/ui/youtube-player-modal'
@@ -75,7 +77,7 @@ function ExerciseDetailView({
       <div className="flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5">
           <ArrowLeft className="h-4 w-4" />
-          Ejercicios
+          Físico
         </Button>
       </div>
 
@@ -105,7 +107,7 @@ function ExerciseDetailView({
       </div>
 
       {ex.youtubeUrl && (
-        <div className="rounded-lg border border-border bg-card p-5 space-y-3">
+        <div className="border border-border bg-card p-5 space-y-3">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Video de referencia</h2>
           <YouTubePlayerModal url={ex.youtubeUrl} title={ex.name} compact />
         </div>
@@ -113,12 +115,12 @@ function ExerciseDetailView({
 
       {/* Descripción completa */}
       {ex.description ? (
-        <div className="rounded-lg border border-border bg-card p-5 space-y-2">
+        <div className="border border-border bg-card p-5 space-y-2">
           <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Descripción</h2>
           <p className="text-sm leading-relaxed">{ex.description}</p>
         </div>
       ) : (
-        <div className="rounded-lg border border-border border-dashed p-5 text-center text-muted-foreground">
+        <div className="border border-border border-dashed p-5 text-center text-muted-foreground">
           <Dumbbell className="h-8 w-8 mx-auto mb-2 opacity-30" />
           <p className="text-sm">Sin descripción aún</p>
           <Button variant="ghost" size="sm" className="mt-2" onClick={() => onEdit(ex)}>
@@ -128,10 +130,10 @@ function ExerciseDetailView({
       )}
 
       {/* Equivalencias de material */}
-      <div className="rounded-lg border border-border bg-card p-5 space-y-3">
+      <div className="border border-border bg-card p-5 space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider font-mono">Material necesario</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div className={`rounded-lg p-3 space-y-1 border-2 transition-colors ${
+          <div className={`p-3 space-y-1 border-2 transition-colors ${
             ex.equipment === 'NO_EQUIPMENT' ? 'border-emerald-500 bg-emerald-500/10' : 'border-border bg-muted/30'
           }`}>
             <div className="flex items-center gap-2">
@@ -141,7 +143,7 @@ function ExerciseDetailView({
             </div>
             <p className="text-xs text-muted-foreground">Solo el peso corporal. Puedes hacerlo en cualquier sitio.</p>
           </div>
-          <div className={`rounded-lg p-3 space-y-1 border-2 transition-colors ${
+          <div className={`p-3 space-y-1 border-2 transition-colors ${
             ex.equipment === 'HOME' ? 'border-sky-500 bg-sky-500/10' : 'border-border bg-muted/30'
           }`}>
             <div className="flex items-center gap-2">
@@ -151,7 +153,7 @@ function ExerciseDetailView({
             </div>
             <p className="text-xs text-muted-foreground">Material básico: banda elástica, mancuerna, silla o pared.</p>
           </div>
-          <div className={`rounded-lg p-3 space-y-1 border-2 transition-colors ${
+          <div className={`p-3 space-y-1 border-2 transition-colors ${
             ex.equipment === 'GYM' ? 'border-violet-500 bg-violet-500/10' : 'border-border bg-muted/30'
           }`}>
             <div className="flex items-center gap-2">
@@ -241,6 +243,8 @@ export function ExercisesPage() {
   const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | undefined>()
   const [equipmentFilter, setEquipmentFilter] = useState<EquipmentType | undefined>()
   const [currentPage, setCurrentPage] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearch = useDebounce(searchQuery)
 
   const { data, isLoading, error } = useExercises({
     category: categoryFilter,
@@ -248,6 +252,19 @@ export function ExercisesPage() {
     page: currentPage,
     size: 24,
   })
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(0)
+  }
+
+  // Client-side filtering (backend exercises endpoint does not support ?search)
+  const filteredExercises = debouncedSearch
+    ? (data?.content ?? []).filter((ex) =>
+        ex.name.toLowerCase().includes(debouncedSearch.toLowerCase()) ||
+        ex.description?.toLowerCase().includes(debouncedSearch.toLowerCase())
+      )
+    : (data?.content ?? [])
 
   const createMutation = useCreateExercise()
   const updateMutation = useUpdateExercise()
@@ -330,7 +347,7 @@ export function ExercisesPage() {
             Catálogo
           </div>
           <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
-            Ejercicios físicos
+            Físico
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             {data?.totalElements ?? 0} ejercicios en tu catálogo
@@ -360,6 +377,13 @@ export function ExercisesPage() {
           </DialogContent>
         </Dialog>
       </div>
+
+      {/* Buscador */}
+      <SearchInput
+        value={searchQuery}
+        onChange={handleSearch}
+        placeholder="Buscar ejercicios..."
+      />
 
       {/* Filtros */}
       <div className="space-y-3">
@@ -394,15 +418,15 @@ export function ExercisesPage() {
         <Alert variant="destructive">
           <AlertDescription>Error al cargar ejercicios</AlertDescription>
         </Alert>
-      ) : (data?.content ?? []).length === 0 ? (
+      ) : filteredExercises.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
-          <p>No hay ejercicios todavía.</p>
-          <p className="text-sm mt-1">Crea tu primer ejercicio con el botón de arriba.</p>
+          <p>{debouncedSearch ? `Sin resultados para "${debouncedSearch}"` : 'No hay ejercicios todavía.'}</p>
+          {!debouncedSearch && <p className="text-sm mt-1">Crea tu primer ejercicio con el botón de arriba.</p>}
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {(data?.content ?? []).map((ex) => (
+            {filteredExercises.map((ex) => (
               <ExerciseCard
                 key={ex.id}
                 exercise={ex}
@@ -412,7 +436,7 @@ export function ExercisesPage() {
               />
             ))}
           </div>
-          <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />
+          {!debouncedSearch && <PaginationControls page={currentPage} totalPages={data?.totalPages ?? 1} onPageChange={setCurrentPage} />}
         </>
       )}
     </div>

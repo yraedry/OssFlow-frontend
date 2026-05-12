@@ -7,6 +7,9 @@ export type UserProfile = {
   id: number
   ownerId: number
   displayName: string
+  firstName?: string
+  lastName?: string
+  alias?: string
   currentBelt: string
   beltSince?: string
   academy?: string
@@ -20,6 +23,9 @@ export type UserProfile = {
 
 export type CreateProfileRequest = {
   displayName: string
+  firstName?: string
+  lastName?: string
+  alias?: string
   currentBelt: string
   beltSince?: string
   academy?: string
@@ -28,6 +34,9 @@ export type CreateProfileRequest = {
 
 export type UpdateProfileRequest = {
   displayName: string
+  firstName?: string
+  lastName?: string
+  alias?: string
   currentBelt: string
   beltSince?: string
   academy?: string

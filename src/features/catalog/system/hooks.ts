@@ -5,7 +5,7 @@ import type { CreateSystemRequest, UpdateSystemRequest } from './types'
 
 export const SYSTEMS_KEY = ['systems'] as const
 
-export function useSystems(params?: { page?: number; size?: number }) {
+export function useSystems(params?: { page?: number; size?: number; search?: string }) {
   return useQuery({
     queryKey: [...SYSTEMS_KEY, params],
     queryFn: () => systemApi.list(params),

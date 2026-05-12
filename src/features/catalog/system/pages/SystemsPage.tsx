@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
+import { useDebounce } from '@/shared/hooks/useDebounce'
+import { SearchInput } from '@/shared/components/ui/search-input'
 import { Plus, GitBranch } from 'lucide-react'
 import {
   Dialog,
@@ -24,8 +26,19 @@ export function SystemsPage() {
   const [open, setOpen] = useState(false)
   const [editing, setEditing] = useState<System | null>(null)
   const [currentPage, setCurrentPage] = useState(0)
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearch = useDebounce(searchQuery)
 
-  const { data, isLoading, error } = useSystems({ page: currentPage, size: 20 })
+  const handleSearch = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(0)
+  }
+
+  const { data, isLoading, error } = useSystems({
+    page: currentPage,
+    size: 20,
+    search: debouncedSearch || undefined,
+  })
   const createMutation = useCreateSystem()
   const updateMutation = useUpdateSystem()
   const deleteMutation = useDeleteSystem()
@@ -90,6 +103,13 @@ export function SystemsPage() {
         </div>
       </div>
 
+      {/* Buscador */}
+      <SearchInput
+        value={searchQuery}
+        onChange={handleSearch}
+        placeholder="Buscar sistemas..."
+      />
+
       {isLoading ? (
         <div className="flex justify-center py-16"><Spinner /></div>
       ) : error ? (
@@ -102,19 +122,23 @@ export function SystemsPage() {
             <GitBranch className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
           </div>
           <div>
-            <p className="font-semibold" style={SERIF}>Sin sistemas todavía</p>
-            <p className="text-sm text-muted-foreground mt-1" style={MONO}>
-              Crea diagramas de flujo para visualizar tus posiciones y transiciones de BJJ
-            </p>
+            <p className="font-semibold" style={SERIF}>{debouncedSearch ? `Sin resultados para "${debouncedSearch}"` : 'Sin sistemas todavía'}</p>
+            {!debouncedSearch && (
+              <p className="text-sm text-muted-foreground mt-1" style={MONO}>
+                Crea diagramas de flujo para visualizar tus posiciones y transiciones de BJJ
+              </p>
+            )}
           </div>
-          <button
-            onClick={() => { setEditing(null); setOpen(true) }}
-            className="flex items-center gap-2 px-4 py-2 border border-foreground text-foreground hover:bg-foreground hover:text-background transition-colors"
-            style={{ ...MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em' }}
-          >
-            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-            Crear sistema
-          </button>
+          {!debouncedSearch && (
+            <button
+              onClick={() => { setEditing(null); setOpen(true) }}
+              className="flex items-center gap-2 px-4 py-2 border border-foreground text-foreground hover:bg-foreground hover:text-background transition-colors"
+              style={{ ...MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em' }}
+            >
+              <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+              Crear sistema
+            </button>
+          )}
         </div>
       ) : (
         <>

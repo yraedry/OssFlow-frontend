@@ -5,7 +5,7 @@ import type { CreateRulesetRequest, UpdateRulesetRequest } from './types'
 
 export const RULESETS_KEY = ['rulesets'] as const
 
-export function useRulesets(params?: { page?: number; size?: number }) {
+export function useRulesets(params?: { page?: number; size?: number; search?: string }) {
   return useQuery({
     queryKey: [...RULESETS_KEY, params],
     queryFn: () => rulesetApi.list(params),

@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays } from 'lucide-react'
+import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut, User } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
+import { useLogout } from '@/features/auth/hooks'
 
 const TABS = [
   { to: '/',                       label: 'Inicio',        icon: Home,         end: true  },
@@ -8,6 +9,7 @@ const TABS = [
   { to: '/estudio/tecnicas',       label: 'Estudio',       icon: Dumbbell,     end: false },
   { to: '/planificacion/planes',   label: 'Planificación', icon: CalendarDays, end: false },
   { to: '/analisis',               label: 'Análisis',      icon: BarChart2,    end: false },
+  { to: '/profile',                label: 'Perfil',        icon: User,         end: false },
 ]
 
 const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[] }[]> = {
@@ -22,7 +24,7 @@ const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[]
     { to: '/estudio/tecnicas',    label: 'Técnicas' },
     { to: '/estudio/posiciones',  label: 'Posiciones' },
     { to: '/estudio/sistemas',    label: 'Sistemas' },
-    { to: '/estudio/ejercicios',  label: 'Ejercicios' },
+    { to: '/estudio/ejercicios',  label: 'Físico' },
     { to: '/estudio/movilidad',   label: 'Movilidad' },
     { to: '/estudio/flexibilidad',label: 'Flexibilidad' },
     { to: '/estudio/reglamentos', label: 'Reglamentos' },
@@ -60,6 +62,8 @@ function getActiveTab(pathname: string): string {
     return '/planificacion/planes'
   if (pathname.startsWith('/analisis'))
     return '/analisis'
+  if (pathname.startsWith('/profile') || pathname.startsWith('/configuracion'))
+    return '/profile'
   return ''
 }
 
@@ -72,6 +76,7 @@ export function BottomTabBar() {
   const section = getSection(pathname)
   const subNav = SUB_NAV[section] ?? []
   const hasSubNav = subNav.length > 0
+  const logoutMutation = useLogout()
 
   return (
     <nav
@@ -113,6 +118,16 @@ export function BottomTabBar() {
               </NavLink>
             )
           })}
+          {section === 'perfil' && (
+            <button
+              onClick={() => logoutMutation.mutate()}
+              className="flex-shrink-0 h-8 flex items-center gap-1.5 px-3 uppercase transition-colors whitespace-nowrap border-b-2 border-transparent text-muted-foreground hover:text-foreground"
+              style={SUBNAV_MONO}
+            >
+              <LogOut className="h-3 w-3" strokeWidth={1.5} />
+              Salir
+            </button>
+          )}
         </div>
       )}
 

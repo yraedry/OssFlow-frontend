@@ -68,7 +68,7 @@ export function NoteGraphPage() {
           {notes.length} notas · {graphData.links.length} conexiones
         </p>
       </div>
-      <div ref={containerRef} className="flex-1 rounded-lg border bg-card overflow-hidden min-h-[500px]">
+      <div ref={containerRef} className="flex-1 border bg-card overflow-hidden min-h-[500px]">
         <ForceGraph2D
           graphData={graphData}
           width={dimensions.width || 800}

@@ -5,7 +5,7 @@ import type { CreatePositionRequest } from './types'
 
 export const POSITIONS_KEY = ['positions'] as const
 
-export function usePositions(params?: { page?: number; size?: number }) {
+export function usePositions(params?: { page?: number; size?: number; search?: string }) {
   return useQuery({
     queryKey: [...POSITIONS_KEY, params],
     queryFn: () => positionApi.list(params),

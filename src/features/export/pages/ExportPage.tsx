@@ -30,7 +30,7 @@ export function ExportPage() {
           Descarga una copia completa de tu catálogo en formato JSON.
         </p>
       </div>
-      <div className="rounded-lg border p-6 space-y-4">
+      <div className="border p-6 space-y-4">
         <h2 className="font-semibold">Backup completo</h2>
         <p className="text-sm text-muted-foreground">
           Exporta posiciones, técnicas, sistemas, notas, sesiones de entrenamiento, competencias y

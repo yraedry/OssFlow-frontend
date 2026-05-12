@@ -33,7 +33,7 @@ export function FederationSelector({ federations, selected, onChange }: Props) {
   return (
     <div className="space-y-2">
       {federations.map((fed) => (
-        <div key={fed.id} className="flex items-center gap-3 rounded-md border p-3">
+        <div key={fed.id} className="flex items-center gap-3 border p-3">
           <input
             type="checkbox"
             id={`fed-${fed.id}`}
