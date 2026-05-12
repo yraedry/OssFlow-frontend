@@ -8,7 +8,7 @@ interface GoogleLoginButtonProps {
 export function GoogleLoginButton({ className = '', label = 'Continuar con Google' }: GoogleLoginButtonProps) {
   return (
     <a
-      href="/oauth2/authorize/google"
+      href="/oauth2/authorization/google"
       className={`flex items-center justify-center gap-3 w-full h-9 px-4 border border-border bg-card text-foreground hover:bg-muted transition-colors text-xs font-bold uppercase tracking-widest ${className}`}
       style={MONO}
     >
