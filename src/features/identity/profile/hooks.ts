@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { getProfile, createProfile, updateProfile } from './api'
+import { getProfile, createProfile, updateProfile, deleteAccount } from './api'
 import type { CreateProfileRequest, UpdateProfileRequest } from './types'
 
 export const PROFILE_KEY = ['profile'] as const
@@ -38,5 +38,12 @@ export function useUpdateProfile() {
       toast.success('Perfil actualizado')
     },
     onError: () => toast.error('Error al actualizar el perfil'),
+  })
+}
+
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: deleteAccount,
+    onError: () => toast.error('Error al eliminar la cuenta'),
   })
 }
