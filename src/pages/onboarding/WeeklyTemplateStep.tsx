@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { ALL_DAYS, DAY_LABELS } from '@/features/planning/weeklytemplate/types'
 import type { DayOfWeek } from '@/features/planning/weeklytemplate/types'
 import type { SaveWeeklyTemplateForm } from '@/features/planning/weeklytemplate/schemas'
-import { MONO, SERIF } from '@/shared/lib/typography'
+import { MONO } from '@/shared/lib/typography'
 
 type SessionType = 'bjj' | 'strength' | 'cardio' | 'mobility' | 'flexibility'
 
