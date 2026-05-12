@@ -30,7 +30,7 @@ export function AuthLayout({ title, subtitle, children, maxWidth = 'max-w-sm' }:
     <div
       className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12 relative"
       style={{
-        backgroundImage: 'radial-gradient(circle, color-mix(in srgb, var(--color-foreground) 6%, transparent) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, var(--color-dot-pattern) 1px, transparent 1px)',
         backgroundSize: '28px 28px',
       }}
     >

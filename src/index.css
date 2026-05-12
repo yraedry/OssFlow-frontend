@@ -23,6 +23,7 @@
   --color-input: #e8e5e0;
   --color-ring: #1a1a1a;
   --radius: 0rem;
+  --color-dot-pattern: rgba(26,26,26,0.08);
 
   --font-serif: 'Playfair Display', Georgia, serif;
   --font-sans: 'Inter', system-ui, sans-serif;
@@ -49,6 +50,7 @@
   --color-border: #3a3a3a;
   --color-input: #2a2a2a;
   --color-ring: #f0ebe3;
+  --color-dot-pattern: rgba(240,235,227,0.06);
 }
 
 @layer base {
