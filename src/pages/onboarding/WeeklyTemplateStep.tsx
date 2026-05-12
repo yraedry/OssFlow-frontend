@@ -1,51 +1,29 @@
 import { useState } from 'react'
-import { ALL_DAYS, DAY_LABELS } from '../types'
-import type { DayOfWeek } from '../types'
-import type { WeeklyTemplate } from '../types'
-import type { SaveWeeklyTemplateForm } from '../schemas'
-import { MONO } from '@/shared/lib/typography'
+import { ALL_DAYS, DAY_LABELS } from '@/features/planning/weeklytemplate/types'
+import type { DayOfWeek } from '@/features/planning/weeklytemplate/types'
+import type { SaveWeeklyTemplateForm } from '@/features/planning/weeklytemplate/schemas'
+import { MONO, SERIF } from '@/shared/lib/typography'
 
 type SessionType = 'bjj' | 'strength' | 'cardio' | 'mobility' | 'flexibility'
 
 const COLS: { key: SessionType; label: string; short: string; color: string }[] = [
-  { key: 'bjj',         label: 'BJJ',          short: 'BJJ',  color: '#4a7cff' },
-  { key: 'strength',    label: 'Fuerza',        short: 'Fza',  color: '#f59e0b' },
-  { key: 'cardio',      label: 'Cardio',        short: 'Card', color: '#10b981' },
-  { key: 'mobility',    label: 'Movilidad',     short: 'Mov',  color: '#a855f7' },
-  { key: 'flexibility', label: 'Flexibilidad',  short: 'Flex', color: '#06b6d4' },
+  { key: 'bjj',         label: 'BJJ',          short: 'BJJ',    color: '#4a7cff' },
+  { key: 'strength',    label: 'Fuerza',        short: 'Fza',    color: '#f59e0b' },
+  { key: 'cardio',      label: 'Cardio',        short: 'Card',   color: '#10b981' },
+  { key: 'mobility',    label: 'Movilidad',     short: 'Mov',    color: '#a855f7' },
+  { key: 'flexibility', label: 'Flexibilidad',  short: 'Flex',   color: '#06b6d4' },
 ]
 
 type DayState = Record<SessionType, boolean>
 type TimeState = Partial<Record<SessionType, string>>
 
-function buildFromTemplate(template: WeeklyTemplate): { days: Record<DayOfWeek, DayState>; times: Record<DayOfWeek, TimeState> } {
-  const map = new Map(template.days.map(d => [d.dayOfWeek, d]))
-  const days = Object.fromEntries(ALL_DAYS.map(day => {
-    const entry = map.get(day)
-    return [day, {
-      bjj: entry?.bjj ?? false,
-      strength: entry?.strength ?? false,
-      cardio: entry?.cardio ?? false,
-      mobility: entry?.mobility ?? false,
-      flexibility: entry?.flexibility ?? false,
-    }]
-  })) as Record<DayOfWeek, DayState>
-  const times = Object.fromEntries(ALL_DAYS.map(day => [day, {}])) as Record<DayOfWeek, TimeState>
-  return { days, times }
-}
-
-function buildEmpty(): { days: Record<DayOfWeek, DayState>; times: Record<DayOfWeek, TimeState> } {
-  const days = Object.fromEntries(ALL_DAYS.map(d => [d, {
-    bjj: false, strength: false, cardio: false, mobility: false, flexibility: false,
-  }])) as Record<DayOfWeek, DayState>
-  const times = Object.fromEntries(ALL_DAYS.map(d => [d, {}])) as Record<DayOfWeek, TimeState>
-  return { days, times }
+function buildEmpty(): DayState {
+  return { bjj: false, strength: false, cardio: false, mobility: false, flexibility: false }
 }
 
 type Props = {
-  template: WeeklyTemplate
-  onSave: (data: SaveWeeklyTemplateForm) => void
-  isPending: boolean
+  onNext: (data: SaveWeeklyTemplateForm | null) => void
+  onBack: () => void
 }
 
 function Toggle({ active, color, onClick }: { active: boolean; color: string; onClick: () => void }) {
@@ -95,16 +73,20 @@ function TimeChip({ color, value, onChange }: { color: string; value: string | u
   )
 }
 
-export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
-  const initial = template.days.length > 0 ? buildFromTemplate(template) : buildEmpty()
-  const [days, setDays] = useState<Record<DayOfWeek, DayState>>(initial.days)
-  const [times, setTimes] = useState<Record<DayOfWeek, TimeState>>(initial.times)
+export function WeeklyTemplateStep({ onNext, onBack }: Props) {
+  const [days, setDays] = useState<Record<DayOfWeek, DayState>>(
+    () => Object.fromEntries(ALL_DAYS.map(d => [d, buildEmpty()])) as Record<DayOfWeek, DayState>
+  )
+  const [times, setTimes] = useState<Record<DayOfWeek, TimeState>>(
+    () => Object.fromEntries(ALL_DAYS.map(d => [d, {}])) as Record<DayOfWeek, TimeState>
+  )
 
   function toggleType(day: DayOfWeek, type: SessionType) {
     setDays(prev => ({
       ...prev,
       [day]: { ...prev[day], [type]: !prev[day][type] },
     }))
+    // limpiar hora si se desactiva
     if (days[day][type]) {
       setTimes(prev => {
         const next = { ...prev[day] }
@@ -118,8 +100,9 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
     setTimes(prev => ({ ...prev, [day]: { ...prev[day], [type]: value || undefined } }))
   }
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  function handleNext() {
+    const anyActive = ALL_DAYS.some(d => Object.values(days[d]).some(Boolean))
+    if (!anyActive) { onNext(null); return }
     const form: SaveWeeklyTemplateForm = {
       days: ALL_DAYS.map(day => ({
         dayOfWeek: day,
@@ -130,11 +113,11 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
         flexibility: days[day].flexibility,
       })),
     }
-    onSave(form)
+    onNext(form)
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="space-y-5">
       {/* Leyenda */}
       <div className="flex flex-wrap gap-x-4 gap-y-1 justify-center">
         {COLS.map(c => (
@@ -195,17 +178,29 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
       </div>
 
       <p className="text-center" style={{ ...MONO, fontSize: '8px', color: 'var(--color-muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-        La hora es opcional
+        La hora es opcional · Editable después en Planificación
       </p>
 
+      <div className="flex gap-3">
+        <button type="button" onClick={onBack}
+          className="flex-1 py-2.5 border border-border text-[10px] font-bold uppercase tracking-widest hover:bg-accent transition-colors cursor-pointer"
+          style={MONO}>
+          Atrás
+        </button>
+        <button type="button" onClick={handleNext}
+          className="flex-[2] py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-widest hover:opacity-85 transition-opacity cursor-pointer"
+          style={MONO}>
+          Siguiente
+        </button>
+      </div>
       <button
-        type="submit"
-        disabled={isPending}
-        className="w-full py-2.5 bg-foreground text-background text-[10px] font-bold uppercase tracking-widest hover:opacity-85 transition-opacity disabled:opacity-50 cursor-pointer"
+        type="button"
+        onClick={() => onNext(null)}
+        className="w-full text-center text-[9px] uppercase tracking-widest text-muted-foreground underline underline-offset-2 hover:text-foreground transition-colors cursor-pointer"
         style={MONO}
       >
-        {isPending ? 'Guardando...' : 'Guardar plantilla'}
+        Saltar este paso
       </button>
-    </form>
+    </div>
   )
 }

@@ -17,30 +17,13 @@ export function WeeklyTemplatePage() {
 
       {/* Header */}
       <div className="border border-border bg-card px-5 py-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '4px' }}>Planificación</div>
-            <h1 className="font-black leading-none" style={{ ...SERIF, fontSize: 'clamp(22px, 3vw, 30px)', letterSpacing: '-0.02em' }}>
-              Plantilla semanal
-            </h1>
-            <p className="mt-2 text-xs text-muted-foreground" style={MONO}>
-              Marca qué tipo de sesión toca cada día
-            </p>
-          </div>
-          {/* Leyenda */}
-          <div className="flex flex-col gap-1.5 shrink-0">
-            {[
-              { label: 'BJJ', color: '#4a7cff' },
-              { label: 'Fuerza', color: '#f59e0b' },
-              { label: 'Cardio', color: '#10b981' },
-            ].map(({ label, color }) => (
-              <div key={label} className="flex items-center gap-2">
-                <span className="w-2 h-2" style={{ backgroundColor: color }} />
-                <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>{label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '4px' }}>Planificación</div>
+        <h1 className="font-black leading-none" style={{ ...SERIF, fontSize: 'clamp(22px, 3vw, 30px)', letterSpacing: '-0.02em' }}>
+          Plantilla semanal
+        </h1>
+        <p className="mt-2 text-xs text-muted-foreground" style={MONO}>
+          Marca qué tipo de sesión toca cada día · editable en cualquier momento
+        </p>
       </div>
 
       {isLoading ? (
