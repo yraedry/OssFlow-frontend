@@ -40,26 +40,25 @@ function SessionChip({ label, color, active, time, onToggle, onTimeChange, onAdd
   return (
     <div className="flex items-center gap-0.5">
       <button type="button" onClick={onToggle}
-        className="px-2 py-1 border transition-colors focus:outline-none cursor-pointer select-none"
+        className="px-2 py-1 border transition-all focus:outline-none cursor-pointer select-none"
         style={{ ...MONO, fontSize: '9px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
           backgroundColor: active ? color : 'transparent',
-          borderColor: active ? color : 'rgba(255,255,255,0.1)',
-          color: active ? '#000' : 'rgba(255,255,255,0.35)' }}
+          borderColor: active ? color : 'var(--color-border)',
+          color: active ? '#fff' : 'var(--color-muted-foreground)' }}
       >{label}</button>
       {active && (
         <>
           <input type="time" value={time ?? ''} onChange={e => onTimeChange(e.target.value)}
             aria-label={`Hora ${label}`} onClick={e => e.stopPropagation()}
-            className="focus:outline-none cursor-pointer"
+            className="focus:outline-none cursor-pointer bg-transparent"
             style={{ ...MONO, fontSize: '9px', width: '58px', padding: '3px 4px',
-              backgroundColor: 'transparent',
-              border: `1px solid ${time ? color : 'rgba(255,255,255,0.12)'}`,
-              color: time ? color : 'rgba(255,255,255,0.25)', letterSpacing: '0.02em' }} />
+              border: `1px solid ${time ? color : 'var(--color-border)'}`,
+              color: time ? color : 'var(--color-muted-foreground)', letterSpacing: '0.02em' }} />
           <button type="button" onClick={e => { e.stopPropagation(); onAdd() }}
             aria-label={`Añadir otra sesión de ${label}`}
-            className="px-1 border transition-colors focus:outline-none cursor-pointer"
-            style={{ ...MONO, fontSize: '9px', borderColor: 'rgba(255,255,255,0.12)',
-              color: 'rgba(255,255,255,0.3)', backgroundColor: 'transparent' }}>+</button>
+            className="px-1 border transition-colors focus:outline-none cursor-pointer bg-transparent hover:bg-accent"
+            style={{ ...MONO, fontSize: '11px', borderColor: 'var(--color-border)',
+              color: 'var(--color-muted-foreground)' }}>+</button>
         </>
       )}
     </div>
@@ -74,17 +73,16 @@ function ExtraChip({ label, color, time, onTimeChange, onRemove }: {
     <div className="flex items-center gap-0.5">
       <span className="px-2 py-1 border" style={{ ...MONO, fontSize: '9px', fontWeight: 700,
         textTransform: 'uppercase', letterSpacing: '0.06em',
-        backgroundColor: color, borderColor: color, color: '#000' }}>{label}</span>
+        backgroundColor: color, borderColor: color, color: '#fff' }}>{label}</span>
       <input type="time" value={time ?? ''} onChange={e => onTimeChange(e.target.value)}
-        aria-label={`Hora ${label}`} className="focus:outline-none cursor-pointer"
+        aria-label={`Hora ${label}`} className="focus:outline-none cursor-pointer bg-transparent"
         style={{ ...MONO, fontSize: '9px', width: '58px', padding: '3px 4px',
-          backgroundColor: 'transparent',
-          border: `1px solid ${time ? color : 'rgba(255,255,255,0.12)'}`,
-          color: time ? color : 'rgba(255,255,255,0.25)', letterSpacing: '0.02em' }} />
+          border: `1px solid ${time ? color : 'var(--color-border)'}`,
+          color: time ? color : 'var(--color-muted-foreground)', letterSpacing: '0.02em' }} />
       <button type="button" onClick={onRemove} aria-label="Eliminar sesión"
-        className="px-1 border focus:outline-none cursor-pointer"
-        style={{ ...MONO, fontSize: '9px', borderColor: 'rgba(255,255,255,0.12)',
-          color: 'rgba(255,255,255,0.3)', backgroundColor: 'transparent' }}>×</button>
+        className="px-1 border focus:outline-none cursor-pointer bg-transparent transition-colors hover:bg-destructive/10"
+        style={{ ...MONO, fontSize: '11px', borderColor: 'var(--color-border)',
+          color: 'var(--color-muted-foreground)' }}>×</button>
     </div>
   )
 }
@@ -151,13 +149,13 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
         {ALL_DAYS.map(day => {
           const dayActive = state[day].length > 0
           return (
-            <div key={day} className="flex items-start gap-3 px-3 py-2.5 hover:bg-accent/10 transition-colors"
-              style={{ opacity: dayActive ? 1 : 0.45 }}>
-              <span className="w-[62px] shrink-0 pt-0.5"
-                style={{ ...MONO, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <div key={day} className="flex items-start gap-3 px-3 py-2.5 hover:bg-accent/30 transition-colors">
+              <span className="w-[62px] shrink-0 pt-1"
+                style={{ ...MONO, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+                  color: dayActive ? 'var(--color-foreground)' : 'var(--color-muted-foreground)' }}>
                 {DAY_LABELS[day]}
               </span>
-              <div className="flex flex-wrap gap-1.5 flex-1">
+              <div className="flex flex-wrap gap-1.5 flex-1 min-h-[28px] items-center">
                 {COLS.map(col => {
                   const active = isActive(day, col.key)
                   const firstSlot = getFirstSlot(day, col.key)
