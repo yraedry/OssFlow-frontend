@@ -180,8 +180,13 @@ export function ProfilePage() {
 
         {/* Info */}
         <div className="flex-1 min-w-0">
+          {(profile.firstName || profile.lastName) && (
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>
+              {[profile.firstName, profile.lastName].filter(Boolean).join(' ')}
+            </p>
+          )}
           <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
-            {profile.displayName}
+            @{profile.alias ?? profile.displayName}
           </h1>
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1.5" style={MONO}>
             Cinturón {belt.label} · {modalityLabel}

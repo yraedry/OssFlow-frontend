@@ -39,7 +39,9 @@ const MODALITIES = [
 ]
 
 const step1Schema = z.object({
-  displayName: z.string().min(1, 'El nombre es requerido').max(120),
+  firstName: z.string().max(80).optional(),
+  lastName: z.string().max(80).optional(),
+  displayName: z.string().min(1, 'El alias es requerido').max(120),
   currentBelt: z.string().min(1, 'El cinturón es requerido'),
   preferredModality: z.string().min(1, 'La modalidad es requerida'),
   academy: z.string().max(200).optional(),
@@ -48,6 +50,8 @@ const step1Schema = z.object({
 type Step1Form = z.infer<typeof step1Schema>
 
 type OnboardingData = {
+  firstName?: string
+  lastName?: string
   displayName: string
   currentBelt: string
   preferredModality: string
@@ -89,6 +93,8 @@ export function OnboardingPage() {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   })
   const [data, setData] = useState<OnboardingData>({
+    firstName: undefined,
+    lastName: undefined,
     displayName: '',
     currentBelt: '',
     preferredModality: '',
@@ -102,6 +108,8 @@ export function OnboardingPage() {
   const { register, handleSubmit, control, formState: { errors } } = useForm<Step1Form>({
     resolver: zodResolver(step1Schema),
     defaultValues: {
+      firstName: data.firstName,
+      lastName: data.lastName,
       displayName: data.displayName,
       currentBelt: data.currentBelt,
       preferredModality: data.preferredModality,
@@ -115,8 +123,12 @@ export function OnboardingPage() {
   }
 
   const handleFinish = async () => {
+    const fullName = [data.firstName, data.lastName].filter(Boolean).join(' ')
     await createProfile.mutateAsync({
-      displayName: data.displayName,
+      firstName: data.firstName || undefined,
+      lastName: data.lastName || undefined,
+      alias: data.displayName || undefined,
+      displayName: fullName || data.displayName,
       currentBelt: data.currentBelt,
       preferredModality: data.preferredModality,
       academy: data.academy || undefined,
@@ -198,48 +210,71 @@ export function OnboardingPage() {
 
           {step === 2 && (
             <form onSubmit={handleSubmit(handleStep1)} className="space-y-4" noValidate>
-              <FieldBlock label="Tu nombre" error={errors.displayName?.message}>
-                <Input id="displayName" {...register('displayName')} placeholder="Ej: Juan García" autoFocus />
+
+              {/* Nombre / Apellidos */}
+              <div className="grid grid-cols-2 gap-3">
+                <FieldBlock label="Nombre">
+                  <Input id="firstName" {...register('firstName')} placeholder="Juan" autoFocus />
+                </FieldBlock>
+                <FieldBlock label="Apellidos">
+                  <Input id="lastName" {...register('lastName')} placeholder="García" />
+                </FieldBlock>
+              </div>
+
+              {/* Alias */}
+              <FieldBlock label="Alias *" error={errors.displayName?.message}>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground select-none" style={MONO}>@</span>
+                  <Input
+                    id="displayName"
+                    {...register('displayName')}
+                    className="pl-6"
+                    placeholder="tu_alias"
+                  />
+                </div>
               </FieldBlock>
 
-              <FieldBlock label="Cinturón actual" error={errors.currentBelt?.message}>
-                <Controller
-                  control={control}
-                  name="currentBelt"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona tu cinturón" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {BELTS.map((b) => (
-                          <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </FieldBlock>
+              {/* Cinturón / Modalidad */}
+              <div className="grid grid-cols-2 gap-3">
+                <FieldBlock label="Cinturón *" error={errors.currentBelt?.message}>
+                  <Controller
+                    control={control}
+                    name="currentBelt"
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {BELTS.map((b) => (
+                            <SelectItem key={b.value} value={b.value}>{b.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </FieldBlock>
+                <FieldBlock label="Modalidad *" error={errors.preferredModality?.message}>
+                  <Controller
+                    control={control}
+                    name="preferredModality"
+                    render={({ field }) => (
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {MODALITIES.map((m) => (
+                            <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </FieldBlock>
+              </div>
 
-              <FieldBlock label="Modalidad preferida" error={errors.preferredModality?.message}>
-                <Controller
-                  control={control}
-                  name="preferredModality"
-                  render={({ field }) => (
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Gi, No-Gi o ambas" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {MODALITIES.map((m) => (
-                          <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-              </FieldBlock>
-
+              {/* Academia */}
               <FieldBlock label="Academia (opcional)">
                 <Input id="academy" {...register('academy')} placeholder="Nombre de tu academia" />
               </FieldBlock>
@@ -297,9 +332,15 @@ export function OnboardingPage() {
                     <p className="text-sm font-medium">{selectedTheme === 'dark' ? 'Oscuro' : 'Claro'}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground" style={MONO}>Nombre</p>
-                    <p className="text-sm font-medium">{data.displayName}</p>
+                    <p className="text-xs text-muted-foreground" style={MONO}>Alias</p>
+                    <p className="text-sm font-medium">@{data.displayName}</p>
                   </div>
+                  {(data.firstName || data.lastName) && (
+                    <div className="col-span-2">
+                      <p className="text-xs text-muted-foreground" style={MONO}>Nombre</p>
+                      <p className="text-sm font-medium">{[data.firstName, data.lastName].filter(Boolean).join(' ')}</p>
+                    </div>
+                  )}
                   <div>
                     <p className="text-xs text-muted-foreground" style={MONO}>Cinturón</p>
                     <p className="text-sm font-medium">
@@ -313,7 +354,7 @@ export function OnboardingPage() {
                     </p>
                   </div>
                   {data.academy && (
-                    <div>
+                    <div className="col-span-2">
                       <p className="text-xs text-muted-foreground" style={MONO}>Academia</p>
                       <p className="text-sm font-medium">{data.academy}</p>
                     </div>
