@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -128,25 +128,15 @@ export function OnboardingPage() {
     weeklyTemplateSet: false,
   })
 
-  // Refs para poder leer valores actuales dentro de los setters sin reconstruirlos
-  const stepRef = useRef(step)
-  stepRef.current = step
-  const dataRef = useRef(data)
-  dataRef.current = data
-
   function setStep(s: 1 | 2 | 3 | 4 | 5) {
-    stepRef.current = s
     setStepRaw(s)
-    saveOnboarding(s, dataRef.current)
+    saveOnboarding(s, data)
   }
 
   function setData(updater: OnboardingData | ((prev: OnboardingData) => OnboardingData)) {
-    setDataRaw(prev => {
-      const next = typeof updater === 'function' ? updater(prev) : updater
-      dataRef.current = next
-      saveOnboarding(stepRef.current, next)
-      return next
-    })
+    const next = typeof updater === 'function' ? updater(data) : updater
+    saveOnboarding(step, next)
+    setDataRaw(next)
   }
 
   const { data: federations, isLoading: loadingFeds } = useFederations()
