@@ -4,13 +4,16 @@ const DAY_OF_WEEK = z.enum([
   'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY', 'SUNDAY',
 ])
 
+const SESSION_TYPE = z.enum(['BJJ', 'STRENGTH', 'CARDIO', 'MOBILITY', 'FLEXIBILITY'])
+
+export const sessionSlotSchema = z.object({
+  type: SESSION_TYPE,
+  time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/).optional(),
+})
+
 export const dayEntrySchema = z.object({
   dayOfWeek: DAY_OF_WEEK,
-  bjj: z.boolean(),
-  strength: z.boolean(),
-  cardio: z.boolean(),
-  mobility: z.boolean(),
-  flexibility: z.boolean(),
+  sessions: z.array(sessionSlotSchema),
 })
 
 export const saveWeeklyTemplateSchema = z.object({

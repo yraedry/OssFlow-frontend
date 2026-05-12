@@ -1,12 +1,14 @@
 export type DayOfWeek = 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY' | 'SUNDAY'
+export type SessionType = 'BJJ' | 'STRENGTH' | 'CARDIO' | 'MOBILITY' | 'FLEXIBILITY'
+
+export interface SessionSlot {
+  type: SessionType
+  time?: string  // "HH:mm" opcional
+}
 
 export interface DayEntry {
   dayOfWeek: DayOfWeek
-  bjj: boolean
-  strength: boolean
-  cardio: boolean
-  mobility: boolean
-  flexibility: boolean
+  sessions: SessionSlot[]
 }
 
 export interface WeeklyTemplate {
