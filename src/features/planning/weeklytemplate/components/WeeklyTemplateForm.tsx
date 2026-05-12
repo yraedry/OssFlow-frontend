@@ -17,6 +17,11 @@ const DAY_SHORT: Record<DayOfWeek, string> = {
   THURSDAY: 'Jue', FRIDAY: 'Vie', SATURDAY: 'Sáb', SUNDAY: 'Dom',
 }
 
+const DAY_LETTER: Record<DayOfWeek, string> = {
+  MONDAY: 'L', TUESDAY: 'M', WEDNESDAY: 'X',
+  THURSDAY: 'J', FRIDAY: 'V', SATURDAY: 'S', SUNDAY: 'D',
+}
+
 type Slot = { type: SessionType; time?: string }
 type State = Record<DayOfWeek, Slot[]>
 
@@ -144,47 +149,53 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
 
-      {/* Tabla semanal — scroll horizontal en móvil */}
-      <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-        <div className="border border-border overflow-hidden" style={{ minWidth: '560px' }}>
-          {/* Header: días */}
-          <div className="grid border-b border-border" style={{ gridTemplateColumns: '100px repeat(7, 1fr)' }}>
-            <div className="border-r border-border" />
-            {ALL_DAYS.map(day => {
-              const hasAny = state[day].length > 0
-              return (
-                <div
-                  key={day}
-                  className="flex items-center justify-center py-3 border-r border-border last:border-r-0"
-                  style={{ backgroundColor: hasAny ? 'var(--color-foreground)' : 'transparent' }}
-                >
-                  <span style={{
-                    ...MONO, fontSize: '11px', fontWeight: 700,
-                    textTransform: 'uppercase', letterSpacing: '0.05em',
-                    color: hasAny ? 'var(--color-background)' : 'var(--color-muted-foreground)',
-                  }}>
-                    {DAY_SHORT[day]}
-                  </span>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* Filas por tipo */}
-          {SESSION_TYPES.map(({ key, label, color }) => (
-            <div
-              key={key}
-              className="grid border-b border-border last:border-b-0"
-              style={{ gridTemplateColumns: '100px repeat(7, 1fr)' }}
-            >
-              <div className="flex items-center px-4 py-4 border-r border-border">
-                <span style={{
-                  ...MONO, fontSize: '11px', fontWeight: 700,
-                  textTransform: 'uppercase', letterSpacing: '0.04em', color,
+      {/* Tabla semanal — sin scroll, cabe en cualquier móvil */}
+      <div className="border border-border overflow-hidden">
+        {/* Header: días */}
+        <div className="grid border-b border-border" style={{ gridTemplateColumns: '72px repeat(7, 1fr)' }}>
+          <div className="border-r border-border" />
+          {ALL_DAYS.map(day => {
+            const hasAny = state[day].length > 0
+            return (
+              <div
+                key={day}
+                className="flex items-center justify-center py-2 border-r border-border last:border-r-0"
+                style={{ backgroundColor: hasAny ? 'var(--color-foreground)' : 'transparent' }}
+              >
+                <span className="sm:hidden" style={{
+                  ...MONO, fontSize: '10px', fontWeight: 700,
+                  textTransform: 'uppercase', letterSpacing: '0.04em',
+                  color: hasAny ? 'var(--color-background)' : 'var(--color-muted-foreground)',
                 }}>
-                  {label}
+                  {DAY_LETTER[day]}
+                </span>
+                <span className="hidden sm:block" style={{
+                  ...MONO, fontSize: '11px', fontWeight: 700,
+                  textTransform: 'uppercase', letterSpacing: '0.05em',
+                  color: hasAny ? 'var(--color-background)' : 'var(--color-muted-foreground)',
+                }}>
+                  {DAY_SHORT[day]}
                 </span>
               </div>
+            )
+          })}
+        </div>
+
+        {/* Filas por tipo */}
+        {SESSION_TYPES.map(({ key, label, color }) => (
+          <div
+            key={key}
+            className="grid border-b border-border last:border-b-0"
+            style={{ gridTemplateColumns: '72px repeat(7, 1fr)' }}
+          >
+            <div className="flex items-center px-2 py-3 border-r border-border sm:px-4">
+              <span style={{
+                ...MONO, fontSize: '10px', fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: '0.03em', color,
+              }} className="leading-tight">
+                {label}
+              </span>
+            </div>
               {ALL_DAYS.map(day => {
                 const active = isActive(day, key)
                 return (
@@ -209,9 +220,8 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
                   </button>
                 )
               })}
-            </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
       {/* Horas por día */}
