@@ -15,11 +15,15 @@ const ACTIONS = [
 ] as const
 
 const SUB_PATHS = ['/diario', '/estudio', '/planificacion', '/journal', '/competition', '/catalog', '/physical', '/planning']
+const HIDDEN_PATHS = ['/profile', '/configuracion', '/analisis', '/landing', '/login', '/register', '/forgot-password', '/reset-password', '/verify-email', '/onboarding']
 
 export function FabMenu() {
   const [open, setOpen] = useState(false)
   const navigate = useNavigate()
   const { pathname } = useLocation()
+
+  const isHidden = HIDDEN_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'))
+  if (isHidden) return null
 
   const hasSubNav = SUB_PATHS.some(p => pathname.startsWith(p))
   const fabBottom = hasSubNav

@@ -121,7 +121,7 @@ export function BottomTabBar() {
           {section === 'perfil' && (
             <button
               onClick={() => logoutMutation.mutate()}
-              className="flex-shrink-0 h-8 flex items-center gap-1.5 px-3 uppercase transition-colors whitespace-nowrap border-b-2 border-transparent text-muted-foreground hover:text-foreground ml-auto"
+              className="flex-shrink-0 h-8 flex items-center gap-1.5 px-3 uppercase transition-colors whitespace-nowrap border-b-2 border-transparent text-muted-foreground hover:text-foreground"
               style={SUBNAV_MONO}
             >
               <LogOut className="h-3 w-3" strokeWidth={1.5} />
