@@ -8,6 +8,8 @@ describe('dayEntrySchema', () => {
       bjj: true,
       strength: false,
       cardio: true,
+      mobility: false,
+      flexibility: false,
     })
     expect(result.success).toBe(true)
   })
@@ -18,6 +20,8 @@ describe('dayEntrySchema', () => {
       bjj: true,
       strength: false,
       cardio: false,
+      mobility: false,
+      flexibility: false,
     })
     expect(result.success).toBe(false)
   })
@@ -27,8 +31,8 @@ describe('saveWeeklyTemplateSchema', () => {
   it('accepts a template with valid days', () => {
     const result = saveWeeklyTemplateSchema.safeParse({
       days: [
-        { dayOfWeek: 'MONDAY', bjj: true, strength: true, cardio: true },
-        { dayOfWeek: 'TUESDAY', bjj: false, strength: false, cardio: true },
+        { dayOfWeek: 'MONDAY', bjj: true, strength: true, cardio: true, mobility: false, flexibility: false },
+        { dayOfWeek: 'TUESDAY', bjj: false, strength: false, cardio: true, mobility: true, flexibility: false },
       ],
     })
     expect(result.success).toBe(true)
