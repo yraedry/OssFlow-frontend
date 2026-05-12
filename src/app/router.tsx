@@ -54,11 +54,14 @@ const lazySuspense = (element: React.ReactNode) => (
 )
 
 export const router = createBrowserRouter([
-  // ─── Auth pages: redirige a / si ya está autenticado ─────────────────────
+  // ─── Landing pública: / sin autenticación muestra el landing ────────────────
+  // GuestGuard redirige a /home si ya está autenticado con sesión activa.
+  { path: '/landing', element: <LandingPage /> },
+
+  // ─── Auth pages: redirige a /home si ya está autenticado ─────────────────
   {
     element: <GuestGuard />,
     children: [
-      { path: '/landing', element: <LandingPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
     ],
