@@ -6,12 +6,12 @@ import { MONO } from '@/shared/lib/typography'
 
 type SessionType = 'bjj' | 'strength' | 'cardio' | 'mobility' | 'flexibility'
 
-const COLS: { key: SessionType; label: string; short: string; color: string }[] = [
-  { key: 'bjj',         label: 'BJJ',          short: 'BJJ',    color: '#4a7cff' },
-  { key: 'strength',    label: 'Fuerza',        short: 'Fza',    color: '#f59e0b' },
-  { key: 'cardio',      label: 'Cardio',        short: 'Card',   color: '#10b981' },
-  { key: 'mobility',    label: 'Movilidad',     short: 'Mov',    color: '#a855f7' },
-  { key: 'flexibility', label: 'Flexibilidad',  short: 'Flex',   color: '#06b6d4' },
+const COLS: { key: SessionType; label: string; color: string }[] = [
+  { key: 'bjj',         label: 'BJJ',         color: '#4a7cff' },
+  { key: 'strength',    label: 'Fuerza',       color: '#f59e0b' },
+  { key: 'cardio',      label: 'Cardio',       color: '#10b981' },
+  { key: 'mobility',    label: 'Movilidad',    color: '#a855f7' },
+  { key: 'flexibility', label: 'Flexib.',      color: '#06b6d4' },
 ]
 
 type DayState = Record<SessionType, boolean>
@@ -26,50 +26,54 @@ type Props = {
   onBack: () => void
 }
 
-function Toggle({ active, color, onClick }: { active: boolean; color: string; onClick: () => void }) {
+function SessionChip({ label, color, active, time, onToggle, onTimeChange }: {
+  label: string
+  color: string
+  active: boolean
+  time: string | undefined
+  onToggle: () => void
+  onTimeChange: (v: string) => void
+}) {
   return (
-    <button
-      type="button"
-      role="checkbox"
-      aria-checked={active}
-      onClick={onClick}
-      className="w-8 h-[18px] relative border transition-colors focus:outline-none cursor-pointer"
-      style={{
-        backgroundColor: active ? color : 'transparent',
-        borderColor: active ? color : 'rgba(255,255,255,0.12)',
-      }}
-    >
-      <span
-        className="absolute top-[2px] w-[11px] h-[11px] transition-transform"
+    <div className="flex items-center gap-0.5">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="px-2 py-1 border transition-colors focus:outline-none cursor-pointer select-none"
         style={{
-          backgroundColor: active ? '#fff' : 'rgba(255,255,255,0.2)',
-          transform: active ? 'translateX(17px)' : 'translateX(2px)',
+          ...MONO,
+          fontSize: '9px',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          backgroundColor: active ? color : 'transparent',
+          borderColor: active ? color : 'rgba(255,255,255,0.1)',
+          color: active ? '#000' : 'rgba(255,255,255,0.35)',
         }}
-      />
-    </button>
-  )
-}
-
-function TimeChip({ color, value, onChange }: { color: string; value: string | undefined; onChange: (v: string) => void }) {
-  const hasTime = !!value
-  return (
-    <input
-      type="time"
-      value={value ?? ''}
-      onChange={e => onChange(e.target.value)}
-      aria-label="Hora de sesión (opcional)"
-      className="border text-center transition-colors focus:outline-none cursor-pointer"
-      style={{
-        fontFamily: 'var(--font-mono)',
-        fontSize: '8px',
-        padding: '2px 4px',
-        width: '52px',
-        backgroundColor: 'transparent',
-        color: hasTime ? color : 'rgba(255,255,255,0.3)',
-        borderColor: hasTime ? color : 'rgba(255,255,255,0.08)',
-        letterSpacing: '0.04em',
-      }}
-    />
+      >
+        {label}
+      </button>
+      {active && (
+        <input
+          type="time"
+          value={time ?? ''}
+          onChange={e => onTimeChange(e.target.value)}
+          aria-label={`Hora ${label}`}
+          onClick={e => e.stopPropagation()}
+          className="focus:outline-none cursor-pointer"
+          style={{
+            ...MONO,
+            fontSize: '9px',
+            width: '58px',
+            padding: '3px 4px',
+            backgroundColor: 'transparent',
+            border: `1px solid ${time ? color : 'rgba(255,255,255,0.12)'}`,
+            color: time ? color : 'rgba(255,255,255,0.25)',
+            letterSpacing: '0.02em',
+          }}
+        />
+      )}
+    </div>
   )
 }
 
@@ -82,12 +86,9 @@ export function WeeklyTemplateStep({ onNext, onBack }: Props) {
   )
 
   function toggleType(day: DayOfWeek, type: SessionType) {
-    setDays(prev => ({
-      ...prev,
-      [day]: { ...prev[day], [type]: !prev[day][type] },
-    }))
-    // limpiar hora si se desactiva
-    if (days[day][type]) {
+    const wasActive = days[day][type]
+    setDays(prev => ({ ...prev, [day]: { ...prev[day], [type]: !wasActive } }))
+    if (wasActive) {
       setTimes(prev => {
         const next = { ...prev[day] }
         delete next[type]
@@ -103,7 +104,7 @@ export function WeeklyTemplateStep({ onNext, onBack }: Props) {
   function handleNext() {
     const anyActive = ALL_DAYS.some(d => Object.values(days[d]).some(Boolean))
     if (!anyActive) { onNext(null); return }
-    const form: SaveWeeklyTemplateForm = {
+    onNext({
       days: ALL_DAYS.map(day => ({
         dayOfWeek: day,
         bjj: days[day].bjj,
@@ -112,64 +113,41 @@ export function WeeklyTemplateStep({ onNext, onBack }: Props) {
         mobility: days[day].mobility,
         flexibility: days[day].flexibility,
       })),
-    }
-    onNext(form)
+    })
   }
 
   return (
-    <div className="space-y-5">
-      {/* Leyenda */}
-      <div className="flex flex-wrap gap-x-4 gap-y-1 justify-center">
-        {COLS.map(c => (
-          <div key={c.key} className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 flex-shrink-0" style={{ backgroundColor: c.color }} />
-            <span className="text-[8px] uppercase tracking-widest" style={{ ...MONO, color: c.color }}>{c.label}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Tabla */}
-      <div className="border border-border">
-        {/* Header */}
-        <div className="grid border-b border-border bg-muted/30" style={{ gridTemplateColumns: '82px repeat(5, 1fr)' }}>
-          <div className="py-2.5 px-3.5" style={{ ...MONO, fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--color-muted-foreground)' }}>
-            Día
-          </div>
-          {COLS.map(c => (
-            <div key={c.key} className="py-2.5 px-1 text-center" style={{ ...MONO, fontSize: '8px', textTransform: 'uppercase', letterSpacing: '0.08em', color: c.color, fontWeight: 700 }}>
-              {c.short}
-            </div>
-          ))}
-        </div>
-
-        {/* Rows */}
+    <div className="space-y-4">
+      <div className="border border-border divide-y divide-border">
         {ALL_DAYS.map(day => {
-          const dayActive = Object.values(days[day]).some(Boolean)
+          const active = COLS.filter(c => days[day][c.key])
+          const dayActive = active.length > 0
           return (
             <div
               key={day}
-              className="border-b border-border last:border-b-0 hover:bg-accent/20 transition-colors"
-              style={{ opacity: dayActive ? 1 : 0.55 }}
+              className="flex items-start gap-3 px-3 py-2.5 hover:bg-accent/10 transition-colors"
+              style={{ opacity: dayActive ? 1 : 0.45 }}
             >
-              <div className="grid items-center" style={{ gridTemplateColumns: '82px repeat(5, 1fr)' }}>
-                <div className="py-3 px-3.5" style={{ ...MONO, fontSize: '11px', fontWeight: 600 }}>
-                  {DAY_LABELS[day]}
-                </div>
+              {/* Día */}
+              <span
+                className="w-[62px] shrink-0 pt-0.5"
+                style={{ ...MONO, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em' }}
+              >
+                {DAY_LABELS[day]}
+              </span>
+
+              {/* Chips */}
+              <div className="flex flex-wrap gap-1.5 flex-1">
                 {COLS.map(col => (
-                  <div key={col.key} className="py-2 px-1 flex flex-col items-center gap-1.5">
-                    <Toggle
-                      active={days[day][col.key]}
-                      color={col.color}
-                      onClick={() => toggleType(day, col.key)}
-                    />
-                    {days[day][col.key] && (
-                      <TimeChip
-                        color={col.color}
-                        value={times[day][col.key]}
-                        onChange={v => setTime(day, col.key, v)}
-                      />
-                    )}
-                  </div>
+                  <SessionChip
+                    key={col.key}
+                    label={col.label}
+                    color={col.color}
+                    active={days[day][col.key]}
+                    time={times[day][col.key]}
+                    onToggle={() => toggleType(day, col.key)}
+                    onTimeChange={v => setTime(day, col.key, v)}
+                  />
                 ))}
               </div>
             </div>
@@ -178,7 +156,7 @@ export function WeeklyTemplateStep({ onNext, onBack }: Props) {
       </div>
 
       <p className="text-center" style={{ ...MONO, fontSize: '8px', color: 'var(--color-muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-        La hora es opcional · Editable después en Planificación
+        Pulsa un tipo para activarlo · la hora es opcional
       </p>
 
       <div className="flex gap-3">
