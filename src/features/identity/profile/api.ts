@@ -22,3 +22,7 @@ export async function updateProfile(data: UpdateProfileRequest): Promise<UserPro
 export async function replaceFederations(federations: FederationAssignment[]): Promise<UserProfile> {
   return apiClient.put('identity/profile/federations', { json: federations }).json<UserProfile>()
 }
+
+export async function deleteAccount(): Promise<void> {
+  await apiClient.delete('me/account')
+}
