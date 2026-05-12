@@ -3,8 +3,8 @@ import { MONO, SERIF } from '@/shared/lib/typography'
 
 export function AuthLogo() {
   return (
-    <Link to="/landing" className="inline-flex items-center gap-2 group">
-      <svg width="22" height="22" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="text-foreground">
+    <Link to="/landing" className="inline-flex items-center gap-2.5 group">
+      <svg width="28" height="28" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="text-foreground">
         <rect x="6" y="29" width="68" height="22" fill="currentColor"/>
         <rect x="34" y="19" width="12" height="42" fill="currentColor"/>
         <rect x="37" y="22" width="6" height="36" fill="var(--color-background)"/>
@@ -13,7 +13,7 @@ export function AuthLogo() {
         <rect x="30" y="51" width="8" height="13" fill="currentColor"/>
         <rect x="42" y="51" width="8" height="13" fill="currentColor"/>
       </svg>
-      <span style={SERIF} className="text-lg text-foreground">OssFlow</span>
+      <span style={{ ...SERIF, fontSize: '20px' }} className="text-foreground">OssFlow</span>
     </Link>
   )
 }
@@ -27,14 +27,27 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ title, subtitle, children, maxWidth = 'max-w-sm' }: AuthLayoutProps) {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
-      <div className={`w-full ${maxWidth}`}>
-        <div className="mb-8 flex flex-col items-center gap-4">
+    <div
+      className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12 relative"
+      style={{
+        backgroundImage: 'radial-gradient(circle, color-mix(in srgb, var(--color-foreground) 6%, transparent) 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+      }}
+    >
+      {/* Gradient vignette to fade the dot grid at edges */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: 'radial-gradient(ellipse 80% 70% at 50% 50%, transparent 40%, var(--color-background) 100%)',
+        }}
+      />
+      <div className={`w-full ${maxWidth} relative z-10`}>
+        <div className="mb-10 flex flex-col items-center gap-5">
           <AuthLogo />
-          <div className="text-center">
-            <h1 className="text-foreground" style={{ ...SERIF, fontSize: '22px' }}>{title}</h1>
+          <div className="text-center space-y-1">
+            <h1 className="text-foreground" style={{ ...SERIF, fontSize: '26px', letterSpacing: '-0.01em' }}>{title}</h1>
             {subtitle && (
-              <p className="text-muted-foreground mt-1.5 text-xs uppercase tracking-widest" style={MONO}>
+              <p className="text-muted-foreground text-[10px] uppercase tracking-[0.14em]" style={MONO}>
                 {subtitle}
               </p>
             )}
@@ -68,7 +81,7 @@ export function AuthField({ label, htmlFor, error, children }: AuthFieldProps) {
 
 export function AuthCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="border border-border bg-card p-8 space-y-5">
+    <div className="border border-border bg-card p-8 space-y-5 shadow-[0_8px_40px_-8px_rgba(0,0,0,0.4)]">
       {children}
     </div>
   )
