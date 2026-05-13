@@ -1,3 +1,5 @@
+export type AccountRole = 'ATHLETE' | 'ATHLETE_COACH'
+
 export type ProfileFederationEntry = {
   federationId: number
   isPrimary: boolean
@@ -16,6 +18,7 @@ export type UserProfile = {
   preferredModality: string
   onboardingCompleted: boolean
   federations: ProfileFederationEntry[]
+  role: AccountRole
   createdAt: string
   updatedAt: string
   version: number
