@@ -60,10 +60,19 @@ export function useAthletes() {
 
 export function useAthleteSummary(athleteId: number | null) {
   return useQuery({
-    queryKey: COACHING_KEYS.athlete(athleteId ?? 0),
+    queryKey: COACHING_KEYS.athlete(athleteId!),
     queryFn: () => coachingApi.getAthleteSummary(athleteId!),
     enabled: athleteId !== null,
     staleTime: 60_000,
+  })
+}
+
+export function useLeaveCoach() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (coachId: number) => coachingApi.leaveCoach(coachId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: COACHING_KEYS.coaches }),
+    onError: () => toast.error('Error al desvincular. Inténtalo de nuevo.'),
   })
 }
 
@@ -83,22 +92,17 @@ export function useRedeemCode() {
       qc.invalidateQueries({ queryKey: COACHING_KEYS.coaches })
       toast.success('Vinculado con tu maestro')
     },
-    onError: (error) => {
-      if (error instanceof ApiClientError && (error.status === 400 || error.status === 404)) {
-        toast.error('Código inválido o expirado.')
-      } else {
-        toast.error('Error al canjear el código')
-      }
-    },
+    // Error feedback is handled inline in the component via the mutation error state
   })
 }
 
 export function useNotifications() {
   return useQuery({
     queryKey: COACHING_KEYS.notifications,
+    // La API ya filtra a solo no leídas, length = count de no leídas
     queryFn: () => coachingApi.getNotifications(),
     refetchInterval: 30_000,
-    staleTime: 15_000,
+    staleTime: 30_000,
   })
 }
 
