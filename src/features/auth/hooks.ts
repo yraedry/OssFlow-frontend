@@ -18,8 +18,9 @@ export function useLogin() {
       try {
         const profile = await getProfile()
         navigate(profile ? '/' : '/onboarding', { replace: true })
-      } catch {
-        navigate('/', { replace: true })
+      } catch (err) {
+        const is404 = err instanceof ApiClientError && err.status === 404
+        navigate(is404 ? '/onboarding' : '/', { replace: true })
       }
     },
     onError: (err: unknown) => {
