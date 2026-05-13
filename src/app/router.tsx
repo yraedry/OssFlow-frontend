@@ -37,6 +37,7 @@ import { RulesetsPage } from '@/features/catalog/ruleset/pages/RulesetsPage'
 import { ExercisesPage } from '@/features/catalog/exercise/pages/ExercisesPage'
 import { AnalisisPage } from '@/pages/analisis/AnalisisPage'
 import { ConfiguracionPage } from '@/pages/configuracion/ConfiguracionPage'
+import { CoachingDashboardPage } from '@/features/coaching/pages/CoachingDashboardPage'
 import { Spinner } from '@/shared/components/ui/spinner'
 
 // Auth pages
@@ -131,6 +132,9 @@ export const router = createBrowserRouter([
           { path: 'configuracion', element: <ConfiguracionPage /> },
           { path: 'export', element: <ExportPage /> },
           { path: 'trash', element: <TrashPage /> },
+
+          // Coaching
+          { path: 'gimnasio', element: <CoachingDashboardPage /> },
 
           // Redirecciones de rutas antiguas (compatibilidad)
           { path: 'catalog/positions', element: <PositionsPage /> },
