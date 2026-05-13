@@ -4,12 +4,12 @@ import type { DayOfWeek, SessionType, WeeklyTemplate } from '../types'
 import type { SaveWeeklyTemplateForm } from '../schemas'
 import { MONO } from '@/shared/lib/typography'
 
-const SESSION_TYPES: { key: SessionType; label: string; color: string }[] = [
-  { key: 'BJJ',         label: 'BJJ',         color: '#4a7cff' },
-  { key: 'STRENGTH',    label: 'Fuerza',       color: '#f59e0b' },
-  { key: 'CARDIO',      label: 'Cardio',       color: '#10b981' },
-  { key: 'MOBILITY',    label: 'Movilidad',    color: '#a855f7' },
-  { key: 'FLEXIBILITY', label: 'Flexibilidad', color: '#06b6d4' },
+const SESSION_TYPES: { key: SessionType; label: string; short: string; color: string }[] = [
+  { key: 'BJJ',         label: 'BJJ',         short: 'BJJ',   color: '#4a7cff' },
+  { key: 'STRENGTH',    label: 'Fuerza',       short: 'Fuerza', color: '#f59e0b' },
+  { key: 'CARDIO',      label: 'Cardio',       short: 'Cardio', color: '#10b981' },
+  { key: 'MOBILITY',    label: 'Movilidad',    short: 'Movil.', color: '#a855f7' },
+  { key: 'FLEXIBILITY', label: 'Flexibilidad', short: 'Flex.',  color: '#06b6d4' },
 ]
 
 const DAY_SHORT: Record<DayOfWeek, string> = {
@@ -182,17 +182,23 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
         </div>
 
         {/* Filas por tipo */}
-        {SESSION_TYPES.map(({ key, label, color }) => (
+        {SESSION_TYPES.map(({ key, label, short, color }) => (
           <div
             key={key}
             className="grid border-b border-border last:border-b-0"
             style={{ gridTemplateColumns: '72px repeat(7, 1fr)' }}
           >
             <div className="flex items-center px-2 py-3 border-r border-border sm:px-4">
-              <span style={{
+              <span className="sm:hidden leading-tight" style={{
+                ...MONO, fontSize: '9px', fontWeight: 700,
+                textTransform: 'uppercase', letterSpacing: '0.02em', color,
+              }}>
+                {short}
+              </span>
+              <span className="hidden sm:block leading-tight" style={{
                 ...MONO, fontSize: '10px', fontWeight: 700,
                 textTransform: 'uppercase', letterSpacing: '0.03em', color,
-              }} className="leading-tight">
+              }}>
                 {label}
               </span>
             </div>
