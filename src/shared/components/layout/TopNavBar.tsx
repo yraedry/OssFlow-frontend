@@ -6,6 +6,7 @@ import { useTheme } from '@/shared/hooks/useTheme'
 import { useProfile } from '@/features/identity/profile/hooks'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
 import { useLogout } from '@/features/auth/hooks'
+import { NotificationBell } from '@/features/coaching/components/NotificationBell'
 
 const PRIMARY_NAV = [
   { to: '/',                    label: 'Inicio',        end: true,  section: null },
@@ -125,6 +126,22 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
         </nav>
 
         <div className="flex items-center gap-0.5 px-2 border-l border-border shrink-0">
+          {profile?.role === 'ATHLETE_COACH' && (
+            <NavLink
+              to="/gimnasio"
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center px-3 h-8 text-xs border-b-2 transition-colors shrink-0',
+                  'text-muted-foreground hover:text-foreground',
+                  isActive ? 'border-foreground text-foreground' : 'border-transparent',
+                )
+              }
+              style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '11px' }}
+            >
+              Mi gimnasio
+            </NavLink>
+          )}
+          <NotificationBell />
           <button
             onClick={onSearchOpen}
             className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"

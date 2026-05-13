@@ -1,7 +1,8 @@
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut, User } from 'lucide-react'
+import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut, User, School } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useLogout } from '@/features/auth/hooks'
+import { useProfile } from '@/features/identity/profile/hooks'
 
 const TABS = [
   { to: '/',                       label: 'Inicio',        icon: Home,         end: true  },
@@ -77,6 +78,14 @@ export function BottomTabBar() {
   const subNav = SUB_NAV[section] ?? []
   const hasSubNav = subNav.length > 0
   const logoutMutation = useLogout()
+  const { data: profile } = useProfile()
+
+  const tabs = [
+    ...TABS,
+    ...(profile?.role === 'ATHLETE_COACH'
+      ? [{ to: '/gimnasio', label: 'Gimnasio', icon: School, end: false }]
+      : []),
+  ]
 
   return (
     <nav
@@ -132,8 +141,8 @@ export function BottomTabBar() {
       )}
 
       <div className="flex items-end justify-around">
-        {TABS.map(({ to, label, icon: Icon, end }) => {
-          const isActive = end ? pathname === '/' : activeTab === to
+        {tabs.map(({ to, label, icon: Icon, end }) => {
+          const isActive = end ? pathname === '/' : activeTab === to || pathname.startsWith(to)
           return (
             <NavLink
               key={to}

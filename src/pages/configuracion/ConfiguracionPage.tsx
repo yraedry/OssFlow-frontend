@@ -1,10 +1,11 @@
 import { useState, useRef } from 'react'
-import { Settings, Palette, Bell, Database, Sun, Moon, Monitor, Upload, Download } from 'lucide-react'
+import { Settings, Palette, Bell, Database, Sun, Moon, Monitor, Upload, Download, School } from 'lucide-react'
 import { Card, CardContent } from '@/shared/components/ui/card'
 import { Badge } from '@/shared/components/ui/badge'
 import { useTheme } from '@/shared/hooks/useTheme'
-import { useExportBackup, useImportBackup } from '@/features/identity/profile/hooks'
+import { useExportBackup, useImportBackup, useProfile } from '@/features/identity/profile/hooks'
 import { DeleteAccountModal } from '@/features/identity/profile/components/DeleteAccountModal'
+import { MyCoachesSection } from '@/features/coaching/components/MyCoachesSection'
 
 // ─── localStorage keys ────────────────────────────────────────────────────────
 
@@ -187,6 +188,7 @@ export function ConfiguracionPage() {
   const importRef = useRef<HTMLInputElement>(null)
   const exportBackup = useExportBackup()
   const importBackup = useImportBackup()
+  const { data: profile } = useProfile()
 
   function handleModality(v: string) {
     setModality(v)
@@ -347,6 +349,14 @@ export function ConfiguracionPage() {
           </section>
         </div>
       </div>
+
+      {/* ── Mis maestros (solo atletas) ── */}
+      {profile?.role !== 'ATHLETE_COACH' && (
+        <section>
+          <SectionTitle icon={<School className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Mis maestros" />
+          <MyCoachesSection />
+        </section>
+      )}
 
       <input ref={importRef} type="file" accept="application/json,.json" className="hidden" onChange={handleImportFile} />
       <DeleteAccountModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} />
