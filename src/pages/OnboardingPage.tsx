@@ -16,6 +16,7 @@ import { useSaveWeeklyTemplate } from '@/features/planning/weeklytemplate/hooks'
 import { AuthLogo } from '@/features/auth/components/AuthLayout'
 import { MONO, SERIF } from '@/shared/lib/typography'
 import { WeeklyTemplateStep } from './onboarding/WeeklyTemplateStep'
+import { RoleSelector } from '@/features/identity/profile/components/RoleSelector'
 import type { FederationAssignment } from '@/features/identity/federation/types'
 import type { SaveWeeklyTemplateForm } from '@/features/planning/weeklytemplate/schemas'
 
@@ -64,7 +65,7 @@ type OnboardingData = {
   weeklyTemplateSet: boolean
 }
 
-type PersistedOnboarding = { step: 1 | 2 | 3 | 4 | 5; data: OnboardingData }
+type PersistedOnboarding = { step: 0 | 1 | 2 | 3 | 4 | 5; data: OnboardingData }
 
 function loadOnboarding(): PersistedOnboarding | null {
   try {
@@ -75,7 +76,7 @@ function loadOnboarding(): PersistedOnboarding | null {
   }
 }
 
-function saveOnboarding(step: 1 | 2 | 3 | 4 | 5, data: OnboardingData) {
+function saveOnboarding(step: 0 | 1 | 2 | 3 | 4 | 5, data: OnboardingData) {
   sessionStorage.setItem(ONBOARDING_KEY, JSON.stringify({ step, data }))
 }
 
@@ -111,7 +112,7 @@ function FieldBlock({ label, error, children }: { label: string; error?: string;
 export function OnboardingPage() {
   const navigate = useNavigate()
   const persisted = loadOnboarding()
-  const [step, setStepRaw] = useState<1 | 2 | 3 | 4 | 5>(persisted?.step ?? 1)
+  const [step, setStepRaw] = useState<0 | 1 | 2 | 3 | 4 | 5>(persisted?.step ?? 0)
   const [selectedTheme, setSelectedTheme] = useState<'dark' | 'light'>(() => {
     const stored = localStorage.getItem(THEME_KEY)
     if (stored === 'dark' || stored === 'light') return stored
@@ -128,7 +129,7 @@ export function OnboardingPage() {
     weeklyTemplateSet: false,
   })
 
-  function setStep(s: 1 | 2 | 3 | 4 | 5) {
+  function setStep(s: 0 | 1 | 2 | 3 | 4 | 5) {
     setStepRaw(s)
     saveOnboarding(s, data)
   }
@@ -187,11 +188,18 @@ export function OnboardingPage() {
   }
 
   const stepTitles: Record<number, string> = {
+    0: '¿Cómo usarás OssFlow?',
     1: 'Elige tu tema',
     2: 'Tu perfil',
     3: 'Planificación semanal',
     4: 'Federaciones',
     5: 'Resumen',
+  }
+
+  if (step === 0) {
+    return (
+      <RoleSelector onComplete={() => setStep(1)} />
+    )
   }
 
   return (
