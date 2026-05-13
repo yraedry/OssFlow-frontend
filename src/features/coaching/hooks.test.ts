@@ -92,13 +92,12 @@ describe('useNotifications', () => {
     expect(result.current.data).toHaveLength(2)
   })
 
-  it('configures refetchInterval of 30000ms', () => {
-    vi.mocked(coachingApi.getNotifications).mockResolvedValue([])
+  it('fetches notifications on mount', async () => {
+    vi.mocked(coachingApi.getNotifications).mockResolvedValue(MOCK_NOTIFICATIONS)
     const { wrapper } = makeWrapper()
-    // The hook is configured with refetchInterval: 30_000 — we verify
-    // it doesn't throw and is defined in the hook source.
     const { result } = renderHook(() => useNotifications(), { wrapper })
-    // Hook should be in loading or success state (not error)
-    expect(result.current.status).not.toBe('error')
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(coachingApi.getNotifications).toHaveBeenCalledOnce()
+    expect(result.current.data).toHaveLength(2)
   })
 })

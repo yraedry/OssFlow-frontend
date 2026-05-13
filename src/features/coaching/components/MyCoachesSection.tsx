@@ -1,38 +1,36 @@
 import { useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Card, CardContent } from '@/shared/components/ui/card'
 import { cn } from '@/shared/lib/utils'
-import { coachingApi } from '../api'
-import { useCoaches, useRedeemCode, COACHING_KEYS } from '../hooks'
+import { ApiClientError } from '@/shared/api/client'
+import { useCoaches, useRedeemCode, useLeaveCoach } from '../hooks'
 
 const MONO = { fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' } as const
 
 export function MyCoachesSection() {
   const [code, setCode] = useState('')
   const [linkError, setLinkError] = useState('')
-  const qc = useQueryClient()
   const redeemCode = useRedeemCode()
+  const leaveCoach = useLeaveCoach()
   const { data: coaches, isLoading } = useCoaches()
 
   async function handleRedeem() {
     setLinkError('')
     if (code.trim().length === 0) return
-    try {
-      await redeemCode.mutateAsync(code.trim().toUpperCase())
-      setCode('')
-    } catch {
-      setLinkError('Código inválido o expirado.')
-    }
+    redeemCode.mutate(code.trim().toUpperCase(), {
+      onSuccess: () => setCode(''),
+      onError: (error) => {
+        if (error instanceof ApiClientError && (error.status === 400 || error.status === 404)) {
+          setLinkError('Código inválido o expirado.')
+        } else {
+          setLinkError('Error al canjear el código. Inténtalo de nuevo.')
+        }
+      },
+    })
   }
 
-  async function handleLeave(coachId: number) {
-    try {
-      await coachingApi.leaveCoach(coachId)
-      qc.invalidateQueries({ queryKey: COACHING_KEYS.coaches })
-    } catch {
-      // error handled at api level
-    }
+  function handleLeave(coachId: number) {
+    leaveCoach.mutate(coachId)
   }
 
   return (

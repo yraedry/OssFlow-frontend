@@ -39,7 +39,7 @@ function ActivityBadge({ days }: { days: number }) {
 }
 
 export function AthleteSummaryDrawer({ athleteId, onClose }: Props) {
-  const { data: summary, isLoading } = useAthleteSummary(athleteId)
+  const { data: summary, isLoading, isError } = useAthleteSummary(athleteId)
 
   const isOpen = athleteId !== null
 
@@ -81,6 +81,12 @@ export function AthleteSummaryDrawer({ athleteId, onClose }: Props) {
           {isLoading && (
             <div className="flex items-center justify-center py-16">
               <Spinner />
+            </div>
+          )}
+
+          {isError && (
+            <div className="text-sm text-muted-foreground text-center py-8">
+              No se pudo cargar la información del atleta.
             </div>
           )}
 
