@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Spinner } from '@/shared/components/ui/spinner'
-import { Card, CardContent } from '@/shared/components/ui/card'
 import { cn } from '@/shared/lib/utils'
 import { ApiClientError } from '@/shared/api/client'
 import { useCoaches, useRedeemCode, useLeaveCoach } from '../hooks'
@@ -29,18 +28,11 @@ export function MyCoachesSection() {
     })
   }
 
-  function handleLeave(coachId: number) {
-    leaveCoach.mutate(coachId)
-  }
-
   return (
     <div className="space-y-4">
       {/* Link by code */}
-      <div className="flex flex-col gap-2">
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>
-          Vincular con un maestro
-        </p>
-        <div className="flex gap-2">
+      <div className="space-y-2">
+        <div className="flex gap-0">
           <input
             type="text"
             value={code}
@@ -48,22 +40,23 @@ export function MyCoachesSection() {
               setCode(e.target.value.toUpperCase().slice(0, 6))
               setLinkError('')
             }}
-            placeholder="CÓDIGO"
+            onKeyDown={(e) => e.key === 'Enter' && handleRedeem()}
+            placeholder="CÓDIGO DE 6 CARACTERES"
             maxLength={6}
             className={cn(
-              'flex-1 px-3 py-1.5 text-sm border bg-background focus:outline-none focus:ring-1 focus:ring-ring',
+              'flex-1 px-3 py-2 text-sm border-y border-l bg-background focus:outline-none focus:ring-1 focus:ring-foreground/30',
               linkError ? 'border-destructive' : 'border-border',
             )}
-            style={MONO}
+            style={{ ...MONO, letterSpacing: '0.15em' }}
           />
           <button
             type="button"
             onClick={handleRedeem}
             disabled={redeemCode.isPending || code.trim().length === 0}
-            className="px-4 py-1.5 bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-foreground text-background text-xs font-bold hover:bg-foreground/90 transition-colors disabled:opacity-40 border border-foreground"
             style={{ ...MONO, textTransform: 'uppercase' }}
           >
-            {redeemCode.isPending ? 'Vinculando...' : 'Vincular'}
+            {redeemCode.isPending ? '...' : 'Vincular'}
           </button>
         </div>
         {linkError && (
@@ -72,42 +65,38 @@ export function MyCoachesSection() {
       </div>
 
       {/* Coaches list */}
-      <div>
-        {isLoading && (
-          <div className="flex items-center justify-center py-4">
-            <Spinner />
-          </div>
-        )}
-        {!isLoading && coaches && coaches.length === 0 && (
-          <p className="text-sm text-muted-foreground">No tienes maestros vinculados.</p>
-        )}
-        {coaches && coaches.length > 0 && (
-          <Card>
-            <CardContent className="py-0">
-              <ul className="divide-y divide-border">
-                {coaches.map((coach) => (
-                  <li key={coach.coachId} className="flex items-center justify-between gap-3 py-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{coach.displayName}</p>
-                      {coach.academy && (
-                        <p className="text-xs text-muted-foreground truncate">{coach.academy}</p>
-                      )}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => handleLeave(coach.coachId)}
-                      className="shrink-0 px-3 py-1 border border-destructive text-destructive text-xs hover:bg-destructive/10 transition-colors"
-                      style={{ ...MONO, textTransform: 'uppercase' }}
-                    >
-                      Desvincular
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {isLoading && (
+        <div className="flex items-center justify-center py-4">
+          <Spinner />
+        </div>
+      )}
+      {!isLoading && coaches && coaches.length === 0 && (
+        <p className="text-xs text-muted-foreground/60" style={MONO}>
+          Aún no tienes maestros vinculados.
+        </p>
+      )}
+      {coaches && coaches.length > 0 && (
+        <div className="border border-border/60 divide-y divide-border/40">
+          {coaches.map((coach) => (
+            <div key={coach.coachId} className="flex items-center justify-between gap-3 px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">{coach.displayName}</p>
+                {coach.academy && (
+                  <p className="text-xs text-muted-foreground truncate" style={MONO}>{coach.academy}</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => leaveCoach.mutate(coach.coachId)}
+                className="shrink-0 px-3 py-1 border border-border text-xs text-muted-foreground hover:border-destructive hover:text-destructive transition-colors"
+                style={{ ...MONO, textTransform: 'uppercase' }}
+              >
+                Desvincular
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

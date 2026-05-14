@@ -1,89 +1,114 @@
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Card, CardContent } from '@/shared/components/ui/card'
+import { Copy, RefreshCw, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { useActiveInvitation, useGenerateInvitation, useRevokeInvitation } from '../hooks'
 
 const MONO = { fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' } as const
 
+function copyToClipboard(text: string) {
+  navigator.clipboard.writeText(text).catch(() => {})
+}
+
 export function InvitationCard() {
   const { data: invitation, isLoading } = useActiveInvitation()
   const generate = useGenerateInvitation()
   const revoke = useRevokeInvitation()
+  const [copied, setCopied] = useState(false)
+
+  function handleCopy(code: string) {
+    copyToClipboard(code)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-8">
-          <Spinner />
-        </CardContent>
-      </Card>
+      <div className="flex items-center justify-center py-6">
+        <Spinner />
+      </div>
     )
   }
 
   if (!invitation) {
     return (
-      <Card>
-        <CardContent className="flex flex-col items-center gap-3 py-8">
-          <p className="text-sm text-muted-foreground text-center">
-            Sin código de invitación activo. Genera uno para que tus alumnos puedan vincularse.
-          </p>
-          <button
-            type="button"
-            onClick={() => generate.mutate()}
-            disabled={generate.isPending}
-            className="px-4 py-2 bg-purple-600 text-white text-xs font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50"
-            style={{ ...MONO, textTransform: 'uppercase' }}
-          >
-            {generate.isPending ? 'Generando...' : 'Generar código'}
-          </button>
-        </CardContent>
-      </Card>
+      <div className="space-y-3">
+        <p className="text-sm text-muted-foreground" style={MONO}>
+          Sin código activo. Genera uno para que tus alumnos puedan vincularse contigo.
+        </p>
+        <button
+          type="button"
+          onClick={() => generate.mutate()}
+          disabled={generate.isPending}
+          className="flex items-center gap-2 px-4 py-2 bg-foreground text-background text-xs font-semibold hover:bg-foreground/90 transition-colors disabled:opacity-50"
+          style={{ ...MONO, textTransform: 'uppercase', letterSpacing: '0.08em' }}
+        >
+          {generate.isPending ? <Spinner /> : null}
+          {generate.isPending ? 'Generando...' : 'Generar código'}
+        </button>
+      </div>
     )
   }
 
   const expiresIn = formatDistanceToNow(new Date(invitation.expiresAt), { addSuffix: true, locale: es })
 
   return (
-    <Card>
-      <CardContent className="flex flex-col items-center gap-4 py-6">
-        <p className="text-xs text-muted-foreground uppercase tracking-widest" style={MONO}>
-          Código de invitación
-        </p>
-        <p className="text-4xl font-black text-purple-400 tracking-[0.3em]" style={{ fontFamily: 'var(--font-mono)' }}>
+    <div className="border border-border/60">
+      <div className="px-4 py-3 flex items-center justify-between gap-4">
+        <span
+          className="text-3xl font-black tracking-[0.25em] text-foreground select-all"
+          style={{ fontFamily: 'var(--font-mono)' }}
+        >
           {invitation.code}
-        </p>
-        <div className="flex flex-col items-center gap-1">
-          <p className="text-xs text-muted-foreground" style={MONO}>
-            Expira {expiresIn}
-          </p>
+        </span>
+        <button
+          type="button"
+          onClick={() => handleCopy(invitation.code)}
+          className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-border text-xs text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
+          style={{ ...MONO, textTransform: 'uppercase' }}
+          aria-label="Copiar código"
+        >
+          <Copy className="h-3 w-3" strokeWidth={2} />
+          {copied ? 'Copiado' : 'Copiar'}
+        </button>
+      </div>
+      <div className="px-4 py-2 border-t border-border/40 flex items-center justify-between">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground" style={MONO}>
+          <span>Expira {expiresIn}</span>
           {invitation.usedCount > 0 && (
-            <p className="text-xs text-muted-foreground" style={MONO}>
-              Usado {invitation.usedCount} {invitation.usedCount === 1 ? 'vez' : 'veces'}
-            </p>
+            <>
+              <span className="text-border">·</span>
+              <span>{invitation.usedCount} uso{invitation.usedCount !== 1 ? 's' : ''}</span>
+            </>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => generate.mutate()}
             disabled={generate.isPending}
-            className="px-3 py-1.5 border border-border text-xs font-medium hover:bg-accent transition-colors disabled:opacity-50"
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
             style={{ ...MONO, textTransform: 'uppercase' }}
+            title="Generar nuevo código"
           >
-            {generate.isPending ? 'Generando...' : 'Generar nuevo'}
+            <RefreshCw className="h-3 w-3" strokeWidth={2} />
+            Nuevo
           </button>
+          <span className="text-border text-xs">·</span>
           <button
             type="button"
             onClick={() => revoke.mutate()}
             disabled={revoke.isPending}
-            className="px-3 py-1.5 border border-destructive text-destructive text-xs font-medium hover:bg-destructive/10 transition-colors disabled:opacity-50"
+            className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80 transition-colors disabled:opacity-40"
             style={{ ...MONO, textTransform: 'uppercase' }}
+            title="Revocar código"
           >
-            {revoke.isPending ? 'Revocando...' : 'Revocar'}
+            <Trash2 className="h-3 w-3" strokeWidth={2} />
+            Revocar
           </button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

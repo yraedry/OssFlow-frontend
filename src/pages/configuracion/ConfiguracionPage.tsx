@@ -1,11 +1,12 @@
 import { useState, useRef } from 'react'
-import { Settings, Palette, Bell, Database, Sun, Moon, Monitor, Upload, Download, School } from 'lucide-react'
+import { Settings, Palette, Bell, Database, Sun, Moon, Monitor, Upload, Download, School, Key } from 'lucide-react'
 import { Card, CardContent } from '@/shared/components/ui/card'
 import { Badge } from '@/shared/components/ui/badge'
 import { useTheme } from '@/shared/hooks/useTheme'
 import { useExportBackup, useImportBackup, useProfile } from '@/features/identity/profile/hooks'
 import { DeleteAccountModal } from '@/features/identity/profile/components/DeleteAccountModal'
 import { MyCoachesSection } from '@/features/coaching/components/MyCoachesSection'
+import { InvitationCard } from '@/features/coaching/components/InvitationCard'
 
 // ─── localStorage keys ────────────────────────────────────────────────────────
 
@@ -349,6 +350,17 @@ export function ConfiguracionPage() {
           </section>
         </div>
       </div>
+
+      {/* ── Código de invitación (solo coaches) ── */}
+      {profile?.role === 'ATHLETE_COACH' && (
+        <section>
+          <SectionTitle icon={<Key className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Código de invitación" />
+          <p className="text-xs text-muted-foreground mb-3" style={{ fontFamily: 'var(--font-mono)' }}>
+            Comparte este código con tus alumnos para que se vinculen a tu gimnasio.
+          </p>
+          <InvitationCard />
+        </section>
+      )}
 
       {/* ── Mis maestros (solo atletas) ── */}
       {profile?.role !== 'ATHLETE_COACH' && (
