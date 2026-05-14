@@ -3,6 +3,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { cn } from '@/shared/lib/utils'
 import { coachingApi } from '@/features/coaching/api'
+import { refreshToken } from '@/features/auth/api'
+import { useAuthStore } from '@/features/auth/store/authStore'
 import { PROFILE_KEY } from '@/features/identity/profile/hooks'
 import { AuthLayout, AuthCard } from '@/features/auth/components/AuthLayout'
 import { MONO, MONO_LABEL } from '@/shared/lib/typography'
@@ -27,6 +29,7 @@ const ROLES: { value: AccountRole; label: string; description: string; tag: stri
 
 export function RoleSelector({ onComplete }: Props) {
   const qc = useQueryClient()
+  const { setAuth, user } = useAuthStore()
   const [selected, setSelected] = useState<AccountRole | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -35,6 +38,9 @@ export function RoleSelector({ onComplete }: Props) {
     setLoading(true)
     try {
       await coachingApi.changeRole(selected)
+      // Refresh token para que el nuevo access token incluya el rol actualizado
+      const r = await refreshToken()
+      if (user) setAuth(r.accessToken, user)
       await qc.invalidateQueries({ queryKey: PROFILE_KEY })
       onComplete()
     } catch {
