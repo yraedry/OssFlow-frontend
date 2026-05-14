@@ -48,6 +48,6 @@ export const coachingApi = {
   },
 
   changeRole(role: AccountRole): Promise<void> {
-    return apiClient.patch('me/role', { json: { role } }).json<void>()
+    return apiClient.patch('me/role', { json: { role } }).then(() => undefined)
   },
 }
