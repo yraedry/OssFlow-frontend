@@ -1,132 +1,139 @@
-import { X } from 'lucide-react'
+import { X, AlertTriangle, Trophy } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { useAthleteSummary } from '../hooks'
 
 type Props = { athleteId: number | null; onClose: () => void }
 
-const BELT_COLOR: Record<string, string> = {
-  white:  'bg-gray-200 text-gray-900',
-  blue:   'bg-blue-500 text-white',
-  purple: 'bg-purple-600 text-white',
-  brown:  'bg-amber-800 text-white',
-  black:  'bg-gray-900 text-white border border-gray-600',
+const BELT_STYLES: Record<string, string> = {
+  white:  'bg-[#e8e4dc] text-[#1a1a1a]',
+  blue:   'bg-[#2563eb] text-white',
+  purple: 'bg-[#7c3aed] text-white',
+  brown:  'bg-[#92400e] text-white',
+  black:  'bg-[#0f0f0f] text-[#f0ebe3] border border-[#555]',
 }
 
-function getBeltColor(belt: string): string {
-  const normalized = belt.toLowerCase()
-  for (const [key, value] of Object.entries(BELT_COLOR)) {
-    if (normalized.includes(key)) return value
+function getBeltStyle(belt: string): string {
+  const norm = belt.toLowerCase()
+  for (const [key, val] of Object.entries(BELT_STYLES)) {
+    if (norm.includes(key)) return val
   }
-  return 'bg-gray-400 text-white'
+  return 'bg-muted text-foreground'
+}
+
+function beltLabel(belt: string): string {
+  const map: Record<string, string> = {
+    white: 'BLANCO', blue: 'AZUL', purple: 'PÚRPURA', brown: 'MARRÓN', black: 'NEGRO',
+  }
+  const norm = belt.toLowerCase()
+  for (const [key, label] of Object.entries(map)) {
+    if (norm.includes(key)) return label
+  }
+  return belt.toUpperCase()
 }
 
 function ActivityBadge({ days }: { days: number }) {
-  const color =
-    days <= 3 ? 'bg-green-500' :
-    days <= 7 ? 'bg-yellow-500' :
-    'bg-red-500'
-  const label =
-    days <= 3 ? 'Al día' :
-    days <= 7 ? 'Inactivo' :
-    'Sin entrenar'
+  const [color, label] =
+    days <= 3 ? ['bg-emerald-500', 'Al día'] :
+    days <= 7 ? ['bg-amber-500',   'Inactivo'] :
+                ['bg-red-500',     'Sin entrenar']
   return (
-    <span className={cn('inline-flex items-center gap-1.5 px-2 py-0.5 text-xs text-white', color)}>
-      <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
+    <span className={cn('inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-bold text-white uppercase tracking-wider', color)}
+      style={{ fontFamily: 'var(--font-mono)' }}>
+      <span className="h-1.5 w-1.5 rounded-full bg-white/70" />
       {label} · {days}d
     </span>
   )
 }
 
+const LABEL = 'text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2'
+const MONO  = { fontFamily: 'var(--font-mono)' }
+
 export function AthleteSummaryDrawer({ athleteId, onClose }: Props) {
   const { data: summary, isLoading, isError } = useAthleteSummary(athleteId)
-
   const isOpen = athleteId !== null
 
   return (
     <>
-      {/* Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/40 md:bg-black/20"
+          className="fixed inset-0 z-40 bg-black/50"
           onClick={onClose}
           aria-hidden="true"
         />
       )}
 
-      {/* Drawer */}
       <aside
         className={cn(
-          'fixed top-0 right-0 z-50 h-full w-full max-w-sm bg-background border-l border-border flex flex-col',
-          'transition-transform duration-300',
+          'fixed top-0 right-0 z-50 h-full w-full max-w-[340px] bg-[#0f0f0f] border-l border-border flex flex-col',
+          'transition-transform duration-300 ease-out',
           isOpen ? 'translate-x-0' : 'translate-x-full',
         )}
         aria-label="Resumen del atleta"
       >
-        <header className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-          <span className="text-sm font-semibold" style={{ fontFamily: 'var(--font-serif)' }}>
-            Resumen del atleta
+        {/* Header */}
+        <header className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0">
+          <span
+            className="text-sm font-bold uppercase tracking-widest"
+            style={{ ...MONO, color: 'var(--color-muted-foreground)' }}
+          >
+            Atleta
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Cerrar"
           >
             <X className="h-4 w-4" strokeWidth={1.5} />
           </button>
         </header>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-5">
+        <div className="flex-1 overflow-y-auto">
           {isLoading && (
-            <div className="flex items-center justify-center py-16">
+            <div className="flex items-center justify-center py-20">
               <Spinner />
             </div>
           )}
 
           {isError && (
-            <div className="text-sm text-muted-foreground text-center py-8">
+            <div className="px-5 py-10 text-sm text-muted-foreground text-center" style={MONO}>
               No se pudo cargar la información del atleta.
             </div>
           )}
 
           {summary && (
             <>
-              {/* Header info */}
-              <div className="space-y-2">
-                <h2 className="text-lg font-bold" style={{ fontFamily: 'var(--font-serif)' }}>
+              {/* Identity block */}
+              <div className="px-5 py-5 border-b border-border/40">
+                <h2
+                  className="text-xl font-black leading-tight"
+                  style={{ fontFamily: 'var(--font-serif)', color: '#f0ebe3' }}
+                >
                   {summary.displayName}
                 </h2>
                 {summary.academy && (
-                  <p className="text-xs text-muted-foreground">{summary.academy}</p>
+                  <p className="text-xs text-muted-foreground mt-1" style={MONO}>{summary.academy}</p>
                 )}
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 mt-3">
                   <span
-                    className={cn(
-                      'px-2 py-0.5 text-xs font-semibold capitalize',
-                      getBeltColor(summary.currentBelt),
-                    )}
-                    style={{ fontFamily: 'var(--font-mono)' }}
+                    className={cn('px-2 py-0.5 text-[10px] font-bold', getBeltStyle(summary.currentBelt))}
+                    style={MONO}
                   >
-                    {summary.currentBelt}
+                    {beltLabel(summary.currentBelt)}
                   </span>
-                  <span className="text-xs text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
-                    {summary.daysInBelt}d en el cinturón
+                  <span className="text-xs text-muted-foreground" style={MONO}>
+                    {summary.daysInBelt}d en cinturón
                   </span>
                 </div>
               </div>
 
               {/* Activity */}
-              <div className="space-y-1.5">
-                <p
-                  className="text-xs font-bold uppercase tracking-widest text-muted-foreground"
-                  style={{ fontFamily: 'var(--font-mono)' }}
-                >
-                  Actividad
-                </p>
+              <div className="px-5 py-4 border-b border-border/40">
+                <p className={LABEL} style={MONO}>Actividad</p>
                 <ActivityBadge days={summary.daysSinceLastSession} />
                 {summary.lastSessionDate && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground mt-2" style={MONO}>
                     Última sesión: {new Date(summary.lastSessionDate).toLocaleDateString('es-ES')}
                   </p>
                 )}
@@ -134,18 +141,16 @@ export function AthleteSummaryDrawer({ athleteId, onClose }: Props) {
 
               {/* Injuries */}
               {summary.activeInjuries.length > 0 && (
-                <div className="space-y-1.5">
-                  <p
-                    className="text-xs font-bold uppercase tracking-widest text-muted-foreground"
-                    style={{ fontFamily: 'var(--font-mono)' }}
-                  >
+                <div className="px-5 py-4 border-b border-border/40">
+                  <p className={cn(LABEL, 'text-red-400')} style={MONO}>
+                    <AlertTriangle className="inline h-3 w-3 mr-1" strokeWidth={2} />
                     Lesiones activas
                   </p>
-                  <ul className="space-y-1">
+                  <ul className="space-y-1.5">
                     {summary.activeInjuries.map((injury, i) => (
-                      <li key={i} className="flex items-center gap-2 text-xs">
+                      <li key={i} className="flex items-center gap-2 text-xs" style={MONO}>
                         <span className="h-1.5 w-1.5 rounded-full bg-red-500 shrink-0" />
-                        <span>{injury.bodyPart}</span>
+                        <span className="font-medium">{injury.bodyPart}</span>
                         <span className="text-muted-foreground capitalize">— {injury.severity}</span>
                       </li>
                     ))}
@@ -153,20 +158,18 @@ export function AthleteSummaryDrawer({ athleteId, onClose }: Props) {
                 </div>
               )}
 
-              {/* Recent competitions */}
+              {/* Competitions */}
               {summary.recentCompetitions.length > 0 && (
-                <div className="space-y-1.5">
-                  <p
-                    className="text-xs font-bold uppercase tracking-widest text-muted-foreground"
-                    style={{ fontFamily: 'var(--font-mono)' }}
-                  >
+                <div className="px-5 py-4">
+                  <p className={LABEL} style={MONO}>
+                    <Trophy className="inline h-3 w-3 mr-1" strokeWidth={2} />
                     Últimas competiciones
                   </p>
-                  <ul className="space-y-2">
+                  <ul className="space-y-3">
                     {summary.recentCompetitions.map((comp, i) => (
-                      <li key={i} className="text-xs">
-                        <p className="font-medium">{comp.name}</p>
-                        <p className="text-muted-foreground">
+                      <li key={i}>
+                        <p className="text-sm font-semibold">{comp.name}</p>
+                        <p className="text-xs text-muted-foreground" style={MONO}>
                           {new Date(comp.date).toLocaleDateString('es-ES')}
                           {comp.result && ` · ${comp.result}`}
                         </p>
