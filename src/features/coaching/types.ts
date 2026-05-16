@@ -42,7 +42,7 @@ export type AthleteSummary = {
 
 export type CoachingNotification = {
   id: number
-  type: 'ATHLETE_JOINED' | 'ATHLETE_LEFT' | 'COACH_REMOVED_YOU'
+  type: 'ATHLETE_JOINED' | 'ATHLETE_LEFT' | 'COACH_REMOVED_YOU' | 'NOTE_SENT'
   payload: string
   createdAt: string
 }
@@ -73,5 +73,22 @@ export type CreateObservationPayload = {
   athleteId: number
   body: string
   tone: ObservationTone
+  techniqueFamily?: string
+}
+
+export type Note = {
+  id: number
+  coachId: number
+  athleteId: number
+  body: string
+  techniqueFamily: string | null
+  deleted: boolean
+  read: boolean
+  createdAt: string
+}
+
+export type CreateNotePayload = {
+  athleteId: number
+  body: string
   techniqueFamily?: string
 }
