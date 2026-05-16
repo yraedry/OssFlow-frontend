@@ -3,6 +3,7 @@ import type {
   InvitationCode, CoachAthleteListItem, AthleteSummary, CoachListItem, CoachingNotification,
   TechniqueFamily, Observation, RadarPoint, CreateObservationPayload,
   Note, CreateNotePayload,
+  TechniqueRecommendation, CreateRecommendationPayload,
 } from './types'
 import type { AccountRole } from '@/features/identity/profile/types'
 
@@ -96,5 +97,25 @@ export const coachingApi = {
   },
   getNoteUnreadCount(): Promise<number> {
     return apiClient.get('coaching/notes/received/unread-count').json<number>()
+  },
+
+  // Recommendations
+  getRecommendationsSent(athleteId: number): Promise<TechniqueRecommendation[]> {
+    return apiClient.get(`coaching/recommendations/sent/athlete/${athleteId}`).json<TechniqueRecommendation[]>()
+  },
+  createRecommendation(payload: CreateRecommendationPayload): Promise<TechniqueRecommendation> {
+    return apiClient.post('coaching/recommendations', { json: payload }).json<TechniqueRecommendation>()
+  },
+  cancelRecommendation(id: number): Promise<void> {
+    return apiClient.patch(`coaching/recommendations/${id}/cancel`).json<void>()
+  },
+  getRecommendationsReceived(): Promise<TechniqueRecommendation[]> {
+    return apiClient.get('coaching/recommendations/received').json<TechniqueRecommendation[]>()
+  },
+  acceptRecommendation(id: number): Promise<void> {
+    return apiClient.patch(`coaching/recommendations/${id}/accept`).json<void>()
+  },
+  dismissRecommendation(id: number): Promise<void> {
+    return apiClient.patch(`coaching/recommendations/${id}/dismiss`).json<void>()
   },
 }

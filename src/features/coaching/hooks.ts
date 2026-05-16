@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { coachingApi } from './api'
-import type { Observation, RadarPoint, CreateObservationPayload, Note, CreateNotePayload } from './types'
+import type { Observation, RadarPoint, CreateObservationPayload, Note, CreateNotePayload, TechniqueRecommendation, CreateRecommendationPayload } from './types'
+import { techniqueApi } from '@/features/catalog/technique/api'
 import { ApiClientError } from '@/shared/api/client'
 
 export const COACHING_KEYS = {
@@ -17,6 +18,8 @@ export const COACHING_KEYS = {
   receivedNotes: ['coaching', 'received-notes'] as const,
   noteDetail: (id: number) => ['coaching', 'note-detail', id] as const,
   noteUnreadCount: ['coaching', 'note-unread-count'] as const,
+  recommendationsSent: (athleteId: number) => ['coaching', 'recommendations-sent', athleteId] as const,
+  recommendationsReceived: () => ['coaching', 'recommendations-received'] as const,
 }
 
 export function useActiveInvitation() {
@@ -320,5 +323,79 @@ export function useNoteUnreadCount() {
     queryFn: () => coachingApi.getNoteUnreadCount(),
     refetchInterval: 60_000,
     staleTime: 30_000,
+  })
+}
+
+// Recommendations
+
+export function useRecommendationsSent(athleteId: number) {
+  return useQuery({
+    queryKey: COACHING_KEYS.recommendationsSent(athleteId),
+    queryFn: () => coachingApi.getRecommendationsSent(athleteId),
+    enabled: !!athleteId,
+    staleTime: 30_000,
+  })
+}
+
+export function useRecommendationsReceived() {
+  return useQuery({
+    queryKey: COACHING_KEYS.recommendationsReceived(),
+    queryFn: () => coachingApi.getRecommendationsReceived(),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  })
+}
+
+export function useCreateRecommendation(athleteId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: CreateRecommendationPayload) => coachingApi.createRecommendation(payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.recommendationsSent(athleteId) })
+    },
+    onError: () => toast.error('Error al enviar la recomendación'),
+  })
+}
+
+export function useCancelRecommendation(athleteId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => coachingApi.cancelRecommendation(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.recommendationsSent(athleteId) })
+    },
+    onError: () => toast.error('Error al cancelar la recomendación'),
+  })
+}
+
+export function useAcceptRecommendation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => coachingApi.acceptRecommendation(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.recommendationsReceived() })
+    },
+    onError: () => toast.error('Error al aceptar la recomendación'),
+  })
+}
+
+export function useDismissRecommendation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => coachingApi.dismissRecommendation(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.recommendationsReceived() })
+    },
+    onError: () => toast.error('Error al descartar la recomendación'),
+  })
+}
+
+export function useTechniqueSearch(query: string) {
+  return useQuery({
+    queryKey: ['technique-search', query],
+    queryFn: () => techniqueApi.list({ search: query, size: 10 }),
+    enabled: query.length >= 2,
+    staleTime: 30_000,
+    select: (data) => data.content.map(t => ({ id: t.id, name: t.name, family: t.category })),
   })
 }
