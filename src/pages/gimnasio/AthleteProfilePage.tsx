@@ -7,13 +7,16 @@ import { ObservationList } from '@/features/coaching/observations/ObservationLis
 import { CoachRadarTab } from '@/features/coaching/observations/CoachRadarTab'
 import { CoachNoteForm } from '@/features/coaching/notes/CoachNoteForm'
 import { CoachNoteList } from '@/features/coaching/notes/CoachNoteList'
+import { RecommendationForm } from '@/features/coaching/recommendations/RecommendationForm'
+import { CoachRecommendationList } from '@/features/coaching/recommendations/CoachRecommendationList'
 
-type Tab = 'observaciones' | 'radar' | 'notas'
+type Tab = 'observaciones' | 'radar' | 'notas' | 'recomendaciones'
 
 const TAB_LABELS: Record<Tab, string> = {
   observaciones: 'Observaciones',
   radar: 'Radar',
   notas: 'Notas',
+  recomendaciones: 'Recomendaciones',
 }
 
 export function AthleteProfilePage() {
@@ -42,7 +45,7 @@ export function AthleteProfilePage() {
       {/* Tabs */}
       <div className="border border-border bg-card overflow-hidden">
         <div className="flex border-b border-border">
-          {(['observaciones', 'radar', 'notas'] as Tab[]).map(t => (
+          {(['observaciones', 'radar', 'notas', 'recomendaciones'] as Tab[]).map(t => (
             <button
               key={t}
               type="button"
@@ -69,6 +72,12 @@ export function AthleteProfilePage() {
             <>
               <CoachNoteForm athleteId={id} />
               <CoachNoteList athleteId={id} />
+            </>
+          )}
+          {tab === 'recomendaciones' && (
+            <>
+              <RecommendationForm athleteId={id} />
+              <CoachRecommendationList athleteId={id} />
             </>
           )}
         </div>
