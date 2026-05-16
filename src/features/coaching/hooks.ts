@@ -155,8 +155,9 @@ export function useCreateObservation(athleteId: number) {
       const prevObs = qc.getQueryData<Observation[]>(COACHING_KEYS.observations(athleteId))
       const prevRadar = qc.getQueryData<RadarPoint[]>(COACHING_KEYS.observationRadar(athleteId))
 
+      const tempId = -Date.now()
       const tempObs: Observation = {
-        id: -Date.now(),
+        id: tempId,
         athleteId,
         body: payload.body,
         tone: payload.tone,
@@ -182,11 +183,11 @@ export function useCreateObservation(athleteId: number) {
         }
       }
 
-      return { prevObs, prevRadar }
+      return { prevObs, prevRadar, tempId }
     },
-    onSuccess: (created) => {
+    onSuccess: (created, _, context) => {
       qc.setQueryData<Observation[]>(COACHING_KEYS.observations(athleteId), old =>
-        (old ?? []).map(o => o.id < 0 ? created : o),
+        (old ?? []).map(o => o.id === context?.tempId ? created : o),
       )
     },
     onError: (_err, _vars, context) => {
