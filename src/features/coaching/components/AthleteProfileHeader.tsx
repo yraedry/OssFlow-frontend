@@ -116,7 +116,7 @@ export function AthleteProfileHeader({ athleteId }: Props) {
           </p>
           <ul className="space-y-1.5">
             {summary.activeInjuries.map((injury, i) => (
-              <li key={i} className="flex items-center gap-2 text-xs" style={MONO}>
+              <li key={`${injury.bodyPart}-${i}`} className="flex items-center gap-2 text-xs" style={MONO}>
                 <span className="h-1.5 w-1.5 rounded-full bg-red-500 shrink-0" />
                 <span className="font-medium">{injury.bodyPart}</span>
                 <span className="text-muted-foreground capitalize">— {injury.severity}</span>
@@ -134,8 +134,8 @@ export function AthleteProfileHeader({ athleteId }: Props) {
             Últimas competiciones
           </p>
           <ul className="space-y-3">
-            {summary.recentCompetitions.map((comp, i) => (
-              <li key={i}>
+            {summary.recentCompetitions.map(comp => (
+              <li key={`${comp.name}-${comp.date}`}>
                 <p className="text-sm font-semibold">{comp.name}</p>
                 <p className="text-xs text-muted-foreground" style={MONO}>
                   {new Date(comp.date).toLocaleDateString('es-ES')}

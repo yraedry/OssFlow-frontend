@@ -24,11 +24,11 @@ export function RadarPanel({
   section, data, isLoading, error, radiusDomain,
 }: RadarPanelProps) {
   const points = data?.filter(d => section.families.includes(d.family)) ?? []
-  const total = points.reduce((s, d) => s + d.value, 0)
+  const hasData = points.some(d => d.value !== 0)
 
   if (isLoading) return <div className="flex justify-center py-16"><Spinner /></div>
   if (error) return <Alert variant="destructive"><AlertDescription>Error al cargar datos</AlertDescription></Alert>
-  if (total === 0) {
+  if (!hasData) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-2 text-center">
         <p className="text-sm text-muted-foreground max-w-[260px]">{section.emptyHint}</p>
@@ -36,7 +36,7 @@ export function RadarPanel({
     )
   }
 
-  const sorted = [...points].filter(d => d.value > 0).sort((a, b) => b.value - a.value)
+  const sorted = [...points].filter(d => d.value !== 0).sort((a, b) => b.value - a.value)
   const domain: RadiusDomain = radiusDomain ?? [0, 'auto']
 
   return (
