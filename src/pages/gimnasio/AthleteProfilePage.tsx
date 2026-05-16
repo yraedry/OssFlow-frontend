@@ -5,8 +5,16 @@ import { AthleteProfileHeader } from '@/features/coaching/components/AthleteProf
 import { ObservationForm } from '@/features/coaching/observations/ObservationForm'
 import { ObservationList } from '@/features/coaching/observations/ObservationList'
 import { CoachRadarTab } from '@/features/coaching/observations/CoachRadarTab'
+import { CoachNoteForm } from '@/features/coaching/notes/CoachNoteForm'
+import { CoachNoteList } from '@/features/coaching/notes/CoachNoteList'
 
-type Tab = 'observaciones' | 'radar'
+type Tab = 'observaciones' | 'radar' | 'notas'
+
+const TAB_LABELS: Record<Tab, string> = {
+  observaciones: 'Observaciones',
+  radar: 'Radar',
+  notas: 'Notas',
+}
 
 export function AthleteProfilePage() {
   const { athleteId } = useParams<{ athleteId: string }>()
@@ -34,7 +42,7 @@ export function AthleteProfilePage() {
       {/* Tabs */}
       <div className="border border-border bg-card overflow-hidden">
         <div className="flex border-b border-border">
-          {(['observaciones', 'radar'] as Tab[]).map(t => (
+          {(['observaciones', 'radar', 'notas'] as Tab[]).map(t => (
             <button
               key={t}
               type="button"
@@ -45,18 +53,23 @@ export function AthleteProfilePage() {
                   : 'text-muted-foreground border-transparent hover:text-foreground'
               }`}
             >
-              {t === 'observaciones' ? 'Observaciones' : 'Radar'}
+              {TAB_LABELS[t]}
             </button>
           ))}
         </div>
         <div className="p-4">
-          {tab === 'observaciones' ? (
+          {tab === 'observaciones' && (
             <>
               <ObservationForm athleteId={id} />
               <ObservationList athleteId={id} />
             </>
-          ) : (
-            <CoachRadarTab athleteId={id} />
+          )}
+          {tab === 'radar' && <CoachRadarTab athleteId={id} />}
+          {tab === 'notas' && (
+            <>
+              <CoachNoteForm athleteId={id} />
+              <CoachNoteList athleteId={id} />
+            </>
           )}
         </div>
       </div>
