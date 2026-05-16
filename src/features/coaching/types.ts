@@ -92,3 +92,23 @@ export type CreateNotePayload = {
   body: string
   techniqueFamily?: string
 }
+
+export type RecommendationStatus = 'PENDING' | 'ACCEPTED' | 'DISMISSED' | 'CANCELLED'
+
+export type TechniqueRecommendation = {
+  id: number
+  techniqueId: number
+  techniqueName: string
+  techniqueFamily: string | null
+  note: string | null
+  status: RecommendationStatus
+  coachName: string | null
+  recommendedAt: string
+  resolvedAt: string | null
+}
+
+export type CreateRecommendationPayload = {
+  athleteId: number
+  techniqueId: number
+  note?: string
+}
