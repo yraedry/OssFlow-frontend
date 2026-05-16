@@ -1,13 +1,6 @@
 import { useState } from 'react'
-import { useCreateRecommendation } from '../hooks'
-import { TechniqueAutocomplete } from './TechniqueAutocomplete'
+import { useCreateRecommendation, useTechniqueSearch } from '../hooks'
 import { Spinner } from '@/shared/components/ui/spinner'
-
-type TechniqueOption = {
-  id: number
-  name: string
-  family: string | null
-}
 
 interface Props {
   athleteId: number
@@ -16,27 +9,28 @@ interface Props {
 const MAX_NOTE_CHARS = 1000
 
 export function RecommendationForm({ athleteId }: Props) {
-  const [technique, setTechnique] = useState<TechniqueOption | null>(null)
+  const [query, setQuery] = useState('')
   const [note, setNote] = useState('')
   const create = useCreateRecommendation(athleteId)
+
+  const { data: results } = useTechniqueSearch(query)
+  const technique = results?.find(r => r.name === query) ?? null
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!technique) return
     create.mutate(
-      {
-        athleteId,
-        techniqueId: technique.id,
-        note: note.trim() || undefined,
-      },
+      { athleteId, techniqueId: technique.id, note: note.trim() || undefined },
       {
         onSuccess: () => {
-          setTechnique(null)
+          setQuery('')
           setNote('')
         },
       },
     )
   }
+
+  const listId = 'technique-autocomplete-list'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 border border-border bg-card p-4 mb-4">
@@ -44,7 +38,28 @@ export function RecommendationForm({ athleteId }: Props) {
         Enviar recomendación de técnica
       </p>
 
-      <TechniqueAutocomplete value={technique} onChange={setTechnique} />
+      <div>
+        <input
+          type="text"
+          list={listId}
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="Buscar técnica... (mín. 2 caracteres)"
+          className="w-full bg-transparent text-sm border border-border px-3 py-2 outline-none placeholder:text-muted-foreground/50 font-mono"
+          autoComplete="off"
+          disabled={create.isPending}
+        />
+        <datalist id={listId}>
+          {(results ?? []).map(item => (
+            <option key={item.id} value={item.name} />
+          ))}
+        </datalist>
+        {technique && (
+          <p className="text-[10px] font-mono text-muted-foreground mt-1">
+            ✓ {technique.name}{technique.family ? ` · ${technique.family.replace(/_/g, ' ')}` : ''}
+          </p>
+        )}
+      </div>
 
       <div className="relative">
         <textarea
