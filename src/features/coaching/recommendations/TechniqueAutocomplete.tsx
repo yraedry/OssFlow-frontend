@@ -16,9 +16,8 @@ export function TechniqueAutocomplete({ value, onChange }: Props) {
   const [inputValue, setInputValue] = useState(value?.name ?? '')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [open, setOpen] = useState(false)
-  const containerRef = useRef<HTMLDivElement>(null)
+  const selectingRef = useRef(false)
 
-  // Debounce: update debouncedQuery 300ms after input changes
   useEffect(() => {
     const t = setTimeout(() => {
       setDebouncedQuery(inputValue.trim())
@@ -28,29 +27,25 @@ export function TechniqueAutocomplete({ value, onChange }: Props) {
 
   const { data: results } = useTechniqueSearch(debouncedQuery)
 
-  // Close dropdown on outside click
-  useEffect(() => {
-    if (!open) return
-    function handleClick(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [open])
-
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const text = e.target.value
     setInputValue(text)
     setOpen(true)
-    // If user edits after a selection, clear the selection
     if (value !== null) {
       onChange(null)
     }
   }
 
+  function handleInputBlur() {
+    // Delay close to let item click fire first
+    setTimeout(() => {
+      if (!selectingRef.current) setOpen(false)
+      selectingRef.current = false
+    }, 150)
+  }
+
   function handleSelect(item: TechniqueOption) {
+    selectingRef.current = true
     onChange(item)
     setInputValue(item.name)
     setOpen(false)
@@ -59,7 +54,7 @@ export function TechniqueAutocomplete({ value, onChange }: Props) {
   const showDropdown = open && debouncedQuery.length >= 2 && results && results.length > 0
 
   return (
-    <div ref={containerRef} className="relative">
+    <div className="relative">
       <input
         type="text"
         value={inputValue}
@@ -67,6 +62,7 @@ export function TechniqueAutocomplete({ value, onChange }: Props) {
         onFocus={() => {
           if (debouncedQuery.length >= 2) setOpen(true)
         }}
+        onBlur={handleInputBlur}
         placeholder="Buscar técnica... (mín. 2 caracteres)"
         className="w-full bg-transparent text-sm border border-border px-3 py-2 outline-none placeholder:text-muted-foreground/50 font-mono"
         autoComplete="off"
@@ -77,7 +73,7 @@ export function TechniqueAutocomplete({ value, onChange }: Props) {
             <li key={item.id}>
               <button
                 type="button"
-                onMouseDown={(e) => { e.preventDefault(); handleSelect(item) }}
+                onClick={() => handleSelect(item)}
                 className="w-full text-left px-3 py-2 text-sm hover:bg-muted/50 transition-colors flex items-center gap-2"
               >
                 <span className="font-mono">{item.name}</span>
