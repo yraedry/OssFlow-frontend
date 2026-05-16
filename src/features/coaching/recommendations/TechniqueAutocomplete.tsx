@@ -77,7 +77,7 @@ export function TechniqueAutocomplete({ value, onChange }: Props) {
             <li key={item.id}>
               <button
                 type="button"
-                onClick={() => handleSelect(item)}
+                onMouseDown={(e) => { e.preventDefault(); handleSelect(item) }}
                 className="w-full text-left px-3 py-2 text-sm hover:bg-muted/50 transition-colors flex items-center gap-2"
               >
                 <span className="font-mono">{item.name}</span>
