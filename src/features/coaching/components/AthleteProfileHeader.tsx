@@ -75,8 +75,8 @@ export function AthleteProfileHeader({ athleteId }: Props) {
       {/* Identity block */}
       <div className="px-5 py-5 border-b border-border/40">
         <h2
-          className="text-xl font-black leading-tight"
-          style={{ fontFamily: 'var(--font-serif)', color: '#f0ebe3' }}
+          className="text-xl font-black leading-tight text-foreground"
+          style={{ fontFamily: 'var(--font-serif)' }}
         >
           {summary.displayName}
         </h2>

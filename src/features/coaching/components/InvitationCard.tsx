@@ -54,8 +54,8 @@ export function InvitationCard() {
   const expiresIn = formatDistanceToNow(new Date(invitation.expiresAt), { addSuffix: true, locale: es })
 
   return (
-    <div className="border border-border/60">
-      <div className="px-4 py-3 flex items-center justify-between gap-4">
+    <div className="border border-border bg-card overflow-hidden">
+      <div className="px-4 py-4 flex items-center justify-between gap-4 bg-muted/40">
         <span
           className="text-3xl font-black tracking-[0.25em] text-foreground select-all"
           style={{ fontFamily: 'var(--font-mono)' }}

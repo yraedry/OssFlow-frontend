@@ -355,10 +355,14 @@ export function ConfiguracionPage() {
       {profile?.role === 'ATHLETE_COACH' && (
         <section>
           <SectionTitle icon={<Key className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Código de invitación" />
-          <p className="text-xs text-muted-foreground mb-3" style={{ fontFamily: 'var(--font-mono)' }}>
-            Comparte este código con tus alumnos para que se vinculen a tu gimnasio.
-          </p>
-          <InvitationCard />
+          <Card>
+            <CardContent className="py-4 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Comparte este código con tus alumnos para que se vinculen a tu gimnasio.
+              </p>
+              <InvitationCard />
+            </CardContent>
+          </Card>
         </section>
       )}
 
