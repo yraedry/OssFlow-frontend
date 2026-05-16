@@ -1,10 +1,14 @@
+import React from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut, User, School } from 'lucide-react'
+import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut, User, School, GraduationCap } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useLogout } from '@/features/auth/hooks'
 import { useProfile } from '@/features/identity/profile/hooks'
+import { useCoaches, useNoteUnreadCount } from '@/features/coaching/hooks'
 
-const TABS = [
+type Tab = { to: string; label: string; icon: React.ElementType; end: boolean; badge?: number }
+
+const TABS: Tab[] = [
   { to: '/',                       label: 'Inicio',        icon: Home,         end: true  },
   { to: '/diario/sesiones-bjj',    label: 'Diario',        icon: BookOpen,     end: false },
   { to: '/estudio/tecnicas',       label: 'Estudio',       icon: Dumbbell,     end: false },
@@ -79,11 +83,17 @@ export function BottomTabBar() {
   const hasSubNav = subNav.length > 0
   const logoutMutation = useLogout()
   const { data: profile } = useProfile()
+  const { data: coaches } = useCoaches()
+  const { data: unreadCount } = useNoteUnreadCount()
+  const hasCoach = (coaches?.length ?? 0) > 0
 
-  const tabs = [
+  const tabs: Tab[] = [
     ...TABS,
     ...(profile?.role === 'ATHLETE_COACH'
-      ? [{ to: '/gimnasio', label: 'Gimnasio', icon: School, end: false }]
+      ? [{ to: '/gimnasio', label: 'Alumnos', icon: School, end: false }]
+      : []),
+    ...(hasCoach
+      ? [{ to: '/maestro', label: 'Maestro', icon: GraduationCap, end: false, badge: unreadCount }]
       : []),
   ]
 
@@ -141,7 +151,7 @@ export function BottomTabBar() {
       )}
 
       <div className="flex items-end justify-around">
-        {tabs.map(({ to, label, icon: Icon, end }) => {
+        {tabs.map(({ to, label, icon: Icon, end, badge }) => {
           const isActive = end ? pathname === '/' : activeTab === to || pathname.startsWith(to)
           return (
             <NavLink
@@ -153,7 +163,14 @@ export function BottomTabBar() {
                 isActive ? 'text-foreground' : 'text-muted-foreground',
               )}
             >
-              <Icon className="h-4 w-4" strokeWidth={1.5} />
+              <div className="relative">
+                <Icon className="h-4 w-4" strokeWidth={1.5} />
+                {badge != null && badge > 0 && (
+                  <span className="absolute -top-1 -right-1 h-3.5 min-w-3.5 px-0.5 text-[8px] font-bold bg-purple-500 text-white rounded-full flex items-center justify-center">
+                    {badge}
+                  </span>
+                )}
+              </div>
               <span className="uppercase whitespace-nowrap" style={MONO}>{label}</span>
             </NavLink>
           )
