@@ -2,6 +2,7 @@ import { apiClient } from '@/shared/api/client'
 import type {
   InvitationCode, CoachAthleteListItem, AthleteSummary, CoachListItem, CoachingNotification,
   TechniqueFamily, Observation, RadarPoint, CreateObservationPayload,
+  Note, CreateNotePayload,
 } from './types'
 import type { AccountRole } from '@/features/identity/profile/types'
 
@@ -72,5 +73,28 @@ export const coachingApi = {
 
   deleteObservation(id: number): Promise<void> {
     return apiClient.delete(`coaching/observations/${id}`).json<void>()
+  },
+
+  // Notes
+  getNotesByAthlete(athleteId: number): Promise<Note[]> {
+    return apiClient.get(`coaching/notes/athlete/${athleteId}`).json<Note[]>()
+  },
+  createNote(payload: CreateNotePayload): Promise<Note> {
+    return apiClient.post('coaching/notes', { json: payload }).json<Note>()
+  },
+  deleteNote(id: number): Promise<void> {
+    return apiClient.delete(`coaching/notes/${id}`).json<void>()
+  },
+  getReceivedNotes(): Promise<Note[]> {
+    return apiClient.get('coaching/notes/received').json<Note[]>()
+  },
+  getNoteDetail(id: number): Promise<Note> {
+    return apiClient.get(`coaching/notes/received/${id}`).json<Note>()
+  },
+  markNoteRead(id: number): Promise<void> {
+    return apiClient.patch(`coaching/notes/received/${id}/read`).json<void>()
+  },
+  getNoteUnreadCount(): Promise<number> {
+    return apiClient.get('coaching/notes/received/unread-count').json<number>()
   },
 }
