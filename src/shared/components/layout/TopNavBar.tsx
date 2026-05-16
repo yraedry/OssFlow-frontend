@@ -127,20 +127,17 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               </NavLink>
             )
           })}
-        </nav>
-
-        <div className="flex items-center gap-0.5 px-2 border-l border-border shrink-0">
           {profile?.role === 'ATHLETE_COACH' && (
             <NavLink
               to="/gimnasio"
               className={({ isActive }) =>
                 cn(
-                  'flex items-center px-3 h-8 text-xs border-b-2 transition-colors shrink-0',
+                  'flex items-center px-4 border-b-2 transition-colors h-full shrink-0',
                   'text-muted-foreground hover:text-foreground',
                   isActive ? 'border-foreground text-foreground' : 'border-transparent',
                 )
               }
-              style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '11px' }}
+              style={{ ...MONO, fontSize: '12px' }}
             >
               Alumnos
             </NavLink>
@@ -150,12 +147,12 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               to="/maestro"
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-1.5 px-3 h-8 text-xs border-b-2 transition-colors shrink-0',
+                  'flex items-center gap-1.5 px-4 border-b-2 transition-colors h-full shrink-0',
                   'text-muted-foreground hover:text-foreground',
                   isActive ? 'border-foreground text-foreground' : 'border-transparent',
                 )
               }
-              style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '11px' }}
+              style={{ ...MONO, fontSize: '12px' }}
             >
               Maestro
               {(unreadCount ?? 0) > 0 && (
@@ -165,6 +162,9 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               )}
             </NavLink>
           )}
+        </nav>
+
+        <div className="flex items-center gap-0.5 px-2 border-l border-border shrink-0">
           <NotificationBell />
           <button
             onClick={onSearchOpen}
