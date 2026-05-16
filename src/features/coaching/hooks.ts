@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { coachingApi } from './api'
+import type { Observation, RadarPoint, CreateObservationPayload } from './types'
 import { ApiClientError } from '@/shared/api/client'
 
 export const COACHING_KEYS = {
@@ -9,6 +10,9 @@ export const COACHING_KEYS = {
   athlete: (id: number) => ['coaching', 'athletes', id] as const,
   coaches: ['coaching', 'coaches'] as const,
   notifications: ['coaching', 'notifications'] as const,
+  observations: (athleteId: number) => ['coaching', 'observations', athleteId] as const,
+  observationRadar: (athleteId: number) => ['coaching', 'observation-radar', athleteId] as const,
+  techniqueFamilies: ['coaching', 'technique-families'] as const,
 }
 
 export function useActiveInvitation() {
@@ -112,6 +116,132 @@ export function useMarkNotificationsRead() {
     mutationFn: () => coachingApi.markNotificationsRead(),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: COACHING_KEYS.notifications })
+    },
+  })
+}
+
+export function useTechniqueFamilies() {
+  return useQuery({
+    queryKey: COACHING_KEYS.techniqueFamilies,
+    queryFn: () => coachingApi.getTechniqueFamilies(),
+    staleTime: Infinity,
+  })
+}
+
+export function useObservations(athleteId: number) {
+  return useQuery({
+    queryKey: COACHING_KEYS.observations(athleteId),
+    queryFn: () => coachingApi.getObservations(athleteId),
+    staleTime: 30_000,
+  })
+}
+
+export function useObservationRadar(athleteId: number) {
+  return useQuery({
+    queryKey: COACHING_KEYS.observationRadar(athleteId),
+    queryFn: () => coachingApi.getObservationRadar(athleteId),
+    staleTime: 30_000,
+  })
+}
+
+export function useCreateObservation(athleteId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: CreateObservationPayload) => coachingApi.createObservation(payload),
+    onMutate: async (payload) => {
+      await qc.cancelQueries({ queryKey: COACHING_KEYS.observations(athleteId) })
+      await qc.cancelQueries({ queryKey: COACHING_KEYS.observationRadar(athleteId) })
+
+      const prevObs = qc.getQueryData<Observation[]>(COACHING_KEYS.observations(athleteId))
+      const prevRadar = qc.getQueryData<RadarPoint[]>(COACHING_KEYS.observationRadar(athleteId))
+
+      const tempObs: Observation = {
+        id: -Date.now(),
+        athleteId,
+        body: payload.body,
+        tone: payload.tone,
+        techniqueFamily: payload.techniqueFamily ?? null,
+        labelledBy: payload.techniqueFamily ? 'MANUAL' : null,
+        observedAt: new Date().toISOString(),
+      }
+      qc.setQueryData<Observation[]>(COACHING_KEYS.observations(athleteId), old => [tempObs, ...(old ?? [])])
+
+      if (payload.techniqueFamily) {
+        const delta = payload.tone === 'POSITIVE' ? 1 : payload.tone === 'NEGATIVE' ? -1 : 0
+        if (delta !== 0) {
+          qc.setQueryData<RadarPoint[]>(COACHING_KEYS.observationRadar(athleteId), old => {
+            const existing = old ?? []
+            const idx = existing.findIndex(p => p.family === payload.techniqueFamily)
+            if (idx >= 0) {
+              const updated = [...existing]
+              updated[idx] = { ...updated[idx], score: updated[idx].score + delta }
+              return updated
+            }
+            return [...existing, { family: payload.techniqueFamily!, score: delta }]
+          })
+        }
+      }
+
+      return { prevObs, prevRadar }
+    },
+    onSuccess: (created) => {
+      qc.setQueryData<Observation[]>(COACHING_KEYS.observations(athleteId), old =>
+        (old ?? []).map(o => o.id < 0 ? created : o),
+      )
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prevObs !== undefined)
+        qc.setQueryData(COACHING_KEYS.observations(athleteId), context.prevObs)
+      if (context?.prevRadar !== undefined)
+        qc.setQueryData(COACHING_KEYS.observationRadar(athleteId), context.prevRadar)
+      toast.error('Error al guardar la observación')
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.observations(athleteId) })
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.observationRadar(athleteId) })
+    },
+  })
+}
+
+export function useDeleteObservation(athleteId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => coachingApi.deleteObservation(id),
+    onMutate: async (id) => {
+      await qc.cancelQueries({ queryKey: COACHING_KEYS.observations(athleteId) })
+      await qc.cancelQueries({ queryKey: COACHING_KEYS.observationRadar(athleteId) })
+
+      const prevObs = qc.getQueryData<Observation[]>(COACHING_KEYS.observations(athleteId))
+      const prevRadar = qc.getQueryData<RadarPoint[]>(COACHING_KEYS.observationRadar(athleteId))
+
+      const toDelete = prevObs?.find(o => o.id === id)
+      qc.setQueryData<Observation[]>(COACHING_KEYS.observations(athleteId), old =>
+        (old ?? []).filter(o => o.id !== id),
+      )
+
+      if (toDelete?.techniqueFamily) {
+        const delta = toDelete.tone === 'POSITIVE' ? -1 : toDelete.tone === 'NEGATIVE' ? 1 : 0
+        if (delta !== 0) {
+          qc.setQueryData<RadarPoint[]>(COACHING_KEYS.observationRadar(athleteId), old =>
+            (old ?? [])
+              .map(p => p.family === toDelete.techniqueFamily ? { ...p, score: p.score + delta } : p)
+              .filter(p => p.score !== 0),
+          )
+        }
+      }
+
+      return { prevObs, prevRadar }
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prevObs !== undefined)
+        qc.setQueryData(COACHING_KEYS.observations(athleteId), context.prevObs)
+      if (context?.prevRadar !== undefined)
+        qc.setQueryData(COACHING_KEYS.observationRadar(athleteId), context.prevRadar)
+      toast.error('Error al borrar la observación')
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.observations(athleteId) })
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.observationRadar(athleteId) })
     },
   })
 }

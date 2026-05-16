@@ -1,5 +1,8 @@
 import { apiClient } from '@/shared/api/client'
-import type { InvitationCode, CoachAthleteListItem, AthleteSummary, CoachListItem, CoachingNotification } from './types'
+import type {
+  InvitationCode, CoachAthleteListItem, AthleteSummary, CoachListItem, CoachingNotification,
+  TechniqueFamily, Observation, RadarPoint, CreateObservationPayload,
+} from './types'
 import type { AccountRole } from '@/features/identity/profile/types'
 
 export const coachingApi = {
@@ -49,5 +52,25 @@ export const coachingApi = {
 
   changeRole(role: AccountRole): Promise<void> {
     return apiClient.patch('me/role', { json: { role } }).then(() => undefined)
+  },
+
+  getTechniqueFamilies(): Promise<TechniqueFamily[]> {
+    return apiClient.get('catalog/techniques/families').json<TechniqueFamily[]>()
+  },
+
+  getObservations(athleteId: number): Promise<Observation[]> {
+    return apiClient.get(`coaching/observations/athlete/${athleteId}`).json<Observation[]>()
+  },
+
+  getObservationRadar(athleteId: number): Promise<RadarPoint[]> {
+    return apiClient.get(`coaching/observations/athlete/${athleteId}/radar`).json<RadarPoint[]>()
+  },
+
+  createObservation(payload: CreateObservationPayload): Promise<Observation> {
+    return apiClient.post('coaching/observations', { json: payload }).json<Observation>()
+  },
+
+  deleteObservation(id: number): Promise<void> {
+    return apiClient.delete(`coaching/observations/${id}`).json<void>()
   },
 }

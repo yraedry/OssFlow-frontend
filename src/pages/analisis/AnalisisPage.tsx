@@ -1,15 +1,10 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { AlertTriangle } from 'lucide-react'
-import {
-  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  ResponsiveContainer, Tooltip,
-} from 'recharts'
-import { Spinner } from '@/shared/components/ui/spinner'
-import { Alert, AlertDescription } from '@/shared/components/ui/alert'
 import { useBjjRadar, useFisicoRadar } from '@/features/analisis/radar/hooks'
 import type { RadarDataPoint } from '@/features/analisis/radar/types'
 import { fetchWeeklyStats, type WeeklyStats } from '@/shared/api/dashboard'
+import { RadarPanel, type Section, type SectionId } from '@/components/charts/RadarPanel'
 
 const PERIOD_OPTIONS = [
   { label: '30d',  days: 30 },
@@ -18,20 +13,6 @@ const PERIOD_OPTIONS = [
   { label: '1a',   days: 365 },
   { label: 'Todo', days: 3650 },
 ]
-
-type SectionId = 'guardias' | 'sumisiones' | 'pasajes' | 'derribos' | 'fisico'
-type DataSource = 'bjj' | 'fisico'
-
-interface Section {
-  id: SectionId
-  label: string
-  color: string
-  source: DataSource
-  families: string[]
-  title: string
-  subtitle: string
-  emptyHint: string
-}
 
 const SECTIONS: Section[] = [
   {
@@ -85,80 +66,6 @@ const SECTIONS: Section[] = [
     emptyHint: 'Registra sesiones físicas (fuerza, cardio, movilidad, flexibilidad...) para ver tu radar',
   },
 ]
-
-const TOOLTIP_STYLE = {
-  background: '#0f172a',
-  border: '1px solid #1e293b',
-  borderRadius: '6px',
-  fontSize: '11px',
-  fontFamily: 'var(--font-mono)',
-  color: '#e2e8f0',
-  padding: '6px 10px',
-}
-
-function RadarPanel({
-  section, data, isLoading, error,
-}: {
-  section: Section
-  data: RadarDataPoint[] | undefined
-  isLoading: boolean
-  error: unknown
-}) {
-  const points = data?.filter(d => section.families.includes(d.family)) ?? []
-  const total = points.reduce((s, d) => s + d.value, 0)
-
-  if (isLoading) return <div className="flex justify-center py-16"><Spinner /></div>
-  if (error) return <Alert variant="destructive"><AlertDescription>Error al cargar datos</AlertDescription></Alert>
-  if (total === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-16 gap-2 text-center">
-        <p className="text-sm text-muted-foreground max-w-[260px]">{section.emptyHint}</p>
-      </div>
-    )
-  }
-
-  const sorted = [...points].filter(d => d.value > 0).sort((a, b) => b.value - a.value)
-
-  return (
-    <div className="space-y-3">
-      <ResponsiveContainer width="100%" height={260}>
-        <RadarChart data={points} margin={{ top: 8, right: 24, bottom: 8, left: 24 }}>
-          <PolarGrid stroke="rgba(255,255,255,0.08)" />
-          <PolarAngleAxis dataKey="label" tick={{ fill: '#cbd5e1', fontSize: 10, fontFamily: 'var(--font-mono)' }} />
-          <PolarRadiusAxis angle={90} domain={[0, 'auto']} tick={false} tickCount={4} axisLine={false} />
-          <Radar
-            name="Total"
-            dataKey="value"
-            stroke={section.color}
-            fill={section.color}
-            fillOpacity={0.35}
-            strokeWidth={2}
-            dot={{ r: 4, fill: section.color, stroke: '#0f172a', strokeWidth: 1.5 }}
-          />
-          <Tooltip
-            contentStyle={TOOLTIP_STYLE}
-            formatter={(v) => [`${v} ${section.subtitle}`, '']}
-            labelFormatter={(label) => label}
-          />
-        </RadarChart>
-      </ResponsiveContainer>
-      <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 pt-3 border-t border-border">
-        {sorted.map(d => (
-          <div key={d.family} className="flex items-center justify-between py-1">
-            <span className="flex items-center gap-1.5 text-xs text-muted-foreground font-mono min-w-0">
-              <span className="h-1.5 w-1.5 rounded-full flex-shrink-0" style={{ backgroundColor: section.color }} />
-              <span className="truncate">{d.label}</span>
-            </span>
-            <span className="text-xs font-bold tabular-nums ml-2 flex-shrink-0" style={{ color: section.color }}>
-              {d.value}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 
 export function AnalisisPage() {
   const [days, setDays] = useState(90)
