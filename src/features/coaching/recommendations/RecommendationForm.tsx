@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useCreateRecommendation, useTechniqueSearch } from '../hooks'
+import { techniqueApi } from '@/features/catalog/technique/api'
 import { Spinner } from '@/shared/components/ui/spinner'
 
 interface Props {
@@ -7,45 +9,58 @@ interface Props {
 }
 
 const MAX_NOTE_CHARS = 1000
-const DEBOUNCE_MS = 300
 
 export function RecommendationForm({ athleteId }: Props) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const noteRef = useRef<HTMLTextAreaElement>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [query, setQuery] = useState('')
+  const [note, setNote] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
   const create = useCreateRecommendation(athleteId)
-  const [noteLen, setNoteLen] = useState(0)
+  const queryClient = useQueryClient()
 
   const { data: results } = useTechniqueSearch(query)
-  const technique = results?.find(r => r.name === (inputRef.current?.value ?? '')) ?? null
+  const matchedTechnique = query.length >= 2
+    ? results?.find(r => r.name.toLowerCase() === query.toLowerCase()) ?? null
+    : null
 
-  function handleInput() {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(() => {
-      setQuery(inputRef.current?.value.trim() ?? '')
-    }, DEBOUNCE_MS)
-  }
-
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!technique) return
-    const note = noteRef.current?.value.trim() || undefined
-    create.mutate(
-      { athleteId, techniqueId: technique.id, note },
-      {
-        onSuccess: () => {
-          if (inputRef.current) inputRef.current.value = ''
-          if (noteRef.current) noteRef.current.value = ''
-          setQuery('')
-          setNoteLen(0)
+    const inputVal = inputRef.current?.value.trim() ?? query.trim()
+    if (!inputVal || inputVal.length < 2) return
+
+    setSubmitting(true)
+    try {
+      // Try cached results first, then fetch if needed
+      let technique = results?.find(r => r.name.toLowerCase() === inputVal.toLowerCase()) ?? null
+      if (!technique) {
+        const data = await queryClient.fetchQuery({
+          queryKey: ['technique-search', inputVal],
+          queryFn: () => techniqueApi.list({ search: inputVal, size: 10 }),
+          staleTime: 30_000,
+        })
+        technique = data.content
+          .map(t => ({ id: t.id, name: t.name, family: t.category }))
+          .find(r => r.name.toLowerCase() === inputVal.toLowerCase()) ?? null
+      }
+      if (!technique) return
+
+      create.mutate(
+        { athleteId, techniqueId: technique.id, note: note.trim() || undefined },
+        {
+          onSuccess: () => {
+            if (inputRef.current) inputRef.current.value = ''
+            setQuery('')
+            setNote('')
+          },
         },
-      },
-    )
+      )
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const listId = 'technique-autocomplete-list'
-  const canSubmit = !!technique && !create.isPending
+  const isPending = submitting || create.isPending
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 border border-border bg-card p-4 mb-4">
@@ -58,49 +73,47 @@ export function RecommendationForm({ athleteId }: Props) {
           ref={inputRef}
           type="text"
           list={listId}
-          onInput={handleInput}
-          onChange={handleInput}
-          defaultValue=""
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          onInput={e => setQuery((e.target as HTMLInputElement).value)}
           placeholder="Buscar técnica... (mín. 2 caracteres)"
           className="w-full bg-transparent text-sm border border-border px-3 py-2 outline-none placeholder:text-muted-foreground/50 font-mono"
           autoComplete="off"
-          disabled={create.isPending}
+          disabled={isPending}
         />
         <datalist id={listId}>
           {(results ?? []).map(item => (
             <option key={item.id} value={item.name} />
           ))}
         </datalist>
-        {technique && (
+        {matchedTechnique && (
           <p className="text-[10px] font-mono text-muted-foreground mt-1">
-            ✓ {technique.name}{technique.family ? ` · ${technique.family.replace(/_/g, ' ')}` : ''}
+            ✓ {matchedTechnique.name}{matchedTechnique.family ? ` · ${matchedTechnique.family.replace(/_/g, ' ')}` : ''}
           </p>
         )}
       </div>
 
       <div className="relative">
         <textarea
-          ref={noteRef}
-          onInput={e => setNoteLen((e.target as HTMLTextAreaElement).value.length)}
-          defaultValue=""
+          value={note}
+          onChange={e => setNote(e.target.value.slice(0, MAX_NOTE_CHARS))}
           placeholder="Nota opcional para el atleta..."
           rows={3}
-          maxLength={MAX_NOTE_CHARS}
           className="w-full bg-transparent text-sm resize-none outline-none placeholder:text-muted-foreground/50 font-mono border border-border px-3 py-2"
-          disabled={create.isPending}
+          disabled={isPending}
         />
         <p className="absolute bottom-2 right-2 text-[10px] text-muted-foreground/50 font-mono">
-          {noteLen}/{MAX_NOTE_CHARS}
+          {note.length}/{MAX_NOTE_CHARS}
         </p>
       </div>
 
       <div className="flex justify-end">
         <button
           type="submit"
-          disabled={!canSubmit}
+          disabled={!query || query.length < 2 || isPending}
           className="px-4 py-1.5 text-xs bg-foreground text-background font-mono uppercase tracking-wide disabled:opacity-40 transition-opacity flex items-center gap-2"
         >
-          {create.isPending && <Spinner />}
+          {isPending && <Spinner />}
           Enviar recomendación
         </button>
       </div>
