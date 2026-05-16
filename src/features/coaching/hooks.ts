@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { coachingApi } from './api'
-import type { Observation, RadarPoint, CreateObservationPayload, Note, CreateNotePayload, TechniqueRecommendation, CreateRecommendationPayload } from './types'
+import type { Observation, RadarPoint, CreateObservationPayload, Note, CreateNotePayload, CreateRecommendationPayload } from './types'
 import { techniqueApi } from '@/features/catalog/technique/api'
 import { ApiClientError } from '@/shared/api/client'
 
