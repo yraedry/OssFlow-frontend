@@ -7,6 +7,7 @@ import { useProfile } from '@/features/identity/profile/hooks'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
 import { useLogout } from '@/features/auth/hooks'
 import { NotificationBell } from '@/features/coaching/components/NotificationBell'
+import { useCoaches, useNoteUnreadCount } from '@/features/coaching/hooks'
 
 const PRIMARY_NAV = [
   { to: '/',                    label: 'Inicio',        end: true,  section: null },
@@ -65,6 +66,9 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
   const { theme, toggleTheme } = useTheme()
   const { data: profile } = useProfile()
   const logoutMutation = useLogout()
+  const { data: coaches } = useCoaches()
+  const { data: unreadCount } = useNoteUnreadCount()
+  const hasCoach = (coaches?.length ?? 0) > 0
   const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
   const { pathname } = useLocation()
   const activeSection = getSection(pathname)
@@ -138,7 +142,27 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               }
               style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '11px' }}
             >
-              Mi gimnasio
+              Alumnos
+            </NavLink>
+          )}
+          {hasCoach && (
+            <NavLink
+              to="/maestro"
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-1.5 px-3 h-8 text-xs border-b-2 transition-colors shrink-0',
+                  'text-muted-foreground hover:text-foreground',
+                  isActive ? 'border-foreground text-foreground' : 'border-transparent',
+                )
+              }
+              style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em', fontSize: '11px' }}
+            >
+              Maestro
+              {(unreadCount ?? 0) > 0 && (
+                <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 text-[10px] font-bold bg-purple-500 text-white rounded-full">
+                  {unreadCount}
+                </span>
+              )}
             </NavLink>
           )}
           <NotificationBell />
