@@ -1,7 +1,6 @@
-import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Users } from 'lucide-react'
 import { AthleteRoster } from '../components/AthleteRoster'
-import { AthleteSummaryDrawer } from '../components/AthleteSummaryDrawer'
 import { useAthletes } from '../hooks'
 
 const MONO = { fontFamily: 'var(--font-mono)' } as const
@@ -21,7 +20,7 @@ function AthletesCount() {
 }
 
 export function CoachingDashboardPage() {
-  const [selectedAthleteId, setSelectedAthleteId] = useState<number | null>(null)
+  const navigate = useNavigate()
 
   return (
     <div className="space-y-8">
@@ -54,7 +53,7 @@ export function CoachingDashboardPage() {
             Alumnos vinculados
           </p>
         </header>
-        <AthleteRoster onSelectAthlete={(id) => setSelectedAthleteId(id)} />
+        <AthleteRoster onSelectAthlete={(id) => navigate(`/gimnasio/atletas/${id}`)} />
       </section>
 
       {/* Hint */}
@@ -63,11 +62,6 @@ export function CoachingDashboardPage() {
         <span className="underline underline-offset-2">Configuración</span>{' '}
         para añadir alumnos.
       </p>
-
-      <AthleteSummaryDrawer
-        athleteId={selectedAthleteId}
-        onClose={() => setSelectedAthleteId(null)}
-      />
     </div>
   )
 }

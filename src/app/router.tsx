@@ -38,6 +38,7 @@ import { ExercisesPage } from '@/features/catalog/exercise/pages/ExercisesPage'
 import { AnalisisPage } from '@/pages/analisis/AnalisisPage'
 import { ConfiguracionPage } from '@/pages/configuracion/ConfiguracionPage'
 import { CoachingDashboardPage } from '@/features/coaching/pages/CoachingDashboardPage'
+import { AthleteProfilePage } from '@/pages/gimnasio/AthleteProfilePage'
 import { Spinner } from '@/shared/components/ui/spinner'
 
 // Auth pages
@@ -135,6 +136,7 @@ export const router = createBrowserRouter([
 
           // Coaching
           { path: 'gimnasio', element: <CoachingDashboardPage /> },
+          { path: 'gimnasio/atletas/:athleteId', element: <AthleteProfilePage /> },
 
           // Redirecciones de rutas antiguas (compatibilidad)
           { path: 'catalog/positions', element: <PositionsPage /> },

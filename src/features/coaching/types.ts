@@ -46,3 +46,32 @@ export type CoachingNotification = {
   payload: string
   createdAt: string
 }
+
+export type TechniqueFamily = {
+  value: string
+  label: string
+}
+
+export type ObservationTone = 'POSITIVE' | 'NEGATIVE' | 'NEUTRAL'
+
+export type Observation = {
+  id: number
+  athleteId: number
+  body: string
+  tone: ObservationTone
+  techniqueFamily: string | null
+  labelledBy: 'KEYWORD' | 'OPENAI' | 'MANUAL' | null
+  observedAt: string
+}
+
+export type RadarPoint = {
+  family: string
+  score: number
+}
+
+export type CreateObservationPayload = {
+  athleteId: number
+  body: string
+  tone: ObservationTone
+  techniqueFamily?: string
+}
