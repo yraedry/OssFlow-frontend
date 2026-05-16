@@ -42,7 +42,7 @@ export type AthleteSummary = {
 
 export type CoachingNotification = {
   id: number
-  type: 'ATHLETE_JOINED' | 'ATHLETE_LEFT' | 'COACH_REMOVED_YOU' | 'NOTE_SENT'
+  type: 'ATHLETE_JOINED' | 'ATHLETE_LEFT' | 'COACH_REMOVED_YOU' | 'NOTE_SENT' | 'RECOMMENDATION_SENT'
   payload: string
   createdAt: string
 }
