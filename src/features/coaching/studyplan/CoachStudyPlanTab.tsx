@@ -1,8 +1,6 @@
 import { useState } from 'react'
-import { Plus, FileText, Eye } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
 import { useCoachStudyPlans, useCreateStudyPlan, useDeleteStudyPlan } from './hooks'
 import { StudyPlanEditor } from './StudyPlanEditor'
 import { Spinner } from '@/shared/components/ui/spinner'
@@ -46,63 +44,83 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
     deletePlan.mutate(plan.id)
   }
 
+  function handleNewPlanCard() {
+    setCreating(true)
+  }
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888', margin: 0 }}>
           Planes de estudio
         </p>
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="flex items-center gap-1.5 text-xs border border-border px-3 py-1.5 hover:bg-muted transition-colors"
-          style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em',
+            border: '1px solid #3a3a3a', padding: '6px 12px', background: 'transparent', color: '#888', cursor: 'pointer',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f0ebe3'; (e.currentTarget as HTMLElement).style.borderColor = '#888' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#888'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a3a' }}
         >
-          <Plus className="h-3 w-3" strokeWidth={1.5} />
+          <Plus style={{ width: 12, height: 12 }} strokeWidth={1.5} />
           Nuevo plan
         </button>
       </div>
 
+      {/* Create form */}
       {creating && (
-        <div className="flex gap-2 border border-border p-3 bg-card">
+        <div style={{ display: 'flex', gap: 8, border: '1px solid #3a3a3a', padding: 12, background: '#1a1a1a' }}>
           <input
             autoFocus
             value={newTitle}
             onChange={e => setNewTitle(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') handleCreate(); if (e.key === 'Escape') { setCreating(false); setNewTitle('') } }}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleCreate()
+              if (e.key === 'Escape') { setCreating(false); setNewTitle('') }
+            }}
             placeholder="Título del plan..."
-            className="flex-1 bg-transparent text-sm border-b border-border outline-none pb-1 placeholder:text-muted-foreground/50"
+            style={{
+              flex: 1, background: 'transparent', color: '#f0ebe3', fontSize: 13,
+              border: 'none', borderBottom: '1px solid #3a3a3a', outline: 'none', paddingBottom: 4,
+              fontFamily: 'var(--font-mono)',
+            }}
           />
           <button
             type="button"
             onClick={handleCreate}
             disabled={!newTitle.trim() || create.isPending}
-            className="px-3 py-1 text-xs bg-foreground text-background disabled:opacity-50"
-            style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}
+            style={{
+              padding: '4px 12px', fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase',
+              background: '#f0ebe3', color: '#0f0f0f', border: 'none', cursor: 'pointer', opacity: (!newTitle.trim() || create.isPending) ? 0.5 : 1,
+            }}
           >
             {create.isPending ? <Spinner /> : 'Crear'}
           </button>
           <button
             type="button"
             onClick={() => { setCreating(false); setNewTitle('') }}
-            className="px-2 py-1 text-xs border border-border text-muted-foreground hover:text-foreground"
+            style={{
+              padding: '4px 8px', fontFamily: 'var(--font-mono)', fontSize: 10,
+              border: '1px solid #3a3a3a', background: 'transparent', color: '#888', cursor: 'pointer',
+            }}
           >
             ✕
           </button>
         </div>
       )}
 
+      {/* Plan grid */}
       {isLoading ? (
-        <div className="flex justify-center py-8"><Spinner /></div>
-      ) : !plans?.length ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <FileText className="h-8 w-8 mx-auto mb-3 opacity-30" strokeWidth={1.5} />
-          <p className="text-sm">No hay planes de estudio todavía.</p>
-          <p className="text-xs mt-1">Crea el primero con el botón "Nuevo plan".</p>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
+          <Spinner />
         </div>
       ) : (
-        <div className="space-y-2">
-          {plans.map(plan => (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: '#2a2a2a' }}>
+          {(plans ?? []).map(plan => (
             <PlanCard
               key={plan.id}
               plan={plan}
@@ -110,6 +128,30 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
               onDelete={() => handleDelete(plan)}
             />
           ))}
+
+          {/* Empty add card */}
+          <div
+            onClick={handleNewPlanCard}
+            role="button"
+            tabIndex={0}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleNewPlanCard() }}
+            style={{
+              border: '1px dashed #333', padding: 16, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
+              color: '#555', minHeight: 120, background: 'transparent',
+            }}
+            onMouseEnter={e => {
+              ;(e.currentTarget as HTMLElement).style.borderColor = '#666'
+              ;(e.currentTarget as HTMLElement).style.color = '#f0ebe3'
+            }}
+            onMouseLeave={e => {
+              ;(e.currentTarget as HTMLElement).style.borderColor = '#333'
+              ;(e.currentTarget as HTMLElement).style.color = '#555'
+            }}
+          >
+            ＋ NUEVO PLAN
+          </div>
         </div>
       )}
     </div>
@@ -117,41 +159,112 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
 }
 
 function PlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: () => void; onDelete: () => void }) {
-  const isDraft = plan.status === 'DRAFT'
+  const isPublished = plan.status === 'PUBLISHED'
 
   return (
     <div
-      className="group flex items-center gap-3 border border-border bg-card px-4 py-3 cursor-pointer hover:border-foreground/40 transition-colors"
       onClick={onEdit}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onEdit() }}
+      style={{
+        background: '#1a1a1a',
+        padding: 16,
+        cursor: 'pointer',
+        position: 'relative',
+        borderLeft: `3px solid ${isPublished ? '#22c55e' : '#555'}`,
+        transition: 'background 150ms',
+      }}
+      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#1e1e1e')}
+      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#1a1a1a')}
+      className="group"
     >
-      <FileText className="h-4 w-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">{plan.title}</p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <span className={`text-[10px] font-mono uppercase tracking-widest ${isDraft ? 'text-muted-foreground' : 'text-emerald-500'}`}>
-            {isDraft ? 'Borrador' : 'Publicado'}
-          </span>
-          {!isDraft && plan.viewedByAthlete && (
-            <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
-              <Eye className="h-2.5 w-2.5" strokeWidth={1.5} />
-              Visto
-            </span>
-          )}
-          <span className="text-[10px] text-muted-foreground">
-            {format(new Date(plan.createdAt), 'd MMM yyyy', { locale: es })}
-          </span>
-          <span className="text-[10px] text-muted-foreground">
-            {plan.blocks.length} {plan.blocks.length === 1 ? 'bloque' : 'bloques'}
-          </span>
-        </div>
-      </div>
+      {/* Delete button — visible on hover via className group */}
       <button
         type="button"
         onClick={e => { e.stopPropagation(); onDelete() }}
-        className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1"
+        style={{
+          position: 'absolute', top: 10, right: 10,
+          background: 'transparent', border: 'none', color: '#555', cursor: 'pointer',
+          fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 4px',
+          opacity: 0, transition: 'opacity 120ms, color 120ms',
+        }}
+        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#ef4444')}
+        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
+        onFocus={e => ((e.currentTarget as HTMLElement).style.opacity = '1')}
+        onBlur={e => ((e.currentTarget as HTMLElement).style.opacity = '0')}
+        ref={el => {
+          // Show delete button when parent card is hovered
+          if (!el) return
+          const card = el.closest('[role="button"]') as HTMLElement | null
+          if (!card) return
+          const show = () => (el.style.opacity = '1')
+          const hide = () => (el.style.opacity = '0')
+          card.addEventListener('mouseenter', show)
+          card.addEventListener('mouseleave', hide)
+        }}
+        aria-label={`Eliminar plan ${plan.title}`}
       >
         ✕
       </button>
+
+      {/* Card top: title + status badge */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 10, paddingRight: 20 }}>
+        <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15, fontWeight: 700, color: '#f0ebe3', lineHeight: 1.2, flex: 1 }}>
+          {plan.title}
+        </div>
+        <span style={{
+          fontFamily: 'var(--font-mono)', fontSize: 8, fontWeight: 700,
+          letterSpacing: '0.1em', textTransform: 'uppercase',
+          padding: '3px 7px', flexShrink: 0,
+          color: isPublished ? '#22c55e' : '#555',
+          border: `1px solid ${isPublished ? '#22c55e44' : '#333'}`,
+        }}>
+          {isPublished ? 'PUBLICADO' : 'BORRADOR'}
+        </span>
+      </div>
+
+      {/* Block previews */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 10 }}>
+        {(plan.blocks ?? []).slice(0, 3).map(b => (
+          <div
+            key={b.id}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#888' }}
+          >
+            <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#444', flexShrink: 0, display: 'inline-block' }} />
+            {b.title || 'Bloque sin título'}
+          </div>
+        ))}
+        {(plan.blocks ?? []).length > 3 && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#444' }}>
+            <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#333', flexShrink: 0, display: 'inline-block' }} />
+            +{(plan.blocks ?? []).length - 3} más
+          </div>
+        )}
+        {(plan.blocks ?? []).length === 0 && (
+          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#555', fontStyle: 'italic' }}>
+            Sin bloques
+          </div>
+        )}
+      </div>
+
+      {/* Footer: date + viewed */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #2a2a2a' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#555' }}>
+          {plan.createdAt
+            ? new Date(plan.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+            : ''}
+        </span>
+        {plan.viewedByAthlete ? (
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#22c55e' }}>
+            👁 Visto por atleta
+          </span>
+        ) : (
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#444' }}>
+            No visto
+          </span>
+        )}
+      </div>
     </div>
   )
 }
