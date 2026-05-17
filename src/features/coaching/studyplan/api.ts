@@ -21,11 +21,11 @@ export const studyPlanApi = {
   },
 
   publish(planId: number): Promise<void> {
-    return apiClient.post(`${BASE}/${planId}/publish`).json<void>()
+    return apiClient.post(`${BASE}/${planId}/publish`).text().then(() => {})
   },
 
   unpublish(planId: number): Promise<void> {
-    return apiClient.post(`${BASE}/${planId}/unpublish`).json<void>()
+    return apiClient.post(`${BASE}/${planId}/unpublish`).text().then(() => {})
   },
 
   deletePlan(planId: number): Promise<void> {
