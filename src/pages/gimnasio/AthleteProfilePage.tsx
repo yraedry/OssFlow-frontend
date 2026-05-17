@@ -11,10 +11,11 @@ import { RecommendationForm } from '@/features/coaching/recommendations/Recommen
 import { CoachRecommendationList } from '@/features/coaching/recommendations/CoachRecommendationList'
 import { CoachCompetitionTab } from '@/features/coaching/competition/CoachCompetitionTab'
 import { CoachStudyPlanTab } from '@/features/coaching/studyplan/CoachStudyPlanTab'
+import { PrivateSessionTab } from '@/features/coaching/privatesession/PrivateSessionTab'
 import { cn } from '@/shared/lib/utils'
 
 type MainTab = 'observaciones' | 'analisis' | 'planificacion' | 'competiciones'
-type PlanSubTab = 'planes' | 'tecnicas' | 'notas'
+type PlanSubTab = 'planes' | 'tecnicas' | 'notas' | 'clases'
 
 const MAIN_TABS: { id: MainTab; label: string; icon: React.ReactNode }[] = [
   { id: 'observaciones', label: 'Observaciones', icon: <Eye className="h-3.5 w-3.5" strokeWidth={1.5} /> },
@@ -71,7 +72,7 @@ export function AthleteProfilePage() {
       <div className="border border-border bg-card">
         {tab === 'planificacion' && (
           <div className="flex border-b border-border px-6">
-            {(['planes', 'tecnicas', 'notas'] as PlanSubTab[]).map(st => (
+            {(['planes', 'tecnicas', 'notas', 'clases'] as PlanSubTab[]).map(st => (
               <button
                 key={st}
                 type="button"
@@ -83,7 +84,7 @@ export function AthleteProfilePage() {
                     : 'border-transparent text-muted-foreground hover:text-foreground',
                 )}
               >
-                {st === 'planes' ? 'Planes' : st === 'tecnicas' ? 'Técnicas' : 'Notas'}
+                {st === 'planes' ? 'Planes' : st === 'tecnicas' ? 'Técnicas' : st === 'notas' ? 'Notas' : 'Clases'}
               </button>
             ))}
           </div>
@@ -109,6 +110,9 @@ export function AthleteProfilePage() {
               <CoachNoteForm athleteId={id} />
               <CoachNoteList athleteId={id} />
             </>
+          )}
+          {tab === 'planificacion' && planSubTab === 'clases' && (
+            <PrivateSessionTab athleteId={id} />
           )}
           {tab === 'competiciones' && <CoachCompetitionTab athleteId={id} />}
         </div>
