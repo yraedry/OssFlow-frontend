@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { useRecommendationsReceived, useAcceptRecommendation, useDismissRecommendation } from '../hooks'
 import type { TechniqueRecommendation } from '../types'
 import { Spinner } from '@/shared/components/ui/spinner'
@@ -137,9 +138,13 @@ export function ReceivedRecommendationList() {
           <button
             type="button"
             onClick={() => setHistoryOpen(prev => !prev)}
-            className="text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            className="text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
           >
-            <span>{historyOpen ? '▾' : '▸'}</span>
+            <ChevronDown
+              className="h-3.5 w-3.5 transition-transform duration-200"
+              style={{ transform: historyOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+              strokeWidth={2}
+            />
             Historial ({history.length})
           </button>
           {historyOpen && (

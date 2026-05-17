@@ -34,8 +34,8 @@ export function CoachingDashboardPage() {
         </p>
         <div className="flex items-end justify-between gap-4">
           <h1
-            className="text-3xl font-black leading-none"
-            style={{ fontFamily: 'var(--font-serif)', color: '#f0ebe3' }}
+            className="text-3xl font-black leading-none text-foreground"
+            style={{ fontFamily: 'var(--font-serif)' }}
           >
             Mi gimnasio
           </h1>

@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { useRecommendationsSent, useCancelRecommendation } from '../hooks'
 import type { TechniqueRecommendation, RecommendationStatus } from '../types'
 import { Spinner } from '@/shared/components/ui/spinner'
+import { useConfirm } from '@/shared/hooks/useConfirm'
 
 interface Props {
   athleteId: number
@@ -27,10 +29,22 @@ function StatusChip({ status }: { status: RecommendationStatus }) {
 
 function ActiveCard({ rec, athleteId }: { rec: TechniqueRecommendation; athleteId: number }) {
   const cancel = useCancelRecommendation(athleteId)
+  const confirm = useConfirm()
+
+  async function handleCancel() {
+    const ok = await confirm({
+      title: 'Cancelar recomendación',
+      description: '¿Cancelar esta recomendación? El atleta ya no podrá aceptarla.',
+      confirmLabel: 'Cancelar recomendación',
+      cancelLabel: 'Mantener',
+      variant: 'destructive',
+    })
+    if (ok) cancel.mutate(rec.id)
+  }
 
   return (
-    <div className="border border-border bg-card p-4 group relative">
-      <div className="flex items-start justify-between gap-2">
+    <div className="border border-border bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <p className="text-sm font-mono">{rec.techniqueName}</p>
           {rec.techniqueFamily && (
@@ -41,17 +55,15 @@ function ActiveCard({ rec, athleteId }: { rec: TechniqueRecommendation; athleteI
           {rec.note && (
             <p className="mt-2 text-xs text-muted-foreground font-mono">{rec.note}</p>
           )}
-          <p className="mt-2 text-[10px] text-muted-foreground font-mono">
+          <p className="mt-2 text-[10px] text-muted-foreground/60 font-mono">
             {new Date(rec.recommendedAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
           </p>
         </div>
         <button
           type="button"
-          onClick={() => {
-            if (confirm('¿Cancelar esta recomendación?')) cancel.mutate(rec.id)
-          }}
+          onClick={handleCancel}
           disabled={cancel.isPending}
-          className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0 text-[10px] font-mono uppercase tracking-wide text-muted-foreground hover:text-red-500 border border-border/50 px-2 py-1 disabled:opacity-20"
+          className="shrink-0 text-[10px] font-mono uppercase tracking-wide text-muted-foreground/50 hover:text-destructive border border-border/40 hover:border-destructive/40 px-2 py-1 transition-colors disabled:opacity-20 cursor-pointer"
         >
           {cancel.isPending ? <Spinner /> : 'Cancelar'}
         </button>
@@ -138,9 +150,13 @@ export function CoachRecommendationList({ athleteId }: Props) {
           <button
             type="button"
             onClick={() => setHistoryOpen(prev => !prev)}
-            className="text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            className="text-xs font-mono uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
           >
-            <span>{historyOpen ? '▾' : '▸'}</span>
+            <ChevronDown
+              className="h-3.5 w-3.5 transition-transform duration-200"
+              style={{ transform: historyOpen ? 'rotate(0deg)' : 'rotate(-90deg)' }}
+              strokeWidth={2}
+            />
             Historial ({history.length})
           </button>
           {historyOpen && (
