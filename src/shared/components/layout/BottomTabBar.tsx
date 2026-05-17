@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut, User, School, GraduationCap, MoreHorizontal, Settings, X } from 'lucide-react'
+import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut, User, School, GraduationCap, MoreHorizontal, Settings, X, Bell } from 'lucide-react'
+import { formatDistanceToNow } from 'date-fns'
+import { es } from 'date-fns/locale'
 import { cn } from '@/shared/lib/utils'
 import { useLogout } from '@/features/auth/hooks'
 import { useProfile } from '@/features/identity/profile/hooks'
-import { useCoaches, useNoteUnreadCount } from '@/features/coaching/hooks'
+import { useCoaches, useNoteUnreadCount, useNotifications, useMarkNotificationsRead } from '@/features/coaching/hooks'
+import { NOTIFICATION_LABELS } from '@/features/coaching/notificationLabels'
 
 type Tab = { to: string; label: string; icon: React.ElementType; end: boolean; badge?: number }
 
@@ -76,11 +79,15 @@ export function BottomTabBar() {
   const { data: profile } = useProfile()
   const { data: coaches } = useCoaches()
   const { data: unreadCount } = useNoteUnreadCount()
+  const { data: notifications } = useNotifications()
+  const markRead = useMarkNotificationsRead()
   const hasCoach = (coaches?.length ?? 0) > 0
   const isCoach = profile?.role === 'ATHLETE_COACH'
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [notifOpen, setNotifOpen] = useState(false)
 
-  const moreBadge = (unreadCount ?? 0) > 0 ? unreadCount : undefined
+  const notifUnread = notifications?.length ?? 0
+  const moreBadge = (unreadCount ?? 0) + notifUnread > 0 ? (unreadCount ?? 0) + notifUnread : undefined
 
   // Determine if «Más» is currently active (user is in /maestro, /gimnasio, /profile, /configuracion)
   const isMoreActive =
@@ -194,6 +201,48 @@ export function BottomTabBar() {
               )}
             </button>
           )}
+
+          {/* Notificaciones — acordeón inline */}
+          <div className="border-t border-border">
+            <button
+              type="button"
+              onClick={() => {
+                const next = !notifOpen
+                setNotifOpen(next)
+                if (next && notifUnread > 0) markRead.mutate()
+              }}
+              className="w-full flex items-center justify-between gap-3 px-5 py-3 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Bell className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+                <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Notificaciones</span>
+                {notifUnread > 0 && (
+                  <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-[10px] font-bold bg-purple-500 text-white rounded-full">
+                    {notifUnread}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs text-muted-foreground/50">{notifOpen ? '▲' : '▼'}</span>
+            </button>
+            {notifOpen && (
+              <div className="max-h-60 overflow-y-auto border-t border-border/50">
+                {(!notifications || notifications.length === 0) ? (
+                  <div className="px-5 py-3">
+                    <span style={{ ...SUBNAV_MONO, color: 'var(--muted-foreground)' }}>Sin notificaciones</span>
+                  </div>
+                ) : (
+                  notifications.map(n => (
+                    <div key={n.id} className="px-5 py-2.5 border-b border-border/50 last:border-b-0">
+                      <p className="text-xs font-medium text-foreground">{NOTIFICATION_LABELS[n.type] ?? n.type}</p>
+                      <p className="text-muted-foreground/50 mt-0.5" style={{ fontFamily: 'var(--font-mono)', fontSize: '9px' }}>
+                        {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: es })}
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Cerrar sesión */}
           <button
