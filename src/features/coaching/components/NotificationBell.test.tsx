@@ -25,7 +25,7 @@ vi.mock('../api', () => ({
 }))
 
 const MOCK_NOTIFICATIONS: CoachingNotification[] = [
-  { id: 1, type: 'ATHLETE_JOINED', payload: 'Juan Perez', createdAt: new Date().toISOString() },
+  { id: 1, type: 'ATHLETE_JOINED', payload: 'Juan Perez', read: false, createdAt: new Date().toISOString() },
 ]
 
 function renderBell() {
