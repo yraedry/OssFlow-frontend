@@ -437,6 +437,7 @@ function AthleteStudyPlanEditor({ planId, onBack }: { planId: number; onBack: ()
               index={i}
               onDelete={() => handleDeleteBlock(block.id)}
               onUpdateTitle={(title) => updateBlock.mutate({ blockId: block.id, data: { title } })}
+              onUpdateNotes={(notes) => updateBlock.mutate({ blockId: block.id, data: { notesMarkdown: notes || undefined } })}
             />
           ))}
         </div>
@@ -489,21 +490,35 @@ function AthleteStudyPlanEditor({ planId, onBack }: { planId: number; onBack: ()
 
 // ─── AthleteBlockEditor ───────────────────────────────────────────────────────
 
-function AthleteBlockEditor({ block, index, onDelete, onUpdateTitle }: {
+function AthleteBlockEditor({ block, index, onDelete, onUpdateTitle, onUpdateNotes }: {
   block: StudyBlock
   index: number
   onDelete: () => void
   onUpdateTitle: (title: string) => void
+  onUpdateNotes: (notes: string) => void
 }) {
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleVal, setTitleVal] = useState(block.title)
   const [editingNotes, setEditingNotes] = useState(false)
   const [notesVal, setNotesVal] = useState(block.notesMarkdown ?? '')
+  // savedNotes tracks optimistic local value so UI updates immediately after save
+  const [savedNotes, setSavedNotes] = useState(block.notesMarkdown ?? '')
   const [open, setOpen] = useState(true)
 
   function saveTitle() {
     setEditingTitle(false)
     onUpdateTitle(titleVal.trim() || block.title)
+  }
+
+  function saveNotes() {
+    setSavedNotes(notesVal)
+    setEditingNotes(false)
+    onUpdateNotes(notesVal)
+  }
+
+  function cancelNotes() {
+    setNotesVal(savedNotes)
+    setEditingNotes(false)
   }
 
   return (
@@ -553,16 +568,17 @@ function AthleteBlockEditor({ block, index, onDelete, onUpdateTitle }: {
                 autoFocus
                 value={notesVal}
                 onChange={e => setNotesVal(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Escape') cancelNotes() }}
                 rows={3}
                 className="w-full bg-transparent border border-border text-sm outline-none px-2 py-1.5 resize-none font-mono placeholder:text-muted-foreground/50"
                 placeholder="Notas del bloque..."
               />
               <div className="flex gap-1.5">
-                <button type="button" onClick={() => setEditingNotes(false)}
+                <button type="button" onClick={saveNotes}
                   className="flex items-center gap-1 px-2 py-1 text-xs bg-foreground text-background font-mono uppercase">
                   <Check className="h-3 w-3" strokeWidth={2} />
                 </button>
-                <button type="button" onClick={() => { setEditingNotes(false); setNotesVal(block.notesMarkdown ?? '') }}
+                <button type="button" onClick={cancelNotes}
                   className="flex items-center gap-1 px-2 py-1 text-xs border border-border text-muted-foreground font-mono uppercase">
                   <X className="h-3 w-3" strokeWidth={2} />
                 </button>
@@ -573,8 +589,8 @@ function AthleteBlockEditor({ block, index, onDelete, onUpdateTitle }: {
               onClick={() => setEditingNotes(true)}
               className="cursor-pointer hover:opacity-70 transition-opacity min-h-[32px]"
             >
-              {block.notesMarkdown ? (
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{block.notesMarkdown}</p>
+              {savedNotes ? (
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{savedNotes}</p>
               ) : (
                 <p className="text-sm text-muted-foreground/40 italic flex items-center gap-1.5">
                   <Pencil className="h-3 w-3" strokeWidth={1.5} />
