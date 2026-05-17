@@ -10,6 +10,41 @@ const MODALITY_LABELS: Record<string, string> = {
   BOTH: 'Ambas',
 }
 
+const BELT_COLORS: Record<string, string> = {
+  WHITE:  '#374151',
+  BLUE:   '#2563eb',
+  PURPLE: '#9333ea',
+  BROWN:  '#92400e',
+  BLACK:  '#111827',
+}
+
+const AGE_CATEGORY_LABELS: Record<string, string> = {
+  JUVENILE: 'Juvenil',
+  ADULT:    'Adulto',
+  MASTER_1: 'Master 1',
+  MASTER_2: 'Master 2',
+  MASTER_3: 'Master 3',
+  MASTER_4: 'Master 4',
+}
+
+function StripeBars({ stripes }: { stripes: number | null | undefined }) {
+  const count = stripes ?? 0
+  return (
+    <span className="inline-flex gap-[2px] items-center ml-0.5">
+      {[0, 1, 2, 3].map(i => (
+        <span
+          key={i}
+          className="w-1 rounded-[1px]"
+          style={{
+            height: '11px',
+            background: i < count ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.20)',
+          }}
+        />
+      ))}
+    </span>
+  )
+}
+
 function getActivityState(daysSince: number, hasInjuries: boolean) {
   if (hasInjuries) return { color: '#ef4444', label: 'LESIÓN', description: '' }
   if (daysSince <= 2) return { color: '#22c55e', label: 'AL DÍA', description: `${daysSince}d` }
@@ -53,6 +88,16 @@ function AthleteProfileHeaderInner({ athlete }: { athlete: AthleteSummary }) {
       value: modalityLabel ?? '—',
       red: false,
     },
+    {
+      label: 'Categoría',
+      value: athlete.ageCategory ? (AGE_CATEGORY_LABELS[athlete.ageCategory] ?? athlete.ageCategory) : '—',
+      red: false,
+    },
+    {
+      label: 'Peso',
+      value: athlete.weight != null ? `${athlete.weight} kg` : '—',
+      red: false,
+    },
   ]
 
   return (
@@ -76,8 +121,12 @@ function AthleteProfileHeaderInner({ athlete }: { athlete: AthleteSummary }) {
             {athlete.displayName}
           </div>
           <div className="flex items-center gap-2.5 flex-wrap">
-            <span className="bg-blue-600 text-white font-mono text-[10px] font-bold tracking-[0.1em] uppercase px-2 py-0.5">
-              {athlete.currentBelt.toUpperCase()} · {athlete.daysInBelt}d
+            <span
+              className="text-white font-mono text-[10px] font-bold tracking-[0.1em] uppercase px-2 py-0.5 inline-flex items-center gap-1.5"
+              style={{ background: BELT_COLORS[athlete.currentBelt?.toUpperCase()] ?? '#374151' }}
+            >
+              {athlete.currentBelt?.toUpperCase()} · {athlete.daysInBelt}d
+              <StripeBars stripes={athlete.stripes} />
             </span>
             {athlete.academy && (
               <span className="font-mono text-[11px] text-muted-foreground">
