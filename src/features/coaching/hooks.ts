@@ -53,11 +53,17 @@ export function useRevokeInvitation() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: () => coachingApi.revokeInvitation(),
+    onMutate: () => {
+      qc.setQueryData(COACHING_KEYS.invitation, null)
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: COACHING_KEYS.invitation })
       toast.success('Invitación revocada')
     },
-    onError: () => toast.error('Error al revocar la invitación'),
+    onError: () => {
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.invitation })
+      toast.error('Error al revocar la invitación')
+    },
   })
 }
 

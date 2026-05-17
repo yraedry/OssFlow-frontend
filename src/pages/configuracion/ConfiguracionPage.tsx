@@ -348,31 +348,28 @@ export function ConfiguracionPage() {
               </CardContent>
             </Card>
           </section>
+
+          {/* ── Código de invitación (solo coaches) ── */}
+          {profile?.role === 'ATHLETE_COACH' && (
+            <section>
+              <SectionTitle icon={<Key className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Código de invitación" />
+              <Card>
+                <CardContent className="py-3">
+                  <InvitationCard />
+                </CardContent>
+              </Card>
+            </section>
+          )}
+
+          {/* ── Mis maestros (solo atletas) ── */}
+          {profile?.role !== 'ATHLETE_COACH' && (
+            <section>
+              <SectionTitle icon={<School className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Mis maestros" />
+              <MyCoachesSection />
+            </section>
+          )}
         </div>
       </div>
-
-      {/* ── Código de invitación (solo coaches) ── */}
-      {profile?.role === 'ATHLETE_COACH' && (
-        <section>
-          <SectionTitle icon={<Key className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Código de invitación" />
-          <Card>
-            <CardContent className="py-4 space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Comparte este código con tus alumnos para que se vinculen a tu gimnasio.
-              </p>
-              <InvitationCard />
-            </CardContent>
-          </Card>
-        </section>
-      )}
-
-      {/* ── Mis maestros (solo atletas) ── */}
-      {profile?.role !== 'ATHLETE_COACH' && (
-        <section>
-          <SectionTitle icon={<School className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Mis maestros" />
-          <MyCoachesSection />
-        </section>
-      )}
 
       <input ref={importRef} type="file" accept="application/json,.json" className="hidden" onChange={handleImportFile} />
       <DeleteAccountModal open={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} />

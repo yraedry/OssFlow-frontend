@@ -44,17 +44,17 @@ export function InvitationCard() {
 
   if (!invitation) {
     return (
-      <div className="flex flex-col items-start gap-4 py-2">
-        <p className="text-sm text-muted-foreground font-mono">
-          Sin código activo. Genera uno para que tus alumnos puedan vincularse contigo.
+      <div className="flex items-center justify-between gap-4 py-1">
+        <p className="text-xs text-muted-foreground font-mono">
+          Sin código activo
         </p>
         <button
           type="button"
           onClick={() => generate.mutate()}
           disabled={generate.isPending}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-foreground text-background text-[11px] font-mono uppercase tracking-widest hover:bg-foreground/85 transition-colors disabled:opacity-50 cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-foreground text-background text-[10px] font-mono uppercase tracking-widest hover:bg-foreground/85 transition-colors disabled:opacity-50 cursor-pointer"
         >
-          {generate.isPending ? <Spinner /> : <Plus className="h-3.5 w-3.5" strokeWidth={2} />}
+          {generate.isPending ? <Spinner /> : <Plus className="h-3 w-3" strokeWidth={2} />}
           {generate.isPending ? 'Generando...' : 'Generar código'}
         </button>
       </div>
@@ -64,16 +64,16 @@ export function InvitationCard() {
   const expiresIn = formatDistanceToNow(new Date(invitation.expiresAt), { addSuffix: true, locale: es })
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {/* Code display */}
-      <div className="flex items-center justify-between gap-4 bg-muted/30 border border-border px-5 py-4">
-        <span className="text-4xl font-black tracking-[0.3em] text-foreground select-all font-mono tabular-nums">
+      <div className="flex items-center justify-between gap-3 bg-muted/30 border border-border px-4 py-3">
+        <span className="text-2xl font-black tracking-[0.25em] text-foreground select-all font-mono tabular-nums">
           {invitation.code}
         </span>
         <button
           type="button"
           onClick={() => handleCopy(invitation.code)}
-          className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border transition-all cursor-pointer ${
+          className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest border transition-all cursor-pointer ${
             copied
               ? 'bg-foreground text-background border-foreground'
               : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/50'
@@ -86,14 +86,11 @@ export function InvitationCard() {
       </div>
 
       {/* Meta + actions */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 text-xs text-muted-foreground font-mono">
-          <span>Expira {expiresIn}</span>
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-[10px] text-muted-foreground font-mono">
+          Expira {expiresIn}
           {invitation.usedCount > 0 && (
-            <>
-              <span className="text-border">·</span>
-              <span>{invitation.usedCount} uso{invitation.usedCount !== 1 ? 's' : ''}</span>
-            </>
+            <span className="ml-2">· {invitation.usedCount} uso{invitation.usedCount !== 1 ? 's' : ''}</span>
           )}
         </div>
 
@@ -103,7 +100,7 @@ export function InvitationCard() {
             onClick={() => generate.mutate()}
             disabled={generate.isPending || revoke.isPending}
             title="Generar nuevo código"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border border-border text-muted-foreground hover:text-foreground hover:border-foreground/50 transition-colors disabled:opacity-40 cursor-pointer"
+            className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono uppercase tracking-widest border border-border text-muted-foreground hover:text-foreground hover:border-foreground/50 transition-colors disabled:opacity-40 cursor-pointer"
           >
             {generate.isPending ? <Spinner /> : <RotateCw className="h-3 w-3" strokeWidth={2} />}
             Nuevo
@@ -113,7 +110,7 @@ export function InvitationCard() {
             onClick={handleRevoke}
             disabled={revoke.isPending || generate.isPending}
             title="Revocar código"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border border-destructive/40 text-destructive/70 hover:text-destructive hover:border-destructive transition-colors disabled:opacity-40 cursor-pointer"
+            className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono uppercase tracking-widest border border-destructive/40 text-destructive/70 hover:text-destructive hover:border-destructive transition-colors disabled:opacity-40 cursor-pointer"
           >
             {revoke.isPending ? <Spinner /> : <X className="h-3 w-3" strokeWidth={2} />}
             Revocar
