@@ -9,8 +9,10 @@ import { fetchWeeklyStats } from '@/shared/api/dashboard'
 import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
 import type { WeeklyStats } from '@/shared/api/dashboard'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { MONO } from '@/shared/lib/typography'
+import { MyCoachesList } from '@/features/coaching/components/MyCoachesList'
+import { useCoaches } from '@/features/coaching/hooks'
 
 const BELT_ORDER = ['WHITE', 'BLUE', 'PURPLE', 'BROWN', 'BLACK'] as const
 const BELT: Record<string, { label: string; color: string; text: string }> = {
@@ -119,6 +121,7 @@ function StatBox({ label, value, goal, sub, color }: {
 export function ProfilePage() {
   const { data: profile, isLoading } = useProfile()
   const { data: allFederations = [] } = useFederations()
+  const { data: coaches } = useCoaches()
   const { data: stats } = useQuery<WeeklyStats>({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
   const { data: bjjData } = useTrainingSessions({ page: 0, size: 3 })
   const { data: physData } = usePhysicalSessions({ page: 0, size: 3 })
@@ -377,6 +380,26 @@ export function ProfilePage() {
         </div>
 
       </div>
+
+      {/* ── MIS MAESTROS ── */}
+      {coaches !== undefined && (
+        <div className="bg-card border border-border p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>
+              Mis maestros
+            </span>
+            <Link
+              to="/configuracion#mis-maestros"
+              className="text-[9px] text-muted-foreground hover:text-foreground transition-colors"
+              style={MONO}
+            >
+              → vincular maestro
+            </Link>
+          </div>
+          <MyCoachesList />
+        </div>
+      )}
+
     </div>
   )
 }

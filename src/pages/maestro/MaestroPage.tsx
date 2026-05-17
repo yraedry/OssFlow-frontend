@@ -6,7 +6,7 @@ import { ReceivedRecommendationList } from '@/features/coaching/recommendations/
 import { ReceivedStudyPlanList } from '@/features/coaching/studyplan/ReceivedStudyPlanList'
 import { useNoteUnreadCount, useRecommendationsReceived } from '@/features/coaching/hooks'
 
-type Tab = 'notas' | 'planificacion'
+type Tab = 'notas' | 'planificacion' | 'tecnicas'
 
 export function MaestroPage() {
   const [tab, setTab] = useState<Tab>('notas')
@@ -47,9 +47,9 @@ export function MaestroPage() {
             {/* Link to Configuración */}
             <Link
               to="/configuracion#mis-maestros"
-              className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors border border-border px-2.5 py-1 hover:border-muted-foreground"
+              className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide bg-foreground text-background hover:bg-foreground/85 transition-colors px-3 py-1.5 border border-foreground"
             >
-              <Settings className="h-3 w-3" strokeWidth={1.5} />
+              <Settings className="h-3.5 w-3.5" strokeWidth={1.5} />
               Gestionar maestros
             </Link>
           </div>
@@ -60,7 +60,8 @@ export function MaestroPage() {
       <div className="flex border-b border-border">
         {([
           { id: 'notas' as Tab, label: 'Notas', badge: count },
-          { id: 'planificacion' as Tab, label: 'Planificación', badge: pendingRecs },
+          { id: 'planificacion' as Tab, label: 'Planificación', badge: 0 },
+          { id: 'tecnicas' as Tab, label: 'Técnicas', badge: pendingRecs },
         ]).map(({ id, label, badge }) => (
           <button
             key={id}
@@ -88,6 +89,7 @@ export function MaestroPage() {
       <div className="flex-1 py-6">
         {tab === 'notas' && <NotasTab />}
         {tab === 'planificacion' && <PlanificacionTab />}
+        {tab === 'tecnicas' && <TecnicasTab />}
       </div>
     </div>
   )
@@ -113,26 +115,30 @@ function NotasTab() {
 
 function PlanificacionTab() {
   return (
-    <div className="space-y-8">
-      <div>
-        <div className="flex items-center gap-4 mb-4">
-          <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
-            Planes de estudio
-          </span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-        <ReceivedStudyPlanList />
+    <div className="space-y-4">
+      <div className="flex items-center gap-4 mb-6">
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+          Planes de estudio
+        </span>
+        <div className="flex-1 h-px bg-border" />
       </div>
+      <ReceivedStudyPlanList />
+    </div>
+  )
+}
 
-      <div>
-        <div className="flex items-center gap-4 mb-4">
-          <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
-            Técnicas recomendadas
-          </span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-        <ReceivedRecommendationList />
+// ─── Técnicas tab ─────────────────────────────────────────────────────────────
+
+function TecnicasTab() {
+  return (
+    <div className="max-w-2xl space-y-4">
+      <div className="flex items-center gap-4 mb-6">
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+          Técnicas recomendadas
+        </span>
+        <div className="flex-1 h-px bg-border" />
       </div>
+      <ReceivedRecommendationList />
     </div>
   )
 }
