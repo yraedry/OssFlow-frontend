@@ -7,15 +7,7 @@ import { cn } from '@/shared/lib/utils'
 import { useLogout } from '@/features/auth/hooks'
 import { useProfile } from '@/features/identity/profile/hooks'
 import { useCoaches, useNoteUnreadCount, useNotifications, useMarkNotificationsRead } from '@/features/coaching/hooks'
-import type { CoachingNotification } from '@/features/coaching/types'
-
-const NOTIFICATION_LABELS: Record<CoachingNotification['type'], string> = {
-  ATHLETE_JOINED:       '🥋 Nuevo alumno',
-  ATHLETE_LEFT:         'Alumno desvinculado',
-  COACH_REMOVED_YOU:    'Desvinculado de maestro',
-  NOTE_SENT:            'Nueva nota de tu maestro',
-  RECOMMENDATION_SENT:  '🥋 Nueva recomendación de técnica',
-}
+import { NOTIFICATION_LABELS } from '@/features/coaching/notificationLabels'
 
 type Tab = { to: string; label: string; icon: React.ElementType; end: boolean; badge?: number }
 

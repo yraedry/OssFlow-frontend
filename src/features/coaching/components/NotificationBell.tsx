@@ -4,15 +4,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { cn } from '@/shared/lib/utils'
 import { useNotifications, useMarkNotificationsRead } from '../hooks'
-import type { CoachingNotification } from '../types'
-
-const NOTIFICATION_LABELS: Record<CoachingNotification['type'], string> = {
-  ATHLETE_JOINED:       '🥋 Nuevo alumno',
-  ATHLETE_LEFT:         'Alumno desvinculado',
-  COACH_REMOVED_YOU:    'Desvinculado de maestro',
-  NOTE_SENT:            'Nueva nota de tu maestro',
-  RECOMMENDATION_SENT:  '🥋 Nueva recomendación de técnica',
-}
+import { NOTIFICATION_LABELS } from '../notificationLabels'
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
