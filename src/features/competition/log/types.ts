@@ -10,7 +10,6 @@ export const CATEGORY_AGE_OPTIONS = [
 export const GI_NOGI_OPTIONS = [
   { value: 'GI',   label: 'Gi' },
   { value: 'NOGI', label: 'No-Gi' },
-  { value: 'BOTH', label: 'Ambos' },
 ] as const
 
 export type CompetitionLog = {
@@ -22,6 +21,8 @@ export type CompetitionLog = {
   location?: string
   giNogi?: string
   totalMatches?: number
+  winsCount?: number
+  lossesCount?: number
   result?: string
   analysisMarkdown?: string
   matches?: CompetitionMatch[]
@@ -51,6 +52,8 @@ export type CreateCompetitionLogRequest = {
   location?: string
   giNogi?: string
   totalMatches?: number
+  winsCount?: number
+  lossesCount?: number
   result?: string
   analysisMarkdown?: string
 }

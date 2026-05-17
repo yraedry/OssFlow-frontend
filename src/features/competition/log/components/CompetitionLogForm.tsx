@@ -24,6 +24,8 @@ export function CompetitionLogForm({ defaultValues, onSubmit, isPending }: Compe
       location:         defaultValues?.location         ?? '',
       giNogi:           defaultValues?.giNogi           ?? '',
       totalMatches:     defaultValues?.totalMatches     ?? undefined,
+      winsCount:        defaultValues?.winsCount        ?? undefined,
+      lossesCount:      defaultValues?.lossesCount      ?? undefined,
       result:           defaultValues?.result           ?? '',
       analysisMarkdown: defaultValues?.analysisMarkdown ?? '',
     },
@@ -112,6 +114,30 @@ export function CompetitionLogForm({ defaultValues, onSubmit, isPending }: Compe
             min={0}
             {...register('totalMatches', { valueAsNumber: true })}
             placeholder="5"
+          />
+        </div>
+      </div>
+
+      {/* Victorias y derrotas */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="winsCount">Victorias</Label>
+          <Input
+            id="winsCount"
+            type="number"
+            min={0}
+            {...register('winsCount', { valueAsNumber: true })}
+            placeholder="3"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="lossesCount">Derrotas</Label>
+          <Input
+            id="lossesCount"
+            type="number"
+            min={0}
+            {...register('lossesCount', { valueAsNumber: true })}
+            placeholder="2"
           />
         </div>
       </div>

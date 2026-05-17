@@ -65,13 +65,22 @@ export function CompetitionLogCard({ log, onClick, onDelete }: CompetitionLogCar
         </div>
       </div>
 
-      {(log.result || log.totalMatches != null) && (
+      {(log.result || log.totalMatches != null || log.winsCount != null || log.lossesCount != null) && (
         <div className="flex items-center justify-between px-4 py-2 border-t border-border/50">
-          {log.totalMatches != null && (
-            <span className="text-[10px] text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
-              {log.totalMatches} combates
-            </span>
-          )}
+          <div className="flex items-center gap-3">
+            {log.totalMatches != null && (
+              <span className="text-[10px] text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
+                {log.totalMatches} combates
+              </span>
+            )}
+            {(log.winsCount != null || log.lossesCount != null) && (
+              <span className="text-[10px]" style={{ fontFamily: 'var(--font-mono)' }}>
+                {log.winsCount != null && <span className="text-emerald-500">{log.winsCount}V</span>}
+                {log.winsCount != null && log.lossesCount != null && <span className="text-muted-foreground mx-0.5">·</span>}
+                {log.lossesCount != null && <span className="text-destructive">{log.lossesCount}D</span>}
+              </span>
+            )}
+          </div>
           {log.result && (
             <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest" style={{ fontFamily: 'var(--font-mono)', color: resultColor }}>
               <Trophy className="h-2.5 w-2.5" strokeWidth={1.5} />

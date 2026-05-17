@@ -8,6 +8,8 @@ export const createCompetitionLogSchema = z.object({
   location:         z.string().max(255).optional(),
   giNogi:           z.string().max(10).optional(),
   totalMatches:     z.number().int().min(0).optional(),
+  winsCount:        z.number().int().min(0).optional(),
+  lossesCount:      z.number().int().min(0).optional(),
   result:           z.string().max(50).optional(),
   analysisMarkdown: z.string().max(50000).optional(),
 })
