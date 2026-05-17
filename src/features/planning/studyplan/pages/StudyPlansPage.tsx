@@ -5,7 +5,7 @@ import { useConfirm } from '@/shared/hooks/useConfirm'
 import { Plus, BookOpen, Trash2, Type, GripVertical } from 'lucide-react'
 import { useStudyPlans, useCreateStudyPlan, useDeleteStudyPlan, useUpdateStudyPlan } from '../hooks'
 import {
-  useStudyBlocks, useCreateStudyBlock, useDeleteStudyBlock,
+  useStudyBlocks, useCreateStudyBlock, useUpdateStudyBlock, useDeleteStudyBlock,
   useStudyItems, useAddTextItem, useAddTechniqueItem, useDeleteStudyItem,
 } from '@/features/planning/studyblock/hooks'
 import { useReceivedStudyPlans } from '@/features/coaching/studyplan/hooks'
@@ -442,7 +442,7 @@ function AthleteStudyPlanEditor({ planId, onBack }: { planId: number; onBack: ()
 
       <button
         type="button"
-        onClick={() => addBlock.mutate({ title: '', blockOrder: blocks.length + 1 })}
+        onClick={() => addBlock.mutate({ title: `Bloque ${blocks.length + 1}`, blockOrder: blocks.length + 1 })}
         disabled={addBlock.isPending}
         className="w-full py-2 border border-dashed border-border text-sm text-muted-foreground hover:border-foreground/50 hover:text-foreground transition-colors flex items-center justify-center gap-2"
       >
@@ -473,6 +473,7 @@ function AthleteBlockEditor({ block, planId, index, onDelete, onAddText, onAddTe
   onDeleteItem: (itemId: number) => void
 }) {
   const { data: items = [] } = useStudyItems(planId, block.id)
+  const updateBlock = useUpdateStudyBlock(planId)
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleVal, setTitleVal] = useState(block.title)
   const [addingText, setAddingText] = useState(false)
@@ -508,9 +509,10 @@ function AthleteBlockEditor({ block, planId, index, onDelete, onAddText, onAddTe
               autoFocus
               value={titleVal}
               onChange={e => setTitleVal(e.target.value)}
-              onBlur={() => setEditingTitle(false)}
+              onBlur={() => { if (titleVal.trim()) updateBlock.mutate({ blockId: block.id, data: { title: titleVal.trim() } }); setEditingTitle(false) }}
               onKeyDown={e => {
-                if (e.key === 'Enter' || e.key === 'Escape') setEditingTitle(false)
+                if (e.key === 'Enter') { if (titleVal.trim()) updateBlock.mutate({ blockId: block.id, data: { title: titleVal.trim() } }); setEditingTitle(false) }
+                if (e.key === 'Escape') setEditingTitle(false)
               }}
               placeholder="Nombre del bloque"
               className="bg-transparent border-b border-border text-sm outline-none w-full font-mono"
