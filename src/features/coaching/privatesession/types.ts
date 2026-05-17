@@ -8,6 +8,7 @@ export type PrivateSession = {
   durationMinutes: number | null
   title: string | null
   notes: string | null
+  techniquesWorked: string[]
   createdAt: string
 }
 
@@ -19,6 +20,7 @@ export type CreatePrivateSessionPayload = {
   durationMinutes?: number | null
   title?: string | null
   notes?: string | null
+  techniquesWorked?: string[]
 }
 
 export type UpdatePrivateSessionPayload = {
@@ -28,4 +30,5 @@ export type UpdatePrivateSessionPayload = {
   durationMinutes?: number | null
   title?: string | null
   notes?: string | null
+  techniquesWorked?: string[]
 }

@@ -31,7 +31,7 @@ function SessionCard({ session, index }: { session: PrivateSession; index: numbe
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <span className="font-mono text-[10px] text-muted-foreground/60">
-              {new Date(session.sessionDate).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+              {new Date(session.sessionDate + 'T00:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
             </span>
             {session.durationMinutes && (
               <span className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-muted/40 text-muted-foreground border border-border">
@@ -39,6 +39,15 @@ function SessionCard({ session, index }: { session: PrivateSession; index: numbe
               </span>
             )}
           </div>
+          {session.techniquesWorked?.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1.5">
+              {session.techniquesWorked.map(t => (
+                <span key={t} className="font-mono text-[8px] uppercase tracking-wide px-1.5 py-0.5 bg-muted/30 text-muted-foreground/70 border border-border/50">
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
           {expanded && session.notes && (
             <p className="mt-3 text-sm text-foreground/70 whitespace-pre-wrap leading-relaxed border-t border-border pt-3">
               {session.notes}
