@@ -71,4 +71,8 @@ export const studyPlanApi = {
   getReceived(planId: number): Promise<StudyPlan> {
     return apiClient.get(`${BASE}/received/${planId}`).json<StudyPlan>()
   },
+
+  duplicatePlan(planId: number, targetAthleteId: number): Promise<StudyPlan> {
+    return apiClient.post(`${BASE}/${planId}/duplicate`, { json: { targetAthleteId } }).json<StudyPlan>()
+  },
 }
