@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { useCreateRecommendation } from '../hooks'
 import { TechniqueFamilyPicker } from '../components/TechniqueFamilyPicker'
-import { FAMILY_LABELS } from '../components/techniqueFamilyGroups'
 import { techniqueApi } from '@/features/catalog/technique/api'
 import { Spinner } from '@/shared/components/ui/spinner'
 
