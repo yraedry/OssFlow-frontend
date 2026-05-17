@@ -40,9 +40,36 @@ const SESSION_TYPE_LABELS: Record<string, string> = {
   MOBILITY: 'Movilidad', HIIT: 'HIIT', OTHER: 'Otro',
 }
 
+const AGE_CATEGORY_LABELS: Record<string, string> = {
+  JUVENILE: 'Juvenil',
+  ADULT:    'Adulto',
+  MASTER_1: 'Master 1',
+  MASTER_2: 'Master 2',
+  MASTER_3: 'Master 3',
+  MASTER_4: 'Master 4',
+}
+
 function getInitials(name?: string | null) {
   if (!name) return '?'
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+}
+
+function StripeBars({ stripes }: { stripes: number | null | undefined }) {
+  const count = stripes ?? 0
+  return (
+    <span className="inline-flex gap-[2px] items-center ml-0.5">
+      {[0, 1, 2, 3].map(i => (
+        <span
+          key={i}
+          className="w-1 rounded-[1px]"
+          style={{
+            height: '11px',
+            background: i < count ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.20)',
+          }}
+        />
+      ))}
+    </span>
+  )
 }
 
 function timeAtBelt(iso?: string | null) {
@@ -189,7 +216,13 @@ export function ProfilePage() {
             @{profile.alias ?? profile.displayName}
           </h1>
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1.5" style={MONO}>
-            Cinturón {belt.label} · {modalityLabel}
+            <span
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[2px] mr-1"
+              style={{ backgroundColor: belt.color, color: belt.text }}
+            >
+              {belt.label}<StripeBars stripes={profile.stripes} />
+            </span>
+            · {modalityLabel}
           </p>
           <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-2">
             {profile.academy && (
@@ -208,6 +241,16 @@ export function ProfilePage() {
               <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
                 <Shield className="h-3 w-3" strokeWidth={1.5} />
                 {primaryFedName}
+              </span>
+            )}
+            {profile.ageCategory && (
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
+                {AGE_CATEGORY_LABELS[profile.ageCategory] ?? profile.ageCategory}
+              </span>
+            )}
+            {profile.weight != null && (
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
+                {profile.weight} kg
               </span>
             )}
           </div>
