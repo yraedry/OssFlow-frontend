@@ -357,7 +357,7 @@ export function ConfiguracionPage() {
             </Card>
           </section>
 
-          {/* ── Código de invitación (solo coaches) ── */}
+          {/* ── Código de invitación (coaches y athlete_coach) ── */}
           {profile?.role === 'ATHLETE_COACH' && (
             <section id="invitation">
               <SectionTitle icon={<Key className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Código de invitación" />
@@ -369,13 +369,11 @@ export function ConfiguracionPage() {
             </section>
           )}
 
-          {/* ── Mis maestros (solo atletas) ── */}
-          {profile?.role !== 'ATHLETE_COACH' && (
-            <section>
-              <SectionTitle icon={<School className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Mis maestros" />
-              <MyCoachesSection />
-            </section>
-          )}
+          {/* ── Mis maestros (atletas y athlete_coach) ── */}
+          <section id="mis-maestros">
+            <SectionTitle icon={<School className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Mis maestros" />
+            <MyCoachesSection />
+          </section>
         </div>
       </div>
 
