@@ -220,15 +220,15 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
         type="button"
         onClick={e => { e.stopPropagation(); onDelete() }}
         className={cn(
-          'absolute top-2.5 right-2.5 bg-transparent border-none cursor-pointer font-mono text-[11px] px-1 py-0.5 transition-all',
-          deleteHovered ? 'text-destructive' : 'text-muted-foreground/60',
+          'absolute top-2 right-2 p-1.5 rounded bg-transparent border-none cursor-pointer transition-all',
+          deleteHovered ? 'text-destructive bg-destructive/10' : 'text-muted-foreground/40',
           hovered ? 'opacity-100' : 'opacity-0',
         )}
         onMouseEnter={e => { e.stopPropagation(); setDeleteHovered(true) }}
         onMouseLeave={e => { e.stopPropagation(); setDeleteHovered(false) }}
         aria-label={`Eliminar plan ${plan.title}`}
       >
-        ✕
+        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
       </button>
 
       <div className="flex items-start justify-between gap-2 mb-2.5 pr-5">
@@ -282,9 +282,9 @@ function AthleteTableRow({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
       <td className="px-4 py-2.5 text-right" onClick={e => e.stopPropagation()}>
         <button
           onClick={onDelete}
-          className="bg-transparent border-none cursor-pointer text-[13px] text-muted-foreground/60 hover:text-destructive transition-colors"
+          className="p-1.5 rounded bg-transparent border-none cursor-pointer text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors"
         >
-          ✕
+          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
         </button>
       </td>
     </tr>
