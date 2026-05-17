@@ -17,19 +17,19 @@ export const studyPlanApi = {
   },
 
   updateContent(planId: number, title: string, description?: string): Promise<void> {
-    return apiClient.patch(`${BASE}/${planId}/content`, { json: { title, description } }).json<void>()
+    return apiClient.patch(`${BASE}/${planId}/content`, { json: { title, description } }).then(() => undefined)
   },
 
   publish(planId: number): Promise<void> {
-    return apiClient.post(`${BASE}/${planId}/publish`).text().then(() => {})
+    return apiClient.post(`${BASE}/${planId}/publish`).then(() => undefined)
   },
 
   unpublish(planId: number): Promise<void> {
-    return apiClient.post(`${BASE}/${planId}/unpublish`).text().then(() => {})
+    return apiClient.post(`${BASE}/${planId}/unpublish`).then(() => undefined)
   },
 
   deletePlan(planId: number): Promise<void> {
-    return apiClient.delete(`${BASE}/${planId}`).json<void>()
+    return apiClient.delete(`${BASE}/${planId}`).then(() => undefined)
   },
 
   addBlock(planId: number, title?: string): Promise<StudyBlock> {
@@ -41,11 +41,11 @@ export const studyPlanApi = {
   },
 
   deleteBlock(planId: number, blockId: number): Promise<void> {
-    return apiClient.delete(`${BASE}/${planId}/blocks/${blockId}`).json<void>()
+    return apiClient.delete(`${BASE}/${planId}/blocks/${blockId}`).then(() => undefined)
   },
 
   reorderBlocks(planId: number, orderedIds: number[]): Promise<void> {
-    return apiClient.post(`${BASE}/${planId}/blocks/reorder`, { json: { orderedIds } }).json<void>()
+    return apiClient.post(`${BASE}/${planId}/blocks/reorder`, { json: { orderedIds } }).then(() => undefined)
   },
 
   addTextItem(planId: number, blockId: number, content: string): Promise<StudyItem> {
@@ -57,11 +57,11 @@ export const studyPlanApi = {
   },
 
   deleteItem(planId: number, blockId: number, itemId: number): Promise<void> {
-    return apiClient.delete(`${BASE}/${planId}/blocks/${blockId}/items/${itemId}`).json<void>()
+    return apiClient.delete(`${BASE}/${planId}/blocks/${blockId}/items/${itemId}`).then(() => undefined)
   },
 
   reorderItems(planId: number, blockId: number, orderedIds: number[]): Promise<void> {
-    return apiClient.post(`${BASE}/${planId}/blocks/${blockId}/items/reorder`, { json: { orderedIds } }).json<void>()
+    return apiClient.post(`${BASE}/${planId}/blocks/${blockId}/items/reorder`, { json: { orderedIds } }).then(() => undefined)
   },
 
   listReceived(): Promise<StudyPlan[]> {
