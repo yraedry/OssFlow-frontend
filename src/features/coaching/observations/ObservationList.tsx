@@ -292,7 +292,7 @@ export function ObservationList({ athleteId }: Props) {
   }
 
   return (
-    <div className="space-y-1.5 max-w-2xl">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
       {observations.map(obs => (
         <ObservationCard key={obs.id} obs={obs} athleteId={athleteId} />
       ))}

@@ -245,14 +245,16 @@ export function CoachRecommendationList({ athleteId }: Props) {
   }
 
   return (
-    <div className="space-y-4 max-w-2xl">
+    <div className="space-y-4">
       {/* Active */}
       {active.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">Activas</p>
-          {active.map(rec => (
-            <ActiveCard key={rec.id} rec={rec} athleteId={athleteId} />
-          ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            {active.map(rec => (
+              <ActiveCard key={rec.id} rec={rec} athleteId={athleteId} />
+            ))}
+          </div>
         </div>
       )}
 
@@ -264,7 +266,7 @@ export function CoachRecommendationList({ athleteId }: Props) {
 
       {/* History (collapsible) */}
       {history.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <button
             type="button"
             onClick={() => setHistoryOpen(prev => !prev)}
@@ -278,7 +280,7 @@ export function CoachRecommendationList({ athleteId }: Props) {
             Historial ({history.length})
           </button>
           {historyOpen && (
-            <div className="space-y-1.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
               {history.map(rec => (
                 <HistoryCard key={rec.id} rec={rec} athleteId={athleteId} />
               ))}
