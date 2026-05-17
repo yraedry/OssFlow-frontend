@@ -89,7 +89,7 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] border border-border px-3 py-1.5 bg-transparent text-muted-foreground hover:border-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] border border-foreground px-3 py-1.5 bg-foreground text-background hover:bg-foreground/85 transition-colors cursor-pointer"
           >
             <Plus className="w-3 h-3" strokeWidth={1.5} />
             Nuevo plan
@@ -173,17 +173,6 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
               onCopyToAthlete={() => setCopyModalPlanId(plan.id)}
             />
           ))}
-
-          {/* Empty add card */}
-          <div
-            onClick={handleNewPlanCard}
-            role="button"
-            tabIndex={0}
-            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleNewPlanCard() }}
-            className="border border-dashed border-border p-4 cursor-pointer flex items-center justify-center gap-2 font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground hover:border-muted-foreground hover:text-foreground min-h-[120px] bg-transparent transition-colors"
-          >
-            ＋ NUEVO PLAN
-          </div>
         </div>
       )}
 
