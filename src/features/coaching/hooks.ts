@@ -118,8 +118,8 @@ export function useNotifications() {
     queryKey: COACHING_KEYS.notifications,
     // La API ya filtra a solo no leídas, length = count de no leídas
     queryFn: () => coachingApi.getNotifications(),
-    refetchInterval: 30_000,
-    staleTime: 30_000,
+    refetchInterval: 5_000,
+    staleTime: 0,
   })
 }
 
