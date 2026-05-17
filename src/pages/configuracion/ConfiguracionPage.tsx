@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
-import { Settings, Palette, Bell, Database, Sun, Moon, Monitor, Upload, Download, School, Key } from 'lucide-react'
+import { Settings, Palette, Bell, Database, Sun, Moon, Monitor, Upload, Download, Key } from 'lucide-react'
 import { Card, CardContent } from '@/shared/components/ui/card'
 import { Badge } from '@/shared/components/ui/badge'
 import { useTheme } from '@/shared/hooks/useTheme'
 import { useExportBackup, useImportBackup, useProfile } from '@/features/identity/profile/hooks'
 import { DeleteAccountModal } from '@/features/identity/profile/components/DeleteAccountModal'
-import { MyCoachesSection } from '@/features/coaching/components/MyCoachesSection'
+import { RedeemCodeCard } from '@/features/coaching/components/RedeemCodeCard'
 import { InvitationCard } from '@/features/coaching/components/InvitationCard'
 
 // ─── localStorage keys ────────────────────────────────────────────────────────
@@ -357,22 +357,25 @@ export function ConfiguracionPage() {
             </Card>
           </section>
 
-          {/* ── Código de invitación (coaches y athlete_coach) ── */}
-          {profile?.role === 'ATHLETE_COACH' && (
-            <section id="invitation">
-              <SectionTitle icon={<Key className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Código de invitación" />
-              <Card>
-                <CardContent className="py-3">
+          {/* ── Vinculación (invitación + vincular maestro) ── */}
+          <section id="vinculacion">
+            <SectionTitle icon={<Key className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Vinculación" />
+            <div className={profile?.role === 'ATHLETE_COACH' ? 'grid grid-cols-1 xl:grid-cols-2 gap-4' : ''}>
+              {profile?.role === 'ATHLETE_COACH' && (
+                <div id="invitation" className="border border-border p-4 space-y-3">
+                  <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-muted-foreground">
+                    Código para tus alumnos
+                  </p>
+                  <p className="text-xs text-muted-foreground" style={{ fontFamily: 'var(--font-mono)' }}>
+                    Comparte este código con tus atletas para que se vinculen a ti
+                  </p>
                   <InvitationCard />
-                </CardContent>
-              </Card>
-            </section>
-          )}
-
-          {/* ── Mis maestros (atletas y athlete_coach) ── */}
-          <section id="mis-maestros">
-            <SectionTitle icon={<School className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Mis maestros" />
-            <MyCoachesSection />
+                </div>
+              )}
+              <div id="mis-maestros" className="border border-border p-4">
+                <RedeemCodeCard />
+              </div>
+            </div>
           </section>
         </div>
       </div>
