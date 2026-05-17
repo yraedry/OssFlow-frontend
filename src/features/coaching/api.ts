@@ -17,7 +17,7 @@ export const coachingApi = {
   },
 
   revokeInvitation(): Promise<void> {
-    return apiClient.delete('coaching/invitations/active').json<void>()
+    return apiClient.delete('coaching/invitations/active').then(() => undefined)
   },
 
   redeemCode(code: string): Promise<void> {

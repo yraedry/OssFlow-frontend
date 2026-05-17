@@ -1,0 +1,28 @@
+/// <reference types="vitest" />
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  // S3.14: Proxy para dev — evita CORS hardcodeado. En prod nginx hace el proxy.
+  server: {
+    proxy: {
+      '/api': { target: 'http://10.10.100.15:8080', changeOrigin: true },
+      '/oauth2': { target: 'http://localhost:8080', changeOrigin: true },
+      '/login/oauth2': { target: 'http://localhost:8080', changeOrigin: true },
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    exclude: ['**/node_modules/**', '**/dist/**', 'e2e/**'],
+  },
+})

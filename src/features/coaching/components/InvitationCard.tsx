@@ -1,11 +1,10 @@
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Copy, RefreshCw, Trash2 } from 'lucide-react'
+import { Copy, RotateCw, X, Plus } from 'lucide-react'
 import { useState } from 'react'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { useActiveInvitation, useGenerateInvitation, useRevokeInvitation } from '../hooks'
-
-const MONO = { fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' } as const
+import { useConfirm } from '@/shared/hooks/useConfirm'
 
 function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text).catch(() => {})
@@ -15,6 +14,7 @@ export function InvitationCard() {
   const { data: invitation, isLoading } = useActiveInvitation()
   const generate = useGenerateInvitation()
   const revoke = useRevokeInvitation()
+  const confirm = useConfirm()
   const [copied, setCopied] = useState(false)
 
   function handleCopy(code: string) {
@@ -23,9 +23,20 @@ export function InvitationCard() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  async function handleRevoke() {
+    const ok = await confirm({
+      title: 'Revocar código',
+      description: 'El código quedará inválido y nadie más podrá usarlo para vincularse. ¿Continuar?',
+      confirmLabel: 'Revocar',
+      cancelLabel: 'Cancelar',
+      variant: 'destructive',
+    })
+    if (ok) revoke.mutate()
+  }
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-6">
+      <div className="flex items-center justify-center py-8">
         <Spinner />
       </div>
     )
@@ -33,18 +44,17 @@ export function InvitationCard() {
 
   if (!invitation) {
     return (
-      <div className="space-y-3">
-        <p className="text-sm text-muted-foreground" style={MONO}>
+      <div className="flex flex-col items-start gap-4 py-2">
+        <p className="text-sm text-muted-foreground font-mono">
           Sin código activo. Genera uno para que tus alumnos puedan vincularse contigo.
         </p>
         <button
           type="button"
           onClick={() => generate.mutate()}
           disabled={generate.isPending}
-          className="flex items-center gap-2 px-4 py-2 bg-foreground text-background text-xs font-semibold hover:bg-foreground/90 transition-colors disabled:opacity-50"
-          style={{ ...MONO, textTransform: 'uppercase', letterSpacing: '0.08em' }}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-foreground text-background text-[11px] font-mono uppercase tracking-widest hover:bg-foreground/85 transition-colors disabled:opacity-50 cursor-pointer"
         >
-          {generate.isPending ? <Spinner /> : null}
+          {generate.isPending ? <Spinner /> : <Plus className="h-3.5 w-3.5" strokeWidth={2} />}
           {generate.isPending ? 'Generando...' : 'Generar código'}
         </button>
       </div>
@@ -54,27 +64,30 @@ export function InvitationCard() {
   const expiresIn = formatDistanceToNow(new Date(invitation.expiresAt), { addSuffix: true, locale: es })
 
   return (
-    <div className="border border-border bg-card overflow-hidden">
-      <div className="px-4 py-4 flex items-center justify-between gap-4 bg-muted/40">
-        <span
-          className="text-3xl font-black tracking-[0.25em] text-foreground select-all"
-          style={{ fontFamily: 'var(--font-mono)' }}
-        >
+    <div className="space-y-4">
+      {/* Code display */}
+      <div className="flex items-center justify-between gap-4 bg-muted/30 border border-border px-5 py-4">
+        <span className="text-4xl font-black tracking-[0.3em] text-foreground select-all font-mono tabular-nums">
           {invitation.code}
         </span>
         <button
           type="button"
           onClick={() => handleCopy(invitation.code)}
-          className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 border border-border text-xs text-muted-foreground hover:text-foreground hover:border-foreground/40 transition-colors"
-          style={{ ...MONO, textTransform: 'uppercase' }}
+          className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border transition-all cursor-pointer ${
+            copied
+              ? 'bg-foreground text-background border-foreground'
+              : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/50'
+          }`}
           aria-label="Copiar código"
         >
           <Copy className="h-3 w-3" strokeWidth={2} />
           {copied ? 'Copiado' : 'Copiar'}
         </button>
       </div>
-      <div className="px-4 py-2 border-t border-border/40 flex items-center justify-between">
-        <div className="flex items-center gap-3 text-xs text-muted-foreground" style={MONO}>
+
+      {/* Meta + actions */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground font-mono">
           <span>Expira {expiresIn}</span>
           {invitation.usedCount > 0 && (
             <>
@@ -83,28 +96,26 @@ export function InvitationCard() {
             </>
           )}
         </div>
-        <div className="flex items-center gap-2">
+
+        <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={() => generate.mutate()}
-            disabled={generate.isPending}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-40"
-            style={{ ...MONO, textTransform: 'uppercase' }}
+            disabled={generate.isPending || revoke.isPending}
             title="Generar nuevo código"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border border-border text-muted-foreground hover:text-foreground hover:border-foreground/50 transition-colors disabled:opacity-40 cursor-pointer"
           >
-            <RefreshCw className="h-3 w-3" strokeWidth={2} />
+            {generate.isPending ? <Spinner /> : <RotateCw className="h-3 w-3" strokeWidth={2} />}
             Nuevo
           </button>
-          <span className="text-border text-xs">·</span>
           <button
             type="button"
-            onClick={() => revoke.mutate()}
-            disabled={revoke.isPending}
-            className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80 transition-colors disabled:opacity-40"
-            style={{ ...MONO, textTransform: 'uppercase' }}
+            onClick={handleRevoke}
+            disabled={revoke.isPending || generate.isPending}
             title="Revocar código"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-mono uppercase tracking-widest border border-destructive/40 text-destructive/70 hover:text-destructive hover:border-destructive transition-colors disabled:opacity-40 cursor-pointer"
           >
-            <Trash2 className="h-3 w-3" strokeWidth={2} />
+            {revoke.isPending ? <Spinner /> : <X className="h-3 w-3" strokeWidth={2} />}
             Revocar
           </button>
         </div>
