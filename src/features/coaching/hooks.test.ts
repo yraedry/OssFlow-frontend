@@ -37,8 +37,8 @@ const MOCK_INVITATION: InvitationCode = {
 }
 
 const MOCK_NOTIFICATIONS: CoachingNotification[] = [
-  { id: 1, type: 'ATHLETE_JOINED', payload: 'Juan', createdAt: new Date().toISOString() },
-  { id: 2, type: 'ATHLETE_LEFT',   payload: 'Maria', createdAt: new Date().toISOString() },
+  { id: 1, type: 'ATHLETE_JOINED', payload: 'Juan',  read: false, createdAt: new Date().toISOString() },
+  { id: 2, type: 'ATHLETE_LEFT',   payload: 'Maria', read: false, createdAt: new Date().toISOString() },
 ]
 
 beforeEach(() => {
