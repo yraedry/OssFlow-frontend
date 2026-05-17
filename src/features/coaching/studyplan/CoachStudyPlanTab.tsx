@@ -21,7 +21,11 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
   const [newPlanHovered, setNewPlanHovered] = useState(false)
   const [emptyCardHovered, setEmptyCardHovered] = useState(false)
   const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
-    return (localStorage.getItem('studyplan-view') as 'cards' | 'table') ?? 'cards'
+    try {
+      return (localStorage.getItem('studyplan-view') as 'cards' | 'table') ?? 'cards'
+    } catch {
+      return 'cards'
+    }
   })
   const confirm = useConfirm()
 
@@ -62,7 +66,11 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
   function toggleView() {
     const next = viewMode === 'cards' ? 'table' : 'cards'
     setViewMode(next)
-    localStorage.setItem('studyplan-view', next)
+    try {
+      localStorage.setItem('studyplan-view', next)
+    } catch {
+      // ignore storage errors (e.g. private browsing quota)
+    }
   }
 
   return (
@@ -162,52 +170,14 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
           </thead>
           <tbody>
             {(plans ?? []).map(plan => (
-              <tr
+              <TableRow
                 key={plan.id}
-                onClick={() => setEditingPlanId(plan.id)}
-                style={{ borderBottom: '1px solid #2a2a2a', cursor: 'pointer' }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#1e1e1e')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
-              >
-                <td style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: '#f0ebe3', padding: '10px 16px', fontWeight: 500 }}>{plan.title}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: plan.status === 'PUBLISHED' ? '#22c55e' : '#555', padding: '10px 16px' }}>
-                  {plan.status === 'PUBLISHED' ? 'Publicado' : 'Borrador'}
-                </td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#888', padding: '10px 16px' }}>
-                  {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '—'}
-                </td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#888', padding: '10px 16px' }}>
-                  {(plan.blocks ?? []).length}
-                </td>
-                <td style={{ padding: '10px 16px', textAlign: 'right', whiteSpace: 'nowrap' }} onClick={e => e.stopPropagation()}>
-                  <button
-                    title="Duplicar"
-                    onClick={() => duplicatePlan.mutate({ planId: plan.id, targetAthleteId: athleteId })}
-                    style={{ color: '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, marginRight: 6 }}
-                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#f0ebe3')}
-                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
-                  >
-                    ⧉
-                  </button>
-                  <button
-                    title="Copiar a otro atleta"
-                    onClick={() => setCopyModalPlanId(plan.id)}
-                    style={{ color: '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, marginRight: 6 }}
-                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#f0ebe3')}
-                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
-                  >
-                    →
-                  </button>
-                  <button
-                    onClick={() => handleDelete(plan)}
-                    style={{ color: '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}
-                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#ef4444')}
-                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
-                  >
-                    ✕
-                  </button>
-                </td>
-              </tr>
+                plan={plan}
+                onEdit={() => setEditingPlanId(plan.id)}
+                onDelete={() => handleDelete(plan)}
+                onDuplicate={() => duplicatePlan.mutate({ planId: plan.id, targetAthleteId: athleteId })}
+                onCopyToAthlete={() => setCopyModalPlanId(plan.id)}
+              />
             ))}
           </tbody>
         </table>
@@ -246,8 +216,11 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
 
       {/* Copy to athlete modal */}
       {copyModalPlanId !== null && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
-          <div style={{ background: '#1a1a1a', border: '1px solid #3a3a3a', padding: 24, minWidth: 300 }}>
+        <div
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+          onClick={() => setCopyModalPlanId(null)}
+        >
+          <div style={{ background: '#1a1a1a', border: '1px solid #3a3a3a', padding: 24, minWidth: 300 }} onClick={e => e.stopPropagation()}>
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: 16 }}>
               Copiar a atleta
             </div>
@@ -282,6 +255,69 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
         </div>
       )}
     </div>
+  )
+}
+
+interface TableRowProps {
+  plan: StudyPlan
+  onEdit: () => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onCopyToAthlete: () => void
+}
+
+function TableRow({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: TableRowProps) {
+  const [hovered, setHovered] = useState(false)
+  const [dupHovered, setDupHovered] = useState(false)
+  const [copyHovered, setCopyHovered] = useState(false)
+  const [delHovered, setDelHovered] = useState(false)
+
+  return (
+    <tr
+      onClick={onEdit}
+      style={{ borderBottom: '1px solid #2a2a2a', cursor: 'pointer', background: hovered ? '#1e1e1e' : 'transparent' }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <td style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: '#f0ebe3', padding: '10px 16px', fontWeight: 500 }}>{plan.title}</td>
+      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: plan.status === 'PUBLISHED' ? '#22c55e' : '#555', padding: '10px 16px' }}>
+        {plan.status === 'PUBLISHED' ? 'Publicado' : 'Borrador'}
+      </td>
+      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#888', padding: '10px 16px' }}>
+        {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '—'}
+      </td>
+      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#888', padding: '10px 16px' }}>
+        {(plan.blocks ?? []).length}
+      </td>
+      <td style={{ padding: '10px 16px', textAlign: 'right', whiteSpace: 'nowrap' }} onClick={e => e.stopPropagation()}>
+        <button
+          title="Duplicar"
+          onClick={onDuplicate}
+          style={{ color: dupHovered ? '#f0ebe3' : '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, marginRight: 6, transition: 'color 120ms' }}
+          onMouseEnter={() => setDupHovered(true)}
+          onMouseLeave={() => setDupHovered(false)}
+        >
+          ⧉
+        </button>
+        <button
+          title="Copiar a otro atleta"
+          onClick={onCopyToAthlete}
+          style={{ color: copyHovered ? '#f0ebe3' : '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, marginRight: 6, transition: 'color 120ms' }}
+          onMouseEnter={() => setCopyHovered(true)}
+          onMouseLeave={() => setCopyHovered(false)}
+        >
+          →
+        </button>
+        <button
+          onClick={onDelete}
+          style={{ color: delHovered ? '#ef4444' : '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, transition: 'color 120ms' }}
+          onMouseEnter={() => setDelHovered(true)}
+          onMouseLeave={() => setDelHovered(false)}
+        >
+          ✕
+        </button>
+      </td>
+    </tr>
   )
 }
 

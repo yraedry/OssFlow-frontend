@@ -173,8 +173,11 @@ export function useDuplicatePlan(currentAthleteId: number) {
   return useMutation({
     mutationFn: ({ planId, targetAthleteId }: { planId: number; targetAthleteId: number }) =>
       studyPlanApi.duplicatePlan(planId, targetAthleteId),
-    onSuccess: () => {
+    onSuccess: (_data, { targetAthleteId }) => {
       qc.invalidateQueries({ queryKey: KEYS.plans(currentAthleteId) })
+      if (targetAthleteId !== currentAthleteId) {
+        qc.invalidateQueries({ queryKey: KEYS.plans(targetAthleteId) })
+      }
       toast.success('Plan duplicado')
     },
     onError: () => toast.error('No se pudo duplicar el plan'),
