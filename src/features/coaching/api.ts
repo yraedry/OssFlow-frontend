@@ -77,7 +77,7 @@ export const coachingApi = {
   },
 
   deleteObservation(id: number): Promise<void> {
-    return apiClient.delete(`coaching/observations/${id}`).json<void>()
+    return apiClient.delete(`coaching/observations/${id}`).then(() => undefined)
   },
 
   // Notes
@@ -88,7 +88,7 @@ export const coachingApi = {
     return apiClient.post('coaching/notes', { json: payload }).json<Note>()
   },
   deleteNote(id: number): Promise<void> {
-    return apiClient.delete(`coaching/notes/${id}`).json<void>()
+    return apiClient.delete(`coaching/notes/${id}`).then(() => undefined)
   },
   getReceivedNotes(): Promise<Note[]> {
     return apiClient.get('coaching/notes/received').json<Note[]>()
@@ -97,7 +97,7 @@ export const coachingApi = {
     return apiClient.get(`coaching/notes/received/${id}`).json<Note>()
   },
   markNoteRead(id: number): Promise<void> {
-    return apiClient.patch(`coaching/notes/received/${id}/read`).json<void>()
+    return apiClient.patch(`coaching/notes/received/${id}/read`).then(() => undefined)
   },
   getNoteUnreadCount(): Promise<number> {
     return apiClient.get('coaching/notes/received/unread-count').json<number>()
@@ -111,15 +111,15 @@ export const coachingApi = {
     return apiClient.post('coaching/recommendations', { json: payload }).json<TechniqueRecommendation>()
   },
   cancelRecommendation(id: number): Promise<void> {
-    return apiClient.patch(`coaching/recommendations/${id}/cancel`).json<void>()
+    return apiClient.patch(`coaching/recommendations/${id}/cancel`).then(() => undefined)
   },
   getRecommendationsReceived(): Promise<TechniqueRecommendation[]> {
     return apiClient.get('coaching/recommendations/received').json<TechniqueRecommendation[]>()
   },
   acceptRecommendation(id: number): Promise<void> {
-    return apiClient.patch(`coaching/recommendations/${id}/accept`).json<void>()
+    return apiClient.patch(`coaching/recommendations/${id}/accept`).then(() => undefined)
   },
   dismissRecommendation(id: number): Promise<void> {
-    return apiClient.patch(`coaching/recommendations/${id}/dismiss`).json<void>()
+    return apiClient.patch(`coaching/recommendations/${id}/dismiss`).then(() => undefined)
   },
 }
