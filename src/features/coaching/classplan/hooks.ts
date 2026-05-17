@@ -60,3 +60,78 @@ export function useDeleteClassPlan(gymId: number) {
     onError: () => toast.error('Error al eliminar el plan'),
   })
 }
+
+export function useAddClassBlock(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (title?: string) => classPlanApi.addBlock(planId, title),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.plan(planId) }),
+    onError: () => toast.error('Error al añadir bloque'),
+  })
+}
+
+export function useUpdateClassBlock(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blockId, title }: { blockId: number; title: string }) =>
+      classPlanApi.updateBlock(planId, blockId, title),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.plan(planId) }),
+    onError: () => toast.error('No se pudo guardar el título del bloque'),
+  })
+}
+
+export function useDeleteClassBlock(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (blockId: number) => classPlanApi.deleteBlock(planId, blockId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.plan(planId) }),
+    onError: () => toast.error('Error al eliminar bloque'),
+  })
+}
+
+export function useReorderClassBlocks(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (orderedIds: number[]) => classPlanApi.reorderBlocks(planId, orderedIds),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.plan(planId) }),
+  })
+}
+
+export function useAddClassTextItem(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blockId, content }: { blockId: number; content: string }) =>
+      classPlanApi.addTextItem(planId, blockId, content),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.plan(planId) }),
+    onError: () => toast.error('Error al añadir item'),
+  })
+}
+
+export function useAddClassTechniqueItem(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blockId, techniqueId }: { blockId: number; techniqueId: number }) =>
+      classPlanApi.addTechniqueItem(planId, blockId, techniqueId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.plan(planId) }),
+    onError: () => toast.error('Error al añadir técnica'),
+  })
+}
+
+export function useDeleteClassItem(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blockId, itemId }: { blockId: number; itemId: number }) =>
+      classPlanApi.deleteItem(planId, blockId, itemId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.plan(planId) }),
+    onError: () => toast.error('Error al eliminar item'),
+  })
+}
+
+export function useReorderClassItems(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blockId, orderedIds }: { blockId: number; orderedIds: number[] }) =>
+      classPlanApi.reorderItems(planId, blockId, orderedIds),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.plan(planId) }),
+  })
+}
