@@ -4,9 +4,10 @@ import { Settings } from 'lucide-react'
 import { ReceivedNoteList } from '@/features/coaching/notes/ReceivedNoteList'
 import { ReceivedRecommendationList } from '@/features/coaching/recommendations/ReceivedRecommendationList'
 import { ReceivedStudyPlanList } from '@/features/coaching/studyplan/ReceivedStudyPlanList'
+import { ReceivedPrivateSessionList } from '@/features/coaching/privatesession/ReceivedPrivateSessionList'
 import { useNoteUnreadCount, useRecommendationsReceived } from '@/features/coaching/hooks'
 
-type Tab = 'notas' | 'planificacion' | 'tecnicas'
+type Tab = 'notas' | 'planificacion' | 'clases' | 'tecnicas'
 
 export function MaestroPage() {
   const [tab, setTab] = useState<Tab>('notas')
@@ -61,6 +62,7 @@ export function MaestroPage() {
         {([
           { id: 'notas' as Tab, label: 'Notas', badge: count },
           { id: 'planificacion' as Tab, label: 'Planificación', badge: 0 },
+          { id: 'clases' as Tab, label: 'Clases', badge: 0 },
           { id: 'tecnicas' as Tab, label: 'Técnicas', badge: pendingRecs },
         ]).map(({ id, label, badge }) => (
           <button
@@ -89,6 +91,7 @@ export function MaestroPage() {
       <div className="flex-1 py-6">
         {tab === 'notas' && <NotasTab />}
         {tab === 'planificacion' && <PlanificacionTab />}
+        {tab === 'clases' && <ClasesTab />}
         {tab === 'tecnicas' && <TecnicasTab />}
       </div>
     </div>
@@ -123,6 +126,22 @@ function PlanificacionTab() {
         <div className="flex-1 h-px bg-border" />
       </div>
       <ReceivedStudyPlanList />
+    </div>
+  )
+}
+
+// ─── Clases tab ───────────────────────────────────────────────────────────────
+
+function ClasesTab() {
+  return (
+    <div className="max-w-2xl space-y-4">
+      <div className="flex items-center gap-4 mb-6">
+        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+          Clases privadas
+        </span>
+        <div className="flex-1 h-px bg-border" />
+      </div>
+      <ReceivedPrivateSessionList />
     </div>
   )
 }
