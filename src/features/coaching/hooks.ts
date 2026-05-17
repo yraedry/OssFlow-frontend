@@ -429,9 +429,33 @@ export function useDismissRecommendation() {
 export function useTechniqueSearch(query: string) {
   return useQuery({
     queryKey: ['technique-search', query],
-    queryFn: () => techniqueApi.list({ search: query, size: 10 }),
-    enabled: query.length >= 2,
+    queryFn: () => techniqueApi.list({ search: query, size: 20 }),
+    enabled: query.length >= 1,
     staleTime: 30_000,
-    select: (data) => data.content.map(t => ({ id: t.id, name: t.name, family: t.category })),
+    select: (data) => data.content.map(t => ({
+      id: t.id,
+      name: t.name,
+      // t.family is the TechniqueFamily enum (GUARD_PASSES, TAKEDOWNS, etc.)
+      // t.category is the TechniqueCategory (PASS, TAKEDOWN, etc.)
+      family: (t as unknown as { family?: string }).family ?? t.category,
+    })),
+  })
+}
+
+export function useTechniquesByFamily(families: string[]) {
+  return useQuery({
+    queryKey: ['techniques-by-family', ...families.sort()],
+    queryFn: async () => {
+      const results = await Promise.all(
+        families.map(f => techniqueApi.list({ search: '', size: 50 }).then(
+          d => d.content
+            .filter(t => ((t as unknown as { family?: string }).family ?? '') === f)
+            .map(t => ({ id: t.id, name: t.name, family: f }))
+        ))
+      )
+      return results.flat()
+    },
+    enabled: families.length > 0,
+    staleTime: 5 * 60_000,
   })
 }
