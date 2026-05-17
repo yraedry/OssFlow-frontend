@@ -28,12 +28,16 @@ export type CompetitionItem = {
   result: string | null
 }
 
+export type AgeCategory = 'JUVENILE' | 'ADULT' | 'MASTER_1' | 'MASTER_2' | 'MASTER_3' | 'MASTER_4' | null
+
 export type AthleteSummary = {
   athleteId: number
   displayName: string
   currentBelt: string
   daysInBelt: number
   academy: string | null
+  ageCategory: AgeCategory
+  preferredModality: 'GI' | 'NOGI' | 'BOTH' | null
   activeInjuries: ActiveInjuryItem[]
   recentCompetitions: CompetitionItem[]
   lastSessionDate: string | null
@@ -74,6 +78,12 @@ export type CreateObservationPayload = {
   body: string
   tone: ObservationTone
   techniqueFamily?: string
+}
+
+export type UpdateObservationPayload = {
+  body: string
+  tone: ObservationTone
+  techniqueFamily?: string | null
 }
 
 export type Note = {

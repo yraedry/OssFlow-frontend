@@ -43,17 +43,17 @@ export function RadarPanel({
     <div className="space-y-3">
       <ResponsiveContainer width="100%" height={260}>
         <RadarChart data={points} margin={{ top: 8, right: 24, bottom: 8, left: 24 }}>
-          <PolarGrid stroke="rgba(255,255,255,0.08)" />
-          <PolarAngleAxis dataKey="label" tick={{ fill: '#cbd5e1', fontSize: 10, fontFamily: 'var(--font-mono)' }} />
+          <PolarGrid stroke="currentColor" strokeOpacity={0.12} />
+          <PolarAngleAxis dataKey="label" tick={{ fill: 'currentColor', fontSize: 10, fontFamily: 'var(--font-mono)', opacity: 0.7 }} />
           <PolarRadiusAxis angle={90} domain={domain} tick={false} tickCount={4} axisLine={false} />
           <Radar
             name="Total"
             dataKey="value"
             stroke={section.color}
             fill={section.color}
-            fillOpacity={0.35}
+            fillOpacity={0.25}
             strokeWidth={2}
-            dot={{ r: 4, fill: section.color, stroke: '#0f172a', strokeWidth: 1.5 }}
+            dot={{ r: 4, fill: section.color, strokeWidth: 1.5 }}
           />
           <Tooltip
             contentStyle={TOOLTIP_STYLE}

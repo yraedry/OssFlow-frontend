@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { coachingApi } from './api'
-import type { Observation, RadarPoint, CreateObservationPayload, Note, CreateNotePayload, CreateRecommendationPayload } from './types'
+import type { Observation, RadarPoint, CreateObservationPayload, UpdateObservationPayload, Note, CreateNotePayload, CreateRecommendationPayload } from './types'
 import { techniqueApi } from '@/features/catalog/technique/api'
 import { ApiClientError } from '@/shared/api/client'
 
@@ -209,6 +209,36 @@ export function useCreateObservation(athleteId: number) {
       if (context?.prevRadar !== undefined)
         qc.setQueryData(COACHING_KEYS.observationRadar(athleteId), context.prevRadar)
       toast.error('Error al guardar la observación')
+    },
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.observations(athleteId) })
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.observationRadar(athleteId) })
+    },
+  })
+}
+
+export function useUpdateObservation(athleteId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: UpdateObservationPayload }) =>
+      coachingApi.updateObservation(id, payload),
+    onMutate: async ({ id, payload }) => {
+      await qc.cancelQueries({ queryKey: COACHING_KEYS.observations(athleteId) })
+      const prev = qc.getQueryData<Observation[]>(COACHING_KEYS.observations(athleteId))
+      qc.setQueryData<Observation[]>(COACHING_KEYS.observations(athleteId), old =>
+        (old ?? []).map(o => o.id === id ? { ...o, ...payload, techniqueFamily: payload.techniqueFamily ?? null } : o),
+      )
+      return { prev }
+    },
+    onSuccess: (updated, { id }) => {
+      qc.setQueryData<Observation[]>(COACHING_KEYS.observations(athleteId), old =>
+        (old ?? []).map(o => o.id === id ? updated : o),
+      )
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.prev !== undefined)
+        qc.setQueryData(COACHING_KEYS.observations(athleteId), context.prev)
+      toast.error('Error al actualizar la observación')
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: COACHING_KEYS.observations(athleteId) })

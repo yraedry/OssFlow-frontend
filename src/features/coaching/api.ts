@@ -1,7 +1,7 @@
 import { apiClient } from '@/shared/api/client'
 import type {
   InvitationCode, CoachAthleteListItem, AthleteSummary, CoachListItem, CoachingNotification,
-  TechniqueFamily, Observation, RadarPoint, CreateObservationPayload,
+  TechniqueFamily, Observation, RadarPoint, CreateObservationPayload, UpdateObservationPayload,
   Note, CreateNotePayload,
   TechniqueRecommendation, CreateRecommendationPayload,
 } from './types'
@@ -70,6 +70,10 @@ export const coachingApi = {
 
   createObservation(payload: CreateObservationPayload): Promise<Observation> {
     return apiClient.post('coaching/observations', { json: payload }).json<Observation>()
+  },
+
+  updateObservation(id: number, payload: UpdateObservationPayload): Promise<Observation> {
+    return apiClient.patch(`coaching/observations/${id}`, { json: payload }).json<Observation>()
   },
 
   deleteObservation(id: number): Promise<void> {
