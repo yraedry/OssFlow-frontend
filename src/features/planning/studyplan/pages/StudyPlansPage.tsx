@@ -143,7 +143,7 @@ export function StudyPlansPage() {
             </tbody>
           </table>
         ) : (
-          <div className="grid grid-cols-2 gap-px bg-border">
+          <div className="grid grid-cols-2 border border-border">
             {plans.map(plan => (
               <AthletePlanCard
                 key={plan.id}
@@ -175,7 +175,7 @@ export function StudyPlansPage() {
           {receivedLoading ? (
             <div className="flex justify-center py-4"><Spinner /></div>
           ) : (
-            <div className="grid grid-cols-2 gap-px bg-border">
+            <div className="grid grid-cols-2 border border-border">
               {receivedPlans!.map(plan => (
                 <ReceivedPlanCard
                   key={plan.id}
@@ -211,7 +211,7 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
       role="button"
       tabIndex={0}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onEdit() }}
-      className={cn('relative p-4 cursor-pointer transition-colors', hovered ? 'bg-muted/50' : 'bg-card')}
+      className={cn('relative p-4 cursor-pointer transition-colors border-r border-b border-border', hovered ? 'bg-muted/50' : 'bg-card')}
       style={{ borderLeft: `3px solid ${accent}` }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -303,7 +303,7 @@ function ReceivedPlanCard({ plan, onView }: { plan: CoachStudyPlan; onView: () =
       role="button"
       tabIndex={0}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onView() }}
-      className={cn('relative p-4 cursor-pointer transition-colors', hovered ? 'bg-muted/50' : 'bg-card')}
+      className={cn('relative p-4 cursor-pointer transition-colors border-r border-b border-border', hovered ? 'bg-muted/50' : 'bg-card')}
       style={{ borderLeft: `3px solid ${isPublished ? '#22c55e' : 'var(--border)'}` }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

@@ -158,7 +158,7 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
           </tbody>
         </table>
       ) : (
-        <div className="grid grid-cols-2 gap-px bg-border">
+        <div className="grid grid-cols-2 border border-border">
           {(plans ?? []).map(plan => (
             <PlanCard
               key={plan.id}
@@ -281,49 +281,46 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
       tabIndex={0}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onEdit() }}
       className={cn(
-        'relative p-4 cursor-pointer transition-colors',
+        'flex flex-col p-4 cursor-pointer transition-colors border-r border-b border-border',
         hovered ? 'bg-muted/50' : 'bg-card',
       )}
       style={{ borderLeft: `3px solid ${isPublished ? '#22c55e' : 'var(--border)'}` }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Delete button */}
-      <button
-        type="button"
-        onClick={e => { e.stopPropagation(); onDelete() }}
-        className={cn(
-          'absolute top-2 right-2 p-1.5 rounded bg-transparent border-none cursor-pointer transition-all',
-          deleteHovered ? 'text-destructive bg-destructive/10' : 'text-muted-foreground/40',
-          hovered ? 'opacity-100' : 'opacity-0',
-        )}
-        onMouseEnter={e => { e.stopPropagation(); setDeleteHovered(true) }}
-        onMouseLeave={e => { e.stopPropagation(); setDeleteHovered(false) }}
-        aria-label={`Eliminar plan ${plan.title}`}
-      >
-        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-      </button>
-
-      {/* Card top: title + status badge */}
-      <div className="flex items-start justify-between gap-2 mb-2.5 pr-5">
-        <div className="font-serif text-[15px] font-bold text-foreground leading-tight flex-1">
+      {/* Header: title + badge + delete */}
+      <div className="flex items-start gap-2 mb-2.5">
+        <div className="font-serif text-[15px] font-bold text-foreground leading-tight flex-1 min-w-0">
           {plan.title}
         </div>
         <span
-          className="font-mono text-[8px] font-bold tracking-[0.1em] uppercase px-1.5 py-0.5 shrink-0 border"
+          className="font-mono text-[8px] font-bold tracking-[0.1em] uppercase px-1.5 py-0.5 shrink-0 border self-start"
           style={{
-            color: isPublished ? '#22c55e' : undefined,
-            borderColor: isPublished ? '#22c55e44' : undefined,
+            color: isPublished ? '#22c55e' : 'var(--muted-foreground)',
+            borderColor: isPublished ? '#22c55e44' : 'var(--border)',
+            opacity: isPublished ? 1 : 0.6,
           }}
         >
-          <span className={isPublished ? '' : 'text-muted-foreground/60 border-border'}>
-            {isPublished ? 'PUBLICADO' : 'BORRADOR'}
-          </span>
+          {isPublished ? 'PUBLICADO' : 'BORRADOR'}
         </span>
+        <button
+          type="button"
+          onClick={e => { e.stopPropagation(); onDelete() }}
+          className={cn(
+            'shrink-0 p-1 rounded bg-transparent border-none cursor-pointer transition-all',
+            deleteHovered ? 'text-destructive bg-destructive/10' : 'text-muted-foreground/30',
+            hovered ? 'opacity-100' : 'opacity-0',
+          )}
+          onMouseEnter={e => { e.stopPropagation(); setDeleteHovered(true) }}
+          onMouseLeave={e => { e.stopPropagation(); setDeleteHovered(false) }}
+          aria-label={`Eliminar plan ${plan.title}`}
+        >
+          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+        </button>
       </div>
 
       {/* Block previews */}
-      <div className="flex flex-col gap-0.5 mb-2.5">
+      <div className="flex flex-col gap-0.5 mb-2.5 flex-1">
         {(plan.blocks ?? []).slice(0, 3).map(b => (
           <div key={b.id} className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
             <span className="w-1 h-1 rounded-full bg-border shrink-0 inline-block" />
@@ -337,33 +334,27 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
           </div>
         )}
         {(plan.blocks ?? []).length === 0 && (
-          <div className="font-mono text-[10px] text-muted-foreground/60 italic">
-            Sin bloques
-          </div>
+          <div className="font-mono text-[10px] text-muted-foreground/60 italic">Sin bloques</div>
         )}
       </div>
 
       {/* Footer: date + viewed */}
-      <div className="flex items-center justify-between pt-2 border-t border-border">
+      <div className="flex items-center justify-between pt-2 border-t border-border mb-2">
         <span className="font-mono text-[10px] text-muted-foreground/60">
           {plan.createdAt
             ? new Date(plan.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
             : ''}
         </span>
         {plan.viewedByAthlete ? (
-          <span className="font-mono text-[9px]" style={{ color: '#22c55e' }}>
-            👁 Visto por atleta
-          </span>
+          <span className="font-mono text-[9px]" style={{ color: '#22c55e' }}>Visto</span>
         ) : (
-          <span className="font-mono text-[9px] text-muted-foreground/40">
-            No visto
-          </span>
+          <span className="font-mono text-[9px] text-muted-foreground/40">No visto</span>
         )}
       </div>
 
-      {/* Duplicate / copy-to-athlete actions */}
+      {/* Actions row */}
       <div
-        className={cn('absolute bottom-2 right-2 flex gap-1 transition-opacity', hovered ? 'opacity-100' : 'opacity-0')}
+        className={cn('flex gap-1 transition-opacity', hovered ? 'opacity-100' : 'opacity-0')}
         onClick={e => e.stopPropagation()}
       >
         <button
