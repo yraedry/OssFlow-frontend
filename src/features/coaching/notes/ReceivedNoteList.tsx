@@ -3,30 +3,56 @@ import { useReceivedNotes } from '../hooks'
 import type { Note } from '../types'
 import { Spinner } from '@/shared/components/ui/spinner'
 
-function ReceivedNoteCard({ note }: { note: Note }) {
+function ReceivedNoteCard({ note, index }: { note: Note; index: number }) {
   const navigate = useNavigate()
+  const isUnread = !note.read
+
   return (
     <button
       type="button"
-      className={`w-full text-left border border-border bg-card p-4 hover:border-muted-foreground transition-colors ${!note.read ? 'border-l-2 border-l-purple-500' : ''}`}
       onClick={() => navigate(`/maestro/notas/${note.id}`)}
+      className="w-full text-left group transition-colors hover:bg-muted/30 cursor-pointer bg-transparent border-none p-0"
     >
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-sm line-clamp-2 flex-1">
-          {note.body.substring(0, 120)}{note.body.length > 120 ? '...' : ''}
-        </p>
-        {!note.read && (
-          <span className="shrink-0 h-2 w-2 rounded-full bg-purple-500 mt-1.5" />
-        )}
+      <div
+        className="flex border border-border"
+        style={{ borderLeftWidth: isUnread ? '3px' : '1px', borderLeftColor: isUnread ? 'var(--color-foreground)' : 'var(--color-border)' }}
+      >
+        {/* Index column */}
+        <div className="w-12 shrink-0 flex items-start justify-end px-3 pt-4 border-r border-border bg-muted/10">
+          <span className="font-mono text-[9px] text-muted-foreground/40">
+            {String(index + 1).padStart(2, '0')}
+          </span>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0 px-4 py-3.5">
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <p className={`text-sm leading-snug line-clamp-2 flex-1 ${isUnread ? 'font-semibold text-foreground' : 'text-foreground/80'}`}>
+              {note.body.substring(0, 140)}{note.body.length > 140 ? '…' : ''}
+            </p>
+            {isUnread && (
+              <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.15em] border border-foreground px-1.5 py-0.5 text-foreground mt-0.5">
+                Nueva
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            {note.techniqueFamily && (
+              <span className="font-mono text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-muted/40 text-muted-foreground border border-border">
+                {note.techniqueFamily.replace(/_/g, ' ')}
+              </span>
+            )}
+            <span className="font-mono text-[10px] text-muted-foreground/60">
+              {new Date(note.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+            </span>
+          </div>
+        </div>
+
+        {/* Arrow */}
+        <div className="w-8 shrink-0 flex items-center justify-center border-l border-border">
+          <span className="font-mono text-[11px] text-muted-foreground/30 group-hover:text-foreground transition-colors">→</span>
+        </div>
       </div>
-      {note.techniqueFamily && (
-        <span className="mt-2 inline-block text-[10px] px-2 py-0.5 font-mono uppercase tracking-wide bg-muted/30 text-muted-foreground border border-border">
-          {note.techniqueFamily.replace(/_/g, ' ')}
-        </span>
-      )}
-      <p className="text-[10px] text-muted-foreground font-mono mt-2">
-        {new Date(note.createdAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
-      </p>
     </button>
   )
 }
@@ -34,26 +60,23 @@ function ReceivedNoteCard({ note }: { note: Note }) {
 export function ReceivedNoteList() {
   const { data: notes, isLoading } = useReceivedNotes()
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center py-10">
-        <Spinner />
-      </div>
-    )
-  }
+  if (isLoading) return <div className="flex justify-center py-10"><Spinner /></div>
 
   if (!notes?.length) {
     return (
-      <div className="border border-dashed border-border/50 px-6 py-10 text-center">
-        <p className="text-sm text-muted-foreground font-mono">Sin notas aún.</p>
+      <div className="border border-dashed border-border px-6 py-10 text-center">
+        <p className="font-serif text-base text-muted-foreground/60 italic">Sin notas aún</p>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40 mt-2">
+          Tu maestro aún no te ha enviado notas
+        </p>
       </div>
     )
   }
 
   return (
     <div className="space-y-2">
-      {notes.map(note => (
-        <ReceivedNoteCard key={note.id} note={note} />
+      {notes.map((note, i) => (
+        <ReceivedNoteCard key={note.id} note={note} index={i} />
       ))}
     </div>
   )
