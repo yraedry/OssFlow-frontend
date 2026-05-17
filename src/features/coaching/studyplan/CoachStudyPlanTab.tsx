@@ -57,10 +57,6 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
     deletePlan.mutate(plan.id)
   }
 
-  function handleNewPlanCard() {
-    setCreating(true)
-  }
-
   function toggleView() {
     const next = viewMode === 'cards' ? 'table' : 'cards'
     setViewMode(next)
