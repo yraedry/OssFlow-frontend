@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { cn } from '@/shared/lib/utils'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, BookOpen, ChevronDown, ChevronUp, Trash2, Type, GripVertical } from 'lucide-react'
+import { Plus, BookOpen, Trash2, Type, GripVertical } from 'lucide-react'
 import { useStudyPlans, useCreateStudyPlan, useDeleteStudyPlan, useUpdateStudyPlan } from '../hooks'
 import {
   useStudyBlocks, useCreateStudyBlock, useDeleteStudyBlock,
