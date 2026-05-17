@@ -70,31 +70,18 @@ export function AthleteProfilePage() {
       {/* Tab content */}
       <div className="border border-border bg-card">
         {tab === 'planificacion' && (
-          <div
-            style={{
-              borderBottom: '1px solid #2a2a2a',
-              display: 'flex',
-              padding: '0 24px',
-            }}
-          >
+          <div className="flex border-b border-border px-6">
             {(['planes', 'tecnicas', 'notas'] as PlanSubTab[]).map(st => (
               <button
                 key={st}
+                type="button"
                 onClick={() => setPlanSubTab(st)}
-                style={{
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 10,
-                  fontWeight: 700,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  padding: '10px 16px',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: planSubTab === st ? '#f0ebe3' : '#555',
-                  borderBottom: planSubTab === st ? '2px solid #f0ebe3' : '2px solid transparent',
-                  marginBottom: -1,
-                }}
+                className={cn(
+                  'px-4 py-2.5 text-[10px] font-mono font-bold uppercase tracking-widest border-b-2 -mb-px cursor-pointer transition-colors',
+                  planSubTab === st
+                    ? 'border-foreground text-foreground'
+                    : 'border-transparent text-muted-foreground hover:text-foreground',
+                )}
               >
                 {st === 'planes' ? 'Planes' : st === 'tecnicas' ? 'Técnicas' : 'Notas'}
               </button>
