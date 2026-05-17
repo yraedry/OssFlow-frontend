@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { useCoachStudyPlans, useCreateStudyPlan, useDeleteStudyPlan } from './hooks'
+import { useCoachStudyPlans, useCreateStudyPlan, useDeleteStudyPlan, useDuplicatePlan } from './hooks'
+import { useAthletes } from '@/features/coaching/hooks'
 import { StudyPlanEditor } from './StudyPlanEditor'
 import { Spinner } from '@/shared/components/ui/spinner'
 import type { StudyPlan } from './types'
+import type { CoachAthleteListItem } from '@/features/coaching/types'
 
 interface Props {
   athleteId: number
@@ -14,11 +16,17 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
   const [editingPlanId, setEditingPlanId] = useState<number | null>(null)
   const [creating, setCreating] = useState(false)
   const [newTitle, setNewTitle] = useState('')
+  const [copyModalPlanId, setCopyModalPlanId] = useState<number | null>(null)
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
+    return (localStorage.getItem('studyplan-view') as 'cards' | 'table') ?? 'cards'
+  })
   const confirm = useConfirm()
 
   const { data: plans, isLoading } = useCoachStudyPlans(athleteId)
+  const { data: athletes } = useAthletes()
   const create = useCreateStudyPlan(athleteId)
   const deletePlan = useDeleteStudyPlan(athleteId)
+  const duplicatePlan = useDuplicatePlan(athleteId)
 
   if (editingPlanId) {
     return (
@@ -48,6 +56,12 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
     setCreating(true)
   }
 
+  function toggleView() {
+    const next = viewMode === 'cards' ? 'table' : 'cards'
+    setViewMode(next)
+    localStorage.setItem('studyplan-view', next)
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {/* Header */}
@@ -55,20 +69,34 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
         <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888', margin: 0 }}>
           Planes de estudio
         </p>
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em',
-            border: '1px solid #3a3a3a', padding: '6px 12px', background: 'transparent', color: '#888', cursor: 'pointer',
-          }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f0ebe3'; (e.currentTarget as HTMLElement).style.borderColor = '#888' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#888'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a3a' }}
-        >
-          <Plus style={{ width: 12, height: 12 }} strokeWidth={1.5} />
-          Nuevo plan
-        </button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button
+            type="button"
+            onClick={toggleView}
+            style={{
+              fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em',
+              border: '1px solid #3a3a3a', padding: '6px 12px', background: 'transparent', color: '#888', cursor: 'pointer',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f0ebe3'; (e.currentTarget as HTMLElement).style.borderColor = '#888' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#888'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a3a' }}
+          >
+            {viewMode === 'cards' ? '≡ Tabla' : '⊞ Tarjetas'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em',
+              border: '1px solid #3a3a3a', padding: '6px 12px', background: 'transparent', color: '#888', cursor: 'pointer',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f0ebe3'; (e.currentTarget as HTMLElement).style.borderColor = '#888' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#888'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a3a' }}
+          >
+            <Plus style={{ width: 12, height: 12 }} strokeWidth={1.5} />
+            Nuevo plan
+          </button>
+        </div>
       </div>
 
       {/* Create form */}
@@ -113,11 +141,71 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
         </div>
       )}
 
-      {/* Plan grid */}
+      {/* Plan list */}
       {isLoading ? (
         <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
           <Spinner />
         </div>
+      ) : viewMode === 'table' ? (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid #2a2a2a' }}>
+              {['Título', 'Estado', 'Fecha', 'Bloques', ''].map(h => (
+                <th key={h} style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#555', padding: '6px 16px', textAlign: 'left' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {(plans ?? []).map(plan => (
+              <tr
+                key={plan.id}
+                onClick={() => setEditingPlanId(plan.id)}
+                style={{ borderBottom: '1px solid #2a2a2a', cursor: 'pointer' }}
+                onMouseEnter={e => (e.currentTarget.style.background = '#1e1e1e')}
+                onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+              >
+                <td style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: '#f0ebe3', padding: '10px 16px', fontWeight: 500 }}>{plan.title}</td>
+                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: plan.status === 'PUBLISHED' ? '#22c55e' : '#555', padding: '10px 16px' }}>
+                  {plan.status === 'PUBLISHED' ? 'Publicado' : 'Borrador'}
+                </td>
+                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#888', padding: '10px 16px' }}>
+                  {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '—'}
+                </td>
+                <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#888', padding: '10px 16px' }}>
+                  {(plan.blocks ?? []).length}
+                </td>
+                <td style={{ padding: '10px 16px', textAlign: 'right', whiteSpace: 'nowrap' }} onClick={e => e.stopPropagation()}>
+                  <button
+                    title="Duplicar"
+                    onClick={() => duplicatePlan.mutate({ planId: plan.id, targetAthleteId: athleteId })}
+                    style={{ color: '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, marginRight: 6 }}
+                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#f0ebe3')}
+                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
+                  >
+                    ⧉
+                  </button>
+                  <button
+                    title="Copiar a otro atleta"
+                    onClick={() => setCopyModalPlanId(plan.id)}
+                    style={{ color: '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, marginRight: 6 }}
+                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#f0ebe3')}
+                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
+                  >
+                    →
+                  </button>
+                  <button
+                    onClick={() => handleDelete(plan)}
+                    style={{ color: '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }}
+                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#ef4444')}
+                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
+                  >
+                    ✕
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: '#2a2a2a' }}>
           {(plans ?? []).map(plan => (
@@ -126,6 +214,8 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
               plan={plan}
               onEdit={() => setEditingPlanId(plan.id)}
               onDelete={() => handleDelete(plan)}
+              onDuplicate={() => duplicatePlan.mutate({ planId: plan.id, targetAthleteId: athleteId })}
+              onCopyToAthlete={() => setCopyModalPlanId(plan.id)}
             />
           ))}
 
@@ -154,11 +244,57 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
           </div>
         </div>
       )}
+
+      {/* Copy to athlete modal */}
+      {copyModalPlanId !== null && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div style={{ background: '#1a1a1a', border: '1px solid #3a3a3a', padding: 24, minWidth: 300 }}>
+            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: 16 }}>
+              Copiar a atleta
+            </div>
+            {(athletes as CoachAthleteListItem[] | undefined)?.filter(a => a.athleteId !== athleteId).map(a => (
+              <button
+                key={a.athleteId}
+                onClick={() => {
+                  duplicatePlan.mutate({ planId: copyModalPlanId, targetAthleteId: a.athleteId })
+                  setCopyModalPlanId(null)
+                }}
+                style={{ display: 'block', width: '100%', padding: '10px 16px', background: 'none', border: 'none', borderBottom: '1px solid #2a2a2a', cursor: 'pointer', textAlign: 'left', color: '#f0ebe3', fontFamily: 'var(--font-sans)', fontSize: 13 }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#222')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'none')}
+              >
+                {a.displayName}
+              </button>
+            ))}
+            {(athletes as CoachAthleteListItem[] | undefined)?.filter(a => a.athleteId !== athleteId).length === 0 && (
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#555', padding: '8px 0' }}>
+                No hay otros atletas vinculados
+              </div>
+            )}
+            <button
+              onClick={() => setCopyModalPlanId(null)}
+              style={{ marginTop: 12, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#555', background: 'none', border: 'none', cursor: 'pointer' }}
+              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#888')}
+              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-function PlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: () => void; onDelete: () => void }) {
+interface PlanCardProps {
+  plan: StudyPlan
+  onEdit: () => void
+  onDelete: () => void
+  onDuplicate: () => void
+  onCopyToAthlete: () => void
+}
+
+function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: PlanCardProps) {
   const isPublished = plan.status === 'PUBLISHED'
 
   return (
@@ -175,13 +311,25 @@ function PlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: () => v
         borderLeft: `3px solid ${isPublished ? '#22c55e' : '#555'}`,
         transition: 'background 150ms',
       }}
-      onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#1e1e1e')}
-      onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#1a1a1a')}
-      className="group"
+      onMouseEnter={e => {
+        ;(e.currentTarget as HTMLElement).style.background = '#1e1e1e'
+        const actions = (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-card-actions]')
+        if (actions) actions.style.opacity = '1'
+        const del = (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-delete-btn]')
+        if (del) del.style.opacity = '1'
+      }}
+      onMouseLeave={e => {
+        ;(e.currentTarget as HTMLElement).style.background = '#1a1a1a'
+        const actions = (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-card-actions]')
+        if (actions) actions.style.opacity = '0'
+        const del = (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-delete-btn]')
+        if (del) del.style.opacity = '0'
+      }}
     >
-      {/* Delete button — visible on hover via className group */}
+      {/* Delete button */}
       <button
         type="button"
+        data-delete-btn
         onClick={e => { e.stopPropagation(); onDelete() }}
         style={{
           position: 'absolute', top: 10, right: 10,
@@ -191,18 +339,6 @@ function PlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: () => v
         }}
         onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#ef4444')}
         onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
-        onFocus={e => ((e.currentTarget as HTMLElement).style.opacity = '1')}
-        onBlur={e => ((e.currentTarget as HTMLElement).style.opacity = '0')}
-        ref={el => {
-          // Show delete button when parent card is hovered
-          if (!el) return
-          const card = el.closest('[role="button"]') as HTMLElement | null
-          if (!card) return
-          const show = () => (el.style.opacity = '1')
-          const hide = () => (el.style.opacity = '0')
-          card.addEventListener('mouseenter', show)
-          card.addEventListener('mouseleave', hide)
-        }}
         aria-label={`Eliminar plan ${plan.title}`}
       >
         ✕
@@ -264,6 +400,42 @@ function PlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: () => v
             No visto
           </span>
         )}
+      </div>
+
+      {/* Duplicate / copy-to-athlete actions */}
+      <div
+        data-card-actions
+        style={{ position: 'absolute', bottom: 10, right: 10, display: 'flex', gap: 4, opacity: 0, transition: 'opacity 120ms' }}
+        onClick={e => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          title="Duplicar"
+          onClick={onDuplicate}
+          style={{
+            background: 'transparent', border: '1px solid #3a3a3a', color: '#555', cursor: 'pointer',
+            fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 6px',
+            transition: 'color 120ms, border-color 120ms',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f0ebe3'; (e.currentTarget as HTMLElement).style.borderColor = '#888' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#555'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a3a' }}
+        >
+          ⧉
+        </button>
+        <button
+          type="button"
+          title="Copiar a otro atleta"
+          onClick={onCopyToAthlete}
+          style={{
+            background: 'transparent', border: '1px solid #3a3a3a', color: '#555', cursor: 'pointer',
+            fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 6px',
+            transition: 'color 120ms, border-color 120ms',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f0ebe3'; (e.currentTarget as HTMLElement).style.borderColor = '#888' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#555'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a3a' }}
+        >
+          →
+        </button>
       </div>
     </div>
   )
