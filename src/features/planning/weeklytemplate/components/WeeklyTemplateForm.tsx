@@ -152,7 +152,7 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
       {/* Tabla semanal — sin scroll, cabe en cualquier móvil */}
       <div className="border border-border overflow-hidden">
         {/* Header: días */}
-        <div className="grid border-b border-border" style={{ gridTemplateColumns: '72px repeat(7, 1fr)' }}>
+        <div className="grid border-b border-border" style={{ gridTemplateColumns: 'minmax(72px, auto) repeat(7, 1fr)' }}>
           <div className="border-r border-border" />
           {ALL_DAYS.map(day => {
             const hasAny = state[day].length > 0
@@ -186,7 +186,7 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
           <div
             key={key}
             className="grid border-b border-border last:border-b-0"
-            style={{ gridTemplateColumns: '72px repeat(7, 1fr)' }}
+            style={{ gridTemplateColumns: 'minmax(72px, auto) repeat(7, 1fr)' }}
           >
             <div className="flex items-center px-2 py-3 border-r border-border sm:px-4">
               <span className="sm:hidden leading-tight" style={{
@@ -195,7 +195,7 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
               }}>
                 {short}
               </span>
-              <span className="hidden sm:block leading-tight" style={{
+              <span className="hidden sm:block leading-tight whitespace-nowrap" style={{
                 ...MONO, fontSize: '10px', fontWeight: 700,
                 textTransform: 'uppercase', letterSpacing: '0.03em', color,
               }}>
