@@ -85,10 +85,7 @@ export function NotificationBell() {
             <ul className="max-h-72 overflow-y-auto divide-y divide-border">
               {notifications.map((n) => (
                 <li key={n.id} className="flex flex-col gap-0.5 px-3 py-2.5">
-                  <p className="text-xs font-medium">{NOTIFICATION_LABELS[n.type]}</p>
-                  {n.payload && (
-                    <p className="text-xs text-muted-foreground">{n.payload}</p>
-                  )}
+                  <p className="text-xs font-medium">{NOTIFICATION_LABELS[n.type] ?? n.type}</p>
                   <p
                     className="text-xs text-muted-foreground/60"
                     style={{ fontFamily: 'var(--font-mono)' }}
