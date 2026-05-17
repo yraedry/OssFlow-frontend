@@ -51,6 +51,7 @@ export function StudyPlanEditor({ planId, athleteId, onBack }: Props) {
   async function handlePublish() {
     const ok = await confirm({
       description: 'Una vez publicado, el atleta podrá ver este plan. ¿Continuar?',
+      confirmLabel: 'PUBLICAR',
     })
     if (!ok) return
     publish.mutate()
