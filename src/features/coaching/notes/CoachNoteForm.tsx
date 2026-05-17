@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useCreateNote, useTechniqueFamilies } from '../hooks'
+import { useCreateNote } from '../hooks'
+import { TechniqueFamilyPicker } from '../components/TechniqueFamilyPicker'
 import { Spinner } from '@/shared/components/ui/spinner'
 
 type Props = { athleteId: number }
@@ -7,7 +8,6 @@ type Props = { athleteId: number }
 export function CoachNoteForm({ athleteId }: Props) {
   const [body, setBody] = useState('')
   const [family, setFamily] = useState('')
-  const { data: families } = useTechniqueFamilies()
   const create = useCreateNote()
 
   function handleSubmit(e: React.FormEvent) {
@@ -29,18 +29,12 @@ export function CoachNoteForm({ athleteId }: Props) {
         className="w-full bg-transparent text-sm resize-none outline-none placeholder:text-muted-foreground/50 font-mono"
         disabled={create.isPending}
       />
-      <div className="flex gap-2 items-center">
-        <select
-          value={family}
-          onChange={e => setFamily(e.target.value)}
-          className="flex-1 bg-transparent text-xs border border-border px-2 py-1.5 text-muted-foreground font-mono outline-none"
-          disabled={create.isPending}
-        >
-          <option value="">Sin familia (opcional)</option>
-          {families?.map(f => (
-            <option key={f.value} value={f.value}>{f.label}</option>
-          ))}
-        </select>
+      <TechniqueFamilyPicker
+        value={family}
+        onChange={setFamily}
+        disabled={create.isPending}
+      />
+      <div className="flex justify-end">
         <button
           type="submit"
           disabled={!body.trim() || create.isPending}

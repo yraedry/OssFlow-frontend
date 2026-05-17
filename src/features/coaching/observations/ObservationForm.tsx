@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { useCreateObservation, useTechniqueFamilies } from '../hooks'
+import { useCreateObservation } from '../hooks'
+import { TechniqueFamilyPicker } from '../components/TechniqueFamilyPicker'
 import { Spinner } from '@/shared/components/ui/spinner'
 import type { ObservationTone } from '../types'
 
@@ -16,7 +17,6 @@ export function ObservationForm({ athleteId }: Props) {
   const [tone, setTone] = useState<ObservationTone | null>(null)
   const [family, setFamily] = useState<string>('')
 
-  const { data: families } = useTechniqueFamilies()
   const create = useCreateObservation(athleteId)
 
   function handleSubmit(e: React.FormEvent) {
@@ -52,18 +52,12 @@ export function ObservationForm({ athleteId }: Props) {
           </button>
         ))}
       </div>
-      <div className="flex gap-2 items-center">
-        <select
-          value={family}
-          onChange={e => setFamily(e.target.value)}
-          className="flex-1 bg-transparent text-xs border border-border px-2 py-1.5 text-muted-foreground font-mono outline-none"
-          disabled={create.isPending}
-        >
-          <option value="">Sin familia (opcional)</option>
-          {families?.map(f => (
-            <option key={f.value} value={f.value}>{f.label}</option>
-          ))}
-        </select>
+      <TechniqueFamilyPicker
+        value={family}
+        onChange={setFamily}
+        disabled={create.isPending}
+      />
+      <div className="flex justify-end">
         <button
           type="submit"
           disabled={!body.trim() || !tone || create.isPending}
