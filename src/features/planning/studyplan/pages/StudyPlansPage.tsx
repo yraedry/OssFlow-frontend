@@ -2,13 +2,17 @@ import { useState } from 'react'
 import { cn } from '@/shared/lib/utils'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, BookOpen, ChevronDown, ChevronUp, Trash2, Pencil, Check, X } from 'lucide-react'
+import { Plus, BookOpen, ChevronDown, ChevronUp, Trash2, Type, GripVertical } from 'lucide-react'
 import { useStudyPlans, useCreateStudyPlan, useDeleteStudyPlan, useUpdateStudyPlan } from '../hooks'
-import { useStudyBlocks, useCreateStudyBlock, useDeleteStudyBlock, useUpdateStudyBlock } from '@/features/planning/studyblock/hooks'
+import {
+  useStudyBlocks, useCreateStudyBlock, useDeleteStudyBlock,
+  useStudyItems, useAddTextItem, useAddTechniqueItem, useDeleteStudyItem,
+} from '@/features/planning/studyblock/hooks'
 import { useReceivedStudyPlans } from '@/features/coaching/studyplan/hooks'
 import { ReceivedPlanViewer } from '@/features/coaching/studyplan/ReceivedPlanViewer'
+import { TechniqueFamilyPicker } from '@/features/coaching/components/TechniqueFamilyPicker'
 import type { StudyPlan } from '../types'
-import type { StudyBlock } from '@/features/planning/studyblock/types'
+import type { StudyBlock, StudyItem } from '@/features/planning/studyblock/types'
 import type { StudyPlan as CoachStudyPlan } from '@/features/coaching/studyplan/types'
 
 // ─── Main page ────────────────────────────────────────────────────────────────
@@ -355,15 +359,15 @@ function AthleteStudyPlanEditor({ planId, onBack }: { planId: number; onBack: ()
   const { data, isLoading } = useStudyPlans()
   const plan = data?.content.find(p => p.id === planId)
   const { data: blocksData, isLoading: blocksLoading } = useStudyBlocks(planId)
-  const updatePlan = useUpdateStudyPlan()
   const addBlock = useCreateStudyBlock(planId)
   const deleteBlock = useDeleteStudyBlock(planId)
-  const updateBlock = useUpdateStudyBlock(planId)
+  const addText = useAddTextItem(planId)
+  const addTechnique = useAddTechniqueItem(planId)
+  const deleteItem = useDeleteStudyItem(planId)
 
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleVal, setTitleVal] = useState('')
-  const [addingBlock, setAddingBlock] = useState(false)
-  const [newBlockTitle, setNewBlockTitle] = useState('')
+  const updatePlan = useUpdateStudyPlan()
 
   const blocks = blocksData?.content ?? []
 
@@ -375,13 +379,6 @@ function AthleteStudyPlanEditor({ planId, onBack }: { planId: number; onBack: ()
     if (!titleVal.trim()) return
     updatePlan.mutate({ id: planId, data: { title: titleVal.trim() } })
     setEditingTitle(false)
-  }
-
-  async function handleAddBlock() {
-    if (!newBlockTitle.trim()) return
-    await addBlock.mutateAsync({ title: newBlockTitle.trim(), blockOrder: blocks.length + 1 })
-    setNewBlockTitle('')
-    setAddingBlock(false)
   }
 
   async function handleDeleteBlock(blockId: number) {
@@ -396,16 +393,14 @@ function AthleteStudyPlanEditor({ planId, onBack }: { planId: number; onBack: ()
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           {editingTitle ? (
-            <div className="flex gap-2 items-center">
-              <input
-                autoFocus
-                value={titleVal}
-                onChange={e => setTitleVal(e.target.value)}
-                onBlur={handleSaveTitle}
-                onKeyDown={e => { if (e.key === 'Enter') handleSaveTitle(); if (e.key === 'Escape') setEditingTitle(false) }}
-                className="flex-1 bg-transparent border-b border-foreground text-xl font-bold outline-none"
-              />
-            </div>
+            <input
+              autoFocus
+              value={titleVal}
+              onChange={e => setTitleVal(e.target.value)}
+              onBlur={handleSaveTitle}
+              onKeyDown={e => { if (e.key === 'Enter') handleSaveTitle(); if (e.key === 'Escape') setEditingTitle(false) }}
+              className="w-full bg-transparent border-b border-foreground text-xl font-bold outline-none"
+            />
           ) : (
             <h2
               className="text-xl font-bold cursor-pointer hover:opacity-70 transition-opacity"
@@ -434,48 +429,26 @@ function AthleteStudyPlanEditor({ planId, onBack }: { planId: number; onBack: ()
             <AthleteBlockEditor
               key={block.id}
               block={block}
+              planId={planId}
               index={i}
               onDelete={() => handleDeleteBlock(block.id)}
-              onUpdateTitle={(title) => updateBlock.mutate({ blockId: block.id, data: { title } })}
-              onUpdateNotes={(notes) => updateBlock.mutate({ blockId: block.id, data: { notesMarkdown: notes || undefined } })}
+              onAddText={(content) => addText.mutate({ blockId: block.id, description: content })}
+              onAddTechnique={(id, name) => addTechnique.mutate({ blockId: block.id, techniqueId: id, techniqueName: name })}
+              onDeleteItem={(itemId) => deleteItem.mutate({ blockId: block.id, itemId })}
             />
           ))}
         </div>
       )}
 
-      {/* Add block */}
-      {addingBlock ? (
-        <div className="flex gap-2 border border-border p-3 bg-card">
-          <input
-            autoFocus
-            value={newBlockTitle}
-            onChange={e => setNewBlockTitle(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') handleAddBlock()
-              if (e.key === 'Escape') { setAddingBlock(false); setNewBlockTitle('') }
-            }}
-            placeholder="Nombre del bloque..."
-            className="flex-1 bg-transparent text-sm outline-none font-mono placeholder:text-muted-foreground/50"
-          />
-          <button type="button" onClick={handleAddBlock} disabled={!newBlockTitle.trim() || addBlock.isPending}
-            className="px-3 py-1 font-mono text-[10px] uppercase bg-foreground text-background cursor-pointer disabled:opacity-50">
-            {addBlock.isPending ? <Spinner /> : 'Añadir'}
-          </button>
-          <button type="button" onClick={() => { setAddingBlock(false); setNewBlockTitle('') }}
-            className="px-2 py-1 font-mono text-[10px] border border-border bg-transparent text-muted-foreground cursor-pointer">
-            ✕
-          </button>
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={() => setAddingBlock(true)}
-          className="w-full py-2 border border-dashed border-border text-sm text-muted-foreground hover:border-foreground/50 hover:text-foreground transition-colors flex items-center justify-center gap-2"
-        >
-          <Plus className="h-4 w-4" strokeWidth={1.5} />
-          Añadir bloque
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={() => addBlock.mutate({ title: '', blockOrder: blocks.length + 1 })}
+        disabled={addBlock.isPending}
+        className="w-full py-2 border border-dashed border-border text-sm text-muted-foreground hover:border-foreground/50 hover:text-foreground transition-colors flex items-center justify-center gap-2"
+      >
+        <Plus className="h-4 w-4" strokeWidth={1.5} />
+        Añadir bloque
+      </button>
 
       <button
         type="button"
@@ -490,40 +463,44 @@ function AthleteStudyPlanEditor({ planId, onBack }: { planId: number; onBack: ()
 
 // ─── AthleteBlockEditor ───────────────────────────────────────────────────────
 
-function AthleteBlockEditor({ block, index, onDelete, onUpdateTitle, onUpdateNotes }: {
+function AthleteBlockEditor({ block, planId, index, onDelete, onAddText, onAddTechnique, onDeleteItem }: {
   block: StudyBlock
+  planId: number
   index: number
   onDelete: () => void
-  onUpdateTitle: (title: string) => void
-  onUpdateNotes: (notes: string) => void
+  onAddText: (content: string) => void
+  onAddTechnique: (id: number, name: string) => void
+  onDeleteItem: (itemId: number) => void
 }) {
+  const { data: items = [] } = useStudyItems(planId, block.id)
   const [editingTitle, setEditingTitle] = useState(false)
   const [titleVal, setTitleVal] = useState(block.title)
-  const [editingNotes, setEditingNotes] = useState(false)
-  const [notesVal, setNotesVal] = useState(block.notesMarkdown ?? '')
-  // savedNotes tracks optimistic local value so UI updates immediately after save
-  const [savedNotes, setSavedNotes] = useState(block.notesMarkdown ?? '')
-  const [open, setOpen] = useState(true)
+  const [addingText, setAddingText] = useState(false)
+  const [textInput, setTextInput] = useState('')
+  const [pickingTechnique, setPickingTechnique] = useState(false)
+  const [techFamily, setTechFamily] = useState('')
+  const [selectedTech, setSelectedTech] = useState<{ id: number; name: string } | null>(null)
 
-  function saveTitle() {
-    setEditingTitle(false)
-    onUpdateTitle(titleVal.trim() || block.title)
+  function submitText() {
+    if (!textInput.trim()) return
+    onAddText(textInput.trim())
+    setTextInput('')
+    setAddingText(false)
   }
 
-  function saveNotes() {
-    setSavedNotes(notesVal)
-    setEditingNotes(false)
-    onUpdateNotes(notesVal)
-  }
-
-  function cancelNotes() {
-    setNotesVal(savedNotes)
-    setEditingNotes(false)
+  function submitTechnique() {
+    if (!selectedTech) return
+    onAddTechnique(selectedTech.id, selectedTech.name)
+    setSelectedTech(null)
+    setTechFamily('')
+    setPickingTechnique(false)
   }
 
   return (
     <div className="border border-border bg-card">
+      {/* Block header */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-border/50 bg-muted/30">
+        <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" strokeWidth={1.5} />
         <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground mr-1">#{index + 1}</span>
         <span className="flex-1 text-sm font-semibold min-w-0">
           {editingTitle ? (
@@ -531,8 +508,10 @@ function AthleteBlockEditor({ block, index, onDelete, onUpdateTitle, onUpdateNot
               autoFocus
               value={titleVal}
               onChange={e => setTitleVal(e.target.value)}
-              onBlur={saveTitle}
-              onKeyDown={e => { if (e.key === 'Enter') saveTitle(); if (e.key === 'Escape') { setEditingTitle(false); setTitleVal(block.title) } }}
+              onBlur={() => setEditingTitle(false)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' || e.key === 'Escape') setEditingTitle(false)
+              }}
               placeholder="Nombre del bloque"
               className="bg-transparent border-b border-border text-sm outline-none w-full font-mono"
             />
@@ -542,72 +521,117 @@ function AthleteBlockEditor({ block, index, onDelete, onUpdateTitle, onUpdateNot
             </span>
           )}
         </span>
-        <div className="flex items-center gap-0.5">
-          <button type="button" onClick={() => setOpen(v => !v)} className="p-1 text-muted-foreground hover:text-foreground transition-colors">
-            {open ? <ChevronUp className="h-3.5 w-3.5" strokeWidth={1.5} /> : <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.5} />}
-          </button>
-          <button type="button" onClick={onDelete} className="p-1 text-muted-foreground hover:text-destructive transition-colors">
-            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-          </button>
-        </div>
+        <button type="button" onClick={onDelete} className="p-1 text-muted-foreground hover:text-destructive transition-colors">
+          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+        </button>
       </div>
 
-      {open && (
-        <div className="p-3 space-y-2">
-          {/* Dates */}
-          {(block.startDate || block.endDate) && (
-            <p className="font-mono text-[10px] text-muted-foreground/60">
-              {block.startDate}{block.endDate ? ` → ${block.endDate}` : ''}
-            </p>
-          )}
+      {/* Items */}
+      <div className="p-3 space-y-2">
+        {items.map((item, i) => (
+          <AthleteItemRow
+            key={item.id}
+            item={item}
+            index={i}
+            onDelete={() => onDeleteItem(item.id)}
+          />
+        ))}
 
-          {/* Notes */}
-          {editingNotes ? (
-            <div className="space-y-1">
-              <textarea
-                autoFocus
-                value={notesVal}
-                onChange={e => setNotesVal(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Escape') cancelNotes() }}
-                rows={3}
-                className="w-full bg-transparent border border-border text-sm outline-none px-2 py-1.5 resize-none font-mono placeholder:text-muted-foreground/50"
-                placeholder="Notas del bloque..."
-              />
-              <div className="flex gap-1.5">
-                <button type="button" onClick={saveNotes}
-                  className="flex items-center gap-1 px-2 py-1 text-xs bg-foreground text-background font-mono uppercase">
-                  <Check className="h-3 w-3" strokeWidth={2} />
-                </button>
-                <button type="button" onClick={cancelNotes}
-                  className="flex items-center gap-1 px-2 py-1 text-xs border border-border text-muted-foreground font-mono uppercase">
-                  <X className="h-3 w-3" strokeWidth={2} />
-                </button>
+        {/* Add text input */}
+        {addingText && (
+          <div className="flex gap-2">
+            <textarea
+              autoFocus
+              value={textInput}
+              onChange={e => setTextInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitText() }
+                if (e.key === 'Escape') setAddingText(false)
+              }}
+              placeholder="Texto del item... (Enter para guardar)"
+              rows={2}
+              className="flex-1 bg-transparent border border-border text-sm outline-none px-2 py-1.5 resize-none placeholder:text-muted-foreground/50"
+            />
+            <div className="flex flex-col gap-1">
+              <button type="button" onClick={submitText} className="px-2 py-1 text-xs bg-foreground text-background">OK</button>
+              <button type="button" onClick={() => setAddingText(false)} className="px-2 py-1 text-xs border border-border text-muted-foreground">✕</button>
+            </div>
+          </div>
+        )}
+
+        {/* Add technique picker */}
+        {pickingTechnique && (
+          <div className="space-y-1">
+            <TechniqueFamilyPicker
+              value={techFamily}
+              onChange={setTechFamily}
+              onTechniqueSelect={(t) => {
+                if (t.id && t.name) setSelectedTech({ id: t.id, name: t.name })
+                else setSelectedTech(null)
+              }}
+            />
+            {selectedTech && (
+              <div className="flex items-center gap-2 p-2 border border-border bg-muted/20">
+                <BookOpen className="h-3.5 w-3.5 text-muted-foreground shrink-0" strokeWidth={1.5} />
+                <span className="flex-1 text-sm">{selectedTech.name}</span>
+                <button type="button" onClick={submitTechnique} className="px-2 py-1 text-xs bg-foreground text-background">Añadir</button>
+                <button type="button" onClick={() => setSelectedTech(null)} className="px-2 py-1 text-xs border border-border text-muted-foreground">✕</button>
               </div>
-            </div>
-          ) : (
-            <div
-              onClick={() => setEditingNotes(true)}
-              className="cursor-pointer hover:opacity-70 transition-opacity min-h-[32px]"
-            >
-              {savedNotes ? (
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{savedNotes}</p>
-              ) : (
-                <p className="text-sm text-muted-foreground/40 italic flex items-center gap-1.5">
-                  <Pencil className="h-3 w-3" strokeWidth={1.5} />
-                  Añadir notas...
-                </p>
-              )}
-            </div>
-          )}
+            )}
+            <button type="button" onClick={() => { setPickingTechnique(false); setTechFamily(''); setSelectedTech(null) }}
+              className="text-xs text-muted-foreground hover:text-foreground font-mono">
+              Cancelar
+            </button>
+          </div>
+        )}
 
-          {/* Focus entities */}
-          {block.focusEntities && (
-            <p className="font-mono text-[10px] text-muted-foreground/60 border-t border-border/40 pt-2">
-              {block.focusEntities}
-            </p>
-          )}
-        </div>
+        {/* Action buttons */}
+        {!addingText && !pickingTechnique && (
+          <div className="flex gap-2 pt-1">
+            <button
+              type="button"
+              onClick={() => setAddingText(true)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors border border-dashed border-border/50 hover:border-border px-2 py-1"
+            >
+              <Type className="h-3 w-3" strokeWidth={1.5} />
+              Añadir texto
+            </button>
+            <button
+              type="button"
+              onClick={() => setPickingTechnique(true)}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors border border-dashed border-border/50 hover:border-border px-2 py-1"
+            >
+              <BookOpen className="h-3 w-3" strokeWidth={1.5} />
+              Añadir técnica
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── AthleteItemRow ───────────────────────────────────────────────────────────
+
+function AthleteItemRow({ item, index, onDelete }: { item: StudyItem; index: number; onDelete: () => void }) {
+  return (
+    <div className="group flex items-start gap-2 p-2 border border-border/40 bg-background hover:border-border transition-colors">
+      <span className="text-[10px] font-mono text-muted-foreground/50 mt-0.5 shrink-0 w-4">{index + 1}</span>
+      {item.targetType === 'TECHNIQUE' ? (
+        <BookOpen className="h-3.5 w-3.5 text-orange-400 mt-0.5 shrink-0" strokeWidth={1.5} />
+      ) : (
+        <Type className="h-3.5 w-3.5 text-muted-foreground/50 mt-0.5 shrink-0" strokeWidth={1.5} />
       )}
+      <span className="flex-1 text-sm min-w-0">
+        {item.targetType === 'TECHNIQUE' ? (
+          <span className="font-medium">{item.description}</span>
+        ) : (
+          <span className="whitespace-pre-wrap">{item.description}</span>
+        )}
+      </span>
+      <button type="button" onClick={onDelete} className="p-0.5 opacity-0 group-hover:opacity-100 hover:text-destructive text-muted-foreground transition-all">
+        <Trash2 className="h-3 w-3" strokeWidth={1.5} />
+      </button>
     </div>
   )
 }
