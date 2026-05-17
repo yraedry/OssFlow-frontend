@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { Users } from 'lucide-react'
 import { AthleteRoster } from '../components/AthleteRoster'
 import { useAthletes } from '../hooks'
@@ -59,7 +59,12 @@ export function CoachingDashboardPage() {
       {/* Hint */}
       <p className="text-xs text-muted-foreground/50 text-center" style={MONO}>
         Genera un código de invitación en{' '}
-        <span className="underline underline-offset-2">Configuración</span>{' '}
+        <Link
+          to="/configuracion#invitation"
+          className="underline underline-offset-2 hover:text-muted-foreground transition-colors"
+        >
+          Configuración
+        </Link>{' '}
         para añadir alumnos.
       </p>
     </div>

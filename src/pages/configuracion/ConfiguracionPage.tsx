@@ -1,4 +1,5 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { Settings, Palette, Bell, Database, Sun, Moon, Monitor, Upload, Download, School, Key } from 'lucide-react'
 import { Card, CardContent } from '@/shared/components/ui/card'
 import { Badge } from '@/shared/components/ui/badge'
@@ -186,6 +187,13 @@ export function ConfiguracionPage() {
   const [weightUnit, setWeightUnit] = useState(() => readLocal(KEY_WEIGHT, 'kg') === 'kg')
   const [duration, setDuration] = useState(() => readLocal(KEY_DURATION, '60'))
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+  const { hash } = useLocation()
+  useEffect(() => {
+    if (hash) {
+      const el = document.querySelector(hash)
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [hash])
   const importRef = useRef<HTMLInputElement>(null)
   const exportBackup = useExportBackup()
   const importBackup = useImportBackup()
@@ -351,7 +359,7 @@ export function ConfiguracionPage() {
 
           {/* ── Código de invitación (solo coaches) ── */}
           {profile?.role === 'ATHLETE_COACH' && (
-            <section>
+            <section id="invitation">
               <SectionTitle icon={<Key className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Código de invitación" />
               <Card>
                 <CardContent className="py-3">
