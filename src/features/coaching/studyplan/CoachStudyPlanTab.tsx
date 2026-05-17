@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
+import { cn } from '@/shared/lib/utils'
 import { useConfirm } from '@/shared/hooks/useConfirm'
 import { useCoachStudyPlans, useCreateStudyPlan, useDeleteStudyPlan, useDuplicatePlan } from './hooks'
 import { useAthletes } from '@/features/coaching/hooks'
@@ -17,9 +18,6 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
   const [creating, setCreating] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [copyModalPlanId, setCopyModalPlanId] = useState<number | null>(null)
-  const [toggleHovered, setToggleHovered] = useState(false)
-  const [newPlanHovered, setNewPlanHovered] = useState(false)
-  const [emptyCardHovered, setEmptyCardHovered] = useState(false)
   const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
     try {
       return (localStorage.getItem('studyplan-view') as 'cards' | 'table') ?? 'cards'
@@ -74,39 +72,26 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div className="flex flex-col gap-4">
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <p style={{ fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888', margin: 0 }}>
+      <div className="flex items-center justify-between">
+        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
           Planes de estudio
         </p>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={toggleView}
-            style={{
-              fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em',
-              border: `1px solid ${toggleHovered ? '#888' : '#3a3a3a'}`, padding: '6px 12px', background: 'transparent',
-              color: toggleHovered ? '#f0ebe3' : '#888', cursor: 'pointer',
-            }}
-            onMouseEnter={() => setToggleHovered(true)}
-            onMouseLeave={() => setToggleHovered(false)}
+            className="font-mono text-[10px] uppercase tracking-[0.06em] border border-border px-3 py-1.5 bg-transparent text-muted-foreground hover:border-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
             {viewMode === 'cards' ? '≡ Tabla' : '⊞ Tarjetas'}
           </button>
           <button
             type="button"
             onClick={() => setCreating(true)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em',
-              border: `1px solid ${newPlanHovered ? '#888' : '#3a3a3a'}`, padding: '6px 12px', background: 'transparent',
-              color: newPlanHovered ? '#f0ebe3' : '#888', cursor: 'pointer',
-            }}
-            onMouseEnter={() => setNewPlanHovered(true)}
-            onMouseLeave={() => setNewPlanHovered(false)}
+            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] border border-border px-3 py-1.5 bg-transparent text-muted-foreground hover:border-muted-foreground hover:text-foreground transition-colors cursor-pointer"
           >
-            <Plus style={{ width: 12, height: 12 }} strokeWidth={1.5} />
+            <Plus className="w-3 h-3" strokeWidth={1.5} />
             Nuevo plan
           </button>
         </div>
@@ -114,7 +99,7 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
 
       {/* Create form */}
       {creating && (
-        <div style={{ display: 'flex', gap: 8, border: '1px solid #3a3a3a', padding: 12, background: '#1a1a1a' }}>
+        <div className="flex gap-2 border border-border p-3 bg-card">
           <input
             autoFocus
             value={newTitle}
@@ -124,30 +109,20 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
               if (e.key === 'Escape') { setCreating(false); setNewTitle('') }
             }}
             placeholder="Título del plan..."
-            style={{
-              flex: 1, background: 'transparent', color: '#f0ebe3', fontSize: 13,
-              border: 'none', borderBottom: '1px solid #3a3a3a', outline: 'none', paddingBottom: 4,
-              fontFamily: 'var(--font-mono)',
-            }}
+            className="flex-1 bg-transparent text-foreground text-sm border-none border-b border-border outline-none pb-1 font-mono placeholder:text-muted-foreground/50"
           />
           <button
             type="button"
             onClick={handleCreate}
             disabled={!newTitle.trim() || create.isPending}
-            style={{
-              padding: '4px 12px', fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase',
-              background: '#f0ebe3', color: '#0f0f0f', border: 'none', cursor: 'pointer', opacity: (!newTitle.trim() || create.isPending) ? 0.5 : 1,
-            }}
+            className="px-3 py-1 font-mono text-[10px] uppercase bg-foreground text-background border-none cursor-pointer disabled:opacity-50 transition-opacity"
           >
             {create.isPending ? <Spinner /> : 'Crear'}
           </button>
           <button
             type="button"
             onClick={() => { setCreating(false); setNewTitle('') }}
-            style={{
-              padding: '4px 8px', fontFamily: 'var(--font-mono)', fontSize: 10,
-              border: '1px solid #3a3a3a', background: 'transparent', color: '#888', cursor: 'pointer',
-            }}
+            className="px-2 py-1 font-mono text-[10px] border border-border bg-transparent text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
           >
             ✕
           </button>
@@ -156,15 +131,20 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
 
       {/* Plan list */}
       {isLoading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '32px 0' }}>
+        <div className="flex justify-center py-8">
           <Spinner />
         </div>
       ) : viewMode === 'table' ? (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table className="w-full border-collapse">
           <thead>
-            <tr style={{ borderBottom: '1px solid #2a2a2a' }}>
+            <tr className="border-b border-border">
               {['Título', 'Estado', 'Fecha', 'Bloques', ''].map(h => (
-                <th key={h} style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#555', padding: '6px 16px', textAlign: 'left' }}>{h}</th>
+                <th
+                  key={h}
+                  className="font-mono text-[9px] font-bold tracking-[0.1em] uppercase text-muted-foreground/60 px-4 py-1.5 text-left"
+                >
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
@@ -182,7 +162,7 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
           </tbody>
         </table>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: '#2a2a2a' }}>
+        <div className="grid grid-cols-2 gap-px bg-border">
           {(plans ?? []).map(plan => (
             <PlanCard
               key={plan.id}
@@ -200,14 +180,7 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
             role="button"
             tabIndex={0}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleNewPlanCard() }}
-            style={{
-              border: `1px dashed ${emptyCardHovered ? '#666' : '#333'}`, padding: 16, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
-              color: emptyCardHovered ? '#f0ebe3' : '#555', minHeight: 120, background: 'transparent',
-            }}
-            onMouseEnter={() => setEmptyCardHovered(true)}
-            onMouseLeave={() => setEmptyCardHovered(false)}
+            className="border border-dashed border-border p-4 cursor-pointer flex items-center justify-center gap-2 font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground hover:border-muted-foreground hover:text-foreground min-h-[120px] bg-transparent transition-colors"
           >
             ＋ NUEVO PLAN
           </div>
@@ -217,11 +190,14 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
       {/* Copy to athlete modal */}
       {copyModalPlanId !== null && (
         <div
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]"
           onClick={() => setCopyModalPlanId(null)}
         >
-          <div style={{ background: '#1a1a1a', border: '1px solid #3a3a3a', padding: 24, minWidth: 300 }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#888', marginBottom: 16 }}>
+          <div
+            className="bg-card border border-border p-6 min-w-[300px]"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="font-mono text-[10px] font-bold tracking-[0.12em] uppercase text-muted-foreground mb-4">
               Copiar a atleta
             </div>
             {(athletes as CoachAthleteListItem[] | undefined)?.filter(a => a.athleteId !== athleteId).map(a => (
@@ -231,23 +207,19 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
                   duplicatePlan.mutate({ planId: copyModalPlanId, targetAthleteId: a.athleteId })
                   setCopyModalPlanId(null)
                 }}
-                style={{ display: 'block', width: '100%', padding: '10px 16px', background: 'none', border: 'none', borderBottom: '1px solid #2a2a2a', cursor: 'pointer', textAlign: 'left', color: '#f0ebe3', fontFamily: 'var(--font-sans)', fontSize: 13 }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#222')}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'none')}
+                className="block w-full px-4 py-2.5 bg-transparent border-none border-b border-border cursor-pointer text-left text-foreground font-sans text-sm hover:bg-muted/50 transition-colors"
               >
                 {a.displayName}
               </button>
             ))}
             {(athletes as CoachAthleteListItem[] | undefined)?.filter(a => a.athleteId !== athleteId).length === 0 && (
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#555', padding: '8px 0' }}>
+              <div className="font-mono text-[11px] text-muted-foreground/60 py-2">
                 No hay otros atletas vinculados
               </div>
             )}
             <button
               onClick={() => setCopyModalPlanId(null)}
-              style={{ marginTop: 12, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#555', background: 'none', border: 'none', cursor: 'pointer' }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#888')}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
+              className="mt-3 font-mono text-[10px] text-muted-foreground/60 bg-transparent border-none cursor-pointer hover:text-muted-foreground transition-colors"
             >
               Cancelar
             </button>
@@ -275,25 +247,30 @@ function TableRow({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Tabl
   return (
     <tr
       onClick={onEdit}
-      style={{ borderBottom: '1px solid #2a2a2a', cursor: 'pointer', background: hovered ? '#1e1e1e' : 'transparent' }}
+      className={cn('border-b border-border cursor-pointer transition-colors', hovered ? 'bg-muted/50' : 'bg-transparent')}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <td style={{ fontFamily: 'var(--font-sans)', fontSize: 13, color: '#f0ebe3', padding: '10px 16px', fontWeight: 500 }}>{plan.title}</td>
-      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: plan.status === 'PUBLISHED' ? '#22c55e' : '#555', padding: '10px 16px' }}>
-        {plan.status === 'PUBLISHED' ? 'Publicado' : 'Borrador'}
+      <td className="font-sans text-[13px] text-foreground px-4 py-2.5 font-medium">{plan.title}</td>
+      <td
+        className="font-mono text-[9px] font-bold tracking-[0.08em] uppercase px-4 py-2.5"
+        style={{ color: plan.status === 'PUBLISHED' ? '#22c55e' : undefined }}
+      >
+        <span className={plan.status === 'PUBLISHED' ? '' : 'text-muted-foreground/60'}>
+          {plan.status === 'PUBLISHED' ? 'Publicado' : 'Borrador'}
+        </span>
       </td>
-      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#888', padding: '10px 16px' }}>
+      <td className="font-mono text-[11px] text-muted-foreground px-4 py-2.5">
         {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '—'}
       </td>
-      <td style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#888', padding: '10px 16px' }}>
+      <td className="font-mono text-[11px] text-muted-foreground px-4 py-2.5">
         {(plan.blocks ?? []).length}
       </td>
-      <td style={{ padding: '10px 16px', textAlign: 'right', whiteSpace: 'nowrap' }} onClick={e => e.stopPropagation()}>
+      <td className="px-4 py-2.5 text-right whitespace-nowrap" onClick={e => e.stopPropagation()}>
         <button
           title="Duplicar"
           onClick={onDuplicate}
-          style={{ color: dupHovered ? '#f0ebe3' : '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, marginRight: 6, transition: 'color 120ms' }}
+          className={cn('bg-transparent border-none cursor-pointer text-[13px] mr-1.5 transition-colors', dupHovered ? 'text-foreground' : 'text-muted-foreground/60')}
           onMouseEnter={() => setDupHovered(true)}
           onMouseLeave={() => setDupHovered(false)}
         >
@@ -302,7 +279,7 @@ function TableRow({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Tabl
         <button
           title="Copiar a otro atleta"
           onClick={onCopyToAthlete}
-          style={{ color: copyHovered ? '#f0ebe3' : '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, marginRight: 6, transition: 'color 120ms' }}
+          className={cn('bg-transparent border-none cursor-pointer text-[13px] mr-1.5 transition-colors', copyHovered ? 'text-foreground' : 'text-muted-foreground/60')}
           onMouseEnter={() => setCopyHovered(true)}
           onMouseLeave={() => setCopyHovered(false)}
         >
@@ -310,7 +287,7 @@ function TableRow({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Tabl
         </button>
         <button
           onClick={onDelete}
-          style={{ color: delHovered ? '#ef4444' : '#555', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, transition: 'color 120ms' }}
+          className={cn('bg-transparent border-none cursor-pointer text-[13px] transition-colors', delHovered ? 'text-destructive' : 'text-muted-foreground/60')}
           onMouseEnter={() => setDelHovered(true)}
           onMouseLeave={() => setDelHovered(false)}
         >
@@ -342,14 +319,11 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
       role="button"
       tabIndex={0}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onEdit() }}
-      style={{
-        background: hovered ? '#1e1e1e' : '#1a1a1a',
-        padding: 16,
-        cursor: 'pointer',
-        position: 'relative',
-        borderLeft: `3px solid ${isPublished ? '#22c55e' : '#555'}`,
-        transition: 'background 150ms',
-      }}
+      className={cn(
+        'relative p-4 cursor-pointer transition-colors',
+        hovered ? 'bg-muted/50' : 'bg-card',
+      )}
+      style={{ borderLeft: `3px solid ${isPublished ? '#22c55e' : 'var(--border)'}` }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -357,14 +331,11 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
       <button
         type="button"
         onClick={e => { e.stopPropagation(); onDelete() }}
-        style={{
-          position: 'absolute', top: 10, right: 10,
-          background: 'transparent', border: 'none',
-          color: deleteHovered ? '#ef4444' : '#555',
-          cursor: 'pointer',
-          fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 4px',
-          opacity: hovered ? 1 : 0, transition: 'opacity 120ms, color 120ms',
-        }}
+        className={cn(
+          'absolute top-2.5 right-2.5 bg-transparent border-none cursor-pointer font-mono text-[11px] px-1 py-0.5 transition-all',
+          deleteHovered ? 'text-destructive' : 'text-muted-foreground/60',
+          hovered ? 'opacity-100' : 'opacity-0',
+        )}
         onMouseEnter={e => { e.stopPropagation(); setDeleteHovered(true) }}
         onMouseLeave={e => { e.stopPropagation(); setDeleteHovered(false) }}
         aria-label={`Eliminar plan ${plan.title}`}
@@ -373,58 +344,57 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
       </button>
 
       {/* Card top: title + status badge */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 10, paddingRight: 20 }}>
-        <div style={{ fontFamily: 'var(--font-serif)', fontSize: 15, fontWeight: 700, color: '#f0ebe3', lineHeight: 1.2, flex: 1 }}>
+      <div className="flex items-start justify-between gap-2 mb-2.5 pr-5">
+        <div className="font-serif text-[15px] font-bold text-foreground leading-tight flex-1">
           {plan.title}
         </div>
-        <span style={{
-          fontFamily: 'var(--font-mono)', fontSize: 8, fontWeight: 700,
-          letterSpacing: '0.1em', textTransform: 'uppercase',
-          padding: '3px 7px', flexShrink: 0,
-          color: isPublished ? '#22c55e' : '#555',
-          border: `1px solid ${isPublished ? '#22c55e44' : '#333'}`,
-        }}>
-          {isPublished ? 'PUBLICADO' : 'BORRADOR'}
+        <span
+          className="font-mono text-[8px] font-bold tracking-[0.1em] uppercase px-1.5 py-0.5 shrink-0 border"
+          style={{
+            color: isPublished ? '#22c55e' : undefined,
+            borderColor: isPublished ? '#22c55e44' : undefined,
+          }}
+        >
+          <span className={isPublished ? '' : 'text-muted-foreground/60 border-border'}>
+            {isPublished ? 'PUBLICADO' : 'BORRADOR'}
+          </span>
         </span>
       </div>
 
       {/* Block previews */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 10 }}>
+      <div className="flex flex-col gap-0.5 mb-2.5">
         {(plan.blocks ?? []).slice(0, 3).map(b => (
-          <div
-            key={b.id}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#888' }}
-          >
-            <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#444', flexShrink: 0, display: 'inline-block' }} />
+          <div key={b.id} className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
+            <span className="w-1 h-1 rounded-full bg-border shrink-0 inline-block" />
             {b.title || 'Bloque sin título'}
           </div>
         ))}
         {(plan.blocks ?? []).length > 3 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font-mono)', fontSize: 10, color: '#444' }}>
-            <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#333', flexShrink: 0, display: 'inline-block' }} />
+          <div className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground/40">
+            <span className="w-1 h-1 rounded-full bg-border/60 shrink-0 inline-block" />
             +{(plan.blocks ?? []).length - 3} más
           </div>
         )}
         {(plan.blocks ?? []).length === 0 && (
-          <div style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#555', fontStyle: 'italic' }}>
+          <div className="font-mono text-[10px] text-muted-foreground/60 italic">
             Sin bloques
           </div>
         )}
       </div>
 
       {/* Footer: date + viewed */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid #2a2a2a' }}>
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: 10, color: '#555' }}>
+      <div className="flex items-center justify-between pt-2 border-t border-border">
+        <span className="font-mono text-[10px] text-muted-foreground/60">
           {plan.createdAt
             ? new Date(plan.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
             : ''}
         </span>
         {plan.viewedByAthlete ? (
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#22c55e' }}>
+          <span className="font-mono text-[9px]" style={{ color: '#22c55e' }}>
             👁 Visto por atleta
           </span>
         ) : (
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: 9, color: '#444' }}>
+          <span className="font-mono text-[9px] text-muted-foreground/40">
             No visto
           </span>
         )}
@@ -432,21 +402,17 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
 
       {/* Duplicate / copy-to-athlete actions */}
       <div
-        style={{ position: 'absolute', bottom: 10, right: 10, display: 'flex', gap: 4, opacity: hovered ? 1 : 0, transition: 'opacity 120ms' }}
+        className={cn('absolute bottom-2.5 right-2.5 flex gap-1 transition-opacity', hovered ? 'opacity-100' : 'opacity-0')}
         onClick={e => e.stopPropagation()}
       >
         <button
           type="button"
           title="Duplicar"
           onClick={onDuplicate}
-          style={{
-            background: 'transparent',
-            border: `1px solid ${duplicateHovered ? '#888' : '#3a3a3a'}`,
-            color: duplicateHovered ? '#f0ebe3' : '#555',
-            cursor: 'pointer',
-            fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 6px',
-            transition: 'color 120ms, border-color 120ms',
-          }}
+          className={cn(
+            'bg-transparent border border-border cursor-pointer font-mono text-[11px] px-1.5 py-0.5 transition-colors',
+            duplicateHovered ? 'border-muted-foreground text-foreground' : 'text-muted-foreground/60',
+          )}
           onMouseEnter={e => { e.stopPropagation(); setDuplicateHovered(true) }}
           onMouseLeave={e => { e.stopPropagation(); setDuplicateHovered(false) }}
         >
@@ -456,14 +422,10 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
           type="button"
           title="Copiar a otro atleta"
           onClick={onCopyToAthlete}
-          style={{
-            background: 'transparent',
-            border: `1px solid ${copyHovered ? '#888' : '#3a3a3a'}`,
-            color: copyHovered ? '#f0ebe3' : '#555',
-            cursor: 'pointer',
-            fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 6px',
-            transition: 'color 120ms, border-color 120ms',
-          }}
+          className={cn(
+            'bg-transparent border border-border cursor-pointer font-mono text-[11px] px-1.5 py-0.5 transition-colors',
+            copyHovered ? 'border-muted-foreground text-foreground' : 'text-muted-foreground/60',
+          )}
           onMouseEnter={e => { e.stopPropagation(); setCopyHovered(true) }}
           onMouseLeave={e => { e.stopPropagation(); setCopyHovered(false) }}
         >

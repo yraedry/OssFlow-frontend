@@ -56,70 +56,63 @@ function AthleteProfileHeaderInner({ athlete }: { athlete: AthleteSummary }) {
   ]
 
   return (
-    <div style={{ background: '#1a1a1a', border: '1px solid #3a3a3a', overflow: 'hidden' }}>
-      {/* 3px top bar */}
+    <div className="bg-card border border-border overflow-hidden">
+      {/* 3px top bar — dynamic activity color, stays in style */}
       <div style={{ height: 3, background: activity.color, width: '100%' }} />
 
       {/* Top section: avatar + name + activity badge */}
-      <div style={{ display: 'flex', gap: 20, padding: '20px 24px 16px', alignItems: 'flex-start' }}>
-        {/* Avatar 56px */}
-        <div style={{
-          width: 56, height: 56, background: '#2563eb', color: '#fff',
-          fontFamily: 'var(--font-serif)', fontSize: 22, fontWeight: 700,
-          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          border: `2px solid ${activity.color}`,
-        }}>
+      <div className="flex gap-5 px-6 pt-5 pb-4 items-start">
+        {/* Avatar 56px — belt/activity border is dynamic, stays in style */}
+        <div
+          className="w-14 h-14 bg-blue-600 text-white font-serif text-[22px] font-bold flex items-center justify-center shrink-0"
+          style={{ border: `2px solid ${activity.color}` }}
+        >
           {athlete.displayName.split(' ').filter(Boolean).slice(0, 2).map(n => n[0]).join('').toUpperCase()}
         </div>
 
         {/* Name block */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: 'var(--font-serif)', fontSize: 28, fontWeight: 700, color: '#f0ebe3', lineHeight: 1, marginBottom: 6 }}>
+        <div className="flex-1 min-w-0">
+          <div className="font-serif text-[28px] font-bold text-foreground leading-none mb-1.5">
             {athlete.displayName}
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <span style={{
-              background: '#2563eb', color: '#fff',
-              fontFamily: 'var(--font-mono)', fontSize: 10, fontWeight: 700,
-              letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px',
-            }}>
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <span className="bg-blue-600 text-white font-mono text-[10px] font-bold tracking-[0.1em] uppercase px-2 py-0.5">
               {athlete.currentBelt.toUpperCase()} · {athlete.daysInBelt}d
             </span>
             {athlete.academy && (
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: '#888' }}>
+              <span className="font-mono text-[11px] text-muted-foreground">
                 {athlete.academy}
               </span>
             )}
           </div>
         </div>
 
-        {/* Activity badge */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: activity.color,
-          color: activity.color === '#555' ? '#f0ebe3' : '#0f0f0f',
-          fontFamily: 'var(--font-mono)', fontSize: 11, fontWeight: 800,
-          letterSpacing: '0.08em', textTransform: 'uppercase',
-          padding: '6px 12px', flexShrink: 0,
-        }}>
+        {/* Activity badge — color is dynamic, stays in style */}
+        <div
+          className="flex items-center gap-1.5 font-mono text-[11px] font-extrabold tracking-[0.08em] uppercase px-3 py-1.5 shrink-0"
+          style={{
+            background: activity.color,
+            color: activity.color === '#555' ? '#f0f0f0' : '#0f0f0f',
+          }}
+        >
           {activity.label}{activity.description ? ` · ${activity.description}` : ''}
         </div>
       </div>
 
       {/* Stats row */}
-      <div style={{ display: 'flex', borderTop: '1px solid #2a2a2a' }}>
+      <div className="flex border-t border-border">
         {stats.map((stat, i) => (
-          <div key={stat.label} style={{
-            flex: 1, padding: '10px 16px',
-            borderRight: i < stats.length - 1 ? '1px solid #2a2a2a' : 'none',
-          }}>
-            <div style={{
-              fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700,
-              letterSpacing: '0.12em', textTransform: 'uppercase', color: '#555', marginBottom: 2,
-            }}>
+          <div
+            key={stat.label}
+            className="flex-1 px-4 py-2.5"
+            style={{ borderRight: i < stats.length - 1 ? '1px solid var(--border)' : 'none' }}
+          >
+            <div className="font-mono text-[9px] font-bold tracking-[0.12em] uppercase text-muted-foreground/60 mb-0.5">
               {stat.label}
             </div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: stat.red ? '#ef4444' : '#f0ebe3' }}>
+            <div
+              className={stat.red ? 'font-mono text-[11px] text-destructive' : 'font-mono text-[11px] text-foreground'}
+            >
               {stat.value}
             </div>
           </div>
@@ -134,7 +127,7 @@ export function AthleteProfileHeader({ athleteId }: Props) {
 
   if (isLoading) {
     return (
-      <div style={{ background: '#1a1a1a', border: '1px solid #3a3a3a', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 0' }}>
+      <div className="bg-card border border-border flex items-center justify-center py-12">
         <Spinner />
       </div>
     )
@@ -142,7 +135,7 @@ export function AthleteProfileHeader({ athleteId }: Props) {
 
   if (isError || !summary) {
     return (
-      <div style={{ background: '#1a1a1a', border: '1px solid #3a3a3a', padding: '32px 20px', textAlign: 'center', fontFamily: 'var(--font-mono)', fontSize: 12, color: '#888' }}>
+      <div className="bg-card border border-border px-5 py-8 text-center font-mono text-xs text-muted-foreground">
         No se pudo cargar la información del atleta.
       </div>
     )
