@@ -246,9 +246,6 @@ export function BottomTabBar() {
                   notifications.map(n => (
                     <div key={n.id} className="px-5 py-2.5 border-b border-border/50 last:border-b-0">
                       <p className="text-xs font-medium text-foreground">{NOTIFICATION_LABELS[n.type] ?? n.type}</p>
-                      {n.payload && (
-                        <p className="text-xs text-muted-foreground mt-0.5">{n.payload}</p>
-                      )}
                       <p
                         className="text-muted-foreground/50 mt-0.5"
                         style={{ fontFamily: 'var(--font-mono)', fontSize: '9px' }}
