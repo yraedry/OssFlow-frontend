@@ -32,6 +32,29 @@ function AthleteProfileHeaderInner({ athlete }: { athlete: AthleteSummary }) {
   const nextComp = athlete.recentCompetitions[0] ?? null
   const modalityLabel = athlete.preferredModality ? (MODALITY_LABELS[athlete.preferredModality] ?? athlete.preferredModality) : null
 
+  const stats = [
+    {
+      label: 'Última sesión',
+      value: formatLastSession(athlete.lastSessionDate),
+      red: false,
+    },
+    {
+      label: 'Lesiones',
+      value: athlete.activeInjuries.length > 0 ? String(athlete.activeInjuries.length) : 'Ninguna',
+      red: athlete.activeInjuries.length > 0,
+    },
+    {
+      label: 'Próx. Comp.',
+      value: nextComp ? nextComp.name : '—',
+      red: false,
+    },
+    {
+      label: 'Modalidad',
+      value: modalityLabel ?? '—',
+      red: false,
+    },
+  ]
+
   return (
     <div style={{ background: '#1a1a1a', border: '1px solid #3a3a3a', overflow: 'hidden' }}>
       {/* 3px top bar */}
@@ -85,31 +108,10 @@ function AthleteProfileHeaderInner({ athlete }: { athlete: AthleteSummary }) {
 
       {/* Stats row */}
       <div style={{ display: 'flex', borderTop: '1px solid #2a2a2a' }}>
-        {([
-          {
-            label: 'Última sesión',
-            value: formatLastSession(athlete.lastSessionDate),
-            red: false,
-          },
-          {
-            label: 'Lesiones',
-            value: athlete.activeInjuries.length > 0 ? String(athlete.activeInjuries.length) : 'Ninguna',
-            red: athlete.activeInjuries.length > 0,
-          },
-          {
-            label: 'Próx. Comp.',
-            value: nextComp ? nextComp.name : '—',
-            red: false,
-          },
-          {
-            label: 'Modalidad',
-            value: modalityLabel ?? '—',
-            red: false,
-          },
-        ] as const).map((stat, i, arr) => (
+        {stats.map((stat, i) => (
           <div key={stat.label} style={{
             flex: 1, padding: '10px 16px',
-            borderRight: i < arr.length - 1 ? '1px solid #2a2a2a' : 'none',
+            borderRight: i < stats.length - 1 ? '1px solid #2a2a2a' : 'none',
           }}>
             <div style={{
               fontFamily: 'var(--font-mono)', fontSize: 9, fontWeight: 700,

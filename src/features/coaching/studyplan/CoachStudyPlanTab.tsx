@@ -17,6 +17,9 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
   const [creating, setCreating] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [copyModalPlanId, setCopyModalPlanId] = useState<number | null>(null)
+  const [toggleHovered, setToggleHovered] = useState(false)
+  const [newPlanHovered, setNewPlanHovered] = useState(false)
+  const [emptyCardHovered, setEmptyCardHovered] = useState(false)
   const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
     return (localStorage.getItem('studyplan-view') as 'cards' | 'table') ?? 'cards'
   })
@@ -75,10 +78,11 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
             onClick={toggleView}
             style={{
               fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em',
-              border: '1px solid #3a3a3a', padding: '6px 12px', background: 'transparent', color: '#888', cursor: 'pointer',
+              border: `1px solid ${toggleHovered ? '#888' : '#3a3a3a'}`, padding: '6px 12px', background: 'transparent',
+              color: toggleHovered ? '#f0ebe3' : '#888', cursor: 'pointer',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f0ebe3'; (e.currentTarget as HTMLElement).style.borderColor = '#888' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#888'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a3a' }}
+            onMouseEnter={() => setToggleHovered(true)}
+            onMouseLeave={() => setToggleHovered(false)}
           >
             {viewMode === 'cards' ? '≡ Tabla' : '⊞ Tarjetas'}
           </button>
@@ -88,10 +92,11 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               fontFamily: 'var(--font-mono)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.06em',
-              border: '1px solid #3a3a3a', padding: '6px 12px', background: 'transparent', color: '#888', cursor: 'pointer',
+              border: `1px solid ${newPlanHovered ? '#888' : '#3a3a3a'}`, padding: '6px 12px', background: 'transparent',
+              color: newPlanHovered ? '#f0ebe3' : '#888', cursor: 'pointer',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f0ebe3'; (e.currentTarget as HTMLElement).style.borderColor = '#888' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#888'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a3a' }}
+            onMouseEnter={() => setNewPlanHovered(true)}
+            onMouseLeave={() => setNewPlanHovered(false)}
           >
             <Plus style={{ width: 12, height: 12 }} strokeWidth={1.5} />
             Nuevo plan
@@ -226,19 +231,13 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
             tabIndex={0}
             onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleNewPlanCard() }}
             style={{
-              border: '1px dashed #333', padding: 16, cursor: 'pointer',
+              border: `1px dashed ${emptyCardHovered ? '#666' : '#333'}`, padding: 16, cursor: 'pointer',
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               fontFamily: 'var(--font-mono)', fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase',
-              color: '#555', minHeight: 120, background: 'transparent',
+              color: emptyCardHovered ? '#f0ebe3' : '#555', minHeight: 120, background: 'transparent',
             }}
-            onMouseEnter={e => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = '#666'
-              ;(e.currentTarget as HTMLElement).style.color = '#f0ebe3'
-            }}
-            onMouseLeave={e => {
-              ;(e.currentTarget as HTMLElement).style.borderColor = '#333'
-              ;(e.currentTarget as HTMLElement).style.color = '#555'
-            }}
+            onMouseEnter={() => setEmptyCardHovered(true)}
+            onMouseLeave={() => setEmptyCardHovered(false)}
           >
             ＋ NUEVO PLAN
           </div>
@@ -296,6 +295,10 @@ interface PlanCardProps {
 
 function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: PlanCardProps) {
   const isPublished = plan.status === 'PUBLISHED'
+  const [hovered, setHovered] = useState(false)
+  const [deleteHovered, setDeleteHovered] = useState(false)
+  const [duplicateHovered, setDuplicateHovered] = useState(false)
+  const [copyHovered, setCopyHovered] = useState(false)
 
   return (
     <div
@@ -304,41 +307,30 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
       tabIndex={0}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onEdit() }}
       style={{
-        background: '#1a1a1a',
+        background: hovered ? '#1e1e1e' : '#1a1a1a',
         padding: 16,
         cursor: 'pointer',
         position: 'relative',
         borderLeft: `3px solid ${isPublished ? '#22c55e' : '#555'}`,
         transition: 'background 150ms',
       }}
-      onMouseEnter={e => {
-        ;(e.currentTarget as HTMLElement).style.background = '#1e1e1e'
-        const actions = (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-card-actions]')
-        if (actions) actions.style.opacity = '1'
-        const del = (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-delete-btn]')
-        if (del) del.style.opacity = '1'
-      }}
-      onMouseLeave={e => {
-        ;(e.currentTarget as HTMLElement).style.background = '#1a1a1a'
-        const actions = (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-card-actions]')
-        if (actions) actions.style.opacity = '0'
-        const del = (e.currentTarget as HTMLElement).querySelector<HTMLElement>('[data-delete-btn]')
-        if (del) del.style.opacity = '0'
-      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       {/* Delete button */}
       <button
         type="button"
-        data-delete-btn
         onClick={e => { e.stopPropagation(); onDelete() }}
         style={{
           position: 'absolute', top: 10, right: 10,
-          background: 'transparent', border: 'none', color: '#555', cursor: 'pointer',
+          background: 'transparent', border: 'none',
+          color: deleteHovered ? '#ef4444' : '#555',
+          cursor: 'pointer',
           fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 4px',
-          opacity: 0, transition: 'opacity 120ms, color 120ms',
+          opacity: hovered ? 1 : 0, transition: 'opacity 120ms, color 120ms',
         }}
-        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#ef4444')}
-        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = '#555')}
+        onMouseEnter={e => { e.stopPropagation(); setDeleteHovered(true) }}
+        onMouseLeave={e => { e.stopPropagation(); setDeleteHovered(false) }}
         aria-label={`Eliminar plan ${plan.title}`}
       >
         ✕
@@ -404,8 +396,7 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
 
       {/* Duplicate / copy-to-athlete actions */}
       <div
-        data-card-actions
-        style={{ position: 'absolute', bottom: 10, right: 10, display: 'flex', gap: 4, opacity: 0, transition: 'opacity 120ms' }}
+        style={{ position: 'absolute', bottom: 10, right: 10, display: 'flex', gap: 4, opacity: hovered ? 1 : 0, transition: 'opacity 120ms' }}
         onClick={e => e.stopPropagation()}
       >
         <button
@@ -413,12 +404,15 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
           title="Duplicar"
           onClick={onDuplicate}
           style={{
-            background: 'transparent', border: '1px solid #3a3a3a', color: '#555', cursor: 'pointer',
+            background: 'transparent',
+            border: `1px solid ${duplicateHovered ? '#888' : '#3a3a3a'}`,
+            color: duplicateHovered ? '#f0ebe3' : '#555',
+            cursor: 'pointer',
             fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 6px',
             transition: 'color 120ms, border-color 120ms',
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f0ebe3'; (e.currentTarget as HTMLElement).style.borderColor = '#888' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#555'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a3a' }}
+          onMouseEnter={e => { e.stopPropagation(); setDuplicateHovered(true) }}
+          onMouseLeave={e => { e.stopPropagation(); setDuplicateHovered(false) }}
         >
           ⧉
         </button>
@@ -427,12 +421,15 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
           title="Copiar a otro atleta"
           onClick={onCopyToAthlete}
           style={{
-            background: 'transparent', border: '1px solid #3a3a3a', color: '#555', cursor: 'pointer',
+            background: 'transparent',
+            border: `1px solid ${copyHovered ? '#888' : '#3a3a3a'}`,
+            color: copyHovered ? '#f0ebe3' : '#555',
+            cursor: 'pointer',
             fontFamily: 'var(--font-mono)', fontSize: 11, padding: '2px 6px',
             transition: 'color 120ms, border-color 120ms',
           }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#f0ebe3'; (e.currentTarget as HTMLElement).style.borderColor = '#888' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#555'; (e.currentTarget as HTMLElement).style.borderColor = '#3a3a3a' }}
+          onMouseEnter={e => { e.stopPropagation(); setCopyHovered(true) }}
+          onMouseLeave={e => { e.stopPropagation(); setCopyHovered(false) }}
         >
           →
         </button>
