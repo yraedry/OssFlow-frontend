@@ -17,6 +17,8 @@ export type UserProfile = {
   academy?: string
   preferredModality: string
   ageCategory?: string | null
+  stripes?: 0 | 1 | 2 | 3 | 4 | null
+  weight?: number | null
   onboardingCompleted: boolean
   federations: ProfileFederationEntry[]
   role: AccountRole
@@ -34,6 +36,9 @@ export type CreateProfileRequest = {
   beltSince?: string
   academy?: string
   preferredModality: string
+  ageCategory?: string | null
+  stripes?: number | null
+  weight?: number | null
 }
 
 export type UpdateProfileRequest = {
@@ -45,4 +50,7 @@ export type UpdateProfileRequest = {
   beltSince?: string
   academy?: string
   preferredModality: string
+  ageCategory?: string | null
+  stripes?: number | null
+  weight?: number | null
 }

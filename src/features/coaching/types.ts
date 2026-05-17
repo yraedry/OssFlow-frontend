@@ -37,6 +37,8 @@ export type AthleteSummary = {
   daysInBelt: number
   academy: string | null
   ageCategory: AgeCategory
+  stripes: number | null
+  weight: number | null
   preferredModality: 'GI' | 'NOGI' | 'BOTH' | null
   activeInjuries: ActiveInjuryItem[]
   recentCompetitions: CompetitionItem[]
