@@ -58,7 +58,7 @@ export function AthleteRoster({ onSelectAthlete }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
       {athletes.map((athlete) => {
         const belt = getBelt(athlete.currentBelt)
         const ini = initials(athlete.displayName)
@@ -73,9 +73,9 @@ export function AthleteRoster({ onSelectAthlete }: Props) {
             <span className={cn('w-1 shrink-0', belt.bar)} aria-hidden="true" />
 
             {/* Avatar + info */}
-            <div className="flex items-center gap-3 flex-1 min-w-0 px-4 py-4">
+            <div className="flex items-center gap-2.5 flex-1 min-w-0 px-3 py-2.5">
               {/* Avatar */}
-              <div className={cn('h-10 w-10 shrink-0 flex items-center justify-center text-sm font-black', belt.bg, belt.text)}
+              <div className={cn('h-8 w-8 shrink-0 flex items-center justify-center text-xs font-black', belt.bg, belt.text)}
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
                 {ini}
@@ -83,7 +83,7 @@ export function AthleteRoster({ onSelectAthlete }: Props) {
 
               {/* Name + belt */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate group-hover:text-foreground transition-colors leading-snug">
+                <p className="text-xs font-semibold truncate group-hover:text-foreground transition-colors leading-snug">
                   {athlete.displayName}
                 </p>
                 <div className="flex items-center gap-2 mt-0.5">
@@ -98,9 +98,9 @@ export function AthleteRoster({ onSelectAthlete }: Props) {
             </div>
 
             {/* Arrow */}
-            <div className="flex items-center pr-3">
+            <div className="flex items-center pr-2.5">
               <ChevronRight
-                className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors"
+                className="h-3.5 w-3.5 text-muted-foreground/30 group-hover:text-muted-foreground transition-colors"
                 strokeWidth={1.5}
               />
             </div>
