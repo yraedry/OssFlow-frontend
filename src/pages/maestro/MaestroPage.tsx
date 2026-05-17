@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { MyCoachesSection } from '@/features/coaching/components/MyCoachesSection'
 import { ReceivedNoteList } from '@/features/coaching/notes/ReceivedNoteList'
 import { ReceivedRecommendationList } from '@/features/coaching/recommendations/ReceivedRecommendationList'
+import { ReceivedStudyPlanList } from '@/features/coaching/studyplan/ReceivedStudyPlanList'
 import { useNoteUnreadCount, useRecommendationsReceived } from '@/features/coaching/hooks'
 
 type Tab = 'maestros' | 'notas' | 'planificacion'
@@ -51,7 +52,12 @@ export function MaestroPage() {
         <div className="p-4">
           {tab === 'maestros' && <MyCoachesSection />}
           {tab === 'notas' && <ReceivedNoteList />}
-          {tab === 'planificacion' && <ReceivedRecommendationList />}
+          {tab === 'planificacion' && (
+            <>
+              <ReceivedStudyPlanList />
+              <ReceivedRecommendationList />
+            </>
+          )}
         </div>
       </div>
     </div>
