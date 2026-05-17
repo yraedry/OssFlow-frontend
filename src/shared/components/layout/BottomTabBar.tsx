@@ -1,6 +1,6 @@
-import React from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
-import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut, User, School, GraduationCap } from 'lucide-react'
+import React, { useState } from 'react'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
+import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut, User, School, GraduationCap, MoreHorizontal, Settings, X } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useLogout } from '@/features/auth/hooks'
 import { useProfile } from '@/features/identity/profile/hooks'
@@ -8,13 +8,12 @@ import { useCoaches, useNoteUnreadCount } from '@/features/coaching/hooks'
 
 type Tab = { to: string; label: string; icon: React.ElementType; end: boolean; badge?: number }
 
-const TABS: Tab[] = [
+const FIXED_TABS: Tab[] = [
   { to: '/',                       label: 'Inicio',        icon: Home,         end: true  },
   { to: '/diario/sesiones-bjj',    label: 'Diario',        icon: BookOpen,     end: false },
   { to: '/estudio/tecnicas',       label: 'Estudio',       icon: Dumbbell,     end: false },
-  { to: '/planificacion/planes',   label: 'Planificación', icon: CalendarDays, end: false },
+  { to: '/planificacion/planes',   label: 'Planif.',       icon: CalendarDays, end: false },
   { to: '/analisis',               label: 'Análisis',      icon: BarChart2,    end: false },
-  { to: '/profile',                label: 'Perfil',        icon: User,         end: false },
 ]
 
 const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[] }[]> = {
@@ -39,10 +38,6 @@ const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[]
     { to: '/planificacion/plantilla', label: 'Plantilla' },
     { to: '/planificacion/rutinas',   label: 'Rutinas' },
   ],
-  perfil: [
-    { to: '/profile',        label: 'Perfil' },
-    { to: '/configuracion',  label: 'Configuración' },
-  ],
 }
 
 function getSection(pathname: string): string {
@@ -52,8 +47,6 @@ function getSection(pathname: string): string {
     return 'estudio'
   if (pathname.startsWith('/planificacion') || pathname.startsWith('/planning'))
     return 'planificacion'
-  if (pathname.startsWith('/profile') || pathname.startsWith('/configuracion'))
-    return 'perfil'
   return ''
 }
 
@@ -67,8 +60,6 @@ function getActiveTab(pathname: string): string {
     return '/planificacion/planes'
   if (pathname.startsWith('/analisis'))
     return '/analisis'
-  if (pathname.startsWith('/profile') || pathname.startsWith('/configuracion'))
-    return '/profile'
   return ''
 }
 
@@ -77,105 +68,230 @@ const SUBNAV_MONO = { fontFamily: 'var(--font-mono)', fontSize: '11px', letterSp
 
 export function BottomTabBar() {
   const { pathname } = useLocation()
+  const navigate = useNavigate()
   const activeTab = getActiveTab(pathname)
   const section = getSection(pathname)
   const subNav = SUB_NAV[section] ?? []
-  const hasSubNav = subNav.length > 0
   const logoutMutation = useLogout()
   const { data: profile } = useProfile()
   const { data: coaches } = useCoaches()
   const { data: unreadCount } = useNoteUnreadCount()
   const hasCoach = (coaches?.length ?? 0) > 0
+  const isCoach = profile?.role === 'ATHLETE_COACH'
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
-  const tabs: Tab[] = [
-    ...TABS,
-    ...(profile?.role === 'ATHLETE_COACH'
-      ? [{ to: '/gimnasio', label: 'Alumnos', icon: School, end: false }]
-      : []),
-    ...(hasCoach
-      ? [{ to: '/maestro', label: 'Maestro', icon: GraduationCap, end: false, badge: unreadCount }]
-      : []),
-  ]
+  // Checks for the "Más" button badge (Maestro unread)
+  const moreBadge = (unreadCount ?? 0) > 0 ? unreadCount : undefined
+
+  // Determine if «Más» is currently active (user is in /maestro, /gimnasio, /profile, /configuracion)
+  const isMoreActive =
+    pathname.startsWith('/maestro') ||
+    pathname.startsWith('/gimnasio') ||
+    pathname.startsWith('/profile') ||
+    pathname.startsWith('/configuracion')
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border"
-      style={{
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        '--bottom-bar-height': hasSubNav ? '88px' : '56px',
-      } as React.CSSProperties}
-    >
-      {subNav.length > 0 && (
-        <div className="border-t border-border/50 flex overflow-x-auto scrollbar-none">
-          {subNav.map(({ to, label, matchPaths }) => {
-            const isActive = matchPaths
-              ? matchPaths.some(p => pathname === p || pathname.startsWith(p + '/'))
-              : undefined
-            return (
-              <NavLink
-                key={to}
-                to={to}
-                end={!matchPaths}
-                className={matchPaths
-                  ? cn(
-                      'flex-shrink-0 h-8 flex items-center px-3 uppercase transition-colors whitespace-nowrap border-b-2',
-                      isActive
-                        ? 'text-foreground border-foreground'
-                        : 'text-muted-foreground border-transparent hover:text-foreground',
-                    )
-                  : ({ isActive }: { isActive: boolean }) =>
-                      cn(
+    <>
+      {/* Backdrop when drawer is open */}
+      {drawerOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+          onClick={() => setDrawerOpen(false)}
+        />
+      )}
+
+      {/* «Más» drawer — slides up from bottom */}
+      <div
+        className={cn(
+          'fixed left-0 right-0 z-50 bg-background border-t border-border transition-transform duration-200',
+          drawerOpen ? 'translate-y-0' : 'translate-y-full',
+        )}
+        style={{
+          bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))',
+        }}
+      >
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const, color: 'var(--muted-foreground)' }}>
+            Más opciones
+          </span>
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(false)}
+            className="h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Cerrar"
+          >
+            <X className="h-4 w-4" strokeWidth={1.5} />
+          </button>
+        </div>
+
+        <div className="py-2">
+          {/* Perfil */}
+          <button
+            type="button"
+            onClick={() => { navigate('/profile'); setDrawerOpen(false) }}
+            className={cn(
+              'w-full flex items-center gap-3 px-5 py-3 transition-colors',
+              pathname.startsWith('/profile')
+                ? 'text-foreground bg-foreground/[0.06]'
+                : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]',
+            )}
+          >
+            <User className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+            <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Perfil</span>
+          </button>
+
+          {/* Configuración */}
+          <button
+            type="button"
+            onClick={() => { navigate('/configuracion'); setDrawerOpen(false) }}
+            className={cn(
+              'w-full flex items-center gap-3 px-5 py-3 transition-colors',
+              pathname.startsWith('/configuracion')
+                ? 'text-foreground bg-foreground/[0.06]'
+                : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]',
+            )}
+          >
+            <Settings className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+            <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Configuración</span>
+          </button>
+
+          {/* Alumnos — solo si es coach */}
+          {isCoach && (
+            <button
+              type="button"
+              onClick={() => { navigate('/gimnasio'); setDrawerOpen(false) }}
+              className={cn(
+                'w-full flex items-center gap-3 px-5 py-3 transition-colors',
+                pathname.startsWith('/gimnasio')
+                  ? 'text-foreground bg-foreground/[0.06]'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]',
+              )}
+            >
+              <School className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+              <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Alumnos</span>
+            </button>
+          )}
+
+          {/* Maestro — solo si tiene coach */}
+          {hasCoach && (
+            <button
+              type="button"
+              onClick={() => { navigate('/maestro'); setDrawerOpen(false) }}
+              className={cn(
+                'w-full flex items-center justify-between gap-3 px-5 py-3 transition-colors',
+                pathname.startsWith('/maestro')
+                  ? 'text-foreground bg-foreground/[0.06]'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]',
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <GraduationCap className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+                <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Maestro</span>
+              </div>
+              {(unreadCount ?? 0) > 0 && (
+                <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-[10px] font-bold bg-purple-500 text-white rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+          )}
+
+          {/* Cerrar sesión */}
+          <button
+            type="button"
+            onClick={() => { logoutMutation.mutate(); setDrawerOpen(false) }}
+            className="w-full flex items-center gap-3 px-5 py-3 text-muted-foreground hover:text-destructive transition-colors"
+          >
+            <LogOut className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+            <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Cerrar sesión</span>
+          </button>
+        </div>
+      </div>
+
+      <nav
+        className="fixed bottom-0 left-0 right-0 z-40 bg-background border-t border-border"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        }}
+      >
+        {/* Subnav contextual */}
+        {subNav.length > 0 && (
+          <div className="border-t border-border/50 flex overflow-x-auto scrollbar-none">
+            {subNav.map(({ to, label, matchPaths }) => {
+              const isActive = matchPaths
+                ? matchPaths.some(p => pathname === p || pathname.startsWith(p + '/'))
+                : undefined
+              return (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={!matchPaths}
+                  className={matchPaths
+                    ? cn(
                         'flex-shrink-0 h-8 flex items-center px-3 uppercase transition-colors whitespace-nowrap border-b-2',
                         isActive
                           ? 'text-foreground border-foreground'
                           : 'text-muted-foreground border-transparent hover:text-foreground',
                       )
-                }
-                style={SUBNAV_MONO}
+                    : ({ isActive: navActive }: { isActive: boolean }) =>
+                        cn(
+                          'flex-shrink-0 h-8 flex items-center px-3 uppercase transition-colors whitespace-nowrap border-b-2',
+                          navActive
+                            ? 'text-foreground border-foreground'
+                            : 'text-muted-foreground border-transparent hover:text-foreground',
+                        )
+                  }
+                  style={SUBNAV_MONO}
+                >
+                  {label}
+                </NavLink>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Tab bar principal — 5 items fijos + «Más» */}
+        <div className="flex items-end justify-around h-14">
+          {FIXED_TABS.map(({ to, label, icon: Icon, end }) => {
+            const isActive = end ? pathname === '/' : activeTab === to || pathname.startsWith(to)
+            return (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={cn(
+                  'flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-h-[44px] flex-1 transition-colors',
+                  isActive ? 'text-foreground' : 'text-muted-foreground',
+                )}
               >
-                {label}
+                <Icon className="h-4 w-4" strokeWidth={1.5} />
+                <span className="uppercase whitespace-nowrap" style={MONO}>{label}</span>
               </NavLink>
             )
           })}
-          {section === 'perfil' && (
-            <button
-              onClick={() => logoutMutation.mutate()}
-              className="flex-shrink-0 h-8 flex items-center gap-1.5 px-3 uppercase transition-colors whitespace-nowrap border-b-2 border-transparent text-muted-foreground hover:text-foreground"
-              style={SUBNAV_MONO}
-            >
-              <LogOut className="h-3 w-3" strokeWidth={1.5} />
-              Salir
-            </button>
-          )}
-        </div>
-      )}
 
-      <div className="flex items-end justify-around">
-        {tabs.map(({ to, label, icon: Icon, end, badge }) => {
-          const isActive = end ? pathname === '/' : activeTab === to || pathname.startsWith(to)
-          return (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={cn(
-                'flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-h-[44px] flex-1 transition-colors',
-                isActive ? 'text-foreground' : 'text-muted-foreground',
+          {/* Botón «Más» */}
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(o => !o)}
+            className={cn(
+              'flex flex-col items-center justify-center gap-0.5 py-2 px-3 min-h-[44px] flex-1 transition-colors relative',
+              isMoreActive ? 'text-foreground' : 'text-muted-foreground',
+            )}
+            aria-label="Más opciones"
+          >
+            <div className="relative">
+              <MoreHorizontal className="h-4 w-4" strokeWidth={1.5} />
+              {moreBadge != null && moreBadge > 0 && (
+                <span className="absolute -top-1 -right-1 h-3.5 min-w-3.5 px-0.5 text-[8px] font-bold bg-purple-500 text-white rounded-full flex items-center justify-center">
+                  {moreBadge}
+                </span>
               )}
-            >
-              <div className="relative">
-                <Icon className="h-4 w-4" strokeWidth={1.5} />
-                {badge != null && badge > 0 && (
-                  <span className="absolute -top-1 -right-1 h-3.5 min-w-3.5 px-0.5 text-[8px] font-bold bg-purple-500 text-white rounded-full flex items-center justify-center">
-                    {badge}
-                  </span>
-                )}
-              </div>
-              <span className="uppercase whitespace-nowrap" style={MONO}>{label}</span>
-            </NavLink>
-          )
-        })}
-      </div>
-    </nav>
+            </div>
+            <span className="uppercase whitespace-nowrap" style={MONO}>Más</span>
+          </button>
+        </div>
+      </nav>
+    </>
   )
 }
