@@ -157,7 +157,7 @@ export function CoachCompetitionTab({ athleteId }: CoachCompetitionTabProps) {
 
   return (
     <>
-      <div className="space-y-1.5 max-w-2xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {logs.map(log => {
           const resultColor = log.result ? getResultAccent(log.result) : '#64748b'
           return (
