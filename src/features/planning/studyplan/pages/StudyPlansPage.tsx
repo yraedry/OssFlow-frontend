@@ -1,115 +1,197 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useConfirm } from '@/shared/hooks/useConfirm'
-import { Plus, BookOpen } from 'lucide-react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/components/ui/dialog'
+import { cn } from '@/shared/lib/utils'
 import { Spinner } from '@/shared/components/ui/spinner'
-import { Alert, AlertDescription } from '@/shared/components/ui/alert'
-import { StudyPlanCard } from '../components/StudyPlanCard'
-import { StudyPlanForm } from '../components/StudyPlanForm'
-import { useStudyPlans, useCreateStudyPlan, useDeleteStudyPlan } from '../hooks'
-import type { StudyPlan } from '../types'
-import type { CreateStudyPlanFormOutput } from '../schemas'
-
-const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
-const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
-const LABEL: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '9px', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }
+import { useReceivedStudyPlans } from '@/features/coaching/studyplan/hooks'
+import { ReceivedPlanViewer } from '@/features/coaching/studyplan/ReceivedPlanViewer'
+import type { StudyPlan } from '@/features/coaching/studyplan/types'
+import { BookOpen, FileText } from 'lucide-react'
 
 export function StudyPlansPage() {
-  const navigate = useNavigate()
-  const [open, setOpen] = useState(false)
+  const [viewingPlanId, setViewingPlanId] = useState<number | null>(null)
+  const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
+    try {
+      return (localStorage.getItem('studyplan-view') as 'cards' | 'table') ?? 'cards'
+    } catch {
+      return 'cards'
+    }
+  })
 
-  const { data, isLoading, error } = useStudyPlans()
-  const createMutation = useCreateStudyPlan()
-  const deleteMutation = useDeleteStudyPlan()
-  const confirm = useConfirm()
+  const { data: plans, isLoading } = useReceivedStudyPlans()
 
-  const handleSubmit = async (formData: CreateStudyPlanFormOutput) => {
-    await createMutation.mutateAsync(formData)
-    setOpen(false)
+  function toggleView() {
+    const next = viewMode === 'cards' ? 'table' : 'cards'
+    setViewMode(next)
+    try { localStorage.setItem('studyplan-view', next) } catch { /* ignore */ }
   }
 
-  const handleDelete = async (id: number) => {
-    const ok = await confirm({ description: '¿Eliminar este plan? Esta acción no se puede deshacer.' })
-    if (!ok) return
-    await deleteMutation.mutateAsync(id)
+  if (viewingPlanId) {
+    return (
+      <ReceivedPlanViewer
+        planId={viewingPlanId}
+        onBack={() => setViewingPlanId(null)}
+      />
+    )
   }
-
-  const handleClick = (plan: StudyPlan) => {
-    navigate(`/planificacion/planes/${plan.id}`)
-  }
-
-  const plans = data?.content ?? []
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       {/* Header */}
-      <div className="border border-border bg-card px-5 py-4 flex items-center justify-between">
-        <div>
-          <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '4px' }}>Planificación</div>
-          <h1 className="font-black leading-none" style={{ ...SERIF, fontSize: 'clamp(22px, 3vw, 30px)', letterSpacing: '-0.02em' }}>
-            Planes de Estudio
-          </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          {plans.length > 0 && (
-            <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>
-              {plans.length} {plans.length === 1 ? 'plan' : 'planes'}
-            </span>
-          )}
-          <button
-            onClick={() => setOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-foreground text-background hover:opacity-85 transition-opacity"
-            style={{ ...MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}
-          >
-            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-            Nuevo plan
-          </button>
-        </div>
+      <div className="flex items-center justify-between">
+        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
+          Planes de estudio
+        </p>
+        <button
+          type="button"
+          onClick={toggleView}
+          className="font-mono text-[10px] uppercase tracking-[0.06em] border border-border px-3 py-1.5 bg-transparent text-muted-foreground hover:border-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        >
+          {viewMode === 'cards' ? '≡ Tabla' : '⊞ Tarjetas'}
+        </button>
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-16"><Spinner /></div>
-      ) : error ? (
-        <Alert variant="destructive">
-          <AlertDescription>Error al cargar los planes</AlertDescription>
-        </Alert>
-      ) : plans.length === 0 ? (
-        <div className="border border-border border-dashed bg-card p-16 flex flex-col items-center gap-4 text-center">
-          <div className="w-12 h-12 border border-border flex items-center justify-center">
-            <BookOpen className="h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-          </div>
-          <div>
-            <p className="font-semibold" style={SERIF}>Sin planes todavía</p>
-            <p className="text-sm text-muted-foreground mt-1" style={MONO}>
-              Crea tu primer plan de estudio para organizar tu progreso en BJJ
-            </p>
-          </div>
-          <button
-            onClick={() => setOpen(true)}
-            className="flex items-center gap-2 px-4 py-2 border border-foreground text-foreground hover:bg-foreground hover:text-background transition-colors"
-            style={{ ...MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em' }}
-          >
-            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-            Crear plan
-          </button>
+        <div className="flex justify-center py-8"><Spinner /></div>
+      ) : !plans?.length ? (
+        <div className="border border-dashed border-border p-12 flex flex-col items-center gap-3 text-center">
+          <BookOpen className="w-8 h-8 text-muted-foreground/40" strokeWidth={1} />
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/60">
+            Tu maestro aún no ha creado planes de estudio
+          </p>
         </div>
+      ) : viewMode === 'table' ? (
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="border-b border-border">
+              {['Título', 'Estado', 'Fecha', 'Bloques', ''].map(h => (
+                <th
+                  key={h}
+                  className="font-mono text-[9px] font-bold tracking-[0.1em] uppercase text-muted-foreground/60 px-4 py-1.5 text-left"
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {plans.map(plan => (
+              <ReceivedTableRow
+                key={plan.id}
+                plan={plan}
+                onView={() => setViewingPlanId(plan.id)}
+              />
+            ))}
+          </tbody>
+        </table>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {plans.map((plan) => (
-            <StudyPlanCard key={plan.id} plan={plan} onClick={handleClick} onDelete={handleDelete} />
+        <div className="grid grid-cols-2 gap-px bg-border">
+          {plans.map(plan => (
+            <ReceivedPlanCard
+              key={plan.id}
+              plan={plan}
+              onView={() => setViewingPlanId(plan.id)}
+            />
           ))}
         </div>
       )}
+    </div>
+  )
+}
 
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nuevo plan de estudio</DialogTitle>
-          </DialogHeader>
-          <StudyPlanForm onSubmit={handleSubmit} isPending={createMutation.isPending} />
-        </DialogContent>
-      </Dialog>
+// ─── ReceivedTableRow ────────────────────────────────────────────────────────
+
+function ReceivedTableRow({ plan, onView }: { plan: StudyPlan; onView: () => void }) {
+  const [hovered, setHovered] = useState(false)
+  return (
+    <tr
+      onClick={onView}
+      className={cn('border-b border-border cursor-pointer transition-colors', hovered ? 'bg-muted/50' : 'bg-transparent')}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <td className="font-sans text-[13px] text-foreground px-4 py-2.5 font-medium">{plan.title}</td>
+      <td className="font-mono text-[9px] font-bold tracking-[0.08em] uppercase px-4 py-2.5">
+        <span className={plan.status === 'PUBLISHED' ? 'text-emerald-500' : 'text-muted-foreground/60'}>
+          {plan.status === 'PUBLISHED' ? 'Publicado' : 'Borrador'}
+        </span>
+      </td>
+      <td className="font-mono text-[11px] text-muted-foreground px-4 py-2.5">
+        {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '—'}
+      </td>
+      <td className="font-mono text-[11px] text-muted-foreground px-4 py-2.5">
+        {(plan.blocks ?? []).length}
+      </td>
+      <td className="px-4 py-2.5 text-right">
+        <span className="font-mono text-[10px] text-muted-foreground/40 uppercase tracking-wide">Ver →</span>
+      </td>
+    </tr>
+  )
+}
+
+// ─── ReceivedPlanCard ─────────────────────────────────────────────────────────
+
+function ReceivedPlanCard({ plan, onView }: { plan: StudyPlan; onView: () => void }) {
+  const isPublished = plan.status === 'PUBLISHED'
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      onClick={onView}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onView() }}
+      className={cn('relative p-4 cursor-pointer transition-colors', hovered ? 'bg-muted/50' : 'bg-card')}
+      style={{ borderLeft: `3px solid ${isPublished ? '#22c55e' : 'var(--border)'}` }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Card top: title + status badge */}
+      <div className="flex items-start justify-between gap-2 mb-2.5">
+        <div className="font-serif text-[15px] font-bold text-foreground leading-tight flex-1">
+          {plan.title}
+        </div>
+        <span
+          className="font-mono text-[8px] font-bold tracking-[0.1em] uppercase px-1.5 py-0.5 shrink-0 border"
+          style={{
+            color: isPublished ? '#22c55e' : undefined,
+            borderColor: isPublished ? '#22c55e44' : 'var(--border)',
+          }}
+        >
+          <span className={isPublished ? '' : 'text-muted-foreground/60'}>
+            {isPublished ? 'PUBLICADO' : 'BORRADOR'}
+          </span>
+        </span>
+      </div>
+
+      {/* Block previews */}
+      <div className="flex flex-col gap-0.5 mb-2.5">
+        {(plan.blocks ?? []).slice(0, 3).map(b => (
+          <div key={b.id} className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground">
+            <span className="w-1 h-1 rounded-full bg-border shrink-0 inline-block" />
+            {b.title || 'Bloque sin título'}
+          </div>
+        ))}
+        {(plan.blocks ?? []).length > 3 && (
+          <div className="flex items-center gap-1.5 font-mono text-[10px] text-muted-foreground/40">
+            <span className="w-1 h-1 rounded-full bg-border/60 shrink-0 inline-block" />
+            +{(plan.blocks ?? []).length - 3} más
+          </div>
+        )}
+        {(plan.blocks ?? []).length === 0 && (
+          <div className="font-mono text-[10px] text-muted-foreground/60 italic">Sin bloques</div>
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-2 border-t border-border">
+        <span className="font-mono text-[10px] text-muted-foreground/60">
+          {plan.createdAt
+            ? new Date(plan.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+            : ''}
+        </span>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100">
+          <FileText className="w-3 h-3 text-muted-foreground/40" strokeWidth={1.5} />
+        </div>
+      </div>
     </div>
   )
 }
