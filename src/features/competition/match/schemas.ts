@@ -1,13 +1,14 @@
 import { z } from 'zod'
 
 export const createMatchSchema = z.object({
-  opponentName: z.string().min(1).max(200),
-  opponentBelt: z.string().max(50).optional(),
-  result: z.enum(['WIN', 'LOSS', 'DRAW']),
-  technique: z.string().max(200).optional(),
-  notes: z.string().max(2000).optional(),
-  duration: z.number().int().min(0).optional(),
-  orderIndex: z.number().int().min(0).default(0),
+  matchOrder:    z.number().int().min(0).optional(),
+  opponentName:  z.string().max(200).optional(),
+  opponentTeam:  z.string().max(200).optional(),
+  outcome:       z.string().max(20).optional(),
+  method:        z.string().max(50).optional(),
+  round:         z.string().max(50).optional(),
+  techniqueText: z.string().max(255).optional(),
+  notesMarkdown: z.string().max(5000).optional(),
 })
 
-export type CreateMatchForm = z.input<typeof createMatchSchema>
+export type CreateMatchForm = z.infer<typeof createMatchSchema>

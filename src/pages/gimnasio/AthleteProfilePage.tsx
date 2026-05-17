@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, Eye, BarChart2, MessageSquare, BookOpen, Trophy } from 'lucide-react'
 import { useState } from 'react'
 import { AthleteProfileHeader } from '@/features/coaching/components/AthleteProfileHeader'
 import { ObservationForm } from '@/features/coaching/observations/ObservationForm'
@@ -9,15 +9,18 @@ import { CoachNoteForm } from '@/features/coaching/notes/CoachNoteForm'
 import { CoachNoteList } from '@/features/coaching/notes/CoachNoteList'
 import { RecommendationForm } from '@/features/coaching/recommendations/RecommendationForm'
 import { CoachRecommendationList } from '@/features/coaching/recommendations/CoachRecommendationList'
+import { CoachCompetitionTab } from '@/features/coaching/competition/CoachCompetitionTab'
+import { cn } from '@/shared/lib/utils'
 
-type Tab = 'observaciones' | 'radar' | 'notas' | 'recomendaciones'
+type Tab = 'observaciones' | 'radar' | 'notas' | 'recomendaciones' | 'competiciones'
 
-const TAB_LABELS: Record<Tab, string> = {
-  observaciones: 'Observaciones',
-  radar: 'Radar',
-  notas: 'Notas',
-  recomendaciones: 'Recomendaciones',
-}
+const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: 'observaciones',   label: 'Observaciones', icon: <Eye className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+  { id: 'radar',           label: 'Análisis',      icon: <BarChart2 className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+  { id: 'notas',           label: 'Notas',         icon: <MessageSquare className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+  { id: 'recomendaciones', label: 'Técnicas',      icon: <BookOpen className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+  { id: 'competiciones',   label: 'Compet.',       icon: <Trophy className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+]
 
 export function AthleteProfilePage() {
   const { athleteId } = useParams<{ athleteId: string }>()
@@ -33,7 +36,7 @@ export function AthleteProfilePage() {
       <button
         type="button"
         onClick={() => navigate('/gimnasio')}
-        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-mono uppercase tracking-wide"
+        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-mono uppercase tracking-wide cursor-pointer"
       >
         <ChevronLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
         Volver al gimnasio
@@ -42,45 +45,48 @@ export function AthleteProfilePage() {
       {/* Athlete header */}
       <AthleteProfileHeader athleteId={id} />
 
-      {/* Tabs */}
-      <div className="border border-border bg-card overflow-hidden">
-        <div className="flex border-b border-border">
-          {(['observaciones', 'radar', 'notas', 'recomendaciones'] as Tab[]).map(t => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTab(t)}
-              className={`flex-1 px-4 py-3 text-xs font-mono uppercase tracking-wide transition-colors border-b-2 ${
-                tab === t
-                  ? 'font-semibold border-[#f97316] text-[#f97316]'
-                  : 'text-muted-foreground border-transparent hover:text-foreground'
-              }`}
-            >
-              {TAB_LABELS[t]}
-            </button>
-          ))}
-        </div>
-        <div className="p-4">
-          {tab === 'observaciones' && (
-            <>
-              <ObservationForm athleteId={id} />
-              <ObservationList athleteId={id} />
-            </>
-          )}
-          {tab === 'radar' && <CoachRadarTab athleteId={id} />}
-          {tab === 'notas' && (
-            <>
-              <CoachNoteForm athleteId={id} />
-              <CoachNoteList athleteId={id} />
-            </>
-          )}
-          {tab === 'recomendaciones' && (
-            <>
-              <RecommendationForm athleteId={id} />
-              <CoachRecommendationList athleteId={id} />
-            </>
-          )}
-        </div>
+      {/* Tab bar */}
+      <div className="flex border border-border overflow-hidden">
+        {TABS.map(t => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => setTab(t.id)}
+            className={cn(
+              'flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[10px] font-mono uppercase tracking-wide transition-colors border-r border-border last:border-r-0 cursor-pointer',
+              tab === t.id
+                ? 'bg-foreground text-background'
+                : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]',
+            )}
+          >
+            {t.icon}
+            <span className="hidden sm:inline">{t.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      <div className="border border-border bg-card p-4">
+        {tab === 'observaciones' && (
+          <>
+            <ObservationForm athleteId={id} />
+            <ObservationList athleteId={id} />
+          </>
+        )}
+        {tab === 'radar' && <CoachRadarTab athleteId={id} />}
+        {tab === 'notas' && (
+          <>
+            <CoachNoteForm athleteId={id} />
+            <CoachNoteList athleteId={id} />
+          </>
+        )}
+        {tab === 'recomendaciones' && (
+          <>
+            <RecommendationForm athleteId={id} />
+            <CoachRecommendationList athleteId={id} />
+          </>
+        )}
+        {tab === 'competiciones' && <CoachCompetitionTab athleteId={id} />}
       </div>
     </div>
   )

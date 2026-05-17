@@ -13,11 +13,11 @@ export interface Section {
 }
 
 export const TOOLTIP_STYLE = {
-  background: '#0f172a',
-  border: '1px solid #1e293b',
-  borderRadius: '6px',
+  background: 'var(--background)',
+  border: '1px solid var(--border)',
+  borderRadius: '4px',
   fontSize: '11px',
   fontFamily: 'var(--font-mono)',
-  color: '#e2e8f0',
+  color: 'var(--foreground)',
   padding: '6px 10px',
 }

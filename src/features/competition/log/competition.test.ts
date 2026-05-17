@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { createCompetitionLogSchema, createMatchSchema } from './schemas'
+import { createCompetitionLogSchema } from './schemas'
+import { createMatchSchema } from '../match/schemas'
 
 describe('CompetitionLog schemas', () => {
   it('validates a valid competition log', () => {
@@ -40,18 +41,23 @@ describe('CompetitionLog schemas', () => {
 })
 
 describe('Match schemas', () => {
-  it('validates a valid match', () => {
+  it('validates an empty match (all fields optional)', () => {
+    const result = createMatchSchema.safeParse({})
+    expect(result.success).toBe(true)
+  })
+
+  it('validates a match with outcome and techniqueText', () => {
     const result = createMatchSchema.safeParse({
       opponentName: 'Juan',
-      result: 'WIN',
+      outcome: 'WIN',
+      techniqueText: 'Armbar',
     })
     expect(result.success).toBe(true)
   })
 
-  it('rejects invalid result', () => {
+  it('rejects techniqueText too long', () => {
     const result = createMatchSchema.safeParse({
-      opponentName: 'Juan',
-      result: 'FORFEIT',
+      techniqueText: 'a'.repeat(256),
     })
     expect(result.success).toBe(false)
   })

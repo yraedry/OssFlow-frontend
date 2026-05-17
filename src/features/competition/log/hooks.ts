@@ -45,6 +45,14 @@ export function useUpdateCompetitionLog() {
   })
 }
 
+export function useAthleteCompetitionLogs(athleteId: number, params?: { page?: number; size?: number }) {
+  return useQuery({
+    queryKey: ['coach-athlete-competition-logs', athleteId, params],
+    queryFn: () => competitionLogApi.listForAthlete(athleteId, params),
+    enabled: athleteId > 0,
+  })
+}
+
 export function useDeleteCompetitionLog() {
   const qc = useQueryClient()
   return useMutation({

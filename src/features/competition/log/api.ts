@@ -19,4 +19,11 @@ export const competitionLogApi = {
     apiClient.put(`journal/competition-logs/${id}`, { json: data }).json<CompetitionLog>(),
 
   delete: (id: number) => apiClient.delete(`journal/competition-logs/${id}`),
+
+  listForAthlete: (athleteId: number, params?: { page?: number; size?: number }) =>
+    apiClient
+      .get(`coaching/athletes/${athleteId}/competition-logs`, {
+        searchParams: { page: params?.page ?? 0, size: params?.size ?? 20 },
+      })
+      .json<Page<CompetitionLog>>(),
 }

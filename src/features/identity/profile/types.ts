@@ -16,6 +16,7 @@ export type UserProfile = {
   beltSince?: string
   academy?: string
   preferredModality: string
+  ageCategory?: string | null
   onboardingCompleted: boolean
   federations: ProfileFederationEntry[]
   role: AccountRole
