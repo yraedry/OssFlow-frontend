@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Trash2, Copy, Send, Search } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 import { useConfirm } from '@/shared/hooks/useConfirm'
 import { useCoachStudyPlans, useCreateStudyPlan, useDeleteStudyPlan, useDuplicatePlan } from './hooks'
@@ -174,42 +174,16 @@ export function CoachStudyPlanTab({ athleteId }: Props) {
 
       {/* Copy to athlete modal */}
       {copyModalPlanId !== null && (
-        <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]"
-          onClick={() => setCopyModalPlanId(null)}
-        >
-          <div
-            className="bg-card border border-border p-6 min-w-[300px]"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="font-mono text-[10px] font-bold tracking-[0.12em] uppercase text-muted-foreground mb-4">
-              Copiar a atleta
-            </div>
-            {(athletes as CoachAthleteListItem[] | undefined)?.filter(a => a.athleteId !== athleteId).map(a => (
-              <button
-                key={a.athleteId}
-                onClick={() => {
-                  duplicatePlan.mutate({ planId: copyModalPlanId, targetAthleteId: a.athleteId })
-                  setCopyModalPlanId(null)
-                }}
-                className="block w-full px-4 py-2.5 bg-transparent border-none border-b border-border cursor-pointer text-left text-foreground font-sans text-sm hover:bg-muted/50 transition-colors"
-              >
-                {a.displayName}
-              </button>
-            ))}
-            {(athletes as CoachAthleteListItem[] | undefined)?.filter(a => a.athleteId !== athleteId).length === 0 && (
-              <div className="font-mono text-[11px] text-muted-foreground/60 py-2">
-                No hay otros atletas vinculados
-              </div>
-            )}
-            <button
-              onClick={() => setCopyModalPlanId(null)}
-              className="mt-3 font-mono text-[10px] text-muted-foreground/60 bg-transparent border-none cursor-pointer hover:text-muted-foreground transition-colors"
-            >
-              Cancelar
-            </button>
-          </div>
-        </div>
+        <CopyToAthleteModal
+          planId={copyModalPlanId}
+          currentAthleteId={athleteId}
+          athletes={(athletes as CoachAthleteListItem[] | undefined) ?? []}
+          onCopy={(targetId) => {
+            duplicatePlan.mutate({ planId: copyModalPlanId, targetAthleteId: targetId })
+            setCopyModalPlanId(null)
+          }}
+          onClose={() => setCopyModalPlanId(null)}
+        />
       )}
     </div>
   )
@@ -252,32 +226,34 @@ function TableRow({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Tabl
         {(plan.blocks ?? []).length}
       </td>
       <td className="px-4 py-2.5 text-right whitespace-nowrap" onClick={e => e.stopPropagation()}>
-        <button
-          title="Duplicar"
-          onClick={onDuplicate}
-          className={cn('bg-transparent border-none cursor-pointer text-[13px] mr-1.5 transition-colors', dupHovered ? 'text-foreground' : 'text-muted-foreground/60')}
-          onMouseEnter={() => setDupHovered(true)}
-          onMouseLeave={() => setDupHovered(false)}
-        >
-          ⧉
-        </button>
-        <button
-          title="Copiar a otro atleta"
-          onClick={onCopyToAthlete}
-          className={cn('bg-transparent border-none cursor-pointer text-[13px] mr-1.5 transition-colors', copyHovered ? 'text-foreground' : 'text-muted-foreground/60')}
-          onMouseEnter={() => setCopyHovered(true)}
-          onMouseLeave={() => setCopyHovered(false)}
-        >
-          →
-        </button>
-        <button
-          onClick={onDelete}
-          className={cn('bg-transparent border-none cursor-pointer text-[13px] transition-colors', delHovered ? 'text-destructive' : 'text-muted-foreground/60')}
-          onMouseEnter={() => setDelHovered(true)}
-          onMouseLeave={() => setDelHovered(false)}
-        >
-          ✕
-        </button>
+        <div className="flex items-center justify-end gap-1">
+          <button
+            title="Duplicar"
+            onClick={onDuplicate}
+            className={cn('p-1.5 rounded transition-colors bg-transparent border-none cursor-pointer', dupHovered ? 'text-foreground bg-muted' : 'text-muted-foreground/50')}
+            onMouseEnter={() => setDupHovered(true)}
+            onMouseLeave={() => setDupHovered(false)}
+          >
+            <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </button>
+          <button
+            title="Copiar a otro atleta"
+            onClick={onCopyToAthlete}
+            className={cn('p-1.5 rounded transition-colors bg-transparent border-none cursor-pointer', copyHovered ? 'text-foreground bg-muted' : 'text-muted-foreground/50')}
+            onMouseEnter={() => setCopyHovered(true)}
+            onMouseLeave={() => setCopyHovered(false)}
+          >
+            <Send className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </button>
+          <button
+            onClick={onDelete}
+            className={cn('p-1.5 rounded transition-colors bg-transparent border-none cursor-pointer', delHovered ? 'text-destructive bg-destructive/10' : 'text-muted-foreground/50')}
+            onMouseEnter={() => setDelHovered(true)}
+            onMouseLeave={() => setDelHovered(false)}
+          >
+            <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+          </button>
+        </div>
       </td>
     </tr>
   )
@@ -317,15 +293,15 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
         type="button"
         onClick={e => { e.stopPropagation(); onDelete() }}
         className={cn(
-          'absolute top-2.5 right-2.5 bg-transparent border-none cursor-pointer font-mono text-[11px] px-1 py-0.5 transition-all',
-          deleteHovered ? 'text-destructive' : 'text-muted-foreground/60',
+          'absolute top-2 right-2 p-1.5 rounded bg-transparent border-none cursor-pointer transition-all',
+          deleteHovered ? 'text-destructive bg-destructive/10' : 'text-muted-foreground/40',
           hovered ? 'opacity-100' : 'opacity-0',
         )}
         onMouseEnter={e => { e.stopPropagation(); setDeleteHovered(true) }}
         onMouseLeave={e => { e.stopPropagation(); setDeleteHovered(false) }}
         aria-label={`Eliminar plan ${plan.title}`}
       >
-        ✕
+        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
       </button>
 
       {/* Card top: title + status badge */}
@@ -387,34 +363,116 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
 
       {/* Duplicate / copy-to-athlete actions */}
       <div
-        className={cn('absolute bottom-2.5 right-2.5 flex gap-1 transition-opacity', hovered ? 'opacity-100' : 'opacity-0')}
+        className={cn('absolute bottom-2 right-2 flex gap-1 transition-opacity', hovered ? 'opacity-100' : 'opacity-0')}
         onClick={e => e.stopPropagation()}
       >
         <button
           type="button"
-          title="Duplicar"
+          title="Duplicar plan"
           onClick={onDuplicate}
           className={cn(
-            'bg-transparent border border-border cursor-pointer font-mono text-[11px] px-1.5 py-0.5 transition-colors',
-            duplicateHovered ? 'border-muted-foreground text-foreground' : 'text-muted-foreground/60',
+            'flex items-center gap-1 px-2 py-1 text-[10px] font-mono uppercase tracking-wide border cursor-pointer transition-colors',
+            duplicateHovered ? 'bg-muted border-border text-foreground' : 'bg-transparent border-border/50 text-muted-foreground/60',
           )}
           onMouseEnter={e => { e.stopPropagation(); setDuplicateHovered(true) }}
           onMouseLeave={e => { e.stopPropagation(); setDuplicateHovered(false) }}
         >
-          ⧉
+          <Copy className="h-3 w-3" strokeWidth={1.5} />
+          Duplicar
         </button>
         <button
           type="button"
-          title="Copiar a otro atleta"
+          title="Enviar a otro atleta"
           onClick={onCopyToAthlete}
           className={cn(
-            'bg-transparent border border-border cursor-pointer font-mono text-[11px] px-1.5 py-0.5 transition-colors',
-            copyHovered ? 'border-muted-foreground text-foreground' : 'text-muted-foreground/60',
+            'flex items-center gap-1 px-2 py-1 text-[10px] font-mono uppercase tracking-wide border cursor-pointer transition-colors',
+            copyHovered ? 'bg-muted border-border text-foreground' : 'bg-transparent border-border/50 text-muted-foreground/60',
           )}
           onMouseEnter={e => { e.stopPropagation(); setCopyHovered(true) }}
           onMouseLeave={e => { e.stopPropagation(); setCopyHovered(false) }}
         >
-          →
+          <Send className="h-3 w-3" strokeWidth={1.5} />
+          Enviar
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── CopyToAthleteModal ───────────────────────────────────────────────────────
+
+function CopyToAthleteModal({
+  currentAthleteId,
+  athletes,
+  onCopy,
+  onClose,
+}: {
+  planId: number
+  currentAthleteId: number
+  athletes: CoachAthleteListItem[]
+  onCopy: (targetId: number) => void
+  onClose: () => void
+}) {
+  const [query, setQuery] = useState('')
+  const others = athletes.filter(a => a.athleteId !== currentAthleteId)
+  const filtered = query.trim()
+    ? others.filter(a => a.displayName.toLowerCase().includes(query.toLowerCase()))
+    : others
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]"
+      onClick={onClose}
+    >
+      <div
+        className="bg-card border border-border p-5 w-[320px] flex flex-col gap-3"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="font-mono text-[10px] font-bold tracking-[0.12em] uppercase text-muted-foreground">
+          Enviar plan a atleta
+        </div>
+
+        {/* Search */}
+        <div className="flex items-center gap-2 border border-border px-2 py-1.5 bg-background">
+          <Search className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" strokeWidth={1.5} />
+          <input
+            autoFocus
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Buscar atleta..."
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/40 font-mono text-[12px]"
+          />
+        </div>
+
+        {/* List */}
+        <div className="flex flex-col max-h-[260px] overflow-y-auto">
+          {filtered.map(a => (
+            <button
+              key={a.athleteId}
+              onClick={() => onCopy(a.athleteId)}
+              className="flex items-center gap-3 px-3 py-2.5 bg-transparent border-none border-b border-border/50 cursor-pointer text-left hover:bg-muted/50 transition-colors group"
+            >
+              <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0">
+                <span className="font-mono text-[10px] font-bold text-muted-foreground/70 uppercase">
+                  {a.displayName.charAt(0)}
+                </span>
+              </div>
+              <span className="flex-1 text-sm text-foreground font-sans">{a.displayName}</span>
+              <Send className="h-3.5 w-3.5 text-muted-foreground/30 group-hover:text-foreground transition-colors" strokeWidth={1.5} />
+            </button>
+          ))}
+          {filtered.length === 0 && (
+            <div className="font-mono text-[11px] text-muted-foreground/60 py-4 text-center">
+              {query ? 'Sin resultados' : 'No hay otros atletas vinculados'}
+            </div>
+          )}
+        </div>
+
+        <button
+          onClick={onClose}
+          className="self-start font-mono text-[10px] text-muted-foreground/60 bg-transparent border-none cursor-pointer hover:text-muted-foreground transition-colors"
+        >
+          Cancelar
         </button>
       </div>
     </div>
