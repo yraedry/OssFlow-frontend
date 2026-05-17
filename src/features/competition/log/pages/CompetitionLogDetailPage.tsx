@@ -89,6 +89,13 @@ export function CompetitionLogDetailPage() {
             {log.totalMatches != null && (
               <span className="text-sm text-muted-foreground">{log.totalMatches} combates</span>
             )}
+            {(log.winsCount != null || log.lossesCount != null) && (
+              <span className="text-sm">
+                {log.winsCount != null && <span className="text-emerald-500 font-medium">{log.winsCount}V</span>}
+                {log.winsCount != null && log.lossesCount != null && <span className="text-muted-foreground mx-1">·</span>}
+                {log.lossesCount != null && <span className="text-destructive font-medium">{log.lossesCount}D</span>}
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             {log.giNogi && (
