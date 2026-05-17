@@ -34,7 +34,7 @@ export function StudyPlanEditor({ planId, athleteId, onBack }: Props) {
   const updateContent = useUpdatePlanContent(planId, athleteId)
   const publish = usePublishPlan(planId, athleteId)
   const unpublish = useUnpublishPlan(planId, athleteId)
-  const addBlock = useAddBlock(planId, athleteId)
+  const addBlock = useAddBlock(planId)
   const deleteBlock = useDeleteBlock(planId)
   const reorderBlocks = useReorderBlocks(planId)
   const addText = useAddTextItem(planId)
