@@ -26,7 +26,7 @@ export function MaestroPage() {
               Área del atleta
             </p>
             <h1 className="font-serif text-3xl font-bold text-foreground tracking-tight leading-none">
-              Maestro
+              Coaching
             </h1>
           </div>
 

@@ -192,7 +192,7 @@ export function BottomTabBar() {
             >
               <div className="flex items-center gap-3">
                 <GraduationCap className="h-4 w-4 shrink-0" strokeWidth={1.5} />
-                <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Maestros</span>
+                <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Coaching</span>
               </div>
               {(unreadCount ?? 0) > 0 && (
                 <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-[10px] font-bold bg-purple-500 text-white rounded-full">
