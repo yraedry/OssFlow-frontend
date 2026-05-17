@@ -12,7 +12,7 @@ export function NotificationBell() {
   const { data: notifications } = useNotifications()
   const markRead = useMarkNotificationsRead()
 
-  const unread = notifications?.length ?? 0
+  const unread = notifications?.filter((n) => !n.read).length ?? 0
 
   function handleOpen() {
     setOpen((prev) => {
@@ -76,14 +76,19 @@ export function NotificationBell() {
           ) : (
             <ul className="max-h-72 overflow-y-auto divide-y divide-border">
               {notifications.map((n) => (
-                <li key={n.id} className="flex flex-col gap-0.5 px-3 py-2.5">
-                  <p className="text-xs font-medium">{NOTIFICATION_LABELS[n.type] ?? n.type}</p>
-                  <p
-                    className="text-xs text-muted-foreground/60"
-                    style={{ fontFamily: 'var(--font-mono)' }}
-                  >
-                    {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: es })}
-                  </p>
+                <li key={n.id} className={cn('flex items-start gap-2 px-3 py-2.5', n.read && 'opacity-50')}>
+                  {!n.read && (
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-purple-600" aria-hidden="true" />
+                  )}
+                  <div className={cn('flex flex-col gap-0.5', n.read && 'pl-3.5')}>
+                    <p className="text-xs font-medium">{NOTIFICATION_LABELS[n.type] ?? n.type}</p>
+                    <p
+                      className="text-xs text-muted-foreground/60"
+                      style={{ fontFamily: 'var(--font-mono)' }}
+                    >
+                      {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true, locale: es })}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>

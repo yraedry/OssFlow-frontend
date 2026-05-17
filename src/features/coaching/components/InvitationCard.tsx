@@ -67,7 +67,7 @@ export function InvitationCard() {
     <div className="space-y-3">
       {/* Code display */}
       <div className="flex items-center justify-between gap-3 bg-muted/30 border border-border px-4 py-3">
-        <span className="text-2xl font-black tracking-[0.25em] text-foreground select-all font-mono tabular-nums">
+        <span className="text-sm font-bold tracking-[0.35em] text-foreground select-all font-mono tabular-nums uppercase">
           {invitation.code}
         </span>
         <button

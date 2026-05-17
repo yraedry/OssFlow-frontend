@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { coachingApi } from './api'
-import type { Observation, RadarPoint, CreateObservationPayload, UpdateObservationPayload, Note, CreateNotePayload, CreateRecommendationPayload } from './types'
+import type { Observation, RadarPoint, CreateObservationPayload, UpdateObservationPayload, Note, CreateNotePayload, CreateRecommendationPayload, CoachListItem } from './types'
 import { techniqueApi } from '@/features/catalog/technique/api'
 import { ApiClientError } from '@/shared/api/client'
 
@@ -88,8 +88,22 @@ export function useLeaveCoach() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (coachId: number) => coachingApi.leaveCoach(coachId),
-    onSuccess: () => qc.invalidateQueries({ queryKey: COACHING_KEYS.coaches }),
-    onError: () => toast.error('Error al desvincular. Inténtalo de nuevo.'),
+    onMutate: async (coachId) => {
+      await qc.cancelQueries({ queryKey: COACHING_KEYS.coaches })
+      const prev = qc.getQueryData<CoachListItem[]>(COACHING_KEYS.coaches)
+      qc.setQueryData<CoachListItem[]>(COACHING_KEYS.coaches, (old) =>
+        old ? old.filter((c) => c.coachId !== coachId) : [],
+      )
+      return { prev }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.coaches })
+      toast.success('Desvinculado del maestro')
+    },
+    onError: (_err, _coachId, ctx) => {
+      if (ctx?.prev) qc.setQueryData(COACHING_KEYS.coaches, ctx.prev)
+      toast.error('Error al desvincular. Inténtalo de nuevo.')
+    },
   })
 }
 
@@ -315,6 +329,7 @@ export function useDeleteNote(athleteId: number) {
     mutationFn: (id: number) => coachingApi.deleteNote(id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: COACHING_KEYS.notes(athleteId) })
+      toast.success('Nota borrada')
     },
     onError: () => toast.error('Error al borrar la nota'),
   })
