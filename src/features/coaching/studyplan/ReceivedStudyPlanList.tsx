@@ -11,13 +11,19 @@ export function ReceivedStudyPlanList() {
 
   if (isLoading) return <div className="flex justify-center py-6"><Spinner /></div>
 
-  if (!plans?.length) return null
+  if (!plans?.length) {
+    return (
+      <div className="border border-dashed border-border px-6 py-10 text-center">
+        <p className="font-serif text-base text-muted-foreground/60 italic">Sin planes de estudio aún</p>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40 mt-2">
+          Tu maestro aún no te ha enviado ningún plan
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-3 mb-6">
-      <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground">
-        Planes de estudio de tu maestro
-      </p>
       {plans.map(plan => (
         <PlanCard key={plan.id} plan={plan} />
       ))}

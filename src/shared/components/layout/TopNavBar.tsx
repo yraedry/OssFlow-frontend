@@ -153,7 +153,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               }
               style={{ ...MONO, fontSize: '12px' }}
             >
-              Maestros
+              Coaching
             </NavLink>
           )}
         </nav>
