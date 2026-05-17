@@ -7,6 +7,7 @@ import {
   usePublishPlan,
   useUnpublishPlan,
   useAddBlock,
+  useUpdateBlock,
   useDeleteBlock,
   useReorderBlocks,
   useAddTextItem,
@@ -35,6 +36,7 @@ export function StudyPlanEditor({ planId, athleteId, onBack }: Props) {
   const publish = usePublishPlan(planId, athleteId)
   const unpublish = useUnpublishPlan(planId, athleteId)
   const addBlock = useAddBlock(planId)
+  const updateBlock = useUpdateBlock(planId)
   const deleteBlock = useDeleteBlock(planId)
   const reorderBlocks = useReorderBlocks(planId)
   const addText = useAddTextItem(planId)
@@ -180,6 +182,7 @@ export function StudyPlanEditor({ planId, athleteId, onBack }: Props) {
               if (!ok) return
               deleteBlock.mutate(block.id)
             }}
+            onUpdateTitle={(title) => updateBlock.mutate({ blockId: block.id, title })}
             onAddText={(content) => addText.mutate({ blockId: block.id, content })}
             onAddTechnique={(techniqueId) => addTechnique.mutate({ blockId: block.id, techniqueId })}
             onDeleteItem={(itemId) => deleteItem.mutate({ blockId: block.id, itemId })}
@@ -219,6 +222,7 @@ interface BlockEditorProps {
   onMoveUp: () => void
   onMoveDown: () => void
   onDelete: () => void
+  onUpdateTitle: (title: string) => void
   onAddText: (content: string) => void
   onAddTechnique: (techniqueId: number) => void
   onDeleteItem: (itemId: number) => void
@@ -227,9 +231,11 @@ interface BlockEditorProps {
 
 function BlockEditor({
   block, index, total,
-  onMoveUp, onMoveDown, onDelete,
+  onMoveUp, onMoveDown, onDelete, onUpdateTitle,
   onAddText, onAddTechnique, onDeleteItem, onMoveItem,
 }: BlockEditorProps) {
+  const [editingTitle, setEditingTitle] = useState(false)
+  const [titleVal, setTitleVal] = useState(block.title || '')
   const [textInput, setTextInput] = useState('')
   const [addingText, setAddingText] = useState(false)
   const [selectedTechnique, setSelectedTechnique] = useState<{ id: number; name: string } | null>(null)
@@ -253,7 +259,30 @@ function BlockEditor({
       <div className="flex items-center gap-2 px-3 py-2 border-b border-border/50 bg-muted/30">
         <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" strokeWidth={1.5} />
         <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground mr-1">#{index + 1}</span>
-        <span className="flex-1 text-sm font-semibold min-w-0 truncate">{block.title || 'Bloque sin título'}</span>
+        <span className="flex-1 text-sm font-semibold min-w-0">
+          {editingTitle ? (
+            <input
+              autoFocus
+              value={titleVal}
+              onChange={e => setTitleVal(e.target.value)}
+              onBlur={() => { setEditingTitle(false); onUpdateTitle(titleVal) }}
+              onKeyDown={e => {
+                if (e.key === 'Enter') { setEditingTitle(false); onUpdateTitle(titleVal) }
+                if (e.key === 'Escape') { setEditingTitle(false); setTitleVal(block.title || '') }
+              }}
+              placeholder="Nombre del bloque"
+              className="bg-transparent border-b border-[#3a3a3a] text-[#f0ebe3] font-mono text-sm outline-none w-full"
+            />
+          ) : (
+            <span
+              onClick={() => setEditingTitle(true)}
+              className="cursor-pointer hover:text-white truncate block"
+              title="Haz clic para editar"
+            >
+              {block.title || <span className="text-[#555] italic">Bloque sin título</span>}
+            </span>
+          )}
+        </span>
         <div className="flex items-center gap-0.5">
           <button
             type="button"

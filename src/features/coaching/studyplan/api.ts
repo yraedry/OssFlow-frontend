@@ -36,6 +36,10 @@ export const studyPlanApi = {
     return apiClient.post(`${BASE}/${planId}/blocks`, { json: { title: title ?? '' } }).json<StudyBlock>()
   },
 
+  updateBlock(planId: number, blockId: number, title: string): Promise<void> {
+    return apiClient.patch(`${BASE}/${planId}/blocks/${blockId}`, { json: { title } }).text().then(() => {})
+  },
+
   deleteBlock(planId: number, blockId: number): Promise<void> {
     return apiClient.delete(`${BASE}/${planId}/blocks/${blockId}`).json<void>()
   },

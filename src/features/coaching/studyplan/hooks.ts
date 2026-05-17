@@ -94,6 +94,16 @@ export function useAddBlock(planId: number) {
   })
 }
 
+export function useUpdateBlock(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blockId, title }: { blockId: number; title: string }) =>
+      studyPlanApi.updateBlock(planId, blockId, title),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEYS.plan(planId) }),
+    onError: () => toast.error('No se pudo guardar el título del bloque'),
+  })
+}
+
 export function useDeleteBlock(planId: number) {
   const qc = useQueryClient()
   return useMutation({
