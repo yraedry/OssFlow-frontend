@@ -6,9 +6,9 @@ import type { ObservationTone } from '../types'
 type Props = { athleteId: number }
 
 const TONE_OPTIONS: { value: ObservationTone; label: string; activeClass: string }[] = [
-  { value: 'POSITIVE', label: 'Positivo', activeClass: 'border-emerald-600 text-emerald-700 bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:bg-emerald-950/30' },
-  { value: 'NEUTRAL',  label: 'Neutro',   activeClass: 'border-foreground text-foreground bg-muted' },
-  { value: 'NEGATIVE', label: 'Negativo', activeClass: 'border-red-600 text-red-700 bg-red-50 dark:border-red-500 dark:text-red-400 dark:bg-red-950/30' },
+  { value: 'POSITIVE', label: 'Positivo', activeClass: 'border-emerald-500 text-emerald-600 bg-emerald-500/10 dark:border-emerald-400 dark:text-emerald-400 dark:bg-emerald-400/10' },
+  { value: 'NEUTRAL',  label: 'Neutro',   activeClass: 'border-foreground text-foreground bg-foreground/10' },
+  { value: 'NEGATIVE', label: 'Negativo', activeClass: 'border-red-500 text-red-600 bg-red-500/10 dark:border-red-400 dark:text-red-400 dark:bg-red-400/10' },
 ]
 
 export function ObservationForm({ athleteId }: Props) {

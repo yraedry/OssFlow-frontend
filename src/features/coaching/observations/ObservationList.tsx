@@ -16,8 +16,8 @@ const TONE_BORDER: Record<string, string> = {
 }
 
 const TONE_CHIP: Record<string, string> = {
-  POSITIVE: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30',
-  NEGATIVE: 'bg-red-500/10 text-red-700 dark:text-red-400 border border-red-500/30',
+  POSITIVE: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30',
+  NEGATIVE: 'bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30',
   NEUTRAL:  'bg-muted text-muted-foreground border border-border',
 }
 
@@ -26,9 +26,82 @@ const TONE_LABELS: Record<string, string> = {
 }
 
 const TONE_ACTIVE: Record<string, string> = {
-  POSITIVE: 'border-emerald-600 text-emerald-700 bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:bg-emerald-950/30',
-  NEGATIVE: 'border-red-600 text-red-700 bg-red-50 dark:border-red-500 dark:text-red-400 dark:bg-red-950/30',
-  NEUTRAL:  'border-foreground text-foreground bg-muted',
+  POSITIVE: 'border-emerald-500 text-emerald-600 bg-emerald-500/10 dark:border-emerald-400 dark:text-emerald-400 dark:bg-emerald-400/10',
+  NEGATIVE: 'border-red-500 text-red-600 bg-red-500/10 dark:border-red-400 dark:text-red-400 dark:bg-red-400/10',
+  NEUTRAL:  'border-foreground text-foreground bg-foreground/10',
+}
+
+function ObservationDetail({ obs, onClose, onEdit, onDelete }: {
+  obs: Observation
+  onClose: () => void
+  onEdit: () => void
+  onDelete: () => void
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      <div
+        className="relative w-full max-w-lg bg-background shadow-xl flex flex-col"
+        onClick={e => e.stopPropagation()}
+        style={{ borderLeft: `3px solid ${TONE_BORDER[obs.tone]}` }}
+      >
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3 px-6 pt-5 pb-4 border-b border-border">
+          <div className="flex flex-col gap-1.5">
+            <span className={cn('text-[10px] px-2 py-0.5 font-mono uppercase tracking-wide self-start', TONE_CHIP[obs.tone])}>
+              {TONE_LABELS[obs.tone]}
+            </span>
+            <p className="text-xs text-muted-foreground/60 font-mono">
+              {new Date(obs.observedAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' })}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="mt-0.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            aria-label="Cerrar"
+          >
+            <X className="h-4 w-4" strokeWidth={1.5} />
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-6 py-5 flex flex-col gap-4">
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1.5">Observación</p>
+            <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">{obs.body}</p>
+          </div>
+
+          {obs.techniqueFamily && (
+            <div>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1.5">Familia técnica</p>
+              <span className="text-[10px] px-2 py-0.5 font-mono uppercase tracking-wide bg-muted text-muted-foreground border border-border">
+                {obs.techniqueFamily.replace(/_/g, ' ')}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2 px-6 pb-5 border-t border-border pt-4">
+          <button
+            onClick={() => { onClose(); onEdit() }}
+            className="flex-1 border border-border text-xs font-mono uppercase py-2 hover:bg-muted transition-colors cursor-pointer"
+          >
+            Editar
+          </button>
+          <button
+            onClick={() => { onClose(); onDelete() }}
+            className="px-4 border border-destructive/40 text-destructive text-xs font-mono uppercase py-2 hover:bg-destructive/10 transition-colors cursor-pointer"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 function ObservationCard({ obs, athleteId }: { obs: Observation; athleteId: number }) {
@@ -138,13 +211,13 @@ function ObservationCard({ obs, athleteId }: { obs: Observation; athleteId: numb
       <div
         onClick={() => !isPending && setDetailOpen(true)}
         className={cn(
-          'relative border border-border bg-card p-4 cursor-pointer hover:bg-muted/30 transition-colors group',
+          'relative border border-border bg-card p-3 cursor-pointer hover:bg-muted/30 transition-colors group',
           isPending && 'opacity-60 cursor-default',
         )}
         style={{ borderLeft: `3px solid ${TONE_BORDER[obs.tone]}` }}
       >
         <div className="flex items-start justify-between gap-3">
-          <p className="text-sm font-medium text-foreground leading-snug line-clamp-2 flex-1">{obs.body}</p>
+          <p className="text-sm text-foreground leading-snug line-clamp-2 flex-1">{obs.body}</p>
           {/* edit/delete only on hover */}
           <div className="shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
@@ -181,65 +254,20 @@ function ObservationCard({ obs, athleteId }: { obs: Observation; athleteId: numb
               Sin etiquetar
             </span>
           )}
+          <span className="text-[10px] text-muted-foreground/50 font-mono ml-auto">
+            {new Date(obs.observedAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
+          </span>
         </div>
-
-        <p className="text-[10px] text-muted-foreground/50 font-mono mt-2">
-          {new Date(obs.observedAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
-        </p>
       </div>
 
-      {/* Detail sheet/drawer */}
+      {/* Detail modal */}
       {detailOpen && (
-        <div
-          className="fixed inset-0 z-50 flex"
-          onClick={() => setDetailOpen(false)}
-        >
-          <div className="flex-1" />
-          <div
-            className="w-full max-w-md bg-background border-l border-border h-full overflow-y-auto p-6 flex flex-col gap-4 shadow-xl"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <span className={cn('text-[10px] px-2 py-0.5 font-mono uppercase tracking-wide', TONE_CHIP[obs.tone])}>
-                {TONE_LABELS[obs.tone]}
-              </span>
-              <button
-                onClick={() => setDetailOpen(false)}
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Cerrar"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <p className="text-sm leading-relaxed text-foreground">{obs.body}</p>
-
-            {obs.techniqueFamily && (
-              <span className="text-[10px] px-2 py-0.5 font-mono uppercase bg-muted text-muted-foreground border border-border self-start">
-                {obs.techniqueFamily.replace(/_/g, ' ')}
-              </span>
-            )}
-
-            <p className="text-[10px] text-muted-foreground/50 font-mono">
-              {new Date(obs.observedAt).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })}
-            </p>
-
-            <div className="flex gap-2 pt-4 border-t border-border mt-auto">
-              <button
-                onClick={() => { setDetailOpen(false); startEdit() }}
-                className="flex-1 border border-border text-xs font-mono uppercase py-2 hover:bg-muted transition-colors"
-              >
-                Editar
-              </button>
-              <button
-                onClick={() => { setDetailOpen(false); handleDelete() }}
-                className="px-4 border border-destructive/40 text-destructive text-xs font-mono uppercase py-2 hover:bg-destructive/10 transition-colors"
-              >
-                Eliminar
-              </button>
-            </div>
-          </div>
-        </div>
+        <ObservationDetail
+          obs={obs}
+          onClose={() => setDetailOpen(false)}
+          onEdit={startEdit}
+          onDelete={handleDelete}
+        />
       )}
     </>
   )
@@ -264,7 +292,7 @@ export function ObservationList({ athleteId }: Props) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1.5 max-w-2xl">
       {observations.map(obs => (
         <ObservationCard key={obs.id} obs={obs} athleteId={athleteId} />
       ))}

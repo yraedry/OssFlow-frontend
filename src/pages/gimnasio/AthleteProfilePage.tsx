@@ -33,7 +33,7 @@ export function AthleteProfilePage() {
   const id = Number(athleteId)
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-w-4xl mx-auto">
       {/* Back */}
       <button
         type="button"
