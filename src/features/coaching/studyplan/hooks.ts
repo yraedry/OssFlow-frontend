@@ -85,7 +85,7 @@ export function useDeleteStudyPlan(athleteId: number) {
   })
 }
 
-export function useAddBlock(planId: number, _athleteId: number) {
+export function useAddBlock(planId: number) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (title?: string) => studyPlanApi.addBlock(planId, title),
