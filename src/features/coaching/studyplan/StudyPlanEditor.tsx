@@ -15,7 +15,7 @@ import {
   useDeleteItem,
   useReorderItems,
 } from './hooks'
-import { TechniqueAutocomplete } from '@/features/coaching/recommendations/TechniqueAutocomplete'
+import { TechniqueFamilyPicker } from '@/features/coaching/components/TechniqueFamilyPicker'
 import type { StudyBlock, StudyItem } from './types'
 
 interface Props {
@@ -363,7 +363,7 @@ function BlockEditor({
             <Type className="h-3 w-3" strokeWidth={1.5} />
             Añadir texto
           </button>
-          <TechniqueAutocompleteInline onSelect={(id, name) => setSelectedTechnique({ id, name })} />
+          <TechniquePickerInline onSelect={(id, name) => setSelectedTechnique({ id, name })} />
         </div>
       </div>
     </div>
@@ -410,10 +410,11 @@ function ItemRow({ item, index, total, onDelete, onMoveUp, onMoveDown }: {
   )
 }
 
-// ─── TechniqueAutocompleteInline ─────────────────────────────────────────────
+// ─── TechniquePickerInline ────────────────────────────────────────────────────
 
-function TechniqueAutocompleteInline({ onSelect }: { onSelect: (id: number, name: string) => void }) {
+function TechniquePickerInline({ onSelect }: { onSelect: (id: number, name: string) => void }) {
   const [open, setOpen] = useState(false)
+  const [family, setFamily] = useState('')
 
   if (!open) {
     return (
@@ -429,20 +430,22 @@ function TechniqueAutocompleteInline({ onSelect }: { onSelect: (id: number, name
   }
 
   return (
-    <div className="flex-1">
-      <TechniqueAutocomplete
-        value={null}
-        onChange={(t) => {
-          if (t) {
+    <div className="flex-1 space-y-1">
+      <TechniqueFamilyPicker
+        value={family}
+        onChange={setFamily}
+        onTechniqueSelect={(t) => {
+          if (t.id && t.name) {
             onSelect(t.id, t.name)
+            setFamily('')
             setOpen(false)
           }
         }}
       />
       <button
         type="button"
-        onClick={() => setOpen(false)}
-        className="mt-1 text-xs text-muted-foreground hover:text-foreground"
+        onClick={() => { setOpen(false); setFamily('') }}
+        className="text-xs text-muted-foreground hover:text-foreground font-mono"
       >
         Cancelar
       </button>
