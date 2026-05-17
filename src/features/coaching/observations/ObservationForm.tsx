@@ -5,10 +5,10 @@ import type { ObservationTone } from '../types'
 
 type Props = { athleteId: number }
 
-const TONE_OPTIONS: { value: ObservationTone; label: string; color: string }[] = [
-  { value: 'POSITIVE', label: 'Positivo', color: 'text-emerald-500 border-emerald-500' },
-  { value: 'NEUTRAL',  label: 'Neutro',   color: 'text-muted-foreground border-border' },
-  { value: 'NEGATIVE', label: 'Negativo', color: 'text-red-500 border-red-500' },
+const TONE_OPTIONS: { value: ObservationTone; label: string; activeClass: string }[] = [
+  { value: 'POSITIVE', label: 'Positivo', activeClass: 'border-emerald-600 text-emerald-700 bg-emerald-50 dark:border-emerald-500 dark:text-emerald-400 dark:bg-emerald-950/30' },
+  { value: 'NEUTRAL',  label: 'Neutro',   activeClass: 'border-foreground text-foreground bg-muted' },
+  { value: 'NEGATIVE', label: 'Negativo', activeClass: 'border-red-600 text-red-700 bg-red-50 dark:border-red-500 dark:text-red-400 dark:bg-red-950/30' },
 ]
 
 export function ObservationForm({ athleteId }: Props) {
@@ -45,7 +45,7 @@ export function ObservationForm({ athleteId }: Props) {
             type="button"
             onClick={() => setTone(opt.value)}
             className={`px-3 py-1 text-xs border font-mono uppercase tracking-wide transition-colors ${
-              tone === opt.value ? opt.color : 'text-muted-foreground border-border hover:border-muted-foreground'
+              tone === opt.value ? opt.activeClass : 'text-muted-foreground border-border hover:border-foreground/50'
             }`}
           >
             {opt.label}
