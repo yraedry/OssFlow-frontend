@@ -138,7 +138,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               }
               style={{ ...MONO, fontSize: '12px' }}
             >
-              Alumnos
+              Gimnasio
             </NavLink>
           )}
           {hasCoach && (

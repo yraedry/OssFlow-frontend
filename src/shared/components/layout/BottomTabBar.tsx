@@ -161,7 +161,7 @@ export function BottomTabBar() {
             <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Configuración</span>
           </button>
 
-          {/* Alumnos — solo si es coach */}
+          {/* Gimnasio — solo si es coach */}
           {isCoach && (
             <button
               type="button"
@@ -174,7 +174,7 @@ export function BottomTabBar() {
               )}
             >
               <School className="h-4 w-4 shrink-0" strokeWidth={1.5} />
-              <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Alumnos</span>
+              <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Gimnasio</span>
             </button>
           )}
 
