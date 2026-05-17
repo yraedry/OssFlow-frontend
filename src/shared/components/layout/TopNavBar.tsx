@@ -154,7 +154,7 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               }
               style={{ ...MONO, fontSize: '12px' }}
             >
-              Maestro
+              Maestros
               {(unreadCount ?? 0) > 0 && (
                 <span className="inline-flex items-center justify-center h-4 min-w-4 px-1 text-[10px] font-bold bg-purple-500 text-white rounded-full">
                   {unreadCount}
