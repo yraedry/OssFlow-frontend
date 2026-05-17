@@ -43,6 +43,17 @@ const MODALITIES = [
   { value: 'BOTH', label: 'Ambas' },
 ]
 
+const AGE_CATEGORIES = [
+  { value: 'ADULT',    label: 'Adulto' },
+  { value: 'JUVENILE', label: 'Juvenil' },
+  { value: 'MASTER_1', label: 'Master 1' },
+  { value: 'MASTER_2', label: 'Master 2' },
+  { value: 'MASTER_3', label: 'Master 3' },
+  { value: 'MASTER_4', label: 'Master 4' },
+]
+
+const STRIPES_OPTIONS = [0, 1, 2, 3, 4] as const
+
 const step1Schema = z.object({
   firstName: z.string().max(80).optional(),
   lastName: z.string().max(80).optional(),
@@ -50,6 +61,9 @@ const step1Schema = z.object({
   currentBelt: z.string().min(1, 'El cinturón es requerido'),
   preferredModality: z.string().min(1, 'La modalidad es requerida'),
   academy: z.string().max(200).optional(),
+  ageCategory: z.string().nullable().optional(),
+  stripes: z.number().int().min(0).max(4).nullable().optional(),
+  weight: z.number().min(30).max(180).nullable().optional(),
 })
 
 type Step1Form = z.infer<typeof step1Schema>
@@ -61,6 +75,9 @@ type OnboardingData = {
   currentBelt: string
   preferredModality: string
   academy?: string
+  ageCategory?: string | null
+  stripes?: number | null
+  weight?: number | null
   federations: FederationAssignment[]
   weeklyTemplateSet: boolean
 }
@@ -125,6 +142,9 @@ export function OnboardingPage() {
     currentBelt: '',
     preferredModality: '',
     academy: undefined,
+    ageCategory: null,
+    stripes: null,
+    weight: null,
     federations: [],
     weeklyTemplateSet: false,
   })
@@ -153,6 +173,9 @@ export function OnboardingPage() {
       currentBelt: data.currentBelt,
       preferredModality: data.preferredModality,
       academy: data.academy,
+      ageCategory: data.ageCategory ?? null,
+      stripes: data.stripes ?? null,
+      weight: data.weight ?? null,
     },
   })
 
@@ -179,6 +202,9 @@ export function OnboardingPage() {
       currentBelt: data.currentBelt,
       preferredModality: data.preferredModality,
       academy: data.academy || undefined,
+      ageCategory: data.ageCategory || null,
+      stripes: data.stripes ?? null,
+      weight: data.weight ?? null,
     })
     if (data.federations.length > 0) {
       await replaceFederations(data.federations)
@@ -327,6 +353,87 @@ export function OnboardingPage() {
                       </Select>
                     )}
                   />
+                </FieldBlock>
+              </div>
+
+              {/* Galones (stripes) */}
+              <FieldBlock label="Galones (opcional)">
+                <Controller
+                  name="stripes"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex gap-2">
+                      {STRIPES_OPTIONS.map(n => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => field.onChange(field.value === n ? null : n)}
+                          className={`w-12 h-10 border text-xs font-mono font-bold transition-colors flex flex-col items-center justify-center gap-1 ${
+                            field.value === n
+                              ? 'border-foreground bg-foreground text-background'
+                              : 'border-border text-muted-foreground hover:border-foreground/50'
+                          }`}
+                        >
+                          <span>{n}</span>
+                          <span className="flex gap-[2px]">
+                            {[0,1,2,3].map(i => (
+                              <span
+                                key={i}
+                                className="w-1 h-[6px] rounded-[1px]"
+                                style={{
+                                  background: i < n
+                                    ? (field.value === n ? 'rgba(255,255,255,0.9)' : 'var(--foreground)')
+                                    : 'var(--border)',
+                                }}
+                              />
+                            ))}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                />
+              </FieldBlock>
+
+              {/* Categoría de edad / Peso */}
+              <div className="grid grid-cols-2 gap-3">
+                <FieldBlock label="Categoría de edad (opcional)">
+                  <Controller
+                    control={control}
+                    name="ageCategory"
+                    render={({ field }) => (
+                      <Select value={field.value ?? ''} onValueChange={(v) => field.onChange(v || null)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {AGE_CATEGORIES.map((c) => (
+                            <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </FieldBlock>
+                <FieldBlock label="Peso (opcional)" error={errors.weight?.message}>
+                  <div className="relative">
+                    <Controller
+                      control={control}
+                      name="weight"
+                      render={({ field }) => (
+                        <Input
+                          type="number"
+                          min={30}
+                          max={180}
+                          placeholder="70"
+                          className="pr-9"
+                          value={field.value ?? ''}
+                          onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
+                        />
+                      )}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground select-none" style={MONO}>kg</span>
+                  </div>
                 </FieldBlock>
               </div>
 
