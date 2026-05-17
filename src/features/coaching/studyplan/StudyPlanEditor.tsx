@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { Plus, Trash2, ChevronUp, ChevronDown, BookOpen, Type, GripVertical } from 'lucide-react'
-import { toast } from 'sonner'
 import { useConfirm } from '@/shared/hooks/useConfirm'
 import {
   useCoachStudyPlan,
@@ -63,12 +62,12 @@ export function StudyPlanEditor({ planId, athleteId, onBack }: Props) {
 
   function handleSaveTitle() {
     if (!titleVal.trim()) return
-    updateContent.mutate({ title: titleVal.trim(), description: plan.description })
+    updateContent.mutate({ title: titleVal.trim(), description: plan!.description })
     setEditingTitle(false)
   }
 
   function handleSaveDesc() {
-    updateContent.mutate({ title: plan.title, description: descVal.trim() || undefined })
+    updateContent.mutate({ title: plan!.title, description: descVal.trim() || undefined })
     setEditingDesc(false)
   }
 
@@ -190,7 +189,7 @@ export function StudyPlanEditor({ planId, athleteId, onBack }: Props) {
 
       <button
         type="button"
-        onClick={() => addBlock.mutate()}
+        onClick={() => addBlock.mutate(undefined)}
         disabled={addBlock.isPending}
         className="w-full py-2 border border-dashed border-border text-sm text-muted-foreground hover:border-foreground/50 hover:text-foreground transition-colors flex items-center justify-center gap-2"
       >
@@ -385,7 +384,6 @@ function ItemRow({ item, index, total, onDelete, onMoveUp, onMoveDown }: {
 
 function TechniqueAutocompleteInline({ onSelect }: { onSelect: (id: number, name: string) => void }) {
   const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState('')
 
   if (!open) {
     return (
@@ -408,7 +406,6 @@ function TechniqueAutocompleteInline({ onSelect }: { onSelect: (id: number, name
           if (t) {
             onSelect(t.id, t.name)
             setOpen(false)
-            setQuery('')
           }
         }}
       />
