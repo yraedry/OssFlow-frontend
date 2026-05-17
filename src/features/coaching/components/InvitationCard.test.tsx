@@ -7,6 +7,11 @@ import { InvitationCard } from './InvitationCard'
 import { coachingApi } from '../api'
 import type { InvitationCode } from '../types'
 
+// Auto-confirm any confirmation dialogs in tests
+vi.mock('@/shared/hooks/useConfirm', () => ({
+  useConfirm: () => () => Promise.resolve(true),
+}))
+
 vi.mock('../api', () => ({
   coachingApi: {
     getActiveInvitation: vi.fn(),
