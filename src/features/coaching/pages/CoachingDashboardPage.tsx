@@ -1,5 +1,6 @@
-import { useNavigate, Link } from 'react-router-dom'
-import { Users } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Users, Key } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { AthleteRoster } from '../components/AthleteRoster'
 import { useAthletes } from '../hooks'
 
@@ -25,7 +26,7 @@ export function CoachingDashboardPage() {
   return (
     <div className="space-y-8">
       {/* Page header */}
-      <div className="border-b border-border/40 pb-5">
+      <div className="border-b border-border pb-5">
         <p
           className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-1"
           style={MONO}
@@ -39,7 +40,16 @@ export function CoachingDashboardPage() {
           >
             Mi gimnasio
           </h1>
-          <AthletesCount />
+          <div className="flex items-center gap-3 mb-0.5">
+            <AthletesCount />
+            <Link
+              to="/configuracion#invitation"
+              className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide bg-foreground text-background hover:bg-foreground/85 transition-colors px-3 py-1.5 border border-foreground"
+            >
+              <Key className="h-3.5 w-3.5" strokeWidth={1.5} />
+              Código de invitación
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -55,18 +65,6 @@ export function CoachingDashboardPage() {
         </header>
         <AthleteRoster onSelectAthlete={(id) => navigate(`/gimnasio/atletas/${id}`)} />
       </section>
-
-      {/* Hint */}
-      <p className="text-xs text-muted-foreground/50 text-center" style={MONO}>
-        Genera un código de invitación en{' '}
-        <Link
-          to="/configuracion#invitation"
-          className="underline underline-offset-2 hover:text-muted-foreground transition-colors"
-        >
-          Configuración
-        </Link>{' '}
-        para añadir alumnos.
-      </p>
     </div>
   )
 }
