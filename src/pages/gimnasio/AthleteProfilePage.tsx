@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { ChevronLeft, Eye, BarChart2, MessageSquare, BookOpen, Trophy } from 'lucide-react'
+import { ChevronLeft, Eye, BarChart2, MessageSquare, BookOpen, Trophy, ClipboardList } from 'lucide-react'
 import { useState } from 'react'
 import { AthleteProfileHeader } from '@/features/coaching/components/AthleteProfileHeader'
 import { ObservationForm } from '@/features/coaching/observations/ObservationForm'
@@ -10,9 +10,10 @@ import { CoachNoteList } from '@/features/coaching/notes/CoachNoteList'
 import { RecommendationForm } from '@/features/coaching/recommendations/RecommendationForm'
 import { CoachRecommendationList } from '@/features/coaching/recommendations/CoachRecommendationList'
 import { CoachCompetitionTab } from '@/features/coaching/competition/CoachCompetitionTab'
+import { CoachStudyPlanTab } from '@/features/coaching/studyplan/CoachStudyPlanTab'
 import { cn } from '@/shared/lib/utils'
 
-type Tab = 'observaciones' | 'radar' | 'notas' | 'recomendaciones' | 'competiciones'
+type Tab = 'observaciones' | 'radar' | 'notas' | 'recomendaciones' | 'competiciones' | 'planes'
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'observaciones',   label: 'Observaciones', icon: <Eye className="h-3.5 w-3.5" strokeWidth={1.5} /> },
@@ -20,6 +21,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'notas',           label: 'Notas',         icon: <MessageSquare className="h-3.5 w-3.5" strokeWidth={1.5} /> },
   { id: 'recomendaciones', label: 'Técnicas',      icon: <BookOpen className="h-3.5 w-3.5" strokeWidth={1.5} /> },
   { id: 'competiciones',   label: 'Compet.',       icon: <Trophy className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+  { id: 'planes',          label: 'Planes',        icon: <ClipboardList className="h-3.5 w-3.5" strokeWidth={1.5} /> },
 ]
 
 export function AthleteProfilePage() {
@@ -87,6 +89,7 @@ export function AthleteProfilePage() {
           </>
         )}
         {tab === 'competiciones' && <CoachCompetitionTab athleteId={id} />}
+        {tab === 'planes' && <CoachStudyPlanTab athleteId={id} />}
       </div>
     </div>
   )

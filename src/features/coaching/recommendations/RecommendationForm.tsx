@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { useCreateRecommendation, useTechniqueSearch } from '../hooks'
 import { techniqueApi } from '@/features/catalog/technique/api'
 import { Spinner } from '@/shared/components/ui/spinner'
@@ -42,7 +43,10 @@ export function RecommendationForm({ athleteId }: Props) {
           .map(t => ({ id: t.id, name: t.name, family: t.category }))
           .find(r => r.name.toLowerCase() === inputVal.toLowerCase()) ?? null
       }
-      if (!technique) return
+      if (!technique) {
+        toast.error('Técnica no encontrada. Selecciona una opción de la lista.')
+        return
+      }
 
       create.mutate(
         { athleteId, techniqueId: technique.id, note: note.trim() || undefined },
