@@ -309,7 +309,6 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
           className={cn(
             'shrink-0 p-1 rounded bg-transparent border-none cursor-pointer transition-all',
             deleteHovered ? 'text-destructive bg-destructive/10' : 'text-muted-foreground/30',
-            hovered ? 'opacity-100' : 'opacity-0',
           )}
           onMouseEnter={e => { e.stopPropagation(); setDeleteHovered(true) }}
           onMouseLeave={e => { e.stopPropagation(); setDeleteHovered(false) }}
@@ -354,7 +353,7 @@ function PlanCard({ plan, onEdit, onDelete, onDuplicate, onCopyToAthlete }: Plan
 
       {/* Actions row */}
       <div
-        className={cn('flex gap-1 transition-opacity', hovered ? 'opacity-100' : 'opacity-0')}
+        className="flex gap-1"
         onClick={e => e.stopPropagation()}
       >
         <button
