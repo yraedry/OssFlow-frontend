@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { studyPlanApi } from './api'
-import type { StudyPlan } from './types'
 
 const KEYS = {
   plans: (athleteId: number) => ['study-plans', athleteId] as const,
@@ -86,7 +85,7 @@ export function useDeleteStudyPlan(athleteId: number) {
   })
 }
 
-export function useAddBlock(planId: number, athleteId: number) {
+export function useAddBlock(planId: number, _athleteId: number) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (title?: string) => studyPlanApi.addBlock(planId, title),
