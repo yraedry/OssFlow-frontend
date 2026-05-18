@@ -143,6 +143,7 @@ export function useMarkNotificationsRead() {
     mutationFn: () => coachingApi.markNotificationsRead(),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: COACHING_KEYS.notifications })
+      qc.invalidateQueries({ queryKey: COACHING_KEYS.noteUnreadCount })
     },
   })
 }
@@ -372,8 +373,8 @@ export function useNoteUnreadCount() {
   return useQuery({
     queryKey: COACHING_KEYS.noteUnreadCount,
     queryFn: () => coachingApi.getNoteUnreadCount(),
-    refetchInterval: 60_000,
-    staleTime: 30_000,
+    refetchInterval: 30_000,
+    staleTime: 0,
   })
 }
 
