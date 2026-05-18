@@ -39,18 +39,20 @@ function SettingRow({
   label,
   description,
   children,
+  stacked,
 }: {
   label: string
   description?: string
   children: React.ReactNode
+  stacked?: boolean
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 py-3 border-b border-border/50 last:border-0">
+    <div className={`py-3 border-b border-border/50 last:border-0 ${stacked ? 'flex flex-col gap-2' : 'flex items-center justify-between gap-4'}`}>
       <div className="min-w-0">
         <p className="text-sm font-medium">{label}</p>
         {description && <p className="text-xs text-muted-foreground mt-0.5">{description}</p>}
       </div>
-      <div className="shrink-0">{children}</div>
+      <div className={stacked ? '' : 'shrink-0'}>{children}</div>
     </div>
   )
 }
@@ -233,11 +235,14 @@ export function ConfiguracionPage() {
   return (
     <div className="space-y-6">
       {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-black" style={{ fontFamily: 'var(--font-serif)' }}>
+      <div className="border border-border bg-card px-5 py-4">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+          Cuenta
+        </p>
+        <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
           Configuración
         </h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="mt-1.5 text-xs text-muted-foreground font-mono">
           Personaliza tu experiencia en OssFlow
         </p>
       </div>
@@ -250,7 +255,7 @@ export function ConfiguracionPage() {
             <SectionTitle icon={<Palette className="h-3.5 w-3.5" strokeWidth={1.5} />} label="Apariencia" />
             <Card>
               <CardContent className="py-0">
-                <SettingRow label="Tema" description="Elige entre claro, oscuro o el tema del sistema">
+                <SettingRow label="Tema" description="Elige entre claro, oscuro o el tema del sistema" stacked>
                   <ThemeSelector />
                 </SettingRow>
               </CardContent>

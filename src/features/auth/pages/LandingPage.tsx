@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { AuthLogo } from '../components/AuthLayout'
 import { GoogleLoginButton } from '../components/GoogleLoginButton'
 import { Button } from '@/shared/components/ui/button'
@@ -30,6 +31,13 @@ const features = [
 export function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <Helmet>
+        <title>OssFlow — Segundo cerebro para BJJ | Diario, técnicas y planificación</title>
+        <meta name="description" content="Registra tus entrenamientos de BJJ, estudia técnicas, planifica tu progreso y analiza tu evolución. Todo en un solo lugar." />
+        <meta property="og:title" content="OssFlow — Segundo cerebro para BJJ" />
+        <meta property="og:description" content="Registra tus entrenamientos de BJJ, estudia técnicas, planifica tu progreso y analiza tu evolución." />
+        <link rel="canonical" href="https://ossflow.app/landing" />
+      </Helmet>
       {/* Nav superior */}
       <header className="border-b border-border">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-14">

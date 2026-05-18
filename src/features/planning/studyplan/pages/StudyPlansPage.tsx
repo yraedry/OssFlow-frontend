@@ -53,23 +53,31 @@ export function StudyPlansPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="min-h-[60vh] flex flex-col gap-6">
+
+      {/* ── Page header ──────────────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between gap-4 border border-border bg-card px-5 py-4">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+            Planificación
+          </p>
+          <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
+            Mis planes
+          </h1>
+        </div>
+        <button
+          type="button"
+          onClick={() => setCreating(true)}
+          className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-mono font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0 cursor-pointer"
+        >
+          <Plus className="w-3.5 h-3.5" strokeWidth={1.5} />
+          <span className="hidden sm:inline">Nuevo plan</span>
+          <span className="sm:hidden">Nuevo</span>
+        </button>
+      </div>
 
       {/* ── Mis planes ─────────────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
-            Mis planes
-          </p>
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] border border-foreground px-3 py-1.5 bg-foreground text-background hover:bg-foreground/85 transition-colors cursor-pointer"
-          >
-            <Plus className="w-3 h-3" strokeWidth={1.5} />
-            Nuevo plan
-          </button>
-        </div>
 
         {creating && (
           <div className="flex gap-2 border border-border p-3 bg-card">
@@ -105,7 +113,7 @@ export function StudyPlansPage() {
         {isLoading ? (
           <div className="flex justify-center py-8"><Spinner /></div>
         ) : (
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {plans.map(plan => (
               <AthletePlanCard
                 key={plan.id}
@@ -137,8 +145,8 @@ export function StudyPlansPage() {
           {receivedLoading ? (
             <div className="flex justify-center py-4"><Spinner /></div>
           ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {receivedPlans!.map(plan => (
+            <div className="space-y-2">
+              {receivedPlans?.map(plan => (
                 <ReceivedPlanCard
                   key={plan.id}
                   plan={plan}

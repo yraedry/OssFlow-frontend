@@ -44,16 +44,13 @@ beforeEach(() => {
 })
 
 describe('NotificationBell', () => {
-  it('shows purple badge when there are notifications', async () => {
+  it('shows badge when there are notifications', async () => {
     vi.mocked(coachingApi.getNotifications).mockResolvedValue(MOCK_NOTIFICATIONS)
     renderBell()
-    // Wait for the badge to appear
     const badge = await screen.findByRole('button', { name: /notificaciones \(1 nueva\)/i })
     expect(badge).toBeInTheDocument()
-    // Badge span should be present
     const bellBtn = screen.getByRole('button', { name: /notificaciones/i })
-    // Badge is a sibling span inside the button
-    expect(bellBtn.querySelector('span.bg-purple-600')).toBeInTheDocument()
+    expect(bellBtn.querySelector('span.bg-foreground')).toBeInTheDocument()
   })
 
   it('opens dropdown with notifications when clicked', async () => {

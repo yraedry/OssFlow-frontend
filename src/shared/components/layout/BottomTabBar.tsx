@@ -3,11 +3,11 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { Home, BookOpen, Dumbbell, BarChart2, CalendarDays, LogOut, User, School, GraduationCap, MoreHorizontal, Settings, X, Bell } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/shared/lib/utils'
 import { useLogout } from '@/features/auth/hooks'
 import { useProfile } from '@/features/identity/profile/hooks'
 import { useCoaches, useNoteUnreadCount, useNotifications, useMarkNotificationsRead, COACHING_KEYS } from '@/features/coaching/hooks'
-import { useQueryClient } from '@tanstack/react-query'
 import { NOTIFICATION_LABELS } from '@/features/coaching/notificationLabels'
 
 type Tab = { to: string; label: string; icon: React.ElementType; end: boolean; badge?: number }
@@ -78,17 +78,22 @@ export function BottomTabBar() {
   const subNav = SUB_NAV[section] ?? []
   const logoutMutation = useLogout()
   const { data: profile } = useProfile()
-  const qc = useQueryClient()
   const { data: coaches } = useCoaches()
   const { data: unreadCount } = useNoteUnreadCount()
   const { data: notifications } = useNotifications()
   const markRead = useMarkNotificationsRead()
+  const qc = useQueryClient()
   const hasCoach = (coaches?.length ?? 0) > 0
   const isCoach = profile?.role === 'ATHLETE_COACH'
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
+  // Snapshot capturado al abrir: leemos directo de la cache para evitar
+  // el problema de batching donde notifications puede estar stale en el handler
+  const [notifSnapshot, setNotifSnapshot] = useState<typeof notifications>(undefined)
+  // Notificaciones a mostrar: snapshot mientras panel abierto, live data en otro caso
+  const displayedNotifications = notifOpen && notifSnapshot !== undefined ? notifSnapshot : notifications
 
-  const notifUnread = notifications?.length ?? 0
+  const notifUnread = notifOpen ? 0 : (notifications?.length ?? 0)
   const moreBadge = (unreadCount ?? 0) + notifUnread > 0 ? (unreadCount ?? 0) + notifUnread : undefined
 
   // Determine if «Más» is currently active (user is in /maestro, /gimnasio, /profile, /configuracion)
@@ -197,7 +202,7 @@ export function BottomTabBar() {
                 <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Coaching</span>
               </div>
               {(unreadCount ?? 0) > 0 && (
-                <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-[10px] font-bold bg-purple-500 text-white rounded-full">
+                <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-[10px] font-bold bg-foreground text-background rounded-none">
                   {unreadCount}
                 </span>
               )}
@@ -212,8 +217,15 @@ export function BottomTabBar() {
                 const next = !notifOpen
                 setNotifOpen(next)
                 if (next) {
-                  if (notifUnread > 0) markRead.mutate()
-                  qc.invalidateQueries({ queryKey: COACHING_KEYS.noteUnreadCount })
+                  // Leer directo de la cache para evitar valor stale del render anterior
+                  type NotifData = typeof notifications
+                  const cached = qc.getQueryData<NotifData>(COACHING_KEYS.notifications)
+                  setNotifSnapshot(cached ?? [])
+                  if ((cached?.length ?? 0) > 0) {
+                    markRead.mutate()
+                  }
+                } else {
+                  setNotifSnapshot(undefined)
                 }
               }}
               className="w-full flex items-center justify-between gap-3 px-5 py-3 text-muted-foreground hover:text-foreground transition-colors"
@@ -222,7 +234,7 @@ export function BottomTabBar() {
                 <Bell className="h-4 w-4 shrink-0" strokeWidth={1.5} />
                 <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Notificaciones</span>
                 {notifUnread > 0 && (
-                  <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-[10px] font-bold bg-purple-500 text-white rounded-full">
+                  <span className="inline-flex items-center justify-center h-5 min-w-5 px-1.5 text-[10px] font-bold bg-foreground text-background rounded-none">
                     {notifUnread}
                   </span>
                 )}
@@ -231,12 +243,12 @@ export function BottomTabBar() {
             </button>
             {notifOpen && (
               <div className="max-h-60 overflow-y-auto border-t border-border/50">
-                {(!notifications || notifications.length === 0) ? (
+                {(!displayedNotifications || displayedNotifications.length === 0) ? (
                   <div className="px-5 py-3">
                     <span style={{ ...SUBNAV_MONO, color: 'var(--muted-foreground)' }}>Sin notificaciones</span>
                   </div>
                 ) : (
-                  notifications.map(n => (
+                  displayedNotifications.map(n => (
                     <div key={n.id} className="px-5 py-2.5 border-b border-border/50 last:border-b-0">
                       <p className="text-xs font-medium text-foreground">{NOTIFICATION_LABELS[n.type] ?? n.type}</p>
                       <p className="text-muted-foreground/50 mt-0.5" style={{ fontFamily: 'var(--font-mono)', fontSize: '9px' }}>
@@ -337,7 +349,7 @@ export function BottomTabBar() {
             <div className="relative">
               <MoreHorizontal className="h-4 w-4" strokeWidth={1.5} />
               {moreBadge != null && moreBadge > 0 && (
-                <span className="absolute -top-1 -right-1 h-3.5 min-w-3.5 px-0.5 text-[8px] font-bold bg-purple-500 text-white rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 h-3.5 min-w-3.5 px-0.5 text-[8px] font-bold bg-foreground text-background rounded-none flex items-center justify-center">
                   {moreBadge}
                 </span>
               )}

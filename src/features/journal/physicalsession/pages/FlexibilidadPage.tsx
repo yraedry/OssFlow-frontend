@@ -31,20 +31,23 @@ export function FlexibilidadPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
+      <div className="flex items-start justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>Diario</div>
-          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>Flexibilidad</h1>
-          <p className="text-sm text-muted-foreground mt-1">Sesiones de flexibilidad y estiramiento</p>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+            Diario
+          </p>
+          <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
+            Flexibilidad
+          </h1>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <button type="button" className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0" style={{ fontFamily: 'var(--font-mono)' }}>
-              <Plus className="h-3.5 w-3.5" strokeWidth={2} />
-              Nueva
-            </button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <button type="button" className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-mono font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0 cursor-pointer">
+                <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+                Nueva
+              </button>
+            </DialogTrigger>
+            <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>Nueva sesión de flexibilidad</DialogTitle>
             </DialogHeader>
@@ -53,8 +56,8 @@ export function FlexibilidadPage() {
               isPending={createMutation.isPending}
               defaultSessionType="FLEXIBILITY"
             />
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
       </div>
 
       {isLoading ? (

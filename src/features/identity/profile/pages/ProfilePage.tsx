@@ -186,7 +186,17 @@ export function ProfilePage() {
   return (
     <div className="space-y-2">
 
-      {/* ── HEADER ── */}
+      {/* ── PAGE HEADER ── */}
+      <div className="border border-border bg-card px-5 py-4">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+          Cuenta
+        </p>
+        <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
+          Mi perfil
+        </h1>
+      </div>
+
+      {/* ── PROFILE CARD ── */}
       <div
         className="bg-card border border-border flex items-center gap-5 px-6 py-5"
         style={{ borderLeft: `4px solid ${belt.color}` }}
