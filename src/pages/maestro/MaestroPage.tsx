@@ -58,33 +58,33 @@ export function MaestroPage() {
       </div>
 
       {/* ── Tab bar ─────────────────────────────────────────────────────────── */}
-      <div className="flex border-b border-border">
-        {([
-          { id: 'notas' as Tab, label: 'Notas', badge: count },
-          { id: 'planificacion' as Tab, label: 'Planificación', badge: 0 },
-          { id: 'clases' as Tab, label: 'Clases', badge: 0 },
-          { id: 'tecnicas' as Tab, label: 'Técnicas', badge: pendingRecs },
-        ]).map(({ id, label, badge }) => (
-          <button
-            key={id}
-            type="button"
-            onClick={() => setTab(id)}
-            className={`relative px-5 py-3 font-mono text-[10px] uppercase tracking-[0.12em] transition-colors border-r border-border last:border-r-0 flex items-center gap-2 cursor-pointer ${
-              tab === id
-                ? 'bg-foreground text-background'
-                : 'bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted/40'
-            }`}
-          >
-            {label}
-            {badge > 0 && (
-              <span className={`inline-flex items-center justify-center h-4 min-w-[1rem] px-1 font-mono text-[9px] font-bold rounded-sm ${
-                tab === id ? 'bg-background text-foreground' : 'bg-foreground text-background'
-              }`}>
-                {badge}
-              </span>
-            )}
-          </button>
-        ))}
+      <div className="border-b border-border">
+        <div className="flex gap-0">
+          {([
+            { id: 'notas' as Tab, label: 'Notas', badge: count },
+            { id: 'planificacion' as Tab, label: 'Planificación', badge: 0 },
+            { id: 'clases' as Tab, label: 'Clases', badge: 0 },
+            { id: 'tecnicas' as Tab, label: 'Técnicas', badge: pendingRecs },
+          ]).map(({ id, label, badge }) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              className={`relative px-4 py-2.5 font-mono text-xs uppercase tracking-wide border-b-2 transition-colors flex items-center gap-2 cursor-pointer ${
+                tab === id
+                  ? 'border-foreground text-foreground'
+                  : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {label}
+              {badge > 0 && (
+                <span className="inline-flex items-center justify-center h-4 min-w-[1rem] px-1 font-mono text-[9px] font-bold bg-foreground text-background">
+                  {badge}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── Content ─────────────────────────────────────────────────────────── */}

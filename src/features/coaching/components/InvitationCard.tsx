@@ -7,7 +7,22 @@ import { useActiveInvitation, useGenerateInvitation, useRevokeInvitation } from 
 import { useConfirm } from '@/shared/hooks/useConfirm'
 
 function copyToClipboard(text: string) {
-  navigator.clipboard.writeText(text).catch(() => {})
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text))
+  } else {
+    fallbackCopy(text)
+  }
+}
+
+function fallbackCopy(text: string) {
+  const el = document.createElement('textarea')
+  el.value = text
+  el.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0'
+  document.body.appendChild(el)
+  el.focus()
+  el.select()
+  try { document.execCommand('copy') } catch (_) {}
+  document.body.removeChild(el)
 }
 
 export function InvitationCard() {
