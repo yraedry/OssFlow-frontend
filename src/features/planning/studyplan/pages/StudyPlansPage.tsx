@@ -22,9 +22,6 @@ export function StudyPlansPage() {
   const [viewingCoachPlanId, setViewingCoachPlanId] = useState<number | null>(null)
   const [creating, setCreating] = useState(false)
   const [newTitle, setNewTitle] = useState('')
-  const [viewMode, setViewMode] = useState<'cards' | 'table'>(() => {
-    try { return (localStorage.getItem('studyplan-view') as 'cards' | 'table') ?? 'cards' } catch { return 'cards' }
-  })
   const confirm = useConfirm()
 
   const { data, isLoading } = useStudyPlans()
@@ -33,12 +30,6 @@ export function StudyPlansPage() {
   const deletePlan = useDeleteStudyPlan()
 
   const plans = data?.content ?? []
-
-  function toggleView() {
-    const next = viewMode === 'cards' ? 'table' : 'cards'
-    setViewMode(next)
-    try { localStorage.setItem('studyplan-view', next) } catch { /* ignore */ }
-  }
 
   async function handleCreate() {
     if (!newTitle.trim()) return
@@ -70,23 +61,14 @@ export function StudyPlansPage() {
           <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-muted-foreground">
             Mis planes
           </p>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={toggleView}
-              className="font-mono text-[10px] uppercase tracking-[0.06em] border border-border px-3 py-1.5 bg-transparent text-muted-foreground hover:border-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            >
-              {viewMode === 'cards' ? '≡ Tabla' : '⊞ Tarjetas'}
-            </button>
-            <button
-              type="button"
-              onClick={() => setCreating(true)}
-              className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] border border-foreground px-3 py-1.5 bg-foreground text-background hover:bg-foreground/85 transition-colors cursor-pointer"
-            >
-              <Plus className="w-3 h-3" strokeWidth={1.5} />
-              Nuevo plan
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setCreating(true)}
+            className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] border border-foreground px-3 py-1.5 bg-foreground text-background hover:bg-foreground/85 transition-colors cursor-pointer"
+          >
+            <Plus className="w-3 h-3" strokeWidth={1.5} />
+            Nuevo plan
+          </button>
         </div>
 
         {creating && (
@@ -122,28 +104,8 @@ export function StudyPlansPage() {
 
         {isLoading ? (
           <div className="flex justify-center py-8"><Spinner /></div>
-        ) : viewMode === 'table' ? (
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-border">
-                {['Título', 'Estado', 'Fecha', ''].map(h => (
-                  <th key={h} className="font-mono text-[9px] font-bold tracking-[0.1em] uppercase text-muted-foreground/60 px-4 py-1.5 text-left">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {plans.map(plan => (
-                <AthleteTableRow
-                  key={plan.id}
-                  plan={plan}
-                  onEdit={() => setEditingPlanId(plan.id)}
-                  onDelete={() => handleDelete(plan)}
-                />
-              ))}
-            </tbody>
-          </table>
         ) : (
-          <div className="grid grid-cols-2 border border-border">
+          <div className="grid grid-cols-3 border border-border">
             {plans.map(plan => (
               <AthletePlanCard
                 key={plan.id}
@@ -211,7 +173,7 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
       role="button"
       tabIndex={0}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onEdit() }}
-      className={cn('relative p-4 cursor-pointer transition-colors border-r border-b border-border', hovered ? 'bg-muted/50' : 'bg-card')}
+      className={cn('relative p-3 cursor-pointer transition-colors border-r border-b border-border', hovered ? 'bg-muted/50' : 'bg-card')}
       style={{ borderLeft: `3px solid ${accent}` }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -220,7 +182,7 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
         type="button"
         onClick={e => { e.stopPropagation(); onDelete() }}
         className={cn(
-          'absolute top-2 right-2 p-1.5 rounded bg-transparent border-none cursor-pointer transition-all',
+          'absolute top-1.5 right-1.5 p-1 rounded bg-transparent border-none cursor-pointer transition-all',
           deleteHovered ? 'text-destructive bg-destructive/10' : 'text-muted-foreground/40',
           hovered ? 'opacity-100' : 'opacity-0',
         )}
@@ -228,11 +190,11 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
         onMouseLeave={e => { e.stopPropagation(); setDeleteHovered(false) }}
         aria-label={`Eliminar plan ${plan.title}`}
       >
-        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
+        <Trash2 className="h-3 w-3" strokeWidth={1.5} />
       </button>
 
-      <div className="flex items-start justify-between gap-2 mb-2.5 pr-5">
-        <div className="font-serif text-[15px] font-bold text-foreground leading-tight flex-1">
+      <div className="flex items-start justify-between gap-2 mb-2 pr-5">
+        <div className="font-serif text-[13px] font-bold text-foreground leading-tight flex-1">
           {plan.title}
         </div>
         <span className="font-mono text-[8px] font-bold tracking-[0.1em] uppercase px-1.5 py-0.5 shrink-0 border"
@@ -242,7 +204,7 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
       </div>
 
       {plan.goalMarkdown && (
-        <p className="font-mono text-[10px] text-muted-foreground/70 line-clamp-2 mb-2.5">{plan.goalMarkdown}</p>
+        <p className="font-mono text-[10px] text-muted-foreground/70 line-clamp-2 mb-2">{plan.goalMarkdown}</p>
       )}
 
       <div className="flex items-center justify-between pt-2 border-t border-border">
@@ -256,38 +218,6 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
         )}
       </div>
     </div>
-  )
-}
-
-// ─── AthleteTableRow ──────────────────────────────────────────────────────────
-
-function AthleteTableRow({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: () => void; onDelete: () => void }) {
-  const [hovered, setHovered] = useState(false)
-  const accent = STATUS_COLORS[plan.status] ?? '#6b7280'
-
-  return (
-    <tr
-      onClick={onEdit}
-      className={cn('border-b border-border cursor-pointer transition-colors', hovered ? 'bg-muted/50' : 'bg-transparent')}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <td className="font-sans text-[13px] text-foreground px-4 py-2.5 font-medium">{plan.title}</td>
-      <td className="font-mono text-[9px] font-bold tracking-[0.08em] uppercase px-4 py-2.5" style={{ color: accent }}>
-        {STATUS_LABELS[plan.status] ?? plan.status}
-      </td>
-      <td className="font-mono text-[11px] text-muted-foreground px-4 py-2.5">
-        {new Date(plan.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-      </td>
-      <td className="px-4 py-2.5 text-right" onClick={e => e.stopPropagation()}>
-        <button
-          onClick={onDelete}
-          className="p-1.5 rounded bg-transparent border-none cursor-pointer text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-colors"
-        >
-          <Trash2 className="h-3.5 w-3.5" strokeWidth={1.5} />
-        </button>
-      </td>
-    </tr>
   )
 }
 

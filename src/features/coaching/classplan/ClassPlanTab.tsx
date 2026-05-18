@@ -121,7 +121,11 @@ export function ClassPlanTab() {
       {/* Lista de planes */}
       <div className="space-y-2">
         {(plans ?? []).map(plan => (
-          <div key={plan.id} className="border border-border/50 hover:border-border transition-colors">
+          <div
+            key={plan.id}
+            className="border border-border/50 hover:border-border transition-colors cursor-pointer"
+            onClick={() => setEditingPlanId(plan.id)}
+          >
             <div className="flex items-center gap-3 px-3 py-2">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold truncate">{plan.title}</p>
@@ -141,19 +145,12 @@ export function ClassPlanTab() {
                       {plan.durationMinutes} min
                     </span>
                   )}
-                  <span className={`text-[10px] font-mono uppercase px-1.5 py-0.5 border ${
-                    plan.status === 'DRAFT'
-                      ? 'border-muted-foreground/30 text-muted-foreground'
-                      : 'border-emerald-500/50 text-emerald-500'
-                  }`}>
-                    {plan.status === 'DRAFT' ? 'Borrador' : 'Publicado'}
-                  </span>
                 </div>
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 <button
                   type="button"
-                  onClick={() => setEditingPlanId(plan.id)}
+                  onClick={(e) => { e.stopPropagation(); setEditingPlanId(plan.id) }}
                   className="p-1.5 text-muted-foreground hover:text-foreground transition-colors"
                   title="Editar plan"
                 >
@@ -161,7 +158,7 @@ export function ClassPlanTab() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleDelete(plan)}
+                  onClick={(e) => { e.stopPropagation(); handleDelete(plan) }}
                   className="p-1.5 text-muted-foreground hover:text-destructive transition-colors"
                   title="Eliminar plan"
                 >

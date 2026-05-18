@@ -36,7 +36,7 @@ export function GymDashboardPage() {
       {/* Page header */}
       <div className="border-b border-border pb-5">
         <p
-          className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground mb-1"
+          className="text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-1"
           style={MONO}
         >
           Panel de coaching
@@ -52,7 +52,7 @@ export function GymDashboardPage() {
             <AthletesCount />
             <Link
               to="/configuracion#invitation"
-              className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide bg-foreground text-background hover:bg-foreground/85 transition-colors px-3 py-1.5 border border-foreground"
+              className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide bg-foreground text-background hover:bg-foreground/85 transition-colors px-4 py-2 border border-foreground"
             >
               <Key className="h-3.5 w-3.5" strokeWidth={1.5} />
               Código de invitación
