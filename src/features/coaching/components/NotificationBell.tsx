@@ -2,8 +2,9 @@ import { useState, useRef, useEffect } from 'react'
 import { Bell } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { useQueryClient } from '@tanstack/react-query'
 import { cn } from '@/shared/lib/utils'
-import { useNotifications, useMarkNotificationsRead } from '../hooks'
+import { useNotifications, useMarkNotificationsRead, COACHING_KEYS } from '../hooks'
 import { NOTIFICATION_LABELS } from '../notificationLabels'
 
 export function NotificationBell() {
@@ -11,14 +12,24 @@ export function NotificationBell() {
   const ref = useRef<HTMLDivElement>(null)
   const { data: notifications } = useNotifications()
   const markRead = useMarkNotificationsRead()
+  const qc = useQueryClient()
+  const [snapshot, setSnapshot] = useState<typeof notifications>(undefined)
 
+  const displayed = open && snapshot !== undefined ? snapshot : notifications
   const unread = notifications?.filter((n) => !n.read).length ?? 0
 
   function handleOpen() {
     setOpen((prev) => {
       const next = !prev
-      if (next && unread > 0) {
-        markRead.mutate()
+      if (next) {
+        type NotifData = typeof notifications
+        const cached = qc.getQueryData<NotifData>(COACHING_KEYS.notifications)
+        setSnapshot(cached ?? [])
+        if ((cached?.filter(n => !n.read).length ?? 0) > 0) {
+          markRead.mutate()
+        }
+      } else {
+        setSnapshot(undefined)
       }
       return next
     })
@@ -69,13 +80,13 @@ export function NotificationBell() {
             </p>
           </div>
 
-          {(!notifications || notifications.length === 0) ? (
+          {(!displayed || displayed.length === 0) ? (
             <div className="px-3 py-4 text-center">
               <p className="text-xs text-muted-foreground">Sin notificaciones</p>
             </div>
           ) : (
             <ul className="max-h-72 overflow-y-auto divide-y divide-border">
-              {notifications.map((n) => (
+              {displayed.map((n) => (
                 <li key={n.id} className={cn('flex items-start gap-2 px-3 py-2.5', n.read && 'opacity-50')}>
                   {!n.read && (
                     <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground" aria-hidden="true" />
