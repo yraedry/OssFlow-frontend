@@ -162,14 +162,14 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
           <NotificationBell />
           <button
             onClick={onSearchOpen}
-            className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Buscar"
           >
             <Search className="h-3.5 w-3.5" strokeWidth={1.5} />
           </button>
           <button
             onClick={toggleTheme}
-            className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Cambiar tema"
           >
             {theme === 'dark'
@@ -178,24 +178,25 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
           </button>
           <NavLink
             to="/configuracion"
-            className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Configuración"
           >
             <Settings className="h-3.5 w-3.5" strokeWidth={1.5} />
           </NavLink>
           <NavLink
             to="/profile"
-            className="flex h-7 w-7 items-center justify-center border border-border bg-card text-muted-foreground hover:text-foreground transition-colors ml-1 overflow-hidden rounded-full"
-            style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.02em' }}
+            className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors ml-1"
             aria-label="Perfil"
           >
-            {avatar
-              ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
-              : initials}
+            <span className="flex h-7 w-7 items-center justify-center border border-border bg-card overflow-hidden rounded-full" style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.02em' }}>
+              {avatar
+                ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                : initials}
+            </span>
           </NavLink>
           <button
             onClick={() => logoutMutation.mutate()}
-            className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors ml-1"
+            className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors ml-1"
             aria-label="Cerrar sesión"
           >
             <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />

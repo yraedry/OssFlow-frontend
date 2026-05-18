@@ -21,7 +21,7 @@ const MAIN_TABS: { id: MainTab; label: string; icon: React.ReactNode }[] = [
   { id: 'observaciones', label: 'Observaciones', icon: <Eye className="h-3.5 w-3.5" strokeWidth={1.5} /> },
   { id: 'analisis',      label: 'Análisis',      icon: <BarChart2 className="h-3.5 w-3.5" strokeWidth={1.5} /> },
   { id: 'planificacion', label: 'Planificación', icon: <FolderOpen className="h-3.5 w-3.5" strokeWidth={1.5} /> },
-  { id: 'competiciones', label: 'Compet.',       icon: <Trophy className="h-3.5 w-3.5" strokeWidth={1.5} /> },
+  { id: 'competiciones', label: 'Competencias',   icon: <Trophy className="h-3.5 w-3.5" strokeWidth={1.5} /> },
 ]
 
 export function AthleteProfilePage() {

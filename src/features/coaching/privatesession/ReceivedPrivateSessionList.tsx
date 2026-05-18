@@ -77,8 +77,8 @@ export function ReceivedPrivateSessionList() {
   if (!sessions?.length) {
     return (
       <div className="border border-dashed border-border px-6 py-10 text-center">
-        <p className="font-serif text-base text-muted-foreground/60 italic">Sin clases aún</p>
-        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40 mt-2">
+        <p className="font-serif text-base text-muted-foreground italic">Sin clases aún</p>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70 mt-2">
           Tu maestro aún no ha registrado sesiones privadas contigo
         </p>
       </div>

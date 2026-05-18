@@ -41,8 +41,8 @@ export function NotificationBell() {
       <button
         type="button"
         onClick={handleOpen}
-        className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors relative"
-        aria-label={`Notificaciones${unread > 0 ? ` (${unread} nuevas)` : ''}`}
+        className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors relative"
+        aria-label={`Notificaciones${unread > 0 ? ` (${unread} ${unread === 1 ? 'nueva' : 'nuevas'})` : ''}`}
       >
         <Bell className="h-3.5 w-3.5" strokeWidth={1.5} />
         {unread > 0 && (

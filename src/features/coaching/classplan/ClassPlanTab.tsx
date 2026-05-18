@@ -34,9 +34,10 @@ export function ClassPlanTab() {
   if (!gyms || gyms.length === 0) {
     return (
       <div className="py-8 text-center space-y-2">
-        <p className="text-sm text-muted-foreground">No tienes gimnasios todavía.</p>
+        <p className="text-sm text-muted-foreground font-serif italic">Sin planes de clase todavía</p>
         <p className="text-xs text-muted-foreground font-mono uppercase tracking-wide">
-          Ve a «Mis gimnasios» para crear uno.
+          Ve a «Mis gimnasios» para crear un gimnasio primero,<br />
+          luego podrás añadir planes de clase.
         </p>
       </div>
     )
