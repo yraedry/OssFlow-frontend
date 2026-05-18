@@ -452,7 +452,7 @@ export function useTechniqueSearch(query: string) {
       name: t.name,
       // t.family is the TechniqueFamily enum (GUARD_PASSES, TAKEDOWNS, etc.)
       // t.category is the TechniqueCategory (PASS, TAKEDOWN, etc.)
-      family: (t as unknown as { family?: string }).family ?? t.category,
+      family: t.family ?? t.category,
     })),
   })
 }
@@ -464,7 +464,7 @@ export function useTechniquesByFamily(families: string[]) {
       const results = await Promise.all(
         families.map(f => techniqueApi.list({ search: '', size: 50 }).then(
           d => d.content
-            .filter(t => ((t as unknown as { family?: string }).family ?? '') === f)
+            .filter(t => (t.family ?? '') === f)
             .map(t => ({ id: t.id, name: t.name, family: f }))
         ))
       )

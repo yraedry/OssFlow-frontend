@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { AlertTriangle } from 'lucide-react'
 import { useBjjRadar, useFisicoRadar } from '@/features/analisis/radar/hooks'
 import type { RadarDataPoint } from '@/features/analisis/radar/types'
-import { fetchWeeklyStats, type WeeklyStats } from '@/shared/api/dashboard'
-import { RadarPanel, type Section, type SectionId } from '@/components/charts/RadarPanel'
+import { useWeeklyStats } from '@/shared/hooks/useWeeklyStats'
+import { RadarPanel, type Section, type SectionId } from '@/shared/components/charts/RadarPanel'
 
 const PERIOD_OPTIONS = [
   { label: '30d',  days: 30 },
@@ -73,7 +72,7 @@ export function AnalisisPage() {
 
   const { data: bjjData, isLoading: bjjLoading, error: bjjError } = useBjjRadar(days)
   const { data: fisicoData, isLoading: fisicoLoading, error: fisicoError } = useFisicoRadar(days)
-  const { data: stats } = useQuery<WeeklyStats>({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
+  const { data: stats } = useWeeklyStats()
 
   const section = SECTIONS.find(s => s.id === active)!
   const data    = section.source === 'bjj' ? bjjData : fisicoData

@@ -41,16 +41,4 @@ export type CreateProfileRequest = {
   weight?: number | null
 }
 
-export type UpdateProfileRequest = {
-  displayName: string
-  firstName?: string
-  lastName?: string
-  alias?: string
-  currentBelt: string
-  beltSince?: string
-  academy?: string
-  preferredModality: string
-  ageCategory?: string | null
-  stripes?: number | null
-  weight?: number | null
-}
+export type UpdateProfileRequest = CreateProfileRequest

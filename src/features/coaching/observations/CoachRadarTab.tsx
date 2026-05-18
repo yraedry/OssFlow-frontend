@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useObservationRadar, useTechniqueFamilies } from '../hooks'
-import { RadarPanel, type Section } from '@/components/charts/RadarPanel'
+import { RadarPanel, type Section } from '@/shared/components/charts/RadarPanel'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { AlertTriangle } from 'lucide-react'
 

@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react'
 import { Pencil, Building2, Calendar, Shield } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { useWeeklyStats } from '@/shared/hooks/useWeeklyStats'
 import { useProfile } from '../hooks'
 import { useFederations } from '@/features/identity/federation/hooks'
 import { InjurySection } from '@/features/identity/injury/InjurySection'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
-import { fetchWeeklyStats } from '@/shared/api/dashboard'
 import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
-import type { WeeklyStats } from '@/shared/api/dashboard'
 import { useNavigate, Link } from 'react-router-dom'
 import { MONO } from '@/shared/lib/typography'
 import { MyCoachesList } from '@/features/coaching/components/MyCoachesList'
@@ -122,7 +120,7 @@ export function ProfilePage() {
   const { data: profile, isLoading } = useProfile()
   const { data: allFederations = [] } = useFederations()
   const { data: coaches } = useCoaches()
-  const { data: stats } = useQuery<WeeklyStats>({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
+  const { data: stats } = useWeeklyStats()
   const { data: bjjData } = useTrainingSessions({ page: 0, size: 3 })
   const { data: physData } = usePhysicalSessions({ page: 0, size: 3 })
   const navigate = useNavigate()

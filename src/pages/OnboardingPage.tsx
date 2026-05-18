@@ -19,6 +19,7 @@ import { WeeklyTemplateStep } from './onboarding/WeeklyTemplateStep'
 import { RoleSelector } from '@/features/identity/profile/components/RoleSelector'
 import type { FederationAssignment } from '@/features/identity/federation/types'
 import type { SaveWeeklyTemplateForm } from '@/features/planning/weeklytemplate/schemas'
+import { BELTS, MODALITIES, AGE_CATEGORIES, STRIPES_OPTIONS } from '@/features/identity/profile/constants'
 
 const THEME_KEY = 'ossflow-theme'
 const ONBOARDING_KEY = 'ossflow-onboarding'
@@ -29,30 +30,6 @@ function applyTheme(theme: 'dark' | 'light') {
   document.documentElement.classList.add(theme)
 }
 
-const BELTS = [
-  { value: 'WHITE', label: 'Blanco' },
-  { value: 'BLUE', label: 'Azul' },
-  { value: 'PURPLE', label: 'Morado' },
-  { value: 'BROWN', label: 'Marrón' },
-  { value: 'BLACK', label: 'Negro' },
-]
-
-const MODALITIES = [
-  { value: 'GI', label: 'Gi (con kimono)' },
-  { value: 'NOGI', label: 'No-Gi (sin kimono)' },
-  { value: 'BOTH', label: 'Ambas' },
-]
-
-const AGE_CATEGORIES = [
-  { value: 'ADULT',    label: 'Adulto' },
-  { value: 'JUVENILE', label: 'Juvenil' },
-  { value: 'MASTER_1', label: 'Master 1' },
-  { value: 'MASTER_2', label: 'Master 2' },
-  { value: 'MASTER_3', label: 'Master 3' },
-  { value: 'MASTER_4', label: 'Master 4' },
-]
-
-const STRIPES_OPTIONS = [0, 1, 2, 3, 4] as const
 
 const step1Schema = z.object({
   firstName: z.string().max(80).optional(),
