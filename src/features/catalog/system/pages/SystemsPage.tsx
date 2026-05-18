@@ -20,7 +20,6 @@ import type { CreateSystemForm } from '../schemas'
 
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
 const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
-const LABEL: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '9px', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }
 
 export function SystemsPage() {
   const [open, setOpen] = useState(false)
@@ -76,31 +75,22 @@ export function SystemsPage() {
     <div className="space-y-5">
 
       {/* Header */}
-      <div className="border border-border bg-card px-5 py-4 flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '4px' }}>Catálogo</div>
-          <h1 className="font-black leading-none" style={{ ...SERIF, fontSize: 'clamp(22px, 3vw, 30px)', letterSpacing: '-0.02em' }}>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+            Estudio
+          </p>
+          <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
             Sistemas
           </h1>
-          <p className="mt-1 text-xs text-muted-foreground" style={MONO}>
-            Diagramas de posiciones y transiciones
-          </p>
         </div>
-        <div className="flex items-center gap-3">
-          {systems.length > 0 && (
-            <span style={{ ...LABEL, color: 'var(--color-muted-foreground)' }}>
-              {data?.totalElements ?? 0} sistemas
-            </span>
-          )}
-          <button
-            onClick={() => { setEditing(null); setOpen(true) }}
-            className="flex items-center gap-2 px-4 py-2 bg-foreground text-background hover:opacity-85 transition-opacity"
-            style={{ ...MONO, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}
-          >
-            <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-            Nuevo
-          </button>
-        </div>
+        <button
+          onClick={() => { setEditing(null); setOpen(true) }}
+          className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-mono font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0 cursor-pointer"
+        >
+          <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+          Nuevo
+        </button>
       </div>
 
       {/* Buscador */}

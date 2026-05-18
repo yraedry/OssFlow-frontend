@@ -698,24 +698,22 @@ export function RoutinesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
+      <div className="flex items-start justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <div style={{ ...MONO, fontSize: '9px', color: 'var(--color-muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '4px' }}>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
             Planificación
-          </div>
-          <h1 className="text-2xl font-black leading-none" style={SERIF}>Rutinas</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Organiza tus entrenamientos físicos en bloques y ejercicios
           </p>
+          <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
+            Rutinas
+          </h1>
         </div>
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0"
-          style={MONO}
+          className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-mono font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0 cursor-pointer"
         >
           <Plus className="h-3.5 w-3.5" strokeWidth={2} />
-          Nueva
+          Nueva rutina
         </button>
       </div>
 

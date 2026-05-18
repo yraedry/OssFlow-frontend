@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Settings } from 'lucide-react'
 import { ReceivedNoteList } from '@/features/coaching/notes/ReceivedNoteList'
 import { ReceivedRecommendationList } from '@/features/coaching/recommendations/ReceivedRecommendationList'
 import { ReceivedStudyPlanList } from '@/features/coaching/studyplan/ReceivedStudyPlanList'
 import { ReceivedPrivateSessionList } from '@/features/coaching/privatesession/ReceivedPrivateSessionList'
-import { useNoteUnreadCount, useRecommendationsReceived } from '@/features/coaching/hooks'
+import { useNoteUnreadCount, useRecommendationsReceived, useReceivedNotes, useMarkNoteRead } from '@/features/coaching/hooks'
 
 type Tab = 'notas' | 'planificacion' | 'clases' | 'tecnicas'
 
@@ -20,40 +20,38 @@ export function MaestroPage() {
     <div className="min-h-[60vh] flex flex-col">
 
       {/* ── Page header ─────────────────────────────────────────────────────── */}
-      <div className="border-b border-border pb-5 mb-0">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground mb-1">
-              Área del atleta
-            </p>
-            <h1 className="font-serif text-3xl font-bold text-foreground tracking-tight leading-none">
-              Coaching
-            </h1>
-          </div>
+      <div className="flex items-start justify-between gap-4 border border-border bg-card px-5 py-4">
+        <div>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+            Área del atleta
+          </p>
+          <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
+            Coaching
+          </h1>
+        </div>
 
-          <div className="flex items-center gap-3 mb-0.5">
-            {/* Unread / pending pills */}
-            {count > 0 && (
-              <span className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide border border-foreground px-2.5 py-1 text-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-foreground inline-block" />
-                {count} {count === 1 ? 'nota nueva' : 'notas nuevas'}
-              </span>
-            )}
-            {pendingRecs > 0 && (
-              <span className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide border border-border px-2.5 py-1 text-muted-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground inline-block" />
-                {pendingRecs} recom.
-              </span>
-            )}
-            {/* Link to Configuración */}
-            <Link
-              to="/configuracion#mis-maestros"
-              className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide bg-foreground text-background hover:bg-foreground/85 transition-colors px-3 py-2 border border-foreground"
-            >
-              <Settings className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
-              <span className="hidden sm:inline">Gestionar maestros</span>
-            </Link>
-          </div>
+        <div className="flex items-center gap-3 shrink-0">
+          {/* Unread / pending pills */}
+          {count > 0 && (
+            <span className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide border border-foreground px-2.5 py-1 text-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-foreground inline-block" />
+              {count} {count === 1 ? 'nota nueva' : 'notas nuevas'}
+            </span>
+          )}
+          {pendingRecs > 0 && (
+            <span className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide border border-border px-2.5 py-1 text-muted-foreground">
+              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground inline-block" />
+              {pendingRecs} recom.
+            </span>
+          )}
+          {/* Link to Configuración */}
+          <Link
+            to="/configuracion#mis-maestros"
+            className="flex items-center gap-1.5 px-4 py-2 bg-foreground text-background text-xs font-mono font-bold uppercase tracking-wide hover:opacity-85 transition-opacity shrink-0 cursor-pointer"
+          >
+            <Settings className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
+            <span className="hidden sm:inline">Gestionar maestros</span>
+          </Link>
         </div>
       </div>
 
@@ -101,8 +99,18 @@ export function MaestroPage() {
 // ─── Notas tab ────────────────────────────────────────────────────────────────
 
 function NotasTab() {
+  const { data: notes } = useReceivedNotes()
+  const markRead = useMarkNoteRead()
+
+  // Al montar el tab, marcar todas las notas no leídas como leídas
+  useEffect(() => {
+    if (!notes) return
+    notes.filter(n => !n.read).forEach(n => markRead.mutate(n.id))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [notes?.length])
+
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="space-y-4">
       <div className="flex items-center gap-4 mb-6">
         <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
           Notas de tu maestro
@@ -134,7 +142,7 @@ function PlanificacionTab() {
 
 function ClasesTab() {
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="space-y-4">
       <div className="flex items-center gap-4 mb-6">
         <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
           Clases privadas
@@ -150,7 +158,7 @@ function ClasesTab() {
 
 function TecnicasTab() {
   return (
-    <div className="max-w-2xl space-y-4">
+    <div className="space-y-4">
       <div className="flex items-center gap-4 mb-6">
         <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
           Técnicas recomendadas

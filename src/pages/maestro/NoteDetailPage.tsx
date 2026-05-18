@@ -13,7 +13,8 @@ export function NoteDetailPage() {
   const markRead = useMarkNoteRead()
 
   useEffect(() => {
-    if (id && note && !note.read) markRead.mutate(id)
+    if (!id || isNaN(id) || !note || note.read) return
+    markRead.mutate(id)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, note?.read])
 

@@ -132,7 +132,8 @@ export function useNotifications() {
     queryKey: COACHING_KEYS.notifications,
     // La API ya filtra a solo no leídas, length = count de no leídas
     queryFn: () => coachingApi.getNotifications(),
-    refetchInterval: 5_000,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
     staleTime: 0,
   })
 }
@@ -142,8 +143,9 @@ export function useMarkNotificationsRead() {
   return useMutation({
     mutationFn: () => coachingApi.markNotificationsRead(),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: COACHING_KEYS.notifications })
-      qc.invalidateQueries({ queryKey: COACHING_KEYS.noteUnreadCount })
+      // Poner cache a [] directamente evita el refetch inmediato que haría desaparecer
+      // el snapshot del panel antes de que el usuario pueda leerlas
+      qc.setQueryData(COACHING_KEYS.notifications, [])
     },
   })
 }

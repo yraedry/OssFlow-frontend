@@ -47,7 +47,7 @@ export function NotificationBell() {
         <Bell className="h-3.5 w-3.5" strokeWidth={1.5} />
         {unread > 0 && (
           <span
-            className="absolute top-1 right-1 h-2 w-2 rounded-full bg-purple-600"
+            className="absolute top-1 right-1 h-2 w-2 rounded-full bg-foreground"
             aria-hidden="true"
           />
         )}
@@ -78,7 +78,7 @@ export function NotificationBell() {
               {notifications.map((n) => (
                 <li key={n.id} className={cn('flex items-start gap-2 px-3 py-2.5', n.read && 'opacity-50')}>
                   {!n.read && (
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-purple-600" aria-hidden="true" />
+                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-foreground" aria-hidden="true" />
                   )}
                   <div className={cn('flex flex-col gap-0.5', n.read && 'pl-3.5')}>
                     <p className="text-xs font-medium">{NOTIFICATION_LABELS[n.type] ?? n.type}</p>

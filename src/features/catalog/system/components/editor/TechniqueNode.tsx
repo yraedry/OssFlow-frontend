@@ -9,7 +9,7 @@ type TechniqueNodeData = {
 }
 
 export function TechniqueNode({ id, data }: NodeProps) {
-  const nodeData = data as unknown as TechniqueNodeData
+  const nodeData = data as TechniqueNodeData
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(nodeData.label)
   const inputRef = useRef<HTMLInputElement>(null)

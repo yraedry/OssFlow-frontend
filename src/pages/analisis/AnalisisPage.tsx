@@ -97,12 +97,16 @@ export function AnalisisPage() {
     <div className="space-y-4">
 
       {/* Header + periodo */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex items-start justify-between gap-4 border border-border bg-card px-5 py-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold">Análisis</h1>
-          <p className="text-muted-foreground text-sm">Tu evolución como peleador</p>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+            Análisis
+          </p>
+          <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
+            Mi progreso
+          </h1>
         </div>
-        <div className="flex gap-1.5 overflow-x-auto pb-0.5" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-1.5 overflow-x-auto shrink-0" style={{ scrollbarWidth: 'none' }}>
           {PERIOD_OPTIONS.map(o => (
             <button
               key={o.days}
