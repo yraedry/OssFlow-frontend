@@ -48,7 +48,7 @@ describe('NotificationBell', () => {
     vi.mocked(coachingApi.getNotifications).mockResolvedValue(MOCK_NOTIFICATIONS)
     renderBell()
     // Wait for the badge to appear
-    const badge = await screen.findByRole('button', { name: /notificaciones \(1 nuevas\)/i })
+    const badge = await screen.findByRole('button', { name: /notificaciones \(1 nueva\)/i })
     expect(badge).toBeInTheDocument()
     // Badge span should be present
     const bellBtn = screen.getByRole('button', { name: /notificaciones/i })

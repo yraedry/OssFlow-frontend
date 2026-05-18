@@ -10,6 +10,14 @@ const MODALITY_LABELS: Record<string, string> = {
   BOTH: 'Ambas',
 }
 
+const BELT_LABELS: Record<string, string> = {
+  WHITE:  'Blanco',
+  BLUE:   'Azul',
+  PURPLE: 'Morado',
+  BROWN:  'Marrón',
+  BLACK:  'Negro',
+}
+
 const BELT_COLORS: Record<string, string> = {
   WHITE:  '#374151',
   BLUE:   '#2563eb',
@@ -47,9 +55,10 @@ function StripeBars({ stripes }: { stripes: number | null | undefined }) {
 
 function getActivityState(daysSince: number, hasInjuries: boolean) {
   if (hasInjuries) return { color: '#ef4444', label: 'LESIÓN', description: '' }
-  if (daysSince <= 2) return { color: '#22c55e', label: 'AL DÍA', description: `${daysSince}d` }
-  if (daysSince <= 7) return { color: '#f59e0b', label: 'ATRASADO', description: `${daysSince}d` }
-  return { color: '#555', label: 'INACTIVO', description: `${daysSince}d` }
+  const recentDesc = daysSince === 0 ? 'Hoy' : daysSince === 1 ? 'Ayer' : `hace ${daysSince}d`
+  if (daysSince <= 2) return { color: '#22c55e', label: 'AL DÍA', description: recentDesc }
+  if (daysSince <= 7) return { color: '#f59e0b', label: 'ATRASADO', description: `hace ${daysSince}d` }
+  return { color: '#555', label: 'INACTIVO', description: `hace ${daysSince}d` }
 }
 
 function formatLastSession(dateStr: string | null): string {
@@ -125,7 +134,7 @@ function AthleteProfileHeaderInner({ athlete }: { athlete: AthleteSummary }) {
               className="text-white font-mono text-[10px] font-bold tracking-[0.1em] uppercase px-2 py-0.5 inline-flex items-center gap-1.5"
               style={{ background: BELT_COLORS[athlete.currentBelt?.toUpperCase()] ?? '#374151' }}
             >
-              {athlete.currentBelt?.toUpperCase()} · {athlete.daysInBelt}d
+              {BELT_LABELS[athlete.currentBelt?.toUpperCase() ?? ''] ?? athlete.currentBelt?.toUpperCase()} · {athlete.daysInBelt}d
               <StripeBars stripes={athlete.stripes} />
             </span>
             {athlete.academy && (
@@ -150,11 +159,13 @@ function AthleteProfileHeaderInner({ athlete }: { athlete: AthleteSummary }) {
 
       {/* Stats row */}
       <div className="flex border-t border-border">
-        {stats.map((stat, i) => (
+        {stats.filter(s =>
+          ['Última sesión', 'Lesiones'].includes(s.label) || s.value !== '—'
+        ).map((stat, i, visibleStats) => (
           <div
             key={stat.label}
             className="flex-1 px-4 py-2.5"
-            style={{ borderRight: i < stats.length - 1 ? '1px solid var(--border)' : 'none' }}
+            style={{ borderRight: i < visibleStats.length - 1 ? '1px solid var(--border)' : 'none' }}
           >
             <div className="font-mono text-[9px] font-bold tracking-[0.12em] uppercase text-muted-foreground/60 mb-0.5">
               {stat.label}

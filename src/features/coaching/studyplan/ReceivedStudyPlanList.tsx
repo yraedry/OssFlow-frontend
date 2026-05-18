@@ -14,8 +14,8 @@ export function ReceivedStudyPlanList() {
   if (!plans?.length) {
     return (
       <div className="border border-dashed border-border px-6 py-10 text-center">
-        <p className="font-serif text-base text-muted-foreground/60 italic">Sin planes de estudio aún</p>
-        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/40 mt-2">
+        <p className="font-serif text-base text-muted-foreground italic">Sin planes de estudio aún</p>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground/70 mt-2">
           Tu maestro aún no te ha enviado ningún plan
         </p>
       </div>
@@ -92,7 +92,7 @@ function BlockView({ block, index }: { block: StudyBlock; index: number }) {
           </div>
         ))}
         {!block.items?.length && (
-          <p className="text-xs text-muted-foreground/50 italic">Sin items</p>
+          <p className="text-xs text-muted-foreground/70 italic">Sin items</p>
         )}
       </div>
     </div>

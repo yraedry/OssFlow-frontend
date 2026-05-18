@@ -123,7 +123,7 @@ export function BottomTabBar() {
           <button
             type="button"
             onClick={() => setDrawerOpen(false)}
-            className="h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Cerrar"
           >
             <X className="h-4 w-4" strokeWidth={1.5} />
