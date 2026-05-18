@@ -23,7 +23,7 @@ export function MaestroPage() {
       <div className="border-b border-border pb-5 mb-0">
         <div className="flex items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground mb-1">
+            <p className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground mb-1">
               Área del atleta
             </p>
             <h1 className="font-serif text-3xl font-bold text-foreground tracking-tight leading-none">
@@ -34,13 +34,13 @@ export function MaestroPage() {
           <div className="flex items-center gap-3 mb-0.5">
             {/* Unread / pending pills */}
             {count > 0 && (
-              <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide border border-foreground px-2.5 py-1 text-foreground">
+              <span className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide border border-foreground px-2.5 py-1 text-foreground">
                 <span className="h-1.5 w-1.5 rounded-full bg-foreground inline-block" />
                 {count} {count === 1 ? 'nota nueva' : 'notas nuevas'}
               </span>
             )}
             {pendingRecs > 0 && (
-              <span className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide border border-border px-2.5 py-1 text-muted-foreground">
+              <span className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide border border-border px-2.5 py-1 text-muted-foreground">
                 <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground inline-block" />
                 {pendingRecs} recom.
               </span>
@@ -48,7 +48,7 @@ export function MaestroPage() {
             {/* Link to Configuración */}
             <Link
               to="/configuracion#mis-maestros"
-              className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide bg-foreground text-background hover:bg-foreground/85 transition-colors px-3 py-1.5 border border-foreground"
+              className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide bg-foreground text-background hover:bg-foreground/85 transition-colors px-4 py-2 border border-foreground"
             >
               <Settings className="h-3.5 w-3.5" strokeWidth={1.5} />
               Gestionar maestros
@@ -104,7 +104,7 @@ function NotasTab() {
   return (
     <div className="max-w-2xl space-y-4">
       <div className="flex items-center gap-4 mb-6">
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+        <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
           Notas de tu maestro
         </span>
         <div className="flex-1 h-px bg-border" />
@@ -120,7 +120,7 @@ function PlanificacionTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4 mb-6">
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+        <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
           Planes de estudio
         </span>
         <div className="flex-1 h-px bg-border" />
@@ -136,7 +136,7 @@ function ClasesTab() {
   return (
     <div className="max-w-2xl space-y-4">
       <div className="flex items-center gap-4 mb-6">
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+        <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
           Clases privadas
         </span>
         <div className="flex-1 h-px bg-border" />
@@ -152,7 +152,7 @@ function TecnicasTab() {
   return (
     <div className="max-w-2xl space-y-4">
       <div className="flex items-center gap-4 mb-6">
-        <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-muted-foreground">
+        <span className="font-mono text-xs uppercase tracking-widest text-muted-foreground">
           Técnicas recomendadas
         </span>
         <div className="flex-1 h-px bg-border" />

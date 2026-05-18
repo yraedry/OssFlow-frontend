@@ -43,8 +43,6 @@ export function ClassPlanEditor({ planId, gymId, onBack }: Props) {
     return <div className="py-8 text-center text-muted-foreground text-sm">Cargando...</div>
   }
 
-  const isDraft = plan.status === 'DRAFT'
-
   function handleSaveTitle() {
     if (!titleVal.trim()) return
     updateMeta.mutate({
@@ -56,28 +54,6 @@ export function ClassPlanEditor({ planId, gymId, onBack }: Props) {
       status: plan!.status,
     })
     setEditingTitle(false)
-  }
-
-  function handlePublish() {
-    updateMeta.mutate({
-      title: plan!.title,
-      description: plan!.description,
-      scheduledDate: plan!.scheduledDate,
-      durationMinutes: plan!.durationMinutes,
-      modality: plan!.modality,
-      status: 'PUBLISHED',
-    })
-  }
-
-  function handleUnpublish() {
-    updateMeta.mutate({
-      title: plan!.title,
-      description: plan!.description,
-      scheduledDate: plan!.scheduledDate,
-      durationMinutes: plan!.durationMinutes,
-      modality: plan!.modality,
-      status: 'DRAFT',
-    })
   }
 
   function handleMetaChange(field: keyof Pick<ClassPlan, 'scheduledDate' | 'durationMinutes' | 'modality'>, value: string | number | undefined) {
@@ -182,34 +158,6 @@ export function ClassPlanEditor({ planId, gymId, onBack }: Props) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
-          <span className={`text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border ${
-            isDraft ? 'border-muted-foreground/30 text-muted-foreground' : 'border-emerald-500/50 text-emerald-500'
-          }`}>
-            {isDraft ? 'Borrador' : 'Publicado'}
-          </span>
-          {isDraft ? (
-            <button
-              type="button"
-              onClick={handlePublish}
-              disabled={updateMeta.isPending}
-              className="px-3 py-1.5 text-xs bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-50"
-              style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em' }}
-            >
-              Publicar
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleUnpublish}
-              disabled={updateMeta.isPending}
-              className="px-3 py-1.5 text-xs border border-border hover:bg-muted transition-colors disabled:opacity-50"
-              style={{ fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em' }}
-            >
-              Despublicar
-            </button>
-          )}
-        </div>
       </div>
 
       {/* Blocks */}

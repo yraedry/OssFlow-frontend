@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { useCreatePrivateSession, useUpdatePrivateSession } from './hooks'
-import { useTechniqueFamilies } from '@/features/coaching/hooks'
+import { TechniqueFamilyPicker } from '@/features/coaching/components/TechniqueFamilyPicker'
 import type { PrivateSession, CreatePrivateSessionPayload, UpdatePrivateSessionPayload } from './types'
 
 type Mode =
@@ -131,49 +131,65 @@ function DatePicker({ value, onChange, required }: { value: string; onChange: (v
 
 // ─── Technique Family Multi-Select ────────────────────────────────────────────
 
-function TechniqueChipSelect({
+function TechniqueMultiSelect({
   selected,
   onChange,
 }: {
   selected: string[]
   onChange: (v: string[]) => void
 }) {
-  const { data: families } = useTechniqueFamilies()
+  const [pickerValue, setPickerValue] = useState('')
 
-  function toggle(value: string) {
-    if (selected.includes(value)) {
-      onChange(selected.filter(v => v !== value))
-    } else {
-      onChange([...selected, value])
-    }
+  function handlePickerChange(family: string) {
+    if (!family) return
+    setPickerValue(family)
   }
 
-  if (!families?.length) return null
+  function handleTechniqueSelect(technique: { id: number | null; name: string; family: string }) {
+    if (!technique.family) return
+    // Use technique name if available, otherwise fall back to family label
+    const value = technique.name || technique.family
+    if (!selected.includes(value)) {
+      onChange([...selected, value])
+    }
+    // Reset picker after adding
+    setPickerValue('')
+  }
+
+  function remove(value: string) {
+    onChange(selected.filter(v => v !== value))
+  }
 
   return (
-    <div>
-      <label className="block font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-2">
+    <div className="space-y-2">
+      <label className="block font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
         Técnicas practicadas (opcional)
       </label>
-      <div className="flex flex-wrap gap-1.5">
-        {families.map(f => {
-          const active = selected.includes(f.value)
-          return (
-            <button
-              key={f.value}
-              type="button"
-              onClick={() => toggle(f.value)}
-              className={`font-mono text-[9px] uppercase tracking-wide px-2 py-1 border transition-colors cursor-pointer ${
-                active
-                  ? 'bg-foreground text-background border-foreground'
-                  : 'bg-background text-muted-foreground border-border hover:border-foreground/40 hover:text-foreground'
-              }`}
+      <TechniqueFamilyPicker
+        value={pickerValue}
+        onChange={handlePickerChange}
+        onTechniqueSelect={handleTechniqueSelect}
+      />
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {selected.map(val => (
+            <span
+              key={val}
+              className="inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-wide px-2 py-1 border border-foreground bg-foreground/5 text-foreground"
             >
-              {f.label}
-            </button>
-          )
-        })}
-      </div>
+              {val}
+              <button
+                type="button"
+                onClick={() => remove(val)}
+                aria-label={`Eliminar ${val}`}
+                className="ml-0.5 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -297,7 +313,7 @@ export function PrivateSessionForm({ mode, onClose }: Props) {
             />
           </div>
 
-          <TechniqueChipSelect selected={techniquesWorked} onChange={setTechniquesWorked} />
+          <TechniqueMultiSelect selected={techniquesWorked} onChange={setTechniquesWorked} />
 
           <div className="flex justify-end gap-3 pt-2">
             <button
