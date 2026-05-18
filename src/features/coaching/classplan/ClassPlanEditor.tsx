@@ -120,7 +120,7 @@ export function ClassPlanEditor({ planId, gymId, onBack }: Props) {
                   const val = e.target.value || undefined
                   handleMetaChange('scheduledDate', val)
                 }}
-                className="bg-transparent border border-border text-sm px-2 py-0.5 outline-none focus:border-foreground text-foreground [color-scheme:dark]"
+                className="bg-transparent border border-border text-sm px-2 py-0.5 outline-none focus:border-foreground text-foreground"
               />
             </div>
             <div className="flex items-center gap-1.5">
@@ -263,15 +263,15 @@ function ClassBlockEditor({
                 if (e.key === 'Escape') { setEditingTitle(false); setTitleVal(block.title || '') }
               }}
               placeholder="Nombre del bloque"
-              className="bg-transparent border-b border-[#3a3a3a] text-[#f0ebe3] font-mono text-sm outline-none w-full"
+              className="bg-transparent border-b border-border text-foreground font-mono text-sm outline-none w-full"
             />
           ) : (
             <span
               onClick={() => setEditingTitle(true)}
-              className="cursor-pointer hover:text-white truncate block"
+              className="cursor-pointer hover:opacity-70 transition-opacity truncate block"
               title="Haz clic para editar"
             >
-              {block.title || <span className="text-[#555] italic">Bloque sin título</span>}
+              {block.title || <span className="text-muted-foreground/50 italic">Bloque sin título</span>}
             </span>
           )}
         </span>

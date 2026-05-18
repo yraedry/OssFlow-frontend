@@ -3,6 +3,7 @@ import { Plus, Trash2, Pencil } from 'lucide-react'
 import { useGyms } from '../gym/hooks'
 import { useClassPlans, useCreateClassPlan, useDeleteClassPlan } from './hooks'
 import { ClassPlanEditor } from './ClassPlanEditor'
+import { useConfirm } from '@/shared/hooks/useConfirm'
 import type { ClassPlan } from './types'
 
 const MODALITY_LABEL: Record<string, string> = { GI: 'Gi', NOGI: 'No-Gi', BOTH: 'Ambas' }
@@ -14,6 +15,7 @@ export function ClassPlanTab() {
   const [creating, setCreating] = useState(false)
   const [newTitle, setNewTitle] = useState('')
 
+  const confirm = useConfirm()
   const effectiveGymId = selectedGymId ?? gyms?.[0]?.id
   const { data: plans, isLoading } = useClassPlans(effectiveGymId)
   const create = useCreateClassPlan(effectiveGymId!)
@@ -52,7 +54,8 @@ export function ClassPlanTab() {
   }
 
   async function handleDelete(plan: ClassPlan) {
-    if (!window.confirm(`¿Eliminar "${plan.title}"?`)) return
+    const ok = await confirm({ description: `¿Eliminar el plan "${plan.title}"?`, variant: 'destructive' })
+    if (!ok) return
     deletePlan.mutate(plan.id)
   }
 

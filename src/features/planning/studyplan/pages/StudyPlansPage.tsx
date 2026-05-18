@@ -105,7 +105,7 @@ export function StudyPlansPage() {
         {isLoading ? (
           <div className="flex justify-center py-8"><Spinner /></div>
         ) : (
-          <div className="grid grid-cols-3 border border-border">
+          <div className="grid grid-cols-3 gap-2">
             {plans.map(plan => (
               <AthletePlanCard
                 key={plan.id}
@@ -137,7 +137,7 @@ export function StudyPlansPage() {
           {receivedLoading ? (
             <div className="flex justify-center py-4"><Spinner /></div>
           ) : (
-            <div className="grid grid-cols-2 border border-border">
+            <div className="grid grid-cols-2 gap-2">
               {receivedPlans!.map(plan => (
                 <ReceivedPlanCard
                   key={plan.id}
@@ -155,9 +155,6 @@ export function StudyPlansPage() {
 
 // ─── AthletePlanCard ──────────────────────────────────────────────────────────
 
-const STATUS_COLORS: Record<string, string> = {
-  DRAFT: '#6b7280', ACTIVE: '#22c55e', COMPLETED: '#3b82f6', ARCHIVED: '#f59e0b',
-}
 const STATUS_LABELS: Record<string, string> = {
   DRAFT: 'Borrador', ACTIVE: 'Activo', COMPLETED: 'Completado', ARCHIVED: 'Archivado',
 }
@@ -165,7 +162,6 @@ const STATUS_LABELS: Record<string, string> = {
 function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: () => void; onDelete: () => void }) {
   const [hovered, setHovered] = useState(false)
   const [deleteHovered, setDeleteHovered] = useState(false)
-  const accent = STATUS_COLORS[plan.status] ?? '#6b7280'
 
   return (
     <div
@@ -173,8 +169,7 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
       role="button"
       tabIndex={0}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onEdit() }}
-      className={cn('relative p-3 cursor-pointer transition-colors border-r border-b border-border', hovered ? 'bg-muted/50' : 'bg-card')}
-      style={{ borderLeft: `3px solid ${accent}` }}
+      className={cn('relative p-3 cursor-pointer transition-colors border border-border', hovered ? 'bg-muted/30' : 'bg-card')}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -182,8 +177,8 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
         type="button"
         onClick={e => { e.stopPropagation(); onDelete() }}
         className={cn(
-          'absolute top-1.5 right-1.5 p-1 rounded bg-transparent border-none cursor-pointer transition-all',
-          deleteHovered ? 'text-destructive bg-destructive/10' : 'text-muted-foreground/40',
+          'absolute top-1.5 right-1.5 p-1 bg-transparent border-none cursor-pointer transition-all',
+          deleteHovered ? 'text-destructive' : 'text-muted-foreground/40',
           hovered ? 'opacity-100' : 'opacity-0',
         )}
         onMouseEnter={e => { e.stopPropagation(); setDeleteHovered(true) }}
@@ -197,8 +192,7 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
         <div className="font-serif text-[13px] font-bold text-foreground leading-tight flex-1">
           {plan.title}
         </div>
-        <span className="font-mono text-[8px] font-bold tracking-[0.1em] uppercase px-1.5 py-0.5 shrink-0 border"
-          style={{ color: accent, borderColor: `${accent}44` }}>
+        <span className="font-mono text-[8px] tracking-[0.1em] uppercase px-1.5 py-0.5 shrink-0 border border-border text-muted-foreground">
           {STATUS_LABELS[plan.status] ?? plan.status}
         </span>
       </div>
@@ -225,7 +219,6 @@ function AthletePlanCard({ plan, onEdit, onDelete }: { plan: StudyPlan; onEdit: 
 
 function ReceivedPlanCard({ plan, onView }: { plan: CoachStudyPlan; onView: () => void }) {
   const [hovered, setHovered] = useState(false)
-  const isPublished = plan.status === 'PUBLISHED'
 
   return (
     <div
@@ -233,18 +226,14 @@ function ReceivedPlanCard({ plan, onView }: { plan: CoachStudyPlan; onView: () =
       role="button"
       tabIndex={0}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') onView() }}
-      className={cn('relative p-4 cursor-pointer transition-colors border-r border-b border-border', hovered ? 'bg-muted/50' : 'bg-card')}
-      style={{ borderLeft: `3px solid ${isPublished ? '#22c55e' : 'var(--border)'}` }}
+      className={cn('relative p-4 cursor-pointer transition-colors border border-border', hovered ? 'bg-muted/30' : 'bg-card')}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       <div className="flex items-start justify-between gap-2 mb-2.5">
         <div className="font-serif text-[15px] font-bold text-foreground leading-tight flex-1">{plan.title}</div>
-        <span className="font-mono text-[8px] font-bold tracking-[0.1em] uppercase px-1.5 py-0.5 shrink-0 border"
-          style={{ color: isPublished ? '#22c55e' : undefined, borderColor: isPublished ? '#22c55e44' : 'var(--border)' }}>
-          <span className={isPublished ? '' : 'text-muted-foreground/60'}>
-            {isPublished ? 'PUBLICADO' : 'BORRADOR'}
-          </span>
+        <span className="font-mono text-[8px] tracking-[0.1em] uppercase px-1.5 py-0.5 shrink-0 border border-border text-muted-foreground">
+          {plan.status === 'PUBLISHED' ? 'Publicado' : 'Borrador'}
         </span>
       </div>
 
