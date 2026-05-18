@@ -6,7 +6,8 @@ import { es } from 'date-fns/locale'
 import { cn } from '@/shared/lib/utils'
 import { useLogout } from '@/features/auth/hooks'
 import { useProfile } from '@/features/identity/profile/hooks'
-import { useCoaches, useNoteUnreadCount, useNotifications, useMarkNotificationsRead } from '@/features/coaching/hooks'
+import { useCoaches, useNoteUnreadCount, useNotifications, useMarkNotificationsRead, COACHING_KEYS } from '@/features/coaching/hooks'
+import { useQueryClient } from '@tanstack/react-query'
 import { NOTIFICATION_LABELS } from '@/features/coaching/notificationLabels'
 
 type Tab = { to: string; label: string; icon: React.ElementType; end: boolean; badge?: number }
@@ -77,6 +78,7 @@ export function BottomTabBar() {
   const subNav = SUB_NAV[section] ?? []
   const logoutMutation = useLogout()
   const { data: profile } = useProfile()
+  const qc = useQueryClient()
   const { data: coaches } = useCoaches()
   const { data: unreadCount } = useNoteUnreadCount()
   const { data: notifications } = useNotifications()
@@ -209,7 +211,10 @@ export function BottomTabBar() {
               onClick={() => {
                 const next = !notifOpen
                 setNotifOpen(next)
-                if (next && notifUnread > 0) markRead.mutate()
+                if (next) {
+                  if (notifUnread > 0) markRead.mutate()
+                  qc.invalidateQueries({ queryKey: COACHING_KEYS.noteUnreadCount })
+                }
               }}
               className="w-full flex items-center justify-between gap-3 px-5 py-3 text-muted-foreground hover:text-foreground transition-colors"
             >

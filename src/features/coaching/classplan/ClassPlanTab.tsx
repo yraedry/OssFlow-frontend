@@ -86,10 +86,10 @@ export function ClassPlanTab() {
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="flex items-center gap-1.5 text-xs font-mono uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide bg-foreground text-background hover:bg-foreground/85 transition-colors px-3 py-1.5 border border-foreground"
           >
-            <Plus className="h-3.5 w-3.5" strokeWidth={1.5} />
-            Nuevo plan
+            <Plus className="h-3.5 w-3.5 shrink-0" strokeWidth={1.5} />
+            <span className="hidden sm:inline">Nuevo plan</span>
           </button>
         )}
       </div>
