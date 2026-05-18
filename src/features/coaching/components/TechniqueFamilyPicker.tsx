@@ -14,11 +14,11 @@ function useTechniquesByGroup(groupId: GroupId | null) {
     queryFn: async () => {
       const data = await techniqueApi.list({ size: 100 })
       return data.content
-        .filter(t => families.includes(((t as unknown as { family?: string }).family ?? '') as never))
+        .filter(t => families.includes((t.family ?? '') as never))
         .map(t => ({
           id: t.id,
           name: t.name,
-          family: ((t as unknown as { family?: string }).family ?? '') as string,
+          family: t.family ?? '',
         }))
         .sort((a, b) => a.name.localeCompare(b.name))
     },
