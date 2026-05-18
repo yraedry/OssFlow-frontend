@@ -34,7 +34,7 @@ function formatDisplay(iso: string): string {
   return `${String(d.getDate()).padStart(2, '0')} ${MONTHS_ES[d.getMonth()]} ${d.getFullYear()}`
 }
 
-function DatePicker({ value, onChange, required }: { value: string; onChange: (v: string) => void; required?: boolean }) {
+function DatePicker({ value, onChange }: { value: string; onChange: (v: string) => void; required?: boolean }) {
   const [open, setOpen] = useState(false)
   const [cursor, setCursor] = useState(() => parseDate(value || formatIso(new Date())))
   const ref = useRef<HTMLDivElement>(null)
