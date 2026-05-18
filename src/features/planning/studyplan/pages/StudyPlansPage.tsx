@@ -283,8 +283,6 @@ function AthleteStudyPlanEditor({ planId, onBack }: { planId: number; onBack: ()
 
   if (isLoading || !plan) return <div className="py-8 flex justify-center"><Spinner /></div>
 
-  const accent = STATUS_COLORS[plan.status] ?? '#6b7280'
-
   function handleSaveTitle() {
     if (!titleVal.trim()) return
     updatePlan.mutate({ id: planId, data: { title: titleVal.trim() } })
@@ -324,8 +322,7 @@ function AthleteStudyPlanEditor({ planId, onBack }: { planId: number; onBack: ()
             <p className="mt-1 text-sm text-muted-foreground">{plan.goalMarkdown}</p>
           )}
         </div>
-        <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border shrink-0"
-          style={{ color: accent, borderColor: `${accent}44` }}>
+        <span className="text-[10px] font-mono uppercase tracking-widest px-2 py-0.5 border border-border text-muted-foreground shrink-0">
           {STATUS_LABELS[plan.status] ?? plan.status}
         </span>
       </div>
