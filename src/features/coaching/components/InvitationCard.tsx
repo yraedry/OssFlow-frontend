@@ -21,7 +21,7 @@ function fallbackCopy(text: string) {
   document.body.appendChild(el)
   el.focus()
   el.select()
-  try { document.execCommand('copy') } catch { }
+  try { document.execCommand('copy') } catch (_e) { /* fallback may fail silently */ }
   document.body.removeChild(el)
 }
 
