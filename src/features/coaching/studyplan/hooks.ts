@@ -168,6 +168,15 @@ export function useReceivedStudyPlans() {
   })
 }
 
+export function useReceivedStudyPlan(planId: number) {
+  return useQuery({
+    queryKey: [...KEYS.received, planId],
+    queryFn: () => studyPlanApi.getReceived(planId),
+    staleTime: 60_000,
+    enabled: !!planId,
+  })
+}
+
 export function useDuplicatePlan(currentAthleteId: number) {
   const qc = useQueryClient()
   return useMutation({
