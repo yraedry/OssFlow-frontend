@@ -42,6 +42,17 @@ const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[]
     { to: '/planificacion/plantilla', label: 'Plantilla' },
     { to: '/planificacion/rutinas',   label: 'Rutinas' },
   ],
+  gimnasio: [
+    { to: '/gimnasio/alumnos',       label: 'Alumnos' },
+    { to: '/gimnasio/planificacion', label: 'Planificación' },
+    { to: '/gimnasio/gimnasios',     label: 'Mis gimnasios' },
+  ],
+  maestro: [
+    { to: '/maestro/notas',          label: 'Notas' },
+    { to: '/maestro/planificacion',  label: 'Planificación' },
+    { to: '/maestro/clases',         label: 'Clases' },
+    { to: '/maestro/tecnicas',       label: 'Técnicas' },
+  ],
 }
 
 function getSection(pathname: string): string {
@@ -51,6 +62,10 @@ function getSection(pathname: string): string {
     return 'estudio'
   if (pathname.startsWith('/planificacion') || pathname.startsWith('/planning'))
     return 'planificacion'
+  if (pathname.startsWith('/gimnasio'))
+    return 'gimnasio'
+  if (pathname.startsWith('/maestro'))
+    return 'maestro'
   return ''
 }
 
@@ -98,8 +113,6 @@ export function BottomTabBar() {
 
   // Determine if «Más» is currently active (user is in /maestro, /gimnasio, /profile, /configuracion)
   const isMoreActive =
-    pathname.startsWith('/maestro') ||
-    pathname.startsWith('/gimnasio') ||
     pathname.startsWith('/profile') ||
     pathname.startsWith('/configuracion')
 

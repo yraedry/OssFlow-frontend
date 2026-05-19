@@ -1,12 +1,6 @@
-import { useState } from 'react'
 import { Key, Users } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
-import { AthleteRoster } from '../components/AthleteRoster'
+import { Link, Outlet } from 'react-router-dom'
 import { useAthletes } from '../hooks'
-import { GymTab } from '../gym/GymTab'
-import { ClassPlanTab } from '../classplan/ClassPlanTab'
-
-type Tab = 'alumnos' | 'planificacion' | 'gimnasios'
 
 const MONO = { fontFamily: 'var(--font-mono)' } as const
 
@@ -22,15 +16,6 @@ function AthletesCount() {
 }
 
 export function GymDashboardPage() {
-  const navigate = useNavigate()
-  const [activeTab, setActiveTab] = useState<Tab>('alumnos')
-
-  const tabs: { id: Tab; label: string }[] = [
-    { id: 'alumnos',        label: 'Alumnos' },
-    { id: 'planificacion',  label: 'Planificación' },
-    { id: 'gimnasios',      label: 'Mis gimnasios' },
-  ]
-
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -55,34 +40,9 @@ export function GymDashboardPage() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-border">
-        <div className="flex gap-0">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-xs font-mono uppercase tracking-wide border-b-2 transition-colors ${
-                activeTab === tab.id
-                  ? 'border-foreground text-foreground'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Tab content */}
-      <div>
-        {activeTab === 'alumnos' && (
-          <AthleteRoster onSelectAthlete={(id) => navigate(`/gimnasio/atletas/${id}`)} />
-        )}
-        {activeTab === 'planificacion' && <ClassPlanTab />}
-        {activeTab === 'gimnasios' && <GymTab />}
-      </div>
+      <Outlet />
     </div>
   )
 }
+
+export { GymDashboardPage as default }
