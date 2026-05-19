@@ -132,7 +132,7 @@ export function BottomTabBar() {
         className="fixed left-0 right-0 z-50 bg-background border-t border-border"
         style={{
           bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))',
-          maxHeight: '60vh',
+          maxHeight: '80vh',
           overflowY: 'auto',
         }}
       >
