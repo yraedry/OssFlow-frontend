@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { Bold, Italic, List, ListOrdered, Minus } from 'lucide-react'
+import { Bold, Italic, List, ListOrdered, Minus, type LucideIcon } from 'lucide-react'
 import { cn } from '@/shared/lib/utils'
 
 type Props = {
@@ -11,78 +11,76 @@ type Props = {
   className?: string
 }
 
-type WrapOpts = { before: string; after: string; placeholder: string }
+type ToolDef = { icon: LucideIcon; label: string; before: string; after?: string; placeholder?: string; linePrefix?: string }
+
+const TOOLS: ToolDef[] = [
+  { icon: Bold,        label: 'Negrita',       before: '**', after: '**', placeholder: 'texto' },
+  { icon: Italic,      label: 'Cursiva',        before: '*',  after: '*',  placeholder: 'texto' },
+  { icon: List,        label: 'Lista',          before: '',   linePrefix: '- ' },
+  { icon: ListOrdered, label: 'Lista numerada', before: '',   linePrefix: '1. ' },
+  { icon: Minus,       label: 'Separador',      before: '\n---\n' },
+]
 
 export function MarkdownEditor({ value, onChange, placeholder, rows = 5, disabled, className }: Props) {
   const ref = useRef<HTMLTextAreaElement>(null)
 
-  function insertAtCursor(before: string, after = '', placeholderText = '') {
+  function applyTool(tool: ToolDef) {
     const el = ref.current
     if (!el) return
     const start = el.selectionStart
     const end = el.selectionEnd
+
+    if (tool.linePrefix) {
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1
+      if (value.slice(lineStart).startsWith(tool.linePrefix)) {
+        onChange(value.slice(0, lineStart) + value.slice(lineStart + tool.linePrefix.length))
+      } else {
+        onChange(value.slice(0, lineStart) + tool.linePrefix + value.slice(lineStart))
+        requestAnimationFrame(() => {
+          el.focus()
+          el.setSelectionRange(start + tool.linePrefix!.length, start + tool.linePrefix!.length)
+        })
+      }
+      return
+    }
+
+    const before = tool.before
+    const after = tool.after ?? ''
+    const ph = tool.placeholder ?? ''
     const selected = value.slice(start, end)
-    const insertion = selected ? `${before}${selected}${after}` : `${before}${placeholderText}${after}`
-    const next = value.slice(0, start) + insertion + value.slice(end)
-    onChange(next)
-    // Restore cursor after React re-render
+    const insertion = selected ? `${before}${selected}${after}` : `${before}${ph}${after}`
+    onChange(value.slice(0, start) + insertion + value.slice(end))
     requestAnimationFrame(() => {
       el.focus()
       const cursor = selected
         ? start + before.length + selected.length + after.length
-        : start + before.length + placeholderText.length
+        : start + before.length + ph.length
       el.setSelectionRange(cursor, cursor)
     })
   }
 
-  function insertLinePrefix(prefix: string) {
-    const el = ref.current
-    if (!el) return
-    const start = el.selectionStart
-    const lineStart = value.lastIndexOf('\n', start - 1) + 1
-    const alreadyHas = value.slice(lineStart).startsWith(prefix)
-    if (alreadyHas) {
-      const next = value.slice(0, lineStart) + value.slice(lineStart + prefix.length)
-      onChange(next)
-    } else {
-      const next = value.slice(0, lineStart) + prefix + value.slice(lineStart)
-      onChange(next)
-      requestAnimationFrame(() => {
-        el.focus()
-        el.setSelectionRange(start + prefix.length, start + prefix.length)
-      })
-    }
-  }
-
-  const tools = [
-    { icon: Bold,         label: 'Negrita',        action: () => insertAtCursor('**', '**', 'texto') },
-    { icon: Italic,       label: 'Cursiva',         action: () => insertAtCursor('*', '*', 'texto') },
-    { icon: List,         label: 'Lista',           action: () => insertLinePrefix('- ') },
-    { icon: ListOrdered,  label: 'Lista numerada',  action: () => insertLinePrefix('1. ') },
-    { icon: Minus,        label: 'Separador',       action: () => insertAtCursor('\n---\n', '', '') },
-  ]
-
   return (
     <div className={cn('border border-border bg-card', className)}>
-      {/* Toolbar */}
       <div className="flex items-center gap-0.5 px-2 py-1.5 border-b border-border/50">
-        {tools.map(({ icon: Icon, label, action }) => (
-          <button
-            key={label}
-            type="button"
-            title={label}
-            onMouseDown={e => { e.preventDefault(); action() }}
-            disabled={disabled}
-            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors disabled:opacity-30"
-          >
-            <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
-          </button>
-        ))}
+        {TOOLS.map((tool) => {
+          const Icon = tool.icon
+          return (
+            <button
+              key={tool.label}
+              type="button"
+              title={tool.label}
+              onMouseDown={e => { e.preventDefault(); applyTool(tool) }}
+              disabled={disabled}
+              className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors disabled:opacity-30"
+            >
+              <Icon className="h-3.5 w-3.5" strokeWidth={1.5} />
+            </button>
+          )
+        })}
         <span className="ml-auto font-mono text-[9px] text-muted-foreground/30 uppercase tracking-widest pr-1">
           markdown
         </span>
       </div>
-      {/* Textarea */}
       <textarea
         ref={ref}
         value={value}

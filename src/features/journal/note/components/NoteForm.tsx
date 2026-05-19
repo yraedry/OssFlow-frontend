@@ -23,8 +23,9 @@ type NoteFormProps = {
 export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) {
   const [tags, setTags] = useState<string[]>(defaultValues?.tags ?? [])
   const [tagInput, setTagInput] = useState('')
+  const [bodyMarkdown, setBodyMarkdown] = useState(defaultValues?.bodyMarkdown ?? '')
 
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<NoteFormValues>({
+  const { register, handleSubmit, formState: { errors } } = useForm<NoteFormValues>({
     resolver: zodResolver(noteFormSchema),
     defaultValues: {
       title: defaultValues?.title ?? '',
@@ -45,7 +46,7 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
   }
 
   return (
-    <form onSubmit={handleSubmit((data) => onSubmit({ ...data, tags }))} className="space-y-4">
+    <form onSubmit={handleSubmit((data) => onSubmit({ ...data, bodyMarkdown, tags }))} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="title">Título</Label>
         <Input id="title" {...register('title')} placeholder="Notas sobre guardia cerrada..." />
@@ -55,8 +56,8 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
       <div className="space-y-2">
         <Label htmlFor="bodyMarkdown">Contenido</Label>
         <MarkdownEditor
-          value={watch('bodyMarkdown')}
-          onChange={v => setValue('bodyMarkdown', v, { shouldValidate: true })}
+          value={bodyMarkdown}
+          onChange={setBodyMarkdown}
           placeholder="# Título&#10;&#10;Escribe aquí..."
           rows={8}
         />
