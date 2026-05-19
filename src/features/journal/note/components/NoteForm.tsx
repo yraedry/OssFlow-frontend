@@ -5,8 +5,8 @@ import { X } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
-import { Textarea } from '@/shared/components/ui/textarea'
 import { Badge } from '@/shared/components/ui/badge'
+import { MarkdownEditor } from '@/shared/components/ui/MarkdownEditor'
 import { z } from 'zod'
 import { createNoteSchema } from '../schemas'
 import type { Note } from '../types'
@@ -24,7 +24,7 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
   const [tags, setTags] = useState<string[]>(defaultValues?.tags ?? [])
   const [tagInput, setTagInput] = useState('')
 
-  const { register, handleSubmit, formState: { errors } } = useForm<NoteFormValues>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<NoteFormValues>({
     resolver: zodResolver(noteFormSchema),
     defaultValues: {
       title: defaultValues?.title ?? '',
@@ -53,8 +53,13 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="bodyMarkdown">Contenido (Markdown)</Label>
-        <Textarea id="bodyMarkdown" {...register('bodyMarkdown')} rows={8} placeholder="# Título&#10;&#10;Escribe aquí..." />
+        <Label htmlFor="bodyMarkdown">Contenido</Label>
+        <MarkdownEditor
+          value={watch('bodyMarkdown')}
+          onChange={v => setValue('bodyMarkdown', v, { shouldValidate: true })}
+          placeholder="# Título&#10;&#10;Escribe aquí..."
+          rows={8}
+        />
         {errors.bodyMarkdown && <p className="text-sm text-destructive">{errors.bodyMarkdown.message}</p>}
       </div>
 

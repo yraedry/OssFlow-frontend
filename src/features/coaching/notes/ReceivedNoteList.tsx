@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import ReactMarkdown from 'react-markdown'
 import { useReceivedNotes } from '../hooks'
 import type { Note } from '../types'
 import { Spinner } from '@/shared/components/ui/spinner'
@@ -27,9 +28,9 @@ function ReceivedNoteCard({ note, index }: { note: Note; index: number }) {
         {/* Content */}
         <div className="flex-1 min-w-0 px-4 py-3.5">
           <div className="flex items-start justify-between gap-3 mb-2">
-            <p className={`text-sm leading-snug line-clamp-2 flex-1 ${isUnread ? 'font-semibold text-foreground' : 'text-foreground/80'}`}>
-              {note.body.substring(0, 140)}{note.body.length > 140 ? '…' : ''}
-            </p>
+            <div className={`text-sm leading-snug line-clamp-2 flex-1 [&_strong]:font-semibold [&_em]:italic [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_li]:my-0 [&_p]:inline ${isUnread ? 'font-semibold text-foreground' : 'text-foreground/80'}`}>
+              <ReactMarkdown>{note.body.substring(0, 140) + (note.body.length > 140 ? '…' : '')}</ReactMarkdown>
+            </div>
             {isUnread && (
               <span className="shrink-0 font-mono text-[8px] uppercase tracking-[0.15em] border border-foreground px-1.5 py-0.5 text-foreground mt-0.5">
                 Nueva

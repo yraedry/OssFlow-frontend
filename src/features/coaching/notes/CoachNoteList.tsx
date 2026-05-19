@@ -1,4 +1,5 @@
 import { Trash2, X } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { useCoachNotes, useDeleteNote } from '../hooks'
 import type { Note } from '../types'
 import { Spinner } from '@/shared/components/ui/spinner'
@@ -44,7 +45,9 @@ function NoteDetailModal({ note, onClose, onDelete }: {
         <div className="px-6 py-5 flex flex-col gap-4">
           <div>
             <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mb-1.5">Contenido</p>
-            <p className="text-sm leading-relaxed text-foreground whitespace-pre-wrap">{note.body}</p>
+            <div className="text-sm leading-relaxed text-foreground [&_strong]:font-semibold [&_em]:italic [&_ul]:list-disc [&_ul]:pl-4 [&_ol]:list-decimal [&_ol]:pl-4 [&_li]:my-0.5 [&_p]:mb-1 [&_blockquote]:border-l-2 [&_blockquote]:border-border [&_blockquote]:pl-3 [&_blockquote]:text-muted-foreground">
+              <ReactMarkdown>{note.body}</ReactMarkdown>
+            </div>
           </div>
 
           {note.techniqueFamily && (
@@ -104,9 +107,9 @@ function CoachNoteCard({ note, athleteId }: { note: Note; athleteId: number }) {
         style={{ borderLeft: '3px solid var(--color-orange-500, #f97316)' }}
       >
         <div className="flex items-start justify-between gap-3">
-          <p className={cn('text-sm flex-1 leading-snug line-clamp-2', note.deleted && 'line-through text-muted-foreground')}>
-            {note.body}
-          </p>
+          <div className={cn('text-sm flex-1 leading-snug line-clamp-2 [&_strong]:font-semibold [&_em]:italic [&_ul]:list-disc [&_ul]:pl-4 [&_p]:inline', note.deleted && 'line-through text-muted-foreground')}>
+            <ReactMarkdown>{note.body.substring(0, 120) + (note.body.length > 120 ? '…' : '')}</ReactMarkdown>
+          </div>
           {note.deleted ? (
             <span className="shrink-0 text-[10px] font-mono uppercase tracking-wide text-muted-foreground/40 border border-dashed border-border/30 px-2 py-0.5">
               Borrada

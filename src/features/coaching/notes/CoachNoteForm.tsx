@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useCreateNote } from '../hooks'
 import { TechniqueFamilyPicker } from '../components/TechniqueFamilyPicker'
 import { Spinner } from '@/shared/components/ui/spinner'
+import { MarkdownEditor } from '@/shared/components/ui/MarkdownEditor'
 
 type Props = { athleteId: number }
 
@@ -20,13 +21,12 @@ export function CoachNoteForm({ athleteId }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3 border border-border bg-card p-4 mb-4">
-      <textarea
+    <form onSubmit={handleSubmit} className="space-y-3 mb-4">
+      <MarkdownEditor
         value={body}
-        onChange={e => setBody(e.target.value)}
-        placeholder="Escribe una nota para el atleta... (soporta markdown)"
+        onChange={setBody}
+        placeholder="Escribe una nota para el atleta..."
         rows={4}
-        className="w-full bg-transparent text-sm resize-none outline-none placeholder:text-muted-foreground/50 font-mono"
         disabled={create.isPending}
       />
       <TechniqueFamilyPicker

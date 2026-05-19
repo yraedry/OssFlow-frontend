@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { MarkdownEditor } from '@/shared/components/ui/MarkdownEditor'
 import { useCreatePrivateSession, useUpdatePrivateSession } from './hooks'
 import { TechniqueFamilyPicker } from '@/features/coaching/components/TechniqueFamilyPicker'
 import type { PrivateSession, CreatePrivateSessionPayload, UpdatePrivateSessionPayload } from './types'
@@ -304,12 +305,12 @@ export function PrivateSessionForm({ mode, onClose }: Props) {
             <label className="block font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
               Notas (opcional)
             </label>
-            <textarea
-              rows={3}
+            <MarkdownEditor
               value={notes}
-              onChange={e => setNotes(e.target.value)}
+              onChange={setNotes}
               placeholder="Qué se trabajó, puntos a mejorar..."
-              className="w-full border border-border bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-foreground"
+              rows={3}
+              disabled={isPending}
             />
           </div>
 
