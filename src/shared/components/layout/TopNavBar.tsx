@@ -39,6 +39,17 @@ const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[]
     { to: '/planificacion/plantilla', label: 'Plantilla' },
     { to: '/planificacion/rutinas',   label: 'Rutinas' },
   ],
+  gimnasio: [
+    { to: '/gimnasio/alumnos',       label: 'Alumnos' },
+    { to: '/gimnasio/planificacion', label: 'Planificación' },
+    { to: '/gimnasio/gimnasios',     label: 'Mis gimnasios' },
+  ],
+  maestro: [
+    { to: '/maestro/notas',          label: 'Notas' },
+    { to: '/maestro/planificacion',  label: 'Planificación' },
+    { to: '/maestro/clases',         label: 'Clases' },
+    { to: '/maestro/tecnicas',       label: 'Técnicas' },
+  ],
 }
 
 function getSection(pathname: string): string | null {
@@ -51,6 +62,10 @@ function getSection(pathname: string): string | null {
     return 'planificacion'
   if (pathname.startsWith('/analisis'))
     return 'analisis'
+  if (pathname.startsWith('/gimnasio'))
+    return 'gimnasio'
+  if (pathname.startsWith('/maestro'))
+    return 'maestro'
   return null
 }
 
@@ -128,14 +143,12 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
           })}
           {profile?.role === 'ATHLETE_COACH' && (
             <NavLink
-              to="/gimnasio"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center px-4 border-b-2 transition-colors h-full shrink-0',
-                  'text-muted-foreground hover:text-foreground',
-                  isActive ? 'border-foreground text-foreground' : 'border-transparent',
-                )
-              }
+              to="/gimnasio/alumnos"
+              className={cn(
+                'flex items-center px-4 border-b-2 transition-colors h-full shrink-0',
+                'text-muted-foreground hover:text-foreground',
+                activeSection === 'gimnasio' ? 'border-foreground text-foreground' : 'border-transparent',
+              )}
               style={{ ...MONO, fontSize: '12px' }}
             >
               Gimnasio
@@ -143,14 +156,12 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
           )}
           {hasCoach && (
             <NavLink
-              to="/maestro"
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-1.5 px-4 border-b-2 transition-colors h-full shrink-0',
-                  'text-muted-foreground hover:text-foreground',
-                  isActive ? 'border-foreground text-foreground' : 'border-transparent',
-                )
-              }
+              to="/maestro/notas"
+              className={cn(
+                'flex items-center gap-1.5 px-4 border-b-2 transition-colors h-full shrink-0',
+                'text-muted-foreground hover:text-foreground',
+                activeSection === 'maestro' ? 'border-foreground text-foreground' : 'border-transparent',
+              )}
               style={{ ...MONO, fontSize: '12px' }}
             >
               Coaching
