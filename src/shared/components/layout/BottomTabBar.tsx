@@ -130,6 +130,7 @@ export function BottomTabBar() {
       {drawerOpen && (
       <div
         className="fixed left-0 right-0 z-50 bg-background border-t border-border"
+        onClick={e => e.stopPropagation()}
         style={{
           bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))',
           maxHeight: '80vh',
