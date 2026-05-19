@@ -122,7 +122,7 @@ export function BottomTabBar() {
       {drawerOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-          onClick={() => setDrawerOpen(false)}
+          onMouseDown={() => setDrawerOpen(false)}
         />
       )}
 
@@ -130,6 +130,7 @@ export function BottomTabBar() {
       {drawerOpen && (
       <div
         className="fixed left-0 right-0 z-50 bg-background border-t border-border"
+        onMouseDown={e => e.stopPropagation()}
         onClick={e => e.stopPropagation()}
         style={{
           bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))',
