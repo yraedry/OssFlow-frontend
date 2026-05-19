@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import { FileText, BookOpen, Type, ChevronDown, ChevronUp } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { FileText, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { useReceivedStudyPlans } from './hooks'
 import { Spinner } from '@/shared/components/ui/spinner'
-import type { StudyPlan, StudyBlock } from './types'
+import type { StudyPlan } from './types'
 
 export function ReceivedStudyPlanList() {
   const { data: plans, isLoading } = useReceivedStudyPlans()
@@ -23,78 +23,43 @@ export function ReceivedStudyPlanList() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 mb-6">
-      {plans.map(plan => (
-        <PlanCard key={plan.id} plan={plan} />
+    <div className="space-y-2">
+      {plans.map((plan, i) => (
+        <PlanCard key={plan.id} plan={plan} index={i} />
       ))}
     </div>
   )
 }
 
-function PlanCard({ plan }: { plan: StudyPlan }) {
-  const [expanded, setExpanded] = useState(false)
+function PlanCard({ plan, index }: { plan: StudyPlan; index: number }) {
+  const navigate = useNavigate()
 
   return (
-    <div className="border border-border bg-card">
-      <button
-        type="button"
-        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-muted/30 transition-colors text-left"
-        onClick={() => setExpanded(v => !v)}
-      >
-        <FileText className="h-4 w-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold truncate">{plan.title}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            {format(new Date(plan.createdAt), 'd MMM yyyy', { locale: es })}
-            {plan.description && ` · ${plan.description.slice(0, 60)}${plan.description.length > 60 ? '…' : ''}`}
-          </p>
+    <button
+      type="button"
+      onClick={() => navigate(`/maestro/planificacion/${plan.id}`)}
+      className="w-full text-left group transition-colors hover:bg-muted/30 cursor-pointer bg-transparent border-none p-0"
+    >
+      <div className="flex border border-border">
+        <div className="w-12 shrink-0 flex items-start justify-end px-3 pt-4 border-r border-border bg-muted/10">
+          <span className="font-mono text-[9px] text-muted-foreground/40">
+            {String(index + 1).padStart(2, '0')}
+          </span>
         </div>
-        {expanded
-          ? <ChevronUp className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-          : <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.5} />
-        }
-      </button>
-
-      {expanded && (
-        <div className="border-t border-border/50 px-4 py-3 space-y-3">
-          {plan.description && (
-            <p className="text-sm text-muted-foreground">{plan.description}</p>
-          )}
-          {(plan.blocks ?? []).map((block, i) => (
-            <BlockView key={block.id} block={block} index={i} />
-          ))}
-          {!plan.blocks?.length && (
-            <p className="text-sm text-muted-foreground italic">Este plan no tiene bloques todavía.</p>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function BlockView({ block, index }: { block: StudyBlock; index: number }) {
-  return (
-    <div>
-      <p className="text-xs font-mono uppercase tracking-widest text-muted-foreground mb-1.5">
-        Bloque {index + 1}{block.title ? ` · ${block.title}` : ''}
-      </p>
-      <div className="space-y-1 ml-2">
-        {(block.items ?? []).map(item => (
-          <div key={item.id} className="flex items-start gap-2 text-sm py-1">
-            {item.itemType === 'TECHNIQUE' ? (
-              <BookOpen className="h-3.5 w-3.5 text-orange-400 mt-0.5 shrink-0" strokeWidth={1.5} />
-            ) : (
-              <Type className="h-3.5 w-3.5 text-muted-foreground/40 mt-0.5 shrink-0" strokeWidth={1.5} />
-            )}
-            <span className={item.itemType === 'TECHNIQUE' ? 'font-medium' : 'whitespace-pre-wrap text-muted-foreground'}>
-              {item.itemType === 'TECHNIQUE' ? item.techniqueName : item.content}
-            </span>
+        <div className="flex-1 min-w-0 px-4 py-3.5 flex items-center gap-3">
+          <FileText className="h-4 w-4 text-muted-foreground shrink-0" strokeWidth={1.5} />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold truncate">{plan.title}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5 font-mono">
+              {format(new Date(plan.createdAt), 'd MMM yyyy', { locale: es })}
+              {plan.blocks?.length ? ` · ${plan.blocks.length} bloque${plan.blocks.length !== 1 ? 's' : ''}` : ''}
+            </p>
           </div>
-        ))}
-        {!block.items?.length && (
-          <p className="text-xs text-muted-foreground/70 italic">Sin items</p>
-        )}
+        </div>
+        <div className="w-8 shrink-0 flex items-center justify-center border-l border-border">
+          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/30 group-hover:text-foreground transition-colors" strokeWidth={1.5} />
+        </div>
       </div>
-    </div>
+    </button>
   )
 }

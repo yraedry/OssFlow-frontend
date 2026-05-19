@@ -48,6 +48,7 @@ import { MaestroPlanificacionPage } from '@/pages/maestro/MaestroPlanificacionPa
 import { MaestroClasesPage } from '@/pages/maestro/MaestroClasesPage'
 import { MaestroTecnicasPage } from '@/pages/maestro/MaestroTecnicasPage'
 import { NoteDetailPage } from '@/pages/maestro/NoteDetailPage'
+import { ReceivedStudyPlanDetailPage } from '@/pages/maestro/ReceivedStudyPlanDetailPage'
 import { Spinner } from '@/shared/components/ui/spinner'
 
 // Auth pages
@@ -168,6 +169,7 @@ export const router = createBrowserRouter([
             ],
           },
           { path: 'maestro/notas/:noteId', element: <NoteDetailPage /> },
+          { path: 'maestro/planificacion/:planId', element: <ReceivedStudyPlanDetailPage /> },
 
           // Redirecciones de rutas antiguas (compatibilidad)
           { path: 'catalog/positions', element: <PositionsPage /> },
