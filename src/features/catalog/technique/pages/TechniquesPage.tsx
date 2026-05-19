@@ -13,9 +13,8 @@ import { useTechniques, useCreateTechnique, useUpdateTechnique, useDeleteTechniq
 import type { Technique, TechniqueCategory } from '../types'
 import type { CreateTechniqueForm } from '../schemas'
 
-const CATEGORY_LABELS: Record<TechniqueCategory, string> = {
+const CATEGORY_LABELS: Partial<Record<TechniqueCategory, string>> = {
   SUBMISSION: 'Sumisión',
-  SWEEP:      'Barrida',
   PASS:       'Pasaje',
   TAKEDOWN:   'Derribo',
   ESCAPE:     'Escapada',
