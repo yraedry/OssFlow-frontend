@@ -153,36 +153,6 @@ export function BottomTabBar() {
         </div>
 
         <div className="py-2">
-          {/* Perfil */}
-          <button
-            type="button"
-            onClick={() => { navigate('/profile'); setDrawerOpen(false) }}
-            className={cn(
-              'w-full flex items-center gap-3 px-5 py-3 transition-colors',
-              pathname.startsWith('/profile')
-                ? 'text-foreground bg-foreground/[0.06]'
-                : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]',
-            )}
-          >
-            <User className="h-4 w-4 shrink-0" strokeWidth={1.5} />
-            <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Perfil</span>
-          </button>
-
-          {/* Configuración */}
-          <button
-            type="button"
-            onClick={() => { navigate('/configuracion'); setDrawerOpen(false) }}
-            className={cn(
-              'w-full flex items-center gap-3 px-5 py-3 transition-colors',
-              pathname.startsWith('/configuracion')
-                ? 'text-foreground bg-foreground/[0.06]'
-                : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]',
-            )}
-          >
-            <Settings className="h-4 w-4 shrink-0" strokeWidth={1.5} />
-            <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Configuración</span>
-          </button>
-
           {/* Gimnasio — solo si es coach */}
           {isCoach && (
             <button
@@ -223,6 +193,36 @@ export function BottomTabBar() {
               )}
             </button>
           )}
+
+          {/* Perfil */}
+          <button
+            type="button"
+            onClick={() => { navigate('/profile'); setDrawerOpen(false) }}
+            className={cn(
+              'w-full flex items-center gap-3 px-5 py-3 transition-colors',
+              pathname.startsWith('/profile')
+                ? 'text-foreground bg-foreground/[0.06]'
+                : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]',
+            )}
+          >
+            <User className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+            <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Perfil</span>
+          </button>
+
+          {/* Configuración */}
+          <button
+            type="button"
+            onClick={() => { navigate('/configuracion'); setDrawerOpen(false) }}
+            className={cn(
+              'w-full flex items-center gap-3 px-5 py-3 transition-colors',
+              pathname.startsWith('/configuracion')
+                ? 'text-foreground bg-foreground/[0.06]'
+                : 'text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]',
+            )}
+          >
+            <Settings className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+            <span style={{ ...SUBNAV_MONO, textTransform: 'uppercase' as const }}>Configuración</span>
+          </button>
 
           {/* Notificaciones — acordeón inline */}
           <div className="border-t border-border">
