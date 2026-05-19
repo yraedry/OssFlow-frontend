@@ -108,7 +108,7 @@ export function BottomTabBar() {
   // Notificaciones a mostrar: snapshot mientras panel abierto, live data en otro caso
   const displayedNotifications = notifOpen && notifSnapshot !== undefined ? notifSnapshot : notifications
 
-  const notifUnread = notifOpen ? 0 : (notifications?.length ?? 0)
+  const notifUnread = notifOpen ? 0 : (notifications?.filter(n => !n.read).length ?? 0)
   const moreBadge = (unreadCount ?? 0) + notifUnread > 0 ? (unreadCount ?? 0) + notifUnread : undefined
 
   // Determine if «Más» is currently active (user is in /maestro, /gimnasio, /profile, /configuracion)
@@ -234,7 +234,7 @@ export function BottomTabBar() {
                   type NotifData = typeof notifications
                   const cached = qc.getQueryData<NotifData>(COACHING_KEYS.notifications)
                   setNotifSnapshot(cached ?? [])
-                  if ((cached?.length ?? 0) > 0) {
+                  if ((cached?.filter(n => !n.read).length ?? 0) > 0) {
                     markRead.mutate()
                   }
                 } else {
