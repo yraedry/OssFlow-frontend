@@ -25,13 +25,18 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
   const [tagInput, setTagInput] = useState('')
   const [bodyMarkdown, setBodyMarkdown] = useState(defaultValues?.bodyMarkdown ?? '')
 
-  const { register, handleSubmit, formState: { errors } } = useForm<NoteFormValues>({
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<NoteFormValues>({
     resolver: zodResolver(noteFormSchema),
     defaultValues: {
       title: defaultValues?.title ?? '',
       bodyMarkdown: defaultValues?.bodyMarkdown ?? '',
     },
   })
+
+  function handleBodyChange(v: string) {
+    setBodyMarkdown(v)
+    setValue('bodyMarkdown', v, { shouldValidate: true })
+  }
 
   const addTag = () => {
     const t = tagInput.trim().toLowerCase()
@@ -57,7 +62,7 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
         <Label htmlFor="bodyMarkdown">Contenido</Label>
         <MarkdownEditor
           value={bodyMarkdown}
-          onChange={setBodyMarkdown}
+          onChange={handleBodyChange}
           placeholder="# Título&#10;&#10;Escribe aquí..."
           rows={8}
         />
