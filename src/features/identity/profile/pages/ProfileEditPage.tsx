@@ -183,7 +183,7 @@ export function ProfileEditPage() {
       beltSince: data.beltSince || undefined,
       ageCategory: data.ageCategory || null,
       stripes: data.stripes ?? null,
-      weight: data.weight ?? null,
+      weight: (data.weight != null && !isNaN(data.weight)) ? data.weight : null,
     }
     if (profile) {
       updateProfile.mutate(payload, { onSuccess: () => navigate('/profile') })

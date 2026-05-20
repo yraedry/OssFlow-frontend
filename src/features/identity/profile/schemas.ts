@@ -10,10 +10,7 @@ export const updateProfileSchema = z.object({
   beltSince: z.string().optional(),
   ageCategory: z.string().nullable().optional(),
   stripes: z.number().int().min(0).max(4).nullable().optional(),
-  weight: z.preprocess(
-    v => (v === '' || v === null || (typeof v === 'number' && isNaN(v)) ? null : v),
-    z.number().min(30, 'Mínimo 30 kg').max(180, 'Máximo 180 kg').nullable().optional(),
-  ),
+  weight: z.number().min(30, 'Mínimo 30 kg').max(180, 'Máximo 180 kg').nullable().optional(),
 })
 
 export type UpdateProfileForm = z.infer<typeof updateProfileSchema>
