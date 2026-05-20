@@ -5,8 +5,8 @@ import { X } from 'lucide-react'
 import { Button } from '@/shared/components/ui/button'
 import { Input } from '@/shared/components/ui/input'
 import { Label } from '@/shared/components/ui/label'
-import { Textarea } from '@/shared/components/ui/textarea'
 import { Badge } from '@/shared/components/ui/badge'
+import { MarkdownEditor } from '@/shared/components/ui/MarkdownEditor'
 import { z } from 'zod'
 import { createNoteSchema } from '../schemas'
 import type { Note } from '../types'
@@ -23,6 +23,7 @@ type NoteFormProps = {
 export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) {
   const [tags, setTags] = useState<string[]>(defaultValues?.tags ?? [])
   const [tagInput, setTagInput] = useState('')
+  const [bodyMarkdown, setBodyMarkdown] = useState(defaultValues?.bodyMarkdown ?? '')
 
   const { register, handleSubmit, formState: { errors } } = useForm<NoteFormValues>({
     resolver: zodResolver(noteFormSchema),
@@ -45,7 +46,7 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
   }
 
   return (
-    <form onSubmit={handleSubmit((data) => onSubmit({ ...data, tags }))} className="space-y-4">
+    <form onSubmit={handleSubmit((data) => onSubmit({ ...data, bodyMarkdown, tags }))} className="space-y-4">
       <div className="space-y-2">
         <Label htmlFor="title">Título</Label>
         <Input id="title" {...register('title')} placeholder="Notas sobre guardia cerrada..." />
@@ -53,8 +54,13 @@ export function NoteForm({ defaultValues, onSubmit, isPending }: NoteFormProps) 
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="bodyMarkdown">Contenido (Markdown)</Label>
-        <Textarea id="bodyMarkdown" {...register('bodyMarkdown')} rows={8} placeholder="# Título&#10;&#10;Escribe aquí..." />
+        <Label htmlFor="bodyMarkdown">Contenido</Label>
+        <MarkdownEditor
+          value={bodyMarkdown}
+          onChange={setBodyMarkdown}
+          placeholder="# Título&#10;&#10;Escribe aquí..."
+          rows={8}
+        />
         {errors.bodyMarkdown && <p className="text-sm text-destructive">{errors.bodyMarkdown.message}</p>}
       </div>
 

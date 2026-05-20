@@ -1,0 +1,127 @@
+export type InvitationCode = {
+  code: string
+  expiresAt: string
+  usedCount: number
+}
+
+export type CoachAthleteListItem = {
+  athleteId: number
+  displayName: string
+  currentBelt: string
+  linkedAt: string
+}
+
+export type CoachListItem = {
+  coachId: number
+  displayName: string
+  academy: string | null
+}
+
+export type ActiveInjuryItem = {
+  bodyPart: string
+  severity: string
+}
+
+export type CompetitionItem = {
+  name: string
+  date: string
+  result: string | null
+}
+
+export type AgeCategory = 'JUVENILE' | 'ADULT' | 'MASTER_1' | 'MASTER_2' | 'MASTER_3' | 'MASTER_4' | null
+
+export type AthleteSummary = {
+  athleteId: number
+  displayName: string
+  currentBelt: string
+  daysInBelt: number
+  academy: string | null
+  ageCategory: AgeCategory
+  stripes: number | null
+  weight: number | null
+  preferredModality: 'GI' | 'NOGI' | 'BOTH' | null
+  activeInjuries: ActiveInjuryItem[]
+  recentCompetitions: CompetitionItem[]
+  lastSessionDate: string | null
+  daysSinceLastSession: number
+}
+
+export type CoachingNotification = {
+  id: number
+  type: 'ATHLETE_JOINED' | 'ATHLETE_LEFT' | 'COACH_REMOVED_YOU' | 'NOTE_SENT' | 'RECOMMENDATION_SENT'
+  payload: string
+  read: boolean
+  createdAt: string
+}
+
+export type TechniqueFamily = {
+  value: string
+  label: string
+}
+
+export type ObservationTone = 'POSITIVE' | 'NEGATIVE' | 'NEUTRAL'
+
+export type Observation = {
+  id: number
+  athleteId: number
+  body: string
+  tone: ObservationTone
+  techniqueFamily: string | null
+  labelledBy: 'KEYWORD' | 'OPENAI' | 'MANUAL' | null
+  observedAt: string
+}
+
+export type RadarPoint = {
+  family: string
+  score: number
+}
+
+export type CreateObservationPayload = {
+  athleteId: number
+  body: string
+  tone: ObservationTone
+  techniqueFamily?: string
+}
+
+export type UpdateObservationPayload = {
+  body: string
+  tone: ObservationTone
+  techniqueFamily?: string | null
+}
+
+export type Note = {
+  id: number
+  coachId: number
+  athleteId: number
+  body: string
+  techniqueFamily: string | null
+  deleted: boolean
+  read: boolean
+  createdAt: string
+}
+
+export type CreateNotePayload = {
+  athleteId: number
+  body: string
+  techniqueFamily?: string
+}
+
+export type RecommendationStatus = 'PENDING' | 'ACCEPTED' | 'DISMISSED' | 'CANCELLED'
+
+export type TechniqueRecommendation = {
+  id: number
+  techniqueId: number
+  techniqueName: string
+  techniqueFamily: string | null
+  note: string | null
+  status: RecommendationStatus
+  coachName: string | null
+  recommendedAt: string
+  resolvedAt: string | null
+}
+
+export type CreateRecommendationPayload = {
+  athleteId: number
+  techniqueId: number
+  note?: string
+}

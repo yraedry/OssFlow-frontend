@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -8,6 +9,7 @@ import { AuthLayout, AuthCard, AuthField, AuthDivider, AuthLink } from '../compo
 import { Input } from '@/shared/components/ui/input'
 import { Button } from '@/shared/components/ui/button'
 import { MONO } from '@/shared/lib/typography'
+import { ApiClientError } from '@/shared/api/client'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -27,9 +29,19 @@ export function LoginPage() {
   const [searchParams] = useSearchParams()
   const errorCode = searchParams.get('error')
   const errorMessage = errorCode ? OAUTH_ERROR_MESSAGES[errorCode] ?? null : null
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null)
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
 
-  const onSubmit = (data: FormData) => loginMutation.mutate(data)
+  const onSubmit = (data: FormData) => {
+    setUnverifiedEmail(null)
+    loginMutation.mutate(data, {
+      onError: (err) => {
+        if (err instanceof ApiClientError && err.apiError?.code === 'EMAIL_NOT_VERIFIED') {
+          setUnverifiedEmail(data.email)
+        }
+      },
+    })
+  }
 
   return (
     <AuthLayout title="Iniciar sesión" subtitle="Accede a tu cuenta">
@@ -37,6 +49,17 @@ export function LoginPage() {
         {errorMessage && (
           <div role="alert" className="border border-destructive/30 bg-destructive/10 text-destructive text-xs px-3 py-2">
             {errorMessage}
+          </div>
+        )}
+        {unverifiedEmail && (
+          <div role="alert" className="border border-amber-500/30 bg-amber-500/10 rounded p-3 space-y-1">
+            <p className="text-amber-400 text-xs font-semibold uppercase tracking-widest" style={MONO}>
+              Email sin verificar
+            </p>
+            <p className="text-amber-300/80 text-xs" style={MONO}>
+              Revisa tu bandeja de entrada y haz clic en el enlace de verificación antes de iniciar sesión.
+            </p>
+            <p className="text-amber-300/60 text-[10px]" style={MONO}>{unverifiedEmail}</p>
           </div>
         )}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>

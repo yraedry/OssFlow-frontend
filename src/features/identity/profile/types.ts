@@ -1,3 +1,5 @@
+export type AccountRole = 'ATHLETE' | 'ATHLETE_COACH'
+
 export type ProfileFederationEntry = {
   federationId: number
   isPrimary: boolean
@@ -14,8 +16,12 @@ export type UserProfile = {
   beltSince?: string
   academy?: string
   preferredModality: string
+  ageCategory?: string | null
+  stripes?: 0 | 1 | 2 | 3 | 4 | null
+  weight?: number | null
   onboardingCompleted: boolean
   federations: ProfileFederationEntry[]
+  role: AccountRole
   createdAt: string
   updatedAt: string
   version: number
@@ -30,15 +36,9 @@ export type CreateProfileRequest = {
   beltSince?: string
   academy?: string
   preferredModality: string
+  ageCategory?: string | null
+  stripes?: number | null
+  weight?: number | null
 }
 
-export type UpdateProfileRequest = {
-  displayName: string
-  firstName?: string
-  lastName?: string
-  alias?: string
-  currentBelt: string
-  beltSince?: string
-  academy?: string
-  preferredModality: string
-}
+export type UpdateProfileRequest = CreateProfileRequest

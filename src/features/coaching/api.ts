@@ -1,0 +1,125 @@
+import { apiClient } from '@/shared/api/client'
+import type {
+  InvitationCode, CoachAthleteListItem, AthleteSummary, CoachListItem, CoachingNotification,
+  TechniqueFamily, Observation, RadarPoint, CreateObservationPayload, UpdateObservationPayload,
+  Note, CreateNotePayload,
+  TechniqueRecommendation, CreateRecommendationPayload,
+} from './types'
+import type { AccountRole } from '@/features/identity/profile/types'
+
+export const coachingApi = {
+  generateInvitation(): Promise<InvitationCode> {
+    return apiClient.post('coaching/invitations').json<InvitationCode>()
+  },
+
+  getActiveInvitation(): Promise<InvitationCode> {
+    return apiClient.get('coaching/invitations/active').json<InvitationCode>()
+  },
+
+  revokeInvitation(): Promise<void> {
+    return apiClient.delete('coaching/invitations/active').then(() => undefined)
+  },
+
+  redeemCode(code: string): Promise<void> {
+    return apiClient.post('coaching/memberships/redeem', { json: { code } }).json<void>()
+  },
+
+  removeAthlete(athleteId: number): Promise<void> {
+    return apiClient.delete(`coaching/memberships/${athleteId}`).json<void>()
+  },
+
+  leaveCoach(coachId: number): Promise<void> {
+    return apiClient.delete(`coaching/memberships/leave/${coachId}`).json<void>()
+  },
+
+  getAthletes(): Promise<CoachAthleteListItem[]> {
+    return apiClient.get('coaching/athletes').json<CoachAthleteListItem[]>()
+  },
+
+  getAthleteSummary(athleteId: number): Promise<AthleteSummary> {
+    return apiClient.get(`coaching/athletes/${athleteId}/summary`).json<AthleteSummary>()
+  },
+
+  getCoaches(): Promise<CoachListItem[]> {
+    return apiClient.get('coaching/coaches').json<CoachListItem[]>()
+  },
+
+  getNotifications(): Promise<CoachingNotification[]> {
+    return apiClient.get('coaching/notifications').json<CoachingNotification[]>()
+  },
+
+  markNotificationsRead(): Promise<void> {
+    return apiClient.patch('coaching/notifications/read').json<void>()
+  },
+
+  changeRole(role: AccountRole): Promise<void> {
+    return apiClient.patch('me/role', { json: { role } }).then(() => undefined)
+  },
+
+  getTechniqueFamilies(): Promise<TechniqueFamily[]> {
+    return apiClient.get('catalog/techniques/families').json<TechniqueFamily[]>()
+  },
+
+  getObservations(athleteId: number): Promise<Observation[]> {
+    return apiClient.get(`coaching/observations/athlete/${athleteId}`).json<Observation[]>()
+  },
+
+  getObservationRadar(athleteId: number): Promise<RadarPoint[]> {
+    return apiClient.get(`coaching/observations/athlete/${athleteId}/radar`).json<RadarPoint[]>()
+  },
+
+  createObservation(payload: CreateObservationPayload): Promise<Observation> {
+    return apiClient.post('coaching/observations', { json: payload }).json<Observation>()
+  },
+
+  updateObservation(id: number, payload: UpdateObservationPayload): Promise<Observation> {
+    return apiClient.patch(`coaching/observations/${id}`, { json: payload }).json<Observation>()
+  },
+
+  deleteObservation(id: number): Promise<void> {
+    return apiClient.delete(`coaching/observations/${id}`).then(() => undefined)
+  },
+
+  // Notes
+  getNotesByAthlete(athleteId: number): Promise<Note[]> {
+    return apiClient.get(`coaching/notes/athlete/${athleteId}`).json<Note[]>()
+  },
+  createNote(payload: CreateNotePayload): Promise<Note> {
+    return apiClient.post('coaching/notes', { json: payload }).json<Note>()
+  },
+  deleteNote(id: number): Promise<void> {
+    return apiClient.delete(`coaching/notes/${id}`).then(() => undefined)
+  },
+  getReceivedNotes(): Promise<Note[]> {
+    return apiClient.get('coaching/notes/received').json<Note[]>()
+  },
+  getNoteDetail(id: number): Promise<Note> {
+    return apiClient.get(`coaching/notes/received/${id}`).json<Note>()
+  },
+  markNoteRead(id: number): Promise<void> {
+    return apiClient.patch(`coaching/notes/received/${id}/read`).then(() => undefined)
+  },
+  getNoteUnreadCount(): Promise<number> {
+    return apiClient.get('coaching/notes/received/unread-count').json<number>()
+  },
+
+  // Recommendations
+  getRecommendationsSent(athleteId: number): Promise<TechniqueRecommendation[]> {
+    return apiClient.get(`coaching/recommendations/sent/athlete/${athleteId}`).json<TechniqueRecommendation[]>()
+  },
+  createRecommendation(payload: CreateRecommendationPayload): Promise<TechniqueRecommendation> {
+    return apiClient.post('coaching/recommendations', { json: payload }).json<TechniqueRecommendation>()
+  },
+  cancelRecommendation(id: number): Promise<void> {
+    return apiClient.patch(`coaching/recommendations/${id}/cancel`).then(() => undefined)
+  },
+  getRecommendationsReceived(): Promise<TechniqueRecommendation[]> {
+    return apiClient.get('coaching/recommendations/received').json<TechniqueRecommendation[]>()
+  },
+  acceptRecommendation(id: number): Promise<void> {
+    return apiClient.patch(`coaching/recommendations/${id}/accept`).then(() => undefined)
+  },
+  dismissRecommendation(id: number): Promise<void> {
+    return apiClient.patch(`coaching/recommendations/${id}/dismiss`).then(() => undefined)
+  },
+}

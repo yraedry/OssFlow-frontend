@@ -6,6 +6,8 @@ import { useTheme } from '@/shared/hooks/useTheme'
 import { useProfile } from '@/features/identity/profile/hooks'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
 import { useLogout } from '@/features/auth/hooks'
+import { NotificationBell } from '@/features/coaching/components/NotificationBell'
+import { useCoaches } from '@/features/coaching/hooks'
 
 const PRIMARY_NAV = [
   { to: '/',                    label: 'Inicio',        end: true,  section: null },
@@ -37,6 +39,17 @@ const SUB_NAV: Record<string, { to: string; label: string; matchPaths?: string[]
     { to: '/planificacion/plantilla', label: 'Plantilla' },
     { to: '/planificacion/rutinas',   label: 'Rutinas' },
   ],
+  gimnasio: [
+    { to: '/gimnasio/alumnos',       label: 'Alumnos' },
+    { to: '/gimnasio/planificacion', label: 'Planificación' },
+    { to: '/gimnasio/gimnasios',     label: 'Mis gimnasios' },
+  ],
+  maestro: [
+    { to: '/maestro/notas',          label: 'Notas' },
+    { to: '/maestro/planificacion',  label: 'Planificación' },
+    { to: '/maestro/clases',         label: 'Clases' },
+    { to: '/maestro/tecnicas',       label: 'Técnicas' },
+  ],
 }
 
 function getSection(pathname: string): string | null {
@@ -49,6 +62,10 @@ function getSection(pathname: string): string | null {
     return 'planificacion'
   if (pathname.startsWith('/analisis'))
     return 'analisis'
+  if (pathname.startsWith('/gimnasio'))
+    return 'gimnasio'
+  if (pathname.startsWith('/maestro'))
+    return 'maestro'
   return null
 }
 
@@ -64,6 +81,8 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
   const { theme, toggleTheme } = useTheme()
   const { data: profile } = useProfile()
   const logoutMutation = useLogout()
+  const { data: coaches } = useCoaches()
+  const hasCoach = (coaches?.length ?? 0) > 0
   const [avatar, setAvatar] = useState<string | null>(() => getAvatarFromStorage())
   const { pathname } = useLocation()
   const activeSection = getSection(pathname)
@@ -122,19 +141,46 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
               </NavLink>
             )
           })}
+          {profile?.role === 'ATHLETE_COACH' && (
+            <NavLink
+              to="/gimnasio/alumnos"
+              className={cn(
+                'flex items-center px-4 border-b-2 transition-colors h-full shrink-0',
+                'text-muted-foreground hover:text-foreground',
+                activeSection === 'gimnasio' ? 'border-foreground text-foreground' : 'border-transparent',
+              )}
+              style={{ ...MONO, fontSize: '12px' }}
+            >
+              Gimnasio
+            </NavLink>
+          )}
+          {hasCoach && (
+            <NavLink
+              to="/maestro/notas"
+              className={cn(
+                'flex items-center gap-1.5 px-4 border-b-2 transition-colors h-full shrink-0',
+                'text-muted-foreground hover:text-foreground',
+                activeSection === 'maestro' ? 'border-foreground text-foreground' : 'border-transparent',
+              )}
+              style={{ ...MONO, fontSize: '12px' }}
+            >
+              Coaching
+            </NavLink>
+          )}
         </nav>
 
         <div className="flex items-center gap-0.5 px-2 border-l border-border shrink-0">
+          <NotificationBell />
           <button
             onClick={onSearchOpen}
-            className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Buscar"
           >
             <Search className="h-3.5 w-3.5" strokeWidth={1.5} />
           </button>
           <button
             onClick={toggleTheme}
-            className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Cambiar tema"
           >
             {theme === 'dark'
@@ -143,24 +189,25 @@ export function TopNavBar({ onSearchOpen }: TopNavBarProps) {
           </button>
           <NavLink
             to="/configuracion"
-            className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+            className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
             aria-label="Configuración"
           >
             <Settings className="h-3.5 w-3.5" strokeWidth={1.5} />
           </NavLink>
           <NavLink
             to="/profile"
-            className="flex h-7 w-7 items-center justify-center border border-border bg-card text-muted-foreground hover:text-foreground transition-colors ml-1 overflow-hidden rounded-full"
-            style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.02em' }}
+            className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors ml-1"
             aria-label="Perfil"
           >
-            {avatar
-              ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
-              : initials}
+            <span className="flex h-7 w-7 items-center justify-center border border-border bg-card overflow-hidden rounded-full" style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', letterSpacing: '0.02em' }}>
+              {avatar
+                ? <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                : initials}
+            </span>
           </NavLink>
           <button
             onClick={() => logoutMutation.mutate()}
-            className="flex h-8 w-8 items-center justify-center text-muted-foreground hover:text-foreground transition-colors ml-1"
+            className="flex min-w-[44px] min-h-[44px] items-center justify-center text-muted-foreground hover:text-foreground transition-colors ml-1"
             aria-label="Cerrar sesión"
           >
             <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />

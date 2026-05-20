@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react'
 import { Pencil, Building2, Calendar, Shield } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { useWeeklyStats } from '@/shared/hooks/useWeeklyStats'
 import { useProfile } from '../hooks'
 import { useFederations } from '@/features/identity/federation/hooks'
 import { InjurySection } from '@/features/identity/injury/InjurySection'
 import { getAvatarFromStorage } from '@/shared/hooks/useAvatar'
-import { fetchWeeklyStats } from '@/shared/api/dashboard'
 import { useTrainingSessions } from '@/features/journal/trainingsession/hooks'
 import { usePhysicalSessions } from '@/features/journal/physicalsession/hooks'
-import type { WeeklyStats } from '@/shared/api/dashboard'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { MONO } from '@/shared/lib/typography'
+import { MyCoachesList } from '@/features/coaching/components/MyCoachesList'
+import { useCoaches } from '@/features/coaching/hooks'
 
 const BELT_ORDER = ['WHITE', 'BLUE', 'PURPLE', 'BROWN', 'BLACK'] as const
 const BELT: Record<string, { label: string; color: string; text: string }> = {
@@ -40,9 +40,36 @@ const SESSION_TYPE_LABELS: Record<string, string> = {
   MOBILITY: 'Movilidad', HIIT: 'HIIT', OTHER: 'Otro',
 }
 
+const AGE_CATEGORY_LABELS: Record<string, string> = {
+  JUVENILE: 'Juvenil',
+  ADULT:    'Adulto',
+  MASTER_1: 'Master 1',
+  MASTER_2: 'Master 2',
+  MASTER_3: 'Master 3',
+  MASTER_4: 'Master 4',
+}
+
 function getInitials(name?: string | null) {
   if (!name) return '?'
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+}
+
+function StripeBars({ stripes }: { stripes: number | null | undefined }) {
+  const count = stripes ?? 0
+  return (
+    <span className="inline-flex gap-[2px] items-center ml-0.5">
+      {[0, 1, 2, 3].map(i => (
+        <span
+          key={i}
+          className="w-1 rounded-[1px]"
+          style={{
+            height: '11px',
+            background: i < count ? 'rgba(255,255,255,0.92)' : 'rgba(255,255,255,0.20)',
+          }}
+        />
+      ))}
+    </span>
+  )
 }
 
 function timeAtBelt(iso?: string | null) {
@@ -92,7 +119,8 @@ function StatBox({ label, value, goal, sub, color }: {
 export function ProfilePage() {
   const { data: profile, isLoading } = useProfile()
   const { data: allFederations = [] } = useFederations()
-  const { data: stats } = useQuery<WeeklyStats>({ queryKey: ['weekly-stats'], queryFn: fetchWeeklyStats })
+  const { data: coaches } = useCoaches()
+  const { data: stats } = useWeeklyStats()
   const { data: bjjData } = useTrainingSessions({ page: 0, size: 3 })
   const { data: physData } = usePhysicalSessions({ page: 0, size: 3 })
   const navigate = useNavigate()
@@ -158,7 +186,17 @@ export function ProfilePage() {
   return (
     <div className="space-y-2">
 
-      {/* ── HEADER ── */}
+      {/* ── PAGE HEADER ── */}
+      <div className="border border-border bg-card px-5 py-4">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+          Cuenta
+        </p>
+        <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
+          Mi perfil
+        </h1>
+      </div>
+
+      {/* ── PROFILE CARD ── */}
       <div
         className="bg-card border border-border flex items-center gap-5 px-6 py-5"
         style={{ borderLeft: `4px solid ${belt.color}` }}
@@ -189,7 +227,13 @@ export function ProfilePage() {
             @{profile.alias ?? profile.displayName}
           </h1>
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-1.5" style={MONO}>
-            Cinturón {belt.label} · {modalityLabel}
+            <span
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[2px] mr-1"
+              style={{ backgroundColor: belt.color, color: belt.text }}
+            >
+              {belt.label}<StripeBars stripes={profile.stripes} />
+            </span>
+            · {modalityLabel}
           </p>
           <div className="flex flex-wrap gap-x-4 gap-y-0.5 mt-2">
             {profile.academy && (
@@ -208,6 +252,16 @@ export function ProfilePage() {
               <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
                 <Shield className="h-3 w-3" strokeWidth={1.5} />
                 {primaryFedName}
+              </span>
+            )}
+            {profile.ageCategory && (
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
+                {AGE_CATEGORY_LABELS[profile.ageCategory] ?? profile.ageCategory}
+              </span>
+            )}
+            {profile.weight != null && (
+              <span className="flex items-center gap-1 text-[10px] text-muted-foreground" style={MONO}>
+                {profile.weight} kg
               </span>
             )}
           </div>
@@ -334,6 +388,26 @@ export function ProfilePage() {
         </div>
 
       </div>
+
+      {/* ── MIS MAESTROS ── */}
+      {coaches !== undefined && (
+        <div className="bg-card border border-border p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground" style={MONO}>
+              Mis maestros
+            </span>
+            <Link
+              to="/configuracion#mis-maestros"
+              className="text-[9px] text-muted-foreground hover:text-foreground transition-colors"
+              style={MONO}
+            >
+              → vincular maestro
+            </Link>
+          </div>
+          <MyCoachesList />
+        </div>
+      )}
+
     </div>
   )
 }

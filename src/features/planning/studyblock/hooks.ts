@@ -49,3 +49,50 @@ export function useDeleteStudyBlock(planId: number) {
     onError: () => toast.error('Error al eliminar el bloque'),
   })
 }
+
+export const studyItemsKey = (planId: number, blockId: number) =>
+  ['study-plans', planId, 'blocks', blockId, 'items'] as const
+
+export function useStudyItems(planId: number, blockId: number) {
+  return useQuery({
+    queryKey: studyItemsKey(planId, blockId),
+    queryFn: () => studyBlockApi.listItems(planId, blockId),
+    enabled: planId > 0 && blockId > 0,
+  })
+}
+
+export function useAddTextItem(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blockId, description }: { blockId: number; description: string }) =>
+      studyBlockApi.addTextItem(planId, blockId, description),
+    onSuccess: (_data, { blockId }) => {
+      qc.invalidateQueries({ queryKey: studyItemsKey(planId, blockId) })
+    },
+    onError: () => toast.error('Error al añadir item'),
+  })
+}
+
+export function useAddTechniqueItem(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blockId, techniqueId, techniqueName }: { blockId: number; techniqueId: number; techniqueName: string }) =>
+      studyBlockApi.addTechniqueItem(planId, blockId, techniqueId, techniqueName),
+    onSuccess: (_data, { blockId }) => {
+      qc.invalidateQueries({ queryKey: studyItemsKey(planId, blockId) })
+    },
+    onError: () => toast.error('Error al añadir técnica'),
+  })
+}
+
+export function useDeleteStudyItem(planId: number) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ blockId, itemId }: { blockId: number; itemId: number }) =>
+      studyBlockApi.deleteItem(planId, blockId, itemId),
+    onSuccess: (_data, { blockId }) => {
+      qc.invalidateQueries({ queryKey: studyItemsKey(planId, blockId) })
+    },
+    onError: () => toast.error('Error al eliminar item'),
+  })
+}

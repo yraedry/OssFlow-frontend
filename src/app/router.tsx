@@ -37,6 +37,18 @@ import { RulesetsPage } from '@/features/catalog/ruleset/pages/RulesetsPage'
 import { ExercisesPage } from '@/features/catalog/exercise/pages/ExercisesPage'
 import { AnalisisPage } from '@/pages/analisis/AnalisisPage'
 import { ConfiguracionPage } from '@/pages/configuracion/ConfiguracionPage'
+import { GymDashboardPage } from '@/features/coaching/pages/GymDashboardPage'
+import { GymAlumnosPage } from '@/features/coaching/pages/GymAlumnosPage'
+import { GymPlanificacionPage } from '@/features/coaching/pages/GymPlanificacionPage'
+import { GymGimansiosPage } from '@/features/coaching/pages/GymGimansiosPage'
+import { AthleteProfilePage } from '@/pages/gimnasio/AthleteProfilePage'
+import { MaestroPage } from '@/pages/maestro/MaestroPage'
+import { MaestroNotasPage } from '@/pages/maestro/MaestroNotasPage'
+import { MaestroPlanificacionPage } from '@/pages/maestro/MaestroPlanificacionPage'
+import { MaestroClasesPage } from '@/pages/maestro/MaestroClasesPage'
+import { MaestroTecnicasPage } from '@/pages/maestro/MaestroTecnicasPage'
+import { NoteDetailPage } from '@/pages/maestro/NoteDetailPage'
+import { ReceivedStudyPlanDetailPage } from '@/pages/maestro/ReceivedStudyPlanDetailPage'
 import { Spinner } from '@/shared/components/ui/spinner'
 
 // Auth pages
@@ -131,6 +143,33 @@ export const router = createBrowserRouter([
           { path: 'configuracion', element: <ConfiguracionPage /> },
           { path: 'export', element: <ExportPage /> },
           { path: 'trash', element: <TrashPage /> },
+
+          // Coaching — Gimnasio (layout con header + outlet)
+          {
+            path: 'gimnasio',
+            element: <GymDashboardPage />,
+            children: [
+              { index: true, element: <GymAlumnosPage /> },
+              { path: 'alumnos', element: <GymAlumnosPage /> },
+              { path: 'planificacion', element: <GymPlanificacionPage /> },
+              { path: 'gimnasios', element: <GymGimansiosPage /> },
+            ],
+          },
+          { path: 'gimnasio/atletas/:athleteId', element: <AthleteProfilePage /> },
+          // Coaching — Maestro (layout con header + outlet)
+          {
+            path: 'maestro',
+            element: <MaestroPage />,
+            children: [
+              { index: true, element: <MaestroNotasPage /> },
+              { path: 'notas', element: <MaestroNotasPage /> },
+              { path: 'planificacion', element: <MaestroPlanificacionPage /> },
+              { path: 'clases', element: <MaestroClasesPage /> },
+              { path: 'tecnicas', element: <MaestroTecnicasPage /> },
+            ],
+          },
+          { path: 'maestro/notas/:noteId', element: <NoteDetailPage /> },
+          { path: 'maestro/planificacion/:planId', element: <ReceivedStudyPlanDetailPage /> },
 
           // Redirecciones de rutas antiguas (compatibilidad)
           { path: 'catalog/positions', element: <PositionsPage /> },

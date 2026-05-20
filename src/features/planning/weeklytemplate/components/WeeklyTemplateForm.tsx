@@ -152,14 +152,14 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
       {/* Tabla semanal — sin scroll, cabe en cualquier móvil */}
       <div className="border border-border overflow-hidden">
         {/* Header: días */}
-        <div className="grid border-b border-border" style={{ gridTemplateColumns: '72px repeat(7, 1fr)' }}>
-          <div className="border-r border-border" />
+        <div className="grid border-b border-border" style={{ gridTemplateColumns: '96px repeat(7, 1fr)' }}>
+          <div className="border-r border-border h-9" />
           {ALL_DAYS.map(day => {
             const hasAny = state[day].length > 0
             return (
               <div
                 key={day}
-                className="flex items-center justify-center py-2 border-r border-border last:border-r-0"
+                className="flex items-center justify-center h-9 border-r border-border last:border-r-0"
                 style={{ backgroundColor: hasAny ? 'var(--color-foreground)' : 'transparent' }}
               >
                 <span className="sm:hidden" style={{
@@ -186,16 +186,16 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
           <div
             key={key}
             className="grid border-b border-border last:border-b-0"
-            style={{ gridTemplateColumns: '72px repeat(7, 1fr)' }}
+            style={{ gridTemplateColumns: '96px repeat(7, 1fr)' }}
           >
-            <div className="flex items-center px-2 py-3 border-r border-border sm:px-4">
+            <div className="flex items-center h-12 px-2 border-r border-border sm:px-4">
               <span className="sm:hidden leading-tight" style={{
                 ...MONO, fontSize: '9px', fontWeight: 700,
                 textTransform: 'uppercase', letterSpacing: '0.02em', color,
               }}>
                 {short}
               </span>
-              <span className="hidden sm:block leading-tight" style={{
+              <span className="hidden sm:block leading-tight overflow-hidden" style={{
                 ...MONO, fontSize: '10px', fontWeight: 700,
                 textTransform: 'uppercase', letterSpacing: '0.03em', color,
               }}>
@@ -209,7 +209,7 @@ export function WeeklyTemplateForm({ template, onSave, isPending }: Props) {
                     key={day}
                     type="button"
                     onClick={() => toggleCell(day, key)}
-                    className="flex items-center justify-center py-4 border-r border-border last:border-r-0 transition-all cursor-pointer focus:outline-none hover:bg-accent/20"
+                    className="flex items-center justify-center h-12 border-r border-border last:border-r-0 transition-all cursor-pointer focus:outline-none hover:bg-accent/20"
                     style={{ backgroundColor: active ? `${color}18` : 'transparent' }}
                     aria-pressed={active}
                     aria-label={`${label} el ${DAY_LABELS[day]}`}

@@ -9,6 +9,7 @@ import { AuthLayout, AuthCard, AuthField, AuthDivider } from '../components/Auth
 import { Input } from '@/shared/components/ui/input'
 import { Button } from '@/shared/components/ui/button'
 import { MONO } from '@/shared/lib/typography'
+import { ApiClientError } from '@/shared/api/client'
 
 const schema = z.object({
   email: z.string().email('Email inválido'),
@@ -27,13 +28,19 @@ type FormData = z.infer<typeof schema>
 export function RegisterPage() {
   const registerMutation = useRegister()
   const [registered, setRegistered] = useState(false)
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
+  const { register, handleSubmit, setError, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) })
 
   const onSubmit = (data: FormData) => {
-    // displayName se establece en onboarding tras login (A6 plan).
     registerMutation.mutate(
       { email: data.email, password: data.password },
-      { onSuccess: () => setRegistered(true) },
+      {
+        onSuccess: () => setRegistered(true),
+        onError: (err) => {
+          if (err instanceof ApiClientError && err.status === 409) {
+            setError('email', { message: err.apiError?.message ?? 'Este email ya está registrado.' })
+          }
+        },
+      },
     )
   }
 

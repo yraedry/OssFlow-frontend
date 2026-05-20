@@ -1,0 +1,1 @@
+- [OssFlow Frontend Architecture](project_ossflow_frontend.md) — stack, feature-sliced structure, API conventions, auth patterns, Playwright setup

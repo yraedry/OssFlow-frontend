@@ -4,6 +4,7 @@ export interface Technique {
   id: number
   name: string
   category: TechniqueCategory
+  family?: string
   startPositionId: number
   startPositionName?: string
   endPositionId?: number
