@@ -4,9 +4,7 @@ import { useWeeklyTemplate, useSaveWeeklyTemplate } from '../hooks'
 import { WeeklyTemplateForm } from '../components/WeeklyTemplateForm'
 import type { SaveWeeklyTemplateForm } from '../schemas'
 
-const SERIF: React.CSSProperties = { fontFamily: 'var(--font-serif)' }
 const MONO: React.CSSProperties = { fontFamily: 'var(--font-mono)' }
-const LABEL: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '9px', textTransform: 'uppercase' as const, letterSpacing: '0.1em' }
 
 export function WeeklyTemplatePage() {
   const { data: template, isLoading, error } = useWeeklyTemplate()
@@ -17,11 +15,13 @@ export function WeeklyTemplatePage() {
 
       {/* Header */}
       <div className="border border-border bg-card px-5 py-4">
-        <div style={{ ...LABEL, color: 'var(--color-muted-foreground)', marginBottom: '4px' }}>Planificación</div>
-        <h1 className="font-black leading-none" style={{ ...SERIF, fontSize: 'clamp(22px, 3vw, 30px)', letterSpacing: '-0.02em' }}>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+          Planificación
+        </p>
+        <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
           Plantilla semanal
         </h1>
-        <p className="mt-2 text-xs text-muted-foreground" style={MONO}>
+        <p className="mt-1.5 text-xs text-muted-foreground font-mono">
           Marca qué tipo de sesión toca cada día · editable en cualquier momento
         </p>
       </div>

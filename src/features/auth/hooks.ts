@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { login, logout, register, forgotPassword, resetPassword } from './api'
 import { useAuthStore } from './store/authStore'
 import { getProfile } from '@/features/identity/profile/api'
+import { ApiClientError } from '@/shared/api/client'
 import type { LoginRequest, RegisterRequest } from './types'
 
 export function useLogin() {
@@ -17,12 +18,18 @@ export function useLogin() {
       try {
         const profile = await getProfile()
         navigate(profile ? '/' : '/onboarding', { replace: true })
-      } catch {
-        navigate('/', { replace: true })
+      } catch (err) {
+        const is404 = err instanceof ApiClientError && err.status === 404
+        navigate(is404 ? '/onboarding' : '/', { replace: true })
       }
     },
-    onError: () => {
-      toast.error('Credenciales incorrectas. Comprueba tu email y contraseña.')
+    onError: (err: unknown) => {
+      // Los errores EMAIL_NOT_VERIFIED (422) los gestiona LoginPage con mensaje inline.
+      const isUnverified = err instanceof ApiClientError &&
+        err.apiError?.code === 'EMAIL_NOT_VERIFIED'
+      if (!isUnverified) {
+        toast.error('Credenciales incorrectas. Comprueba tu email y contraseña.')
+      }
     },
   })
 }
@@ -30,9 +37,14 @@ export function useLogin() {
 export function useRegister() {
   return useMutation({
     mutationFn: (data: RegisterRequest) => register(data),
-    onError: () => {
-      toast.error('Error al crear la cuenta. Inténtalo de nuevo.')
+    onError: (err: unknown) => {
+      // Los errores 409 (email duplicado) los gestiona el componente — no toast aquí.
+      const status = (err as { status?: number })?.status
+      if (status !== 409) {
+        toast.error('Error al crear la cuenta. Inténtalo de nuevo.')
+      }
     },
+
   })
 }
 

@@ -100,93 +100,88 @@ export function RulesetsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4 border border-border bg-card px-5 py-4">
+      <div className="flex items-start justify-between gap-4 border border-border bg-card px-5 py-4">
         <div>
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1" style={{ fontFamily: 'var(--font-mono)' }}>
-            Catálogo
-          </div>
-          <h1 className="text-2xl font-black leading-none" style={{ fontFamily: 'var(--font-serif)' }}>
+          <p className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground mb-1">
+            Estudio
+          </p>
+          <h1 className="font-serif text-[clamp(22px,3vw,30px)] font-black leading-none tracking-tight text-foreground">
             Reglamentos
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {data?.totalElements ?? 0} reglamentos en tu catálogo
-          </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Dialog open={fedOpen} onOpenChange={setFedOpen}>
-            <DialogTrigger asChild>
-              <button
-                type="button"
-                className="flex items-center gap-1.5 px-3 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors"
-                style={{ fontFamily: 'var(--font-mono)' }}
-              >
-                <Building2 className="h-3.5 w-3.5" />
-                Federación
-              </button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Nueva federación</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={fedForm.handleSubmit(handleCreateFederation)} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fed-name">Nombre *</Label>
-                  <Input id="fed-name" {...fedForm.register('name')} placeholder="IBJJF" />
-                  {fedForm.formState.errors.name && (
-                    <p className="text-sm text-destructive">{fedForm.formState.errors.name.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="fed-code">Código (2-8 caracteres) *</Label>
-                  <Input
-                    id="fed-code"
-                    {...fedForm.register('code')}
-                    placeholder="IBJJF"
-                    className="uppercase"
-                    style={{ textTransform: 'uppercase' }}
-                  />
-                  {fedForm.formState.errors.code && (
-                    <p className="text-sm text-destructive">{fedForm.formState.errors.code.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="fed-url">Website (opcional)</Label>
-                  <Input id="fed-url" {...fedForm.register('officialUrl')} placeholder="https://ibjjf.com" />
-                  {fedForm.formState.errors.officialUrl && (
-                    <p className="text-sm text-destructive">{fedForm.formState.errors.officialUrl.message}</p>
-                  )}
-                </div>
-                <Button type="submit" disabled={createFederationMutation.isPending} className="w-full">
-                  {createFederationMutation.isPending ? 'Creando...' : 'Crear federación'}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <div className="flex items-center gap-2 shrink-0">
+            <Dialog open={fedOpen} onOpenChange={setFedOpen}>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide border border-border text-foreground hover:bg-accent transition-colors px-3 py-2"
+                >
+                  <Building2 className="h-3.5 w-3.5" />
+                  Federación
+                </button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Nueva federación</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={fedForm.handleSubmit(handleCreateFederation)} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fed-name">Nombre *</Label>
+                    <Input id="fed-name" {...fedForm.register('name')} placeholder="IBJJF" />
+                    {fedForm.formState.errors.name && (
+                      <p className="text-sm text-destructive">{fedForm.formState.errors.name.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fed-code">Código (2-8 caracteres) *</Label>
+                    <Input
+                      id="fed-code"
+                      {...fedForm.register('code')}
+                      placeholder="IBJJF"
+                      className="uppercase"
+                      style={{ textTransform: 'uppercase' }}
+                    />
+                    {fedForm.formState.errors.code && (
+                      <p className="text-sm text-destructive">{fedForm.formState.errors.code.message}</p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fed-url">Website (opcional)</Label>
+                    <Input id="fed-url" {...fedForm.register('officialUrl')} placeholder="https://ibjjf.com" />
+                    {fedForm.formState.errors.officialUrl && (
+                      <p className="text-sm text-destructive">{fedForm.formState.errors.officialUrl.message}</p>
+                    )}
+                  </div>
+                  <Button type="submit" disabled={createFederationMutation.isPending} className="w-full">
+                    {createFederationMutation.isPending ? 'Creando...' : 'Crear federación'}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
 
-          <Dialog open={open} onOpenChange={handleOpenChange}>
-            <DialogTrigger asChild>
-              <button
-                type="button"
-                onClick={() => setEditing(null)}
-                className="flex items-center gap-1.5 px-3 py-2 border border-border text-xs font-bold uppercase tracking-wide hover:bg-accent transition-colors"
-                style={{ fontFamily: 'var(--font-mono)' }}
-              >
-                <Plus className="h-3.5 w-3.5" strokeWidth={2} />
-                Reglamento
-              </button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>{editing ? 'Editar reglamento' : 'Nuevo Reglamento'}</DialogTitle>
-              </DialogHeader>
-              <RulesetForm
-                defaultValues={editing ?? undefined}
-                onSubmit={handleSubmit}
-                isPending={createMutation.isPending || updateMutation.isPending}
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
+            <Dialog open={open} onOpenChange={handleOpenChange}>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => setEditing(null)}
+                  className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wide bg-foreground text-background hover:bg-foreground/85 transition-colors px-3 py-2 border border-foreground"
+                >
+                  <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+                  Reglamento
+                </button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{editing ? 'Editar reglamento' : 'Nuevo Reglamento'}</DialogTitle>
+                </DialogHeader>
+                <RulesetForm
+                  defaultValues={editing ?? undefined}
+                  onSubmit={handleSubmit}
+                  isPending={createMutation.isPending || updateMutation.isPending}
+                />
+              </DialogContent>
+            </Dialog>
+          </div>
       </div>
 
       {/* Buscador */}

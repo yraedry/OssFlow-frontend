@@ -9,7 +9,7 @@ type PositionNodeData = {
 }
 
 export function PositionNode({ id, data }: NodeProps) {
-  const nodeData = data as unknown as PositionNodeData
+  const nodeData = data as PositionNodeData
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(nodeData.label)
   const inputRef = useRef<HTMLInputElement>(null)

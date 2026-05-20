@@ -16,8 +16,10 @@ import { useSaveWeeklyTemplate } from '@/features/planning/weeklytemplate/hooks'
 import { AuthLogo } from '@/features/auth/components/AuthLayout'
 import { MONO, SERIF } from '@/shared/lib/typography'
 import { WeeklyTemplateStep } from './onboarding/WeeklyTemplateStep'
+import { RoleSelector } from '@/features/identity/profile/components/RoleSelector'
 import type { FederationAssignment } from '@/features/identity/federation/types'
 import type { SaveWeeklyTemplateForm } from '@/features/planning/weeklytemplate/schemas'
+import { BELTS, MODALITIES, AGE_CATEGORIES, STRIPES_OPTIONS } from '@/features/identity/profile/constants'
 
 const THEME_KEY = 'ossflow-theme'
 const ONBOARDING_KEY = 'ossflow-onboarding'
@@ -28,19 +30,6 @@ function applyTheme(theme: 'dark' | 'light') {
   document.documentElement.classList.add(theme)
 }
 
-const BELTS = [
-  { value: 'WHITE', label: 'Blanco' },
-  { value: 'BLUE', label: 'Azul' },
-  { value: 'PURPLE', label: 'Morado' },
-  { value: 'BROWN', label: 'Marrón' },
-  { value: 'BLACK', label: 'Negro' },
-]
-
-const MODALITIES = [
-  { value: 'GI', label: 'Gi (con kimono)' },
-  { value: 'NOGI', label: 'No-Gi (sin kimono)' },
-  { value: 'BOTH', label: 'Ambas' },
-]
 
 const step1Schema = z.object({
   firstName: z.string().max(80).optional(),
@@ -49,6 +38,9 @@ const step1Schema = z.object({
   currentBelt: z.string().min(1, 'El cinturón es requerido'),
   preferredModality: z.string().min(1, 'La modalidad es requerida'),
   academy: z.string().max(200).optional(),
+  ageCategory: z.string().nullable().optional(),
+  stripes: z.number().int().min(0).max(4).nullable().optional(),
+  weight: z.number().min(30).max(180).nullable().optional(),
 })
 
 type Step1Form = z.infer<typeof step1Schema>
@@ -60,11 +52,14 @@ type OnboardingData = {
   currentBelt: string
   preferredModality: string
   academy?: string
+  ageCategory?: string | null
+  stripes?: number | null
+  weight?: number | null
   federations: FederationAssignment[]
   weeklyTemplateSet: boolean
 }
 
-type PersistedOnboarding = { step: 1 | 2 | 3 | 4 | 5; data: OnboardingData }
+type PersistedOnboarding = { step: 0 | 1 | 2 | 3 | 4 | 5; data: OnboardingData }
 
 function loadOnboarding(): PersistedOnboarding | null {
   try {
@@ -75,7 +70,7 @@ function loadOnboarding(): PersistedOnboarding | null {
   }
 }
 
-function saveOnboarding(step: 1 | 2 | 3 | 4 | 5, data: OnboardingData) {
+function saveOnboarding(step: 0 | 1 | 2 | 3 | 4 | 5, data: OnboardingData) {
   sessionStorage.setItem(ONBOARDING_KEY, JSON.stringify({ step, data }))
 }
 
@@ -111,7 +106,7 @@ function FieldBlock({ label, error, children }: { label: string; error?: string;
 export function OnboardingPage() {
   const navigate = useNavigate()
   const persisted = loadOnboarding()
-  const [step, setStepRaw] = useState<1 | 2 | 3 | 4 | 5>(persisted?.step ?? 1)
+  const [step, setStepRaw] = useState<0 | 1 | 2 | 3 | 4 | 5>(persisted?.step ?? 0)
   const [selectedTheme, setSelectedTheme] = useState<'dark' | 'light'>(() => {
     const stored = localStorage.getItem(THEME_KEY)
     if (stored === 'dark' || stored === 'light') return stored
@@ -124,11 +119,14 @@ export function OnboardingPage() {
     currentBelt: '',
     preferredModality: '',
     academy: undefined,
+    ageCategory: null,
+    stripes: null,
+    weight: null,
     federations: [],
     weeklyTemplateSet: false,
   })
 
-  function setStep(s: 1 | 2 | 3 | 4 | 5) {
+  function setStep(s: 0 | 1 | 2 | 3 | 4 | 5) {
     setStepRaw(s)
     saveOnboarding(s, data)
   }
@@ -152,6 +150,9 @@ export function OnboardingPage() {
       currentBelt: data.currentBelt,
       preferredModality: data.preferredModality,
       academy: data.academy,
+      ageCategory: data.ageCategory ?? null,
+      stripes: data.stripes ?? null,
+      weight: data.weight ?? null,
     },
   })
 
@@ -178,6 +179,9 @@ export function OnboardingPage() {
       currentBelt: data.currentBelt,
       preferredModality: data.preferredModality,
       academy: data.academy || undefined,
+      ageCategory: data.ageCategory || null,
+      stripes: data.stripes ?? null,
+      weight: data.weight ?? null,
     })
     if (data.federations.length > 0) {
       await replaceFederations(data.federations)
@@ -187,11 +191,18 @@ export function OnboardingPage() {
   }
 
   const stepTitles: Record<number, string> = {
+    0: '¿Cómo usarás OssFlow?',
     1: 'Elige tu tema',
     2: 'Tu perfil',
     3: 'Planificación semanal',
     4: 'Federaciones',
     5: 'Resumen',
+  }
+
+  if (step === 0) {
+    return (
+      <RoleSelector onComplete={() => setStep(1)} />
+    )
   }
 
   return (
@@ -319,6 +330,87 @@ export function OnboardingPage() {
                       </Select>
                     )}
                   />
+                </FieldBlock>
+              </div>
+
+              {/* Galones (stripes) */}
+              <FieldBlock label="Galones (opcional)">
+                <Controller
+                  name="stripes"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex gap-2">
+                      {STRIPES_OPTIONS.map(n => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => field.onChange(field.value === n ? null : n)}
+                          className={`w-12 h-10 border text-xs font-mono font-bold transition-colors flex flex-col items-center justify-center gap-1 ${
+                            field.value === n
+                              ? 'border-foreground bg-foreground text-background'
+                              : 'border-border text-muted-foreground hover:border-foreground/50'
+                          }`}
+                        >
+                          <span>{n}</span>
+                          <span className="flex gap-[2px]">
+                            {[0,1,2,3].map(i => (
+                              <span
+                                key={i}
+                                className="w-1 h-[6px] rounded-[1px]"
+                                style={{
+                                  background: i < n
+                                    ? (field.value === n ? 'rgba(255,255,255,0.9)' : 'var(--foreground)')
+                                    : 'var(--border)',
+                                }}
+                              />
+                            ))}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                />
+              </FieldBlock>
+
+              {/* Categoría de edad / Peso */}
+              <div className="grid grid-cols-2 gap-3">
+                <FieldBlock label="Categoría de edad (opcional)">
+                  <Controller
+                    control={control}
+                    name="ageCategory"
+                    render={({ field }) => (
+                      <Select value={field.value ?? ''} onValueChange={(v) => field.onChange(v || null)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {AGE_CATEGORIES.map((c) => (
+                            <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                </FieldBlock>
+                <FieldBlock label="Peso (opcional)" error={errors.weight?.message}>
+                  <div className="relative">
+                    <Controller
+                      control={control}
+                      name="weight"
+                      render={({ field }) => (
+                        <Input
+                          type="number"
+                          min={30}
+                          max={180}
+                          placeholder="70"
+                          className="pr-9"
+                          value={field.value ?? ''}
+                          onChange={(e) => field.onChange(e.target.value === '' ? null : Number(e.target.value))}
+                        />
+                      )}
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground select-none" style={MONO}>kg</span>
+                  </div>
                 </FieldBlock>
               </div>
 

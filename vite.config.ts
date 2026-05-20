@@ -19,6 +19,23 @@ export default defineConfig({
       '/login/oauth2': { target: process.env.VITE_PROXY_TARGET ?? 'http://localhost:8080', changeOrigin: true },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom') || id.includes('node_modules/react-router-dom')) {
+            return 'vendor-react'
+          }
+          if (id.includes('node_modules/@tanstack/react-query')) {
+            return 'vendor-query'
+          }
+          if (id.includes('node_modules/lucide-react') || id.includes('node_modules/date-fns')) {
+            return 'vendor-ui'
+          }
+        },
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useConfirm } from '@/shared/hooks/useConfirm'
-import { ArrowLeft, Plus, Calendar, Weight } from 'lucide-react'
+import { ArrowLeft, Plus, Calendar, Weight, MapPin } from 'lucide-react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Button } from '@/shared/components/ui/button'
+import { Badge } from '@/shared/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/components/ui/dialog'
 import { Spinner } from '@/shared/components/ui/spinner'
 import { Alert, AlertDescription } from '@/shared/components/ui/alert'
@@ -12,7 +13,20 @@ import { MatchCard } from '@/features/competition/match/components/MatchCard'
 import { MatchForm } from '@/features/competition/match/components/MatchForm'
 import { useCompetitionMatches, useCreateCompetitionMatch, useDeleteCompetitionMatch } from '@/features/competition/match/hooks'
 import { useCompetitionLog } from '../hooks'
+import { CATEGORY_AGE_OPTIONS, GI_NOGI_OPTIONS } from '../types'
 import type { CreateMatchForm } from '@/features/competition/match/schemas'
+
+function formatDate(dateStr: string) {
+  try {
+    return format(new Date(dateStr), 'd MMM yyyy', { locale: es })
+  } catch {
+    return dateStr
+  }
+}
+
+function labelFor<T extends { value: string; label: string }>(options: readonly T[], value: string | undefined) {
+  return options.find(o => o.value === value)?.label ?? value
+}
 
 export function CompetitionLogDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -47,14 +61,6 @@ export function CompetitionLogDetailPage() {
 
   const matchList = matches ?? []
 
-  function formatDate(dateStr: string) {
-    try {
-      return format(new Date(dateStr), 'd MMM yyyy', { locale: es })
-    } catch {
-      return dateStr
-    }
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -68,6 +74,12 @@ export function CompetitionLogDetailPage() {
               <Calendar className="h-3.5 w-3.5" />
               {formatDate(log.eventDate)}
             </span>
+            {log.location && (
+              <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5" />
+                {log.location}
+              </span>
+            )}
             {log.weightCategory && (
               <span className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Weight className="h-3.5 w-3.5" />
@@ -77,10 +89,29 @@ export function CompetitionLogDetailPage() {
             {log.totalMatches != null && (
               <span className="text-sm text-muted-foreground">{log.totalMatches} combates</span>
             )}
+            {(log.winsCount != null || log.lossesCount != null) && (
+              <span className="text-sm">
+                {log.winsCount != null && <span className="text-emerald-500 font-medium">{log.winsCount}V</span>}
+                {log.winsCount != null && log.lossesCount != null && <span className="text-muted-foreground mx-1">·</span>}
+                {log.lossesCount != null && <span className="text-destructive font-medium">{log.lossesCount}D</span>}
+              </span>
+            )}
           </div>
-          {log.result && (
-            <p className="text-sm font-medium mt-1">{log.result}</p>
-          )}
+          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+            {log.giNogi && (
+              <Badge variant="outline" className="text-xs">
+                {labelFor(GI_NOGI_OPTIONS, log.giNogi)}
+              </Badge>
+            )}
+            {log.categoryAge && (
+              <Badge variant="outline" className="text-xs">
+                {labelFor(CATEGORY_AGE_OPTIONS, log.categoryAge)}
+              </Badge>
+            )}
+            {log.result && (
+              <span className="text-sm font-medium">{log.result}</span>
+            )}
+          </div>
         </div>
         <Dialog open={matchDialogOpen} onOpenChange={setMatchDialogOpen}>
           <DialogTrigger asChild>

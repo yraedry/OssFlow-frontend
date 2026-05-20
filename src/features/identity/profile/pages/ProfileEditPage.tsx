@@ -18,21 +18,7 @@ import { MONO, SERIF } from '@/shared/lib/typography'
 import { apiClient } from '@/shared/api/client'
 import { useAuthStore } from '@/features/auth/store/authStore'
 import type { FederationAssignment } from '@/features/identity/federation/types'
-
-const BELTS = [
-  { value: 'WHITE',  label: 'Blanco',  color: '#d1d5db', text: '#111827' },
-  { value: 'BLUE',   label: 'Azul',    color: '#3b82f6', text: '#ffffff' },
-  { value: 'PURPLE', label: 'Morado',  color: '#9333ea', text: '#ffffff' },
-  { value: 'BROWN',  label: 'Marrón',  color: '#92400e', text: '#ffffff' },
-  { value: 'BLACK',  label: 'Negro',   color: '#111827', text: '#ffffff' },
-]
-const BELT_ORDER = ['WHITE', 'BLUE', 'PURPLE', 'BROWN', 'BLACK'] as const
-
-const MODALITIES = [
-  { value: 'GI',   label: 'Gi (con kimono)' },
-  { value: 'NOGI', label: 'No-Gi (sin kimono)' },
-  { value: 'BOTH', label: 'Gi + No-Gi (ambas)' },
-]
+import { BELTS, BELT_ORDER, MODALITIES, AGE_CATEGORIES, STRIPES_OPTIONS } from '../constants'
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1, 'Requerido'),
@@ -123,6 +109,9 @@ export function ProfileEditPage() {
       preferredModality: '',
       academy: '',
       beltSince: '',
+      ageCategory: null,
+      stripes: null,
+      weight: null,
     },
   })
 
@@ -152,6 +141,9 @@ export function ProfileEditPage() {
         preferredModality: profile.preferredModality ?? '',
         academy: profile.academy ?? '',
         beltSince: profile.beltSince ?? '',
+        ageCategory: profile.ageCategory ?? null,
+        stripes: profile.stripes ?? null,
+        weight: profile.weight ?? null,
       })
     }
   }, [profile, reset])
@@ -189,6 +181,9 @@ export function ProfileEditPage() {
       preferredModality: data.preferredModality,
       academy: data.academy || undefined,
       beltSince: data.beltSince || undefined,
+      ageCategory: data.ageCategory || null,
+      stripes: data.stripes ?? null,
+      weight: data.weight ?? null,
     }
     if (profile) {
       updateProfile.mutate(payload, { onSuccess: () => navigate('/profile') })
@@ -528,6 +523,87 @@ export function ProfileEditPage() {
               <div>
                 <Label>Academia (opcional)</Label>
                 <Input {...register('academy')} placeholder="Nombre de tu academia" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              <div>
+                <Label>Grados (stripes)</Label>
+                <Controller
+                  name="stripes"
+                  control={control}
+                  render={({ field }) => (
+                    <div className="flex gap-2">
+                      {STRIPES_OPTIONS.map(n => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => field.onChange(field.value === n ? null : n)}
+                          className={`w-12 h-10 border text-xs font-mono font-bold transition-colors flex flex-col items-center justify-center gap-1 ${
+                            field.value === n
+                              ? 'border-foreground bg-foreground text-background'
+                              : 'border-border text-muted-foreground hover:border-foreground/50'
+                          }`}
+                        >
+                          <span>{n}</span>
+                          <span className="flex gap-[2px]">
+                            {[0, 1, 2, 3].map(i => (
+                              <span
+                                key={i}
+                                className="w-1 h-[6px] rounded-[1px]"
+                                style={{
+                                  background: i < n
+                                    ? (field.value === n ? 'rgba(255,255,255,0.9)' : 'var(--foreground)')
+                                    : 'var(--border)',
+                                }}
+                              />
+                            ))}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                />
+              </div>
+              <div>
+                <Label>Categoría de edad</Label>
+                <Controller
+                  name="ageCategory"
+                  control={control}
+                  render={({ field }) => (
+                    <Select onValueChange={v => field.onChange(v === 'none' ? null : v)} value={field.value ?? 'none'}>
+                      <SelectTrigger className="border-border bg-input h-10 text-sm focus:ring-0 focus:border-foreground" style={{ borderRadius: 0 }}>
+                        <SelectValue placeholder="Selecciona categoría" />
+                      </SelectTrigger>
+                      <SelectContent style={{ borderRadius: 0 }}>
+                        <SelectItem value="none">Sin especificar</SelectItem>
+                        {AGE_CATEGORIES.map(c => (
+                          <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+              <div>
+                <Label>Peso (opcional)</Label>
+                <div className="flex">
+                  <Input
+                    type="number"
+                    min={30}
+                    max={180}
+                    step={0.5}
+                    placeholder="ej. 76"
+                    className="flex-1"
+                    {...register('weight', { valueAsNumber: true })}
+                  />
+                  <span className="px-3 flex items-center border border-l-0 border-border text-xs text-muted-foreground bg-muted font-mono">
+                    kg
+                  </span>
+                </div>
               </div>
             </div>
 

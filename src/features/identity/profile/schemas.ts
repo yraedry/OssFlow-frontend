@@ -8,6 +8,9 @@ export const updateProfileSchema = z.object({
   preferredModality: z.string().min(1, 'La modalidad es requerida'),
   academy: z.string().max(200).optional(),
   beltSince: z.string().optional(),
+  ageCategory: z.string().nullable().optional(),
+  stripes: z.number().int().min(0).max(4).nullable().optional(),
+  weight: z.number().min(30).max(180).nullable().optional(),
 })
 
 export type UpdateProfileForm = z.infer<typeof updateProfileSchema>

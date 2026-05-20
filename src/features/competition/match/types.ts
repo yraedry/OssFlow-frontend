@@ -1,21 +1,24 @@
 export type CompetitionMatch = {
   id: number
-  logId: number
-  opponentName: string
-  opponentBelt?: string
-  result: 'WIN' | 'LOSS' | 'DRAW'
-  technique?: string
-  notes?: string
-  duration?: number // seconds
-  orderIndex: number
+  competitionLogId?: number
+  matchOrder?: number
+  opponentName?: string
+  opponentTeam?: string
+  outcome?: string
+  method?: string
+  submissionTechniqueId?: number
+  round?: string
+  techniqueText?: string
+  notesMarkdown?: string
 }
 
 export type CreateCompetitionMatchRequest = {
-  opponentName: string
-  opponentBelt?: string
-  result: 'WIN' | 'LOSS' | 'DRAW'
-  technique?: string
-  notes?: string
-  duration?: number
-  orderIndex?: number
+  matchOrder?: number
+  opponentName?: string
+  opponentTeam?: string
+  outcome?: string
+  method?: string
+  round?: string
+  techniqueText?: string
+  notesMarkdown?: string
 }

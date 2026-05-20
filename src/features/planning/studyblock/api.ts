@@ -1,5 +1,5 @@
 import { apiClient } from '@/shared/api/client'
-import type { StudyBlock, CreateStudyBlockRequest } from './types'
+import type { StudyBlock, CreateStudyBlockRequest, StudyItem } from './types'
 import type { Page } from '@/shared/types/pagination'
 
 // El backend devuelve List<StudyBlock> (array sin paginar), lo envolvemos en Page
@@ -22,5 +22,23 @@ export const studyBlockApi = {
       .json<StudyBlock>(),
 
   delete: (planId: number, blockId: number) =>
-    apiClient.delete(`planning/study-plans/${planId}/blocks/${blockId}`),
+    apiClient.delete(`planning/study-plans/${planId}/blocks/${blockId}`).then(() => undefined),
+
+  listItems: (planId: number, blockId: number) =>
+    apiClient.get(`planning/study-plans/${planId}/blocks/${blockId}/items`).json<StudyItem[]>(),
+
+  addTextItem: (planId: number, blockId: number, description: string) =>
+    apiClient
+      .post(`planning/study-plans/${planId}/blocks/${blockId}/items`, { json: { description, status: 'TODO' } })
+      .json<StudyItem>(),
+
+  addTechniqueItem: (planId: number, blockId: number, techniqueId: number, techniqueName: string) =>
+    apiClient
+      .post(`planning/study-plans/${planId}/blocks/${blockId}/items`, {
+        json: { description: techniqueName, targetType: 'TECHNIQUE', targetId: techniqueId, status: 'TODO' },
+      })
+      .json<StudyItem>(),
+
+  deleteItem: (planId: number, blockId: number, itemId: number) =>
+    apiClient.delete(`planning/study-plans/${planId}/blocks/${blockId}/items/${itemId}`).then(() => undefined),
 }
